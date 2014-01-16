@@ -17,12 +17,11 @@
  */
 package com.threewks.thundr.action.method.bind.http;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
+import com.threewks.thundr.introspection.ParameterDescription;
 import org.junit.Test;
 
-import com.threewks.thundr.introspection.ParameterDescription;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class ByteArrayBinaryParameterBinderTest {
 	private ByteArrayBinaryParameterBinder binder = new ByteArrayBinaryParameterBinder();
@@ -36,6 +35,6 @@ public class ByteArrayBinaryParameterBinderTest {
 
 	@Test
 	public void shouldBindByteArrayByReturningByteArray() {
-		assertThat(binder.bind(new ParameterDescription("data", byte[].class), new byte[] { 1, 2, 3 }), is(new byte[] { 1, 2, 3 }));
+		assertThat(binder.bind(new ParameterDescription("data", byte[].class), new MultipartFile("test", new byte[] { 1, 2, 3 }, "none/none")), is(new byte[] { 1, 2, 3 }));
 	}
 }

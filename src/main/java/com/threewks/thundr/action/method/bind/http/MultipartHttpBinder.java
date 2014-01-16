@@ -17,25 +17,19 @@
  */
 package com.threewks.thundr.action.method.bind.http;
 
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.fileupload.FileItemIterator;
-import org.apache.commons.fileupload.FileItemStream;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-
 import com.threewks.thundr.action.method.bind.ActionMethodBinder;
 import com.threewks.thundr.action.method.bind.BindException;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.util.Streams;
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
+import java.util.*;
 
 public class MultipartHttpBinder implements ActionMethodBinder {
 	private List<ContentType> supportedContentTypes = Arrays.asList(ContentType.MultipartFormData);
@@ -48,7 +42,7 @@ public class MultipartHttpBinder implements ActionMethodBinder {
 	public void bindAll(Map<ParameterDescription, Object> bindings, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVariables) {
 		if (ContentType.anyMatch(supportedContentTypes, req.getContentType())) {
 			Map<String, List<String>> formFields = new HashMap<String, List<String>>();
-			Map<String, byte[]> fileFields = new HashMap<String, byte[]>();
+			Map<String, MultipartFile> fileFields = new HashMap<String, MultipartFile>();
 			extractParameters(req, formFields, fileFields);
 			Map<String, String[]> parameterMap = ParameterBinderSet.convertListMapToArrayMap(formFields);
 			ParameterBinderSet parameterBinderSet = new ParameterBinderSet();
@@ -56,7 +50,7 @@ public class MultipartHttpBinder implements ActionMethodBinder {
 		}
 	}
 
-	private void extractParameters(HttpServletRequest req, Map<String, List<String>> formFields, Map<String, byte[]> fileFields) {
+	private void extractParameters(HttpServletRequest req, Map<String, List<String>> formFields, Map<String, MultipartFile> fileFields) {
 		try {
 			FileItemIterator itemIterator = upload.getItemIterator(req);
 			while (itemIterator.hasNext()) {
@@ -72,7 +66,8 @@ public class MultipartHttpBinder implements ActionMethodBinder {
 					}
 					existing.add(Streams.readString(stream));
 				} else {
-					fileFields.put(fieldName, Streams.readBytes(stream));
+                    MultipartFile file = new MultipartFile(item.getName(), Streams.readBytes(stream),item.getContentType() );
+					fileFields.put(fieldName, file);
 				}
 				stream.close();
 			}
