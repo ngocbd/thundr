@@ -62,7 +62,7 @@ public class MultipartHttpBinder implements ActionMethodBinder {
         return bindings.values().contains(null);
     }
 
-    private void extractParameters(HttpServletRequest req, Map<String, List<String>> formFields, Map<String, MultipartFile> fileFields) {
+    void extractParameters(HttpServletRequest req, Map<String, List<String>> formFields, Map<String, MultipartFile> fileFields) {
         try {
             FileItemIterator itemIterator = upload.getItemIterator(req);
             while (itemIterator.hasNext()) {
