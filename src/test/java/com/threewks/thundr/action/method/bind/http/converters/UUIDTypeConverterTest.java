@@ -15,17 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.route;
+package com.threewks.thundr.action.method.bind.http.converters;
 
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
-public class ReverseRouteException extends RouteException {
-	private static final long serialVersionUID = 1L;
+import java.util.UUID;
 
-	public ReverseRouteException(String format, Object... formatArgs) {
-		super(format, formatArgs);
-	}
+import org.junit.Test;
 
-	public ReverseRouteException(Throwable cause, String format, Object... formatArgs) {
-		super(cause, format, formatArgs);
+public class UUIDTypeConverterTest {
+
+	@Test
+	public void shouldGiveUUIDFromStringUUID() {
+		UUID randomUUID = UUID.randomUUID();
+		UUIDTypeConverter converter = new UUIDTypeConverter();
+		assertThat(converter.convert(randomUUID), is(randomUUID));
+		assertThat(converter.convert(randomUUID.toString()), is(randomUUID));
+		assertThat(converter.convert(null), is(nullValue()));
 	}
 }

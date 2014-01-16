@@ -56,11 +56,20 @@ public class Routes {
 		String name = route.getName();
 		String path = route.getRouteMatchRegex();
 		RouteType routeType = route.getRouteType();
-		this.routes.get(routeType).put(path, route);
-		this.actionsForRoutes.put(route, action);
+		Map<String, Route> routesForRouteType = this.routes.get(routeType);
+		if (routesForRouteType.containsKey(path)) {
+			Route existingRoute = routesForRouteType.get(path);
+			throw new RouteException("Unable to add the route '%s %s' - the route '%s %s' already exists which matches the same pattern", route.getRouteType(), route.getRoute(), existingRoute.getRouteType(), existingRoute.getRoute());
+		}
 		if (StringUtils.isNotBlank(name)) {
+			if (namedRoutes.containsKey(name)) {
+				Route existingRoute = namedRoutes.get(name);
+				throw new RouteException("Unable to add the route '%s %s' with the name '%s' - the route '%s %s' has already been registered with this name", route.getRouteType(), route.getRoute(), name, existingRoute.getRouteType(), existingRoute.getRoute());
+			}
 			this.namedRoutes.put(name, route);
 		}
+		routesForRouteType.put(path, route);
+		this.actionsForRoutes.put(route, action);
 	}
 
 	public void addRoutes(Map<Route, Action> routes) {
@@ -142,44 +151,40 @@ public class Routes {
 					return action;
 				}
 			}
-			throw new ActionException("Failed to create an action for the route %s: No action resolver can resolve this action", actionName);
+			throw new ActionException("Failed to create an action for the route '%s': No action resolver can resolve this action", actionName);
 		} catch (ActionException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new ActionException(e, "Failed to create an action for the route %s: %s", actionName, e.getMessage());
+			throw new ActionException(e, "Failed to create an action for the route '%s': %s", actionName, e.getMessage());
 		}
 	}
 
 	// TODO - This method should probably be externalised from this class, routes should theoretically be buildable however someone wants
 	public Map<Route, Action> parseJsonRoutes(String source) {
-		try {
-			Map<Route, Action> routes = new LinkedHashMap<Route, Action>();
-			JsonProperties properties = new JsonProperties(source);
-			for (String route : properties.getKeys()) {
-				if (properties.is(route, String.class)) {
-					// simple route
-					String actionName = properties.getString(route);
-					Action action = createAction(actionName);
-					routes.put(new Route(RouteType.GET, route, null), action);
-				} else if (properties.is(route, Map.class)) {
-					// complex route
-					Map<String, String> map = properties.getMap(route);
-					for (Map.Entry<String, String> routeEntry : map.entrySet()) {
-						RouteType routeType = RouteType.from(routeEntry.getKey());
-						if (routeType == null) {
-							throw new RouteNotFoundException("Unknown route type %s", routeEntry.getKey());
-						}
-						String actionName = routeEntry.getValue();
-						Action action = createAction(actionName);
-						routes.put(new Route(routeType, route, null), action);
+		Map<Route, Action> routes = new LinkedHashMap<Route, Action>();
+		JsonProperties properties = new JsonProperties(source);
+		for (String route : properties.getKeys()) {
+			if (properties.is(route, String.class)) {
+				// simple route
+				String actionName = properties.getString(route);
+				Action action = createAction(actionName);
+				routes.put(new Route(RouteType.GET, route, null), action);
+			} else if (properties.is(route, Map.class)) {
+				// complex route
+				Map<String, String> map = properties.getMap(route);
+				for (Map.Entry<String, String> routeEntry : map.entrySet()) {
+					RouteType routeType = RouteType.from(routeEntry.getKey());
+					if (routeType == null) {
+						throw new RouteException("Unknown route type %s", routeEntry.getKey());
 					}
+					String actionName = routeEntry.getValue();
+					Action action = createAction(actionName);
+					routes.put(new Route(routeType, route, null), action);
 				}
 			}
-
-			return routes;
-		} catch (Exception e) {
-			throw new RouteNotFoundException(e, "Failed to parse routes: %s", e.getMessage());
 		}
+
+		return routes;
 	}
 
 	public <A extends Action> void addActionResolver(Class<A> actionType, ActionResolver<A> actionResolver) {

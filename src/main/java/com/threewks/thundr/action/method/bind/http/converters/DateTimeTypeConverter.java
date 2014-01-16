@@ -15,17 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.route;
+package com.threewks.thundr.action.method.bind.http.converters;
 
+import jodd.typeconverter.TypeConversionException;
+import jodd.typeconverter.TypeConverter;
 
-public class ReverseRouteException extends RouteException {
-	private static final long serialVersionUID = 1L;
+import org.joda.time.DateTime;
 
-	public ReverseRouteException(String format, Object... formatArgs) {
-		super(format, formatArgs);
-	}
-
-	public ReverseRouteException(Throwable cause, String format, Object... formatArgs) {
-		super(cause, format, formatArgs);
+public class DateTimeTypeConverter implements TypeConverter<DateTime> {
+	@Override
+	public DateTime convert(Object value) {
+		if (value == null) {
+			return null;
+		}
+		try {
+			return new DateTime(value);
+		} catch (Exception e) {
+			throw new TypeConversionException(value, e);
+		}
 	}
 }

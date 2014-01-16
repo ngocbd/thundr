@@ -15,17 +15,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.route;
+package com.threewks.thundr.view.redirect;
 
+import java.util.Collections;
+import java.util.Map;
 
-public class ReverseRouteException extends RouteException {
-	private static final long serialVersionUID = 1L;
+import com.threewks.thundr.view.View;
 
-	public ReverseRouteException(String format, Object... formatArgs) {
-		super(format, formatArgs);
+public class RouteRedirectView implements View {
+	private String route;
+	private Map<String, Object> pathVariables;
+
+	public RouteRedirectView(String route) {
+		this(route, Collections.<String, Object> emptyMap());
 	}
 
-	public ReverseRouteException(Throwable cause, String format, Object... formatArgs) {
-		super(cause, format, formatArgs);
+	public RouteRedirectView(String route, Map<String, Object> pathVariables) {
+		this.route = route;
+		this.pathVariables = pathVariables;
 	}
+
+	public String getRoute() {
+		return route;
+	}
+
+	public Map<String, Object> getPathVariables() {
+		return pathVariables;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("Redirect to route '%s'", route);
+	}
+
 }

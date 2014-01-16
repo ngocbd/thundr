@@ -15,17 +15,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.route;
+package com.threewks.thundr.action.method.bind.http.converters;
 
+import java.util.UUID;
 
-public class ReverseRouteException extends RouteException {
-	private static final long serialVersionUID = 1L;
+import jodd.typeconverter.TypeConversionException;
+import jodd.typeconverter.TypeConverter;
 
-	public ReverseRouteException(String format, Object... formatArgs) {
-		super(format, formatArgs);
+public class UUIDTypeConverter implements TypeConverter<UUID> {
+
+	@Override
+	public UUID convert(Object value) {
+		if (value == null) {
+			return null;
+		}
+		try {
+			return UUID.fromString(value.toString());
+		} catch (Exception e) {
+			throw new TypeConversionException(value, e);
+		}
 	}
 
-	public ReverseRouteException(Throwable cause, String format, Object... formatArgs) {
-		super(cause, format, formatArgs);
-	}
 }

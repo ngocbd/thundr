@@ -17,32 +17,24 @@
  */
 package com.threewks.thundr.test.mock.servlet;
 
-import static com.atomicleopard.expressive.Expressive.list;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.Principal;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.atomicleopard.expressive.Cast;
+import com.threewks.thundr.http.ContentType;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.Principal;
+import java.util.*;
 
-import jodd.io.StringInputStream;
-import jodd.io.StringInputStream.Mode;
-
-import com.atomicleopard.expressive.Cast;
-import com.threewks.thundr.http.ContentType;
+import static com.atomicleopard.expressive.Expressive.list;
 
 @SuppressWarnings("rawtypes")
 public class MockHttpServletRequest implements HttpServletRequest {
@@ -53,6 +45,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 	private String contentType = null;
 	private String protocol = "http";
 	private String method = "GET";
+	private String host = "localhost";
 	private String path = "/";
 	private String queryString = "";
 	private HttpSession session;
@@ -60,8 +53,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
 	private RequestDispatcher requestDispatcher = new MockRequestDispatcher();
 	private String serverName;
 	private List<Cookie> cookies = list();
+	private URL url;
 
 	public MockHttpServletRequest() {
+		url(path);
 	}
 
 	public MockHttpServletRequest(String url) {
@@ -79,14 +74,17 @@ public class MockHttpServletRequest implements HttpServletRequest {
 	}
 
 	public MockHttpServletRequest url(String url) {
-		Pattern pattern = Pattern.compile("^((.+):\\/)?\\/?([^:\\/\\s]+)((\\/\\w+)*\\/)([\\w\\-\\.]+[^#?\\s]+)(.*)?(#[\\w\\-]+)?$");
-		Matcher matcher = pattern.matcher(url);
-		if (!matcher.matches()) {
-			path = url;
-		} else {
-			this.protocol = matcher.group(2);
-			this.path = matcher.group(4) + matcher.group(6);
-			this.queryString = matcher.group(7);
+		try {
+			if (url.startsWith("/")) {
+				url = String.format("%s://%s%s", protocol, host, url);
+			}
+			this.url = new URL(url);
+			this.protocol = this.url.getProtocol();
+			this.host = this.url.getHost();
+			this.path = this.url.getPath();
+			this.queryString = this.url.getQuery();
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(url + " is not a valid URL or path.", e);
 		}
 		return this;
 	}
@@ -189,11 +187,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
 	@SuppressWarnings("resource")
 	@Override
 	public ServletInputStream getInputStream() throws IOException {
-		final StringInputStream sis = new StringInputStream(content, Mode.ALL);
+		String body = (content == null) ? "" : content;
+		final ByteArrayInputStream inputStream = new ByteArrayInputStream(body.getBytes(this.getCharacterEncoding()));
 		return new ServletInputStream() {
 			@Override
 			public int read() throws IOException {
-				return sis.read();
+				return inputStream.read();
 			}
 		};
 	}
@@ -364,7 +363,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public Enumeration getHeaders(String name) {
-		return Collections.enumeration(list(headers.get(name)));
+		String[] values = headers.get(name);
+		return values == null ? null : Collections.enumeration(list(values));
 	}
 
 	@Override
@@ -429,7 +429,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public StringBuffer getRequestURL() {
-		return new StringBuffer(path);
+		String url = this.url.toString();
+		int index = url.indexOf('?');
+		if (index != -1) {
+			url = url.substring(0, index);
+		}
+		return new StringBuffer(url);
 	}
 
 	@Override

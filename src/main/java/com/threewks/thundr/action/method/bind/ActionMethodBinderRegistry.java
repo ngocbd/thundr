@@ -39,13 +39,14 @@ public class ActionMethodBinderRegistry {
 	public void registerDefaultActionMethodBinders() {
 		registerActionMethodBinder(new PathVariableBinder());
 		registerActionMethodBinder(new RequestClassBinder());
-		registerActionMethodBinder(new GsonBinder());
 		registerActionMethodBinder(new HttpBinder());
-		registerActionMethodBinder(new MultipartHttpBinder());
 		registerActionMethodBinder(new RequestAttributeBinder());
 		registerActionMethodBinder(new SessionAttributeBinder());
 		registerActionMethodBinder(new RequestHeaderBinder());
 		registerActionMethodBinder(new CookieBinder());
+		// These are last so that we can avoid running them if all parameters are bound by an alternative method
+		registerActionMethodBinder(new GsonBinder());
+		registerActionMethodBinder(new MultipartHttpBinder());
 	}
 
 	public void registerActionMethodBinder(ActionMethodBinder binder) {

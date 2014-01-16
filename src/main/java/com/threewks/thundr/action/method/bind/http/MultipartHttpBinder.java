@@ -32,47 +32,59 @@ import java.io.InputStream;
 import java.util.*;
 
 public class MultipartHttpBinder implements ActionMethodBinder {
-	private List<ContentType> supportedContentTypes = Arrays.asList(ContentType.MultipartFormData);
-	private ServletFileUpload upload = new ServletFileUpload();
 
-	public MultipartHttpBinder() {
-	}
+    private List<ContentType> supportedContentTypes = Arrays.asList(ContentType.MultipartFormData);
 
-	@Override
-	public void bindAll(Map<ParameterDescription, Object> bindings, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVariables) {
-		if (ContentType.anyMatch(supportedContentTypes, req.getContentType())) {
-			Map<String, List<String>> formFields = new HashMap<String, List<String>>();
-			Map<String, MultipartFile> fileFields = new HashMap<String, MultipartFile>();
-			extractParameters(req, formFields, fileFields);
-			Map<String, String[]> parameterMap = ParameterBinderSet.convertListMapToArrayMap(formFields);
-			ParameterBinderSet parameterBinderSet = new ParameterBinderSet();
-			parameterBinderSet.bind(bindings, parameterMap, fileFields);
-		}
-	}
+    private ServletFileUpload upload = new ServletFileUpload();
 
-	private void extractParameters(HttpServletRequest req, Map<String, List<String>> formFields, Map<String, MultipartFile> fileFields) {
-		try {
-			FileItemIterator itemIterator = upload.getItemIterator(req);
-			while (itemIterator.hasNext()) {
-				FileItemStream item = itemIterator.next();
-				InputStream stream = item.openStream();
+    public MultipartHttpBinder() {
+    }
 
-				String fieldName = item.getFieldName();
-				if (item.isFormField()) {
-					List<String> existing = formFields.get(fieldName);
-					if (existing == null) {
-						existing = new LinkedList<String>();
-						formFields.put(fieldName, existing);
-					}
-					existing.add(Streams.readString(stream));
-				} else {
-                    MultipartFile file = new MultipartFile(item.getName(), Streams.readBytes(stream),item.getContentType() );
-					fileFields.put(fieldName, file);
-				}
-				stream.close();
-			}
-		} catch (Exception e) {
-			throw new BindException(e, "Failed to bind multipart form data: %s", e.getMessage());
-		}
-	}
+    @Override
+    public void bindAll(Map<ParameterDescription, Object> bindings, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVariables) {
+        if (ContentType.anyMatch(supportedContentTypes, req.getContentType()) && shouldTryToBind(bindings)) {
+            Map<String, List<String>> formFields = new HashMap<String, List<String>>();
+            Map<String, MultipartFile> fileFields = new HashMap<String, MultipartFile>();
+            extractParameters(req, formFields, fileFields);
+            Map<String, String[]> parameterMap = ParameterBinderSet.convertListMapToArrayMap(formFields);
+            ParameterBinderSet parameterBinderSet = new ParameterBinderSet();
+            parameterBinderSet.bind(bindings, parameterMap, fileFields);
+        }
+    }
+
+    /**
+     * If all parameters have been bound, we don't need to try to bind. This means we won't consume the stream leaving it in tact to be read in controllers.
+     *
+     * @param bindings
+     * @return
+     */
+    boolean shouldTryToBind(Map<ParameterDescription, Object> bindings) {
+        return bindings.values().contains(null);
+    }
+
+    private void extractParameters(HttpServletRequest req, Map<String, List<String>> formFields, Map<String, MultipartFile> fileFields) {
+        try {
+            FileItemIterator itemIterator = upload.getItemIterator(req);
+            while (itemIterator.hasNext()) {
+                FileItemStream item = itemIterator.next();
+                InputStream stream = item.openStream();
+
+                String fieldName = item.getFieldName();
+                if (item.isFormField()) {
+                    List<String> existing = formFields.get(fieldName);
+                    if (existing == null) {
+                        existing = new LinkedList<String>();
+                        formFields.put(fieldName, existing);
+                    }
+                    existing.add(Streams.readString(stream));
+                } else {
+                    MultipartFile file = new MultipartFile(item.getName(), Streams.readBytes(stream), item.getContentType());
+                    fileFields.put(fieldName, file);
+                }
+                stream.close();
+            }
+        } catch (Exception e) {
+            throw new BindException(e, "Failed to bind multipart form data: %s", e.getMessage());
+        }
+    }
 }
