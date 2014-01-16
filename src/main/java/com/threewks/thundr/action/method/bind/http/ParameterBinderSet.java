@@ -156,6 +156,7 @@ public class ParameterBinderSet {
 	private static List<BinaryParameterBinder<?>> binaryBinders() {
 		List<BinaryParameterBinder<?>> results = new ArrayList<BinaryParameterBinder<?>>();
 		results.add(new ByteArrayBinaryParameterBinder());
+        results.add(new MultipartFileParameterBinder());
 		results.add(new InputStreamBinaryParameterBinder());
 		return results;
 	}
