@@ -17,25 +17,13 @@
  */
 package com.threewks.thundr.action.method.bind.http;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
 import com.atomicleopard.expressive.EList;
 import com.atomicleopard.expressive.EListImpl;
 import com.threewks.thundr.collection.factory.SimpleCollectionFactory;
 import com.threewks.thundr.collection.factory.SimpleMapFactory;
 import com.threewks.thundr.introspection.ParameterDescription;
+
+import java.util.*;
 
 public class ParameterBinderSet {
 	private static final String[] emptyStringArray = new String[0];
@@ -124,11 +112,11 @@ public class ParameterBinderSet {
 		return null;
 	}
 
-	public Object createFor(ParameterDescription parameterDescription, byte[] data) {
+	public Object createFor(ParameterDescription parameterDescription, MultipartFile file) {
 		for (BinaryParameterBinder<?> binder : binaryBinders) {
 			if (binder.willBind(parameterDescription)) {
 				// return the first non-null object
-				Object result = binder.bind(parameterDescription, data);
+				Object result = binder.bind(parameterDescription, file);
 				if (result != null) {
 					return result;
 				}
@@ -168,20 +156,21 @@ public class ParameterBinderSet {
 	private static List<BinaryParameterBinder<?>> binaryBinders() {
 		List<BinaryParameterBinder<?>> results = new ArrayList<BinaryParameterBinder<?>>();
 		results.add(new ByteArrayBinaryParameterBinder());
+        results.add(new MultipartFileParameterBinder());
 		results.add(new InputStreamBinaryParameterBinder());
 		return results;
 	}
 
-	public void bind(Map<ParameterDescription, Object> bindings, Map<String, String[]> parameterMap, Map<String, byte[]> binaryParameters) {
+	public void bind(Map<ParameterDescription, Object> bindings, Map<String, String[]> parameterMap, Map<String, MultipartFile> fileMap) {
 		HttpPostDataMap pathMap = new HttpPostDataMap(parameterMap);
 		for (ParameterDescription parameterDescription : bindings.keySet()) {
 			if (bindings.get(parameterDescription) == null) {
 				String name = parameterDescription.name();
-				byte[] binaryData = binaryParameters == null ? null : binaryParameters.get(name);
+				MultipartFile multipartFile = fileMap == null ? null : fileMap.get(name);
 
 				Object value = null;
-				if (binaryData != null) {
-					value = createFor(parameterDescription, binaryData);
+				if (multipartFile != null) {
+					value = createFor(parameterDescription, multipartFile);
 				}
 				if (value == null) {
 					value = createFor(parameterDescription, pathMap);

@@ -17,16 +17,27 @@
  */
 package com.threewks.thundr.action.method.bind.http;
 
-import com.threewks.thundr.introspection.ParameterDescription;
+public class MultipartFile {
 
-public class ByteArrayBinaryParameterBinder implements BinaryParameterBinder<byte[]> {
-	@Override
-	public boolean willBind(ParameterDescription parameterDescription) {
-		return parameterDescription.getArrayType() == byte.class;
-	}
+    private byte[] data;
+    private String name;
+    private String contentType;
 
-	@Override
-	public byte[] bind(ParameterDescription parameterDescription, MultipartFile data) {
-		return data.getData();
-	}
+    public MultipartFile(String name, byte[] data, String contentType) {
+        this.data = data;
+        this.name = name;
+        this.contentType = contentType;
+    }
+
+    public byte[] getData() {
+        return data;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
 }

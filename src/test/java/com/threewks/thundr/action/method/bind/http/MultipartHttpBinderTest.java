@@ -17,23 +17,12 @@
  */
 package com.threewks.thundr.action.method.bind.http;
 
-import static com.atomicleopard.expressive.Expressive.list;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.threewks.thundr.http.ContentType;
+import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.test.TestSupport;
+import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
+import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
+import com.threewks.thundr.util.Streams;
 import org.apache.commons.fileupload.FileItemHeaders;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
@@ -45,12 +34,17 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import com.threewks.thundr.http.ContentType;
-import com.threewks.thundr.introspection.ParameterDescription;
-import com.threewks.thundr.test.TestSupport;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
-import com.threewks.thundr.util.Streams;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+
+import static com.atomicleopard.expressive.Expressive.list;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
 
 public class MultipartHttpBinderTest {
 	private MultipartHttpBinder binder = new MultipartHttpBinder();
@@ -187,7 +181,7 @@ public class MultipartHttpBinderTest {
 		binder = spy(binder);
 		binder.bindAll(parameterDescriptions, request, response, pathVariables);
 
-		verify(binder, times(0)).extractParameters(Mockito.any(HttpServletRequest.class), Mockito.anyMap(), Mockito.anyMapOf(String.class, byte[].class));
+		verify(binder, times(0)).extractParameters(Mockito.any(HttpServletRequest.class), Mockito.anyMap(), Mockito.anyMapOf(String.class, MultipartFile.class));
 
 		assertThat(binder.shouldTryToBind(parameterDescriptions), is(false));
 	}
@@ -202,7 +196,7 @@ public class MultipartHttpBinderTest {
 		binder = spy(binder);
 		binder.bindAll(parameterDescriptions, request, response, pathVariables);
 
-		verify(binder, times(0)).extractParameters(Mockito.any(HttpServletRequest.class), Mockito.anyMap(), Mockito.anyMapOf(String.class, byte[].class));
+		verify(binder, times(0)).extractParameters(Mockito.any(HttpServletRequest.class), Mockito.anyMap(), Mockito.anyMapOf(String.class, MultipartFile.class));
 
 		assertThat(binder.shouldTryToBind(parameterDescriptions), is(false));
 	}

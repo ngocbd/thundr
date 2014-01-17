@@ -17,14 +17,16 @@
  */
 package com.threewks.thundr.action.method.bind.http;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-
 import com.threewks.thundr.introspection.ParameterDescription;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 
 public class InputStreamBinaryParameterBinderTest {
 
@@ -40,7 +42,7 @@ public class InputStreamBinaryParameterBinderTest {
     public void shouldBindByteArrayByReturningInputStream() throws IOException {
         byte[] bytes = new byte[] { 1,  2, 3 };
         byte[] bound = new byte[3];
-        binder.bind(new ParameterDescription("data", InputStream[].class), bytes).read(bound);
+        binder.bind(new ParameterDescription("data", InputStream[].class), new MultipartFile("test", bytes, "none/none")).read(bound);
         assertThat(bound, is(bytes));
     }
 
