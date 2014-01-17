@@ -38,9 +38,9 @@ import com.threewks.thundr.module.DependencyRegistry;
  * @author nick
  * 
  */
-public interface InjectionConfiguration {
+public interface Module {
 	/**
-	 * The first startup lifecycle step. This {@link InjectionConfiguration} can specify any dependencies it has on the given {@link DependencyRegistry}.
+	 * The first startup lifecycle step. This {@link Module} can specify any dependencies it has on the given {@link DependencyRegistry}.
 	 * 
 	 * This may result in additional modules being added to the application and changes in dependency order for subsequent lifecycle methods.
 	 * 
@@ -49,7 +49,7 @@ public interface InjectionConfiguration {
 	public void requires(DependencyRegistry dependencyRegistry);
 
 	/**
-	 * The second startup lifecycle step. This {@link InjectionConfiguration} should provide any instances and classes into the injection context which
+	 * The second startup lifecycle step. This {@link Module} should provide any instances and classes into the injection context which
 	 * do not have any dependencies on other modules. Examples include loading properties, adding implementations which are not dynamic etc.
 	 * 
 	 * This method is invoked on all modules in dependency order.
@@ -59,7 +59,7 @@ public interface InjectionConfiguration {
 	public void initialise(UpdatableInjectionContext injectionContext);
 
 	/**
-	 * The third startup lifecycle step. This {@link InjectionConfiguration} should complete the provisioning of instances and interfaces into the injection context here.
+	 * The third startup lifecycle step. This {@link Module} should complete the provisioning of instances and interfaces into the injection context here.
 	 * At this point all dependent instances and classes for this module should have already been provided in the injection context.
 	 * 
 	 * This method is invoked on all modules in dependency order.
@@ -69,7 +69,7 @@ public interface InjectionConfiguration {
 	public void configure(UpdatableInjectionContext injectionContext);
 
 	/**
-	 * The fourth and final startup lifecycle step. This {@link InjectionConfiguration} can use this lifecycle phase to start any services etc.
+	 * The fourth and final startup lifecycle step. This {@link Module} can use this lifecycle phase to start any services etc.
 	 * 
 	 * This method is invoked on all modules in dependency order.
 	 * 
@@ -78,7 +78,7 @@ public interface InjectionConfiguration {
 	public void start(UpdatableInjectionContext injectionContext);
 
 	/**
-	 * The first and only step in the shutdown lifecycle. This {@link InjectionConfiguration} can use this lifecycle phase to stop and cleanup any services.
+	 * The first and only step in the shutdown lifecycle. This {@link Module} can use this lifecycle phase to stop and cleanup any services.
 	 * 
 	 * This method is invoked on all modules in reverse dependency order.
 	 * 

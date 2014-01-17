@@ -25,63 +25,63 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.threewks.thundr.action.ActionException;
-import com.threewks.thundr.action.ActionInjectionConfiguration;
+import com.threewks.thundr.action.ActionModule;
 import com.threewks.thundr.action.TestAction;
 import com.threewks.thundr.action.TestActionResolver;
 import com.threewks.thundr.injection.InjectionContextImpl;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.module.DependencyRegistry;
 import com.threewks.thundr.test.TestSupport;
-import com.threewks.thundr.view.ViewResolverInjectionConfiguration;
+import com.threewks.thundr.view.ViewModule;
 
-public class RouteInjectionConfigurationTest {
+public class RouteModuleTest {
 
 	@Rule public ExpectedException thrown = ExpectedException.none();
-	private RouteInjectionConfiguration routeInjectionConfiguration = new RouteInjectionConfiguration();
+	private RouteModule routeModule = new RouteModule();
 	private UpdatableInjectionContext injectionContext = new InjectionContextImpl();
 
 	@Test
 	public void shouldDependOnViewResolverAndActionInjection() {
 		DependencyRegistry dependencyRegistry = new DependencyRegistry();
-		routeInjectionConfiguration.requires(dependencyRegistry);
-		assertThat(dependencyRegistry.hasDependency(ActionInjectionConfiguration.class), is(true));
-		assertThat(dependencyRegistry.hasDependency(ViewResolverInjectionConfiguration.class), is(true));
+		routeModule.requires(dependencyRegistry);
+		assertThat(dependencyRegistry.hasDependency(ActionModule.class), is(true));
+		assertThat(dependencyRegistry.hasDependency(ViewModule.class), is(true));
 	}
 
 	@Test
 	public void shouldAddRoutesWhenInitialised() {
-		routeInjectionConfiguration.initialise(injectionContext);
+		routeModule.initialise(injectionContext);
 		assertThat(injectionContext.contains(Routes.class), is(true));
 	}
 
 	@Test
 	public void shouldAddRoutesFromRoutesFileOnStart() {
-		TestSupport.setField(routeInjectionConfiguration, "filename", "test-routes.json");
+		TestSupport.setField(routeModule, "filename", "test-routes.json");
 		Routes routes = new Routes();
 		routes.addActionResolver(TestAction.class, new TestActionResolver());
 		injectionContext.inject(routes).as(Routes.class);
-		routeInjectionConfiguration.start(injectionContext);
+		routeModule.start(injectionContext);
 
 		assertThat(routes.findMatchingRoute("/route/1", RouteType.GET), is(notNullValue()));
 	}
 
 	@Test
 	public void shouldNotThrowExceptionWhenUnableToLoadRoutesFile() {
-		TestSupport.setField(routeInjectionConfiguration, "filename", "non-existant.json");
+		TestSupport.setField(routeModule, "filename", "non-existant.json");
 
 		injectionContext.inject(new Routes()).as(Routes.class);
-		routeInjectionConfiguration.start(injectionContext);
+		routeModule.start(injectionContext);
 	}
 
 	@Test
 	public void shouldThrowActionExceptionWhenLoadRoutesFileWithInvalidRoutes() {
 		thrown.expect(ActionException.class);
 
-		TestSupport.setField(routeInjectionConfiguration, "filename", "invalid-routes.json");
+		TestSupport.setField(routeModule, "filename", "invalid-routes.json");
 
 		Routes routes = new Routes();
 		routes.addActionResolver(TestAction.class, new TestActionResolver());
 		injectionContext.inject(routes).as(Routes.class);
-		routeInjectionConfiguration.start(injectionContext);
+		routeModule.start(injectionContext);
 	}
 }

@@ -15,18 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.module.test;
+package com.threewks.thundr.module.test.m1;
 
-import com.threewks.thundr.injection.InjectionConfiguration;
+import com.threewks.thundr.injection.Module;
 import com.threewks.thundr.injection.InjectionContext;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.module.DependencyRegistry;
 
-public class TestInjectionConfiguration implements InjectionConfiguration {
-	public boolean configured = false;
-	public boolean stopped = false;
-	public boolean initialised = false;
-	public boolean started = false;
+public class M1Module implements Module {
+	public boolean loaded = false;
 
 	@Override
 	public void requires(DependencyRegistry dependencyRegistry) {
@@ -34,21 +31,18 @@ public class TestInjectionConfiguration implements InjectionConfiguration {
 
 	@Override
 	public void initialise(UpdatableInjectionContext injectionContext) {
-		initialised = true;
 	}
 
 	@Override
 	public void configure(UpdatableInjectionContext injectionContext) {
-		configured = true;
+		loaded = true;
 	}
 
 	@Override
 	public void start(UpdatableInjectionContext injectionContext) {
-		started = true;
 	}
 
 	@Override
 	public void stop(InjectionContext injectionContext) {
-		stopped = true;
 	}
 }

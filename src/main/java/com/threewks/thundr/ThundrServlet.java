@@ -31,15 +31,15 @@ import javax.servlet.http.HttpServletResponse;
 import com.atomicleopard.expressive.Cast;
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.action.ActionException;
-import com.threewks.thundr.configuration.ConfigurationInjectionConfiguration;
+import com.threewks.thundr.configuration.ConfigurationModule;
 import com.threewks.thundr.http.HttpSupport;
-import com.threewks.thundr.injection.InjectionConfiguration;
+import com.threewks.thundr.injection.Module;
 import com.threewks.thundr.injection.InjectionContextImpl;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.logger.Logger;
-import com.threewks.thundr.module.ModuleInjectionConfiguration;
+import com.threewks.thundr.module.ModulesModule;
 import com.threewks.thundr.module.Modules;
-import com.threewks.thundr.route.RouteInjectionConfiguration;
+import com.threewks.thundr.route.RouteModule;
 import com.threewks.thundr.route.RouteType;
 import com.threewks.thundr.route.Routes;
 import com.threewks.thundr.view.ViewResolver;
@@ -82,18 +82,18 @@ public class ThundrServlet extends HttpServlet {
 		Modules modules = new Modules();
 		injectionContext.inject(modules).as(Modules.class);
 
-		for (Class<? extends InjectionConfiguration> module : getBaseModules()) {
+		for (Class<? extends Module> module : getBaseModules()) {
 			modules.addModule(module);
 		}
 		modules.runStartupLifecycle(injectionContext);
 		return modules;
 	}
 
-	protected List<Class<? extends InjectionConfiguration>> getBaseModules() {
-		List<Class<? extends InjectionConfiguration>> baseModules = new ArrayList<Class<? extends InjectionConfiguration>>();
-		baseModules.add(ConfigurationInjectionConfiguration.class);
-		baseModules.add(ModuleInjectionConfiguration.class);
-		baseModules.add(RouteInjectionConfiguration.class);
+	protected List<Class<? extends Module>> getBaseModules() {
+		List<Class<? extends Module>> baseModules = new ArrayList<Class<? extends Module>>();
+		baseModules.add(ConfigurationModule.class);
+		baseModules.add(ModulesModule.class);
+		baseModules.add(RouteModule.class);
 		return baseModules;
 	}
 

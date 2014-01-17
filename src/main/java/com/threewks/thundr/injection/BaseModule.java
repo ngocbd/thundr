@@ -21,7 +21,7 @@ import com.threewks.thundr.action.method.ActionInterceptorRegistry;
 import com.threewks.thundr.module.DependencyRegistry;
 import com.threewks.thundr.view.ViewResolverRegistry;
 
-public class BaseInjectionConfiguration implements InjectionConfiguration {
+public class BaseModule implements Module {
 
 	@Override
 	public void requires(DependencyRegistry dependencyRegistry) {

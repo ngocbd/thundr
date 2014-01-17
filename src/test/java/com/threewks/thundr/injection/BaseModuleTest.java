@@ -26,27 +26,27 @@ import org.junit.Test;
 import com.threewks.thundr.action.method.ActionInterceptorRegistry;
 import com.threewks.thundr.view.ViewResolverRegistry;
 
-public class BaseInjectionConfigurationTest {
+public class BaseModuleTest {
 	private ActionInterceptorRegistry actionInterceptorRegistry = null;
 	private UpdatableInjectionContext updatableInjectionContext = null;
 	private ViewResolverRegistry viewResolverRegistry = null;
 
 	@Test
 	public void shouldProvideAndInvokeStandardExtensionPoints() {
-		BaseInjectionConfiguration injectionConfig = new BaseInjectionConfiguration() {
+		BaseModule injectionConfig = new BaseModule() {
 			@Override
 			protected void addActionInterceptors(ActionInterceptorRegistry actionInterceptorRegistry) {
-				BaseInjectionConfigurationTest.this.actionInterceptorRegistry = actionInterceptorRegistry;
+				BaseModuleTest.this.actionInterceptorRegistry = actionInterceptorRegistry;
 			}
 
 			@Override
 			protected void addServices(UpdatableInjectionContext injectionContext) {
-				BaseInjectionConfigurationTest.this.updatableInjectionContext = injectionContext;
+				BaseModuleTest.this.updatableInjectionContext = injectionContext;
 			}
 
 			@Override
 			protected void addViewResolvers(ViewResolverRegistry viewResolverRegistry, UpdatableInjectionContext injectionContext) {
-				BaseInjectionConfigurationTest.this.viewResolverRegistry = viewResolverRegistry;
+				BaseModuleTest.this.viewResolverRegistry = viewResolverRegistry;
 			}
 		};
 		InjectionContextImpl injectionContext = new InjectionContextImpl();

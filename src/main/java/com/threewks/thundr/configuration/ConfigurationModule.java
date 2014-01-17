@@ -22,20 +22,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.threewks.thundr.injection.BaseInjectionConfiguration;
+import com.threewks.thundr.injection.BaseModule;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.logger.Logger;
 
-public class ConfigurationInjectionConfiguration extends BaseInjectionConfiguration {
+public class ConfigurationModule extends BaseModule {
 
 	private PropertiesLoader propertiesLoader = new PropertiesLoader();
 	private String filename;
 
-	public ConfigurationInjectionConfiguration() {
+	public ConfigurationModule() {
 		this("application.properties");
 	}
 
-	public ConfigurationInjectionConfiguration(String filename) {
+	public ConfigurationModule(String filename) {
 		this.filename = filename;
 	}
 

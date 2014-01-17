@@ -20,20 +20,20 @@ package com.threewks.thundr.module;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
-import com.threewks.thundr.injection.InjectionConfiguration;
+import com.threewks.thundr.injection.Module;
 
 public class DependencyRegistry {
-	private Collection<Class<? extends InjectionConfiguration>> dependencies = new LinkedHashSet<Class<? extends InjectionConfiguration>>();
+	private Collection<Class<? extends Module>> dependencies = new LinkedHashSet<Class<? extends Module>>();
 
-	public void addDependency(Class<? extends InjectionConfiguration> dependency) {
+	public void addDependency(Class<? extends Module> dependency) {
 		this.dependencies.add(dependency);
 	}
 
-	public Collection<Class<? extends InjectionConfiguration>> getDependencies() {
+	public Collection<Class<? extends Module>> getDependencies() {
 		return dependencies;
 	}
 
-	public boolean hasDependency(Class<? extends InjectionConfiguration> dependency) {
+	public boolean hasDependency(Class<? extends Module> dependency) {
 		return dependencies.contains(dependency);
 	}
 }

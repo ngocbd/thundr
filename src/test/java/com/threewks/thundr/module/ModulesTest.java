@@ -27,11 +27,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.threewks.thundr.injection.InjectionConfiguration;
 import com.threewks.thundr.injection.InjectionContext;
 import com.threewks.thundr.injection.InjectionContextImpl;
+import com.threewks.thundr.injection.Module;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
-import com.threewks.thundr.module.test.TestInjectionConfiguration;
+import com.threewks.thundr.module.test.TestModule;
 
 public class ModulesTest {
 	@Rule public ExpectedException thrown = ExpectedException.none();
@@ -45,17 +45,10 @@ public class ModulesTest {
 	}
 
 	@Test
-	public void shouldAddModuleByPackageName() {
-		modules.addModule("com.threewks.thundr.module.test");
-		assertThat(modules.listModules().size(), is(1));
-		assertThat(modules.listModules().get(0) instanceof TestInjectionConfiguration, is(true));
-	}
-
-	@Test
 	public void shouldAddModuleByClass() {
-		modules.addModule(TestInjectionConfiguration.class);
+		modules.addModule(TestModule.class);
 		assertThat(modules.listModules().size(), is(1));
-		assertThat(modules.listModules().get(0) instanceof TestInjectionConfiguration, is(true));
+		assertThat(modules.listModules().get(0) instanceof TestModule, is(true));
 	}
 
 	@Test
@@ -93,26 +86,10 @@ public class ModulesTest {
 	}
 
 	@Test
-	public void shouldThrowModuleLoadingExceptionWhenGivenModuleIsNotAnInjectionConfiguration() {
-		thrown.expect(ModuleLoadingException.class);
-		thrown.expectMessage("Failed to load module 'com.threewks.thundr.module.test.invalid' - the configuration class com.threewks.thundr.module.test.invalid.InvalidInjectionConfiguration does not implement the InjectionConfiguration interface");
-
-		modules.addModule("com.threewks.thundr.module.test.invalid");
-	}
-
-	@Test
-	public void shouldThrowModuleLoadingExceptionWhenGivenModuleDoesNotExist() {
-		thrown.expect(ModuleLoadingException.class);
-		thrown.expectMessage("Failed to load module 'com.threewks.thundr.module.test.non-existant' - the configuration class com.threewks.thundr.module.test.non-existant.Non-existantInjectionConfiguration does not exist");
-
-		modules.addModule("com.threewks.thundr.module.test.non-existant");
-	}
-
-	@Test
 	public void shouldResolveMoreComplexDependencyGraph() {
 		modules.addModule(TestModule5.class);
 		modules.resolveDependencies();
-		List<InjectionConfiguration> order = modules.determineDependencyOrder();
+		List<Module> order = modules.determineDependencyOrder();
 		assertThat(order.size(), is(4));
 		assertThat(order.get(0) instanceof TestModule3, is(true));
 		assertThat(order.get(1) instanceof TestModule1, is(true));
@@ -122,31 +99,31 @@ public class ModulesTest {
 
 	@Test
 	public void shouldOnlyAddEachModuleOnce() {
-		modules.addModule(TestInjectionConfiguration.class);
-		InjectionConfiguration first = modules.listModules().get(0);
-		modules.addModule(TestInjectionConfiguration.class);
-		InjectionConfiguration second = modules.listModules().get(0);
+		modules.addModule(TestModule.class);
+		Module first = modules.listModules().get(0);
+		modules.addModule(TestModule.class);
+		Module second = modules.listModules().get(0);
 		assertThat(second, is(sameInstance(first)));
 	}
 
 	@Test
 	public void shouldRunStartLifecycleOnModules() {
-		modules.addModule(TestInjectionConfiguration.class);
+		modules.addModule(TestModule.class);
 		modules.runStartupLifecycle(injectionContext);
-		TestInjectionConfiguration testInjectionConfiguration = modules.getModule(TestInjectionConfiguration.class);
-		assertThat(testInjectionConfiguration.initialised, is(true));
-		assertThat(testInjectionConfiguration.configured, is(true));
-		assertThat(testInjectionConfiguration.started, is(true));
-		assertThat(testInjectionConfiguration.stopped, is(false));
+		TestModule testModule = modules.getModule(TestModule.class);
+		assertThat(testModule.initialised, is(true));
+		assertThat(testModule.configured, is(true));
+		assertThat(testModule.started, is(true));
+		assertThat(testModule.stopped, is(false));
 	}
 
 	@Test
 	public void shouldRunStopLifecycleOnModules() {
-		modules.addModule(TestInjectionConfiguration.class);
+		modules.addModule(TestModule.class);
 		modules.runStartupLifecycle(injectionContext);
 		modules.runStopLifecycle(injectionContext);
-		TestInjectionConfiguration testInjectionConfiguration = modules.getModule(TestInjectionConfiguration.class);
-		assertThat(testInjectionConfiguration.stopped, is(true));
+		TestModule testModule = modules.getModule(TestModule.class);
+		assertThat(testModule.stopped, is(true));
 	}
 
 	@Test
@@ -158,7 +135,7 @@ public class ModulesTest {
 		assertThat(injectionContext.get(String.class, "TestModule3"), is("Invoked"));
 	}
 
-	public static class TestModule1 implements InjectionConfiguration {
+	public static class TestModule1 implements Module {
 		@Override
 		public void requires(DependencyRegistry dependencyRegistry) {
 		}
@@ -181,7 +158,7 @@ public class ModulesTest {
 		}
 	}
 
-	public static class TestModule2 implements InjectionConfiguration {
+	public static class TestModule2 implements Module {
 		@Override
 		public void requires(DependencyRegistry dependencyRegistry) {
 			dependencyRegistry.addDependency(TestModule3.class);
@@ -205,7 +182,7 @@ public class ModulesTest {
 		}
 	}
 
-	public static class TestModule3 implements InjectionConfiguration {
+	public static class TestModule3 implements Module {
 
 		@Override
 		public void requires(DependencyRegistry dependencyRegistry) {
@@ -229,7 +206,7 @@ public class ModulesTest {
 		}
 	}
 
-	public static class TestModule4 implements InjectionConfiguration {
+	public static class TestModule4 implements Module {
 		@Override
 		public void requires(DependencyRegistry dependencyRegistry) {
 			dependencyRegistry.addDependency(TestModule4.class);
@@ -252,7 +229,7 @@ public class ModulesTest {
 		}
 	}
 
-	public static class TestModule5 implements InjectionConfiguration {
+	public static class TestModule5 implements Module {
 		@Override
 		public void requires(DependencyRegistry dependencyRegistry) {
 			dependencyRegistry.addDependency(TestModule2.class);
@@ -277,7 +254,7 @@ public class ModulesTest {
 		}
 	}
 
-	public static class TestModule6 implements InjectionConfiguration {
+	public static class TestModule6 implements Module {
 		@Override
 		public void requires(DependencyRegistry dependencyRegistry) {
 		}

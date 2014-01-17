@@ -20,26 +20,26 @@ package com.threewks.thundr.route;
 import java.util.Map;
 
 import com.threewks.thundr.action.Action;
-import com.threewks.thundr.action.ActionInjectionConfiguration;
+import com.threewks.thundr.action.ActionModule;
 import com.threewks.thundr.exception.BaseException;
-import com.threewks.thundr.injection.BaseInjectionConfiguration;
+import com.threewks.thundr.injection.BaseModule;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.logger.Logger;
 import com.threewks.thundr.module.DependencyRegistry;
 import com.threewks.thundr.util.Streams;
-import com.threewks.thundr.view.ViewResolverInjectionConfiguration;
+import com.threewks.thundr.view.ViewModule;
 
-public class RouteInjectionConfiguration extends BaseInjectionConfiguration {
+public class RouteModule extends BaseModule {
 	private static final String RoutesJsonFilename = "routes.json";
 	private String filename = RoutesJsonFilename;
 
-	public RouteInjectionConfiguration() {
+	public RouteModule() {
 	}
 
 	@Override
 	public void requires(DependencyRegistry dependencyRegistry) {
-		dependencyRegistry.addDependency(ActionInjectionConfiguration.class);
-		dependencyRegistry.addDependency(ViewResolverInjectionConfiguration.class);
+		dependencyRegistry.addDependency(ActionModule.class);
+		dependencyRegistry.addDependency(ViewModule.class);
 	}
 
 	@Override

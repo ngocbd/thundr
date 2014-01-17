@@ -29,11 +29,11 @@ import com.threewks.thundr.action.rewrite.RewriteAction;
 import com.threewks.thundr.action.rewrite.RewriteActionResolver;
 import com.threewks.thundr.action.staticResource.StaticResourceAction;
 import com.threewks.thundr.action.staticResource.StaticResourceActionResolver;
-import com.threewks.thundr.injection.BaseInjectionConfiguration;
+import com.threewks.thundr.injection.BaseModule;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.route.Routes;
 
-public class ActionInjectionConfiguration extends BaseInjectionConfiguration {
+public class ActionModule extends BaseModule {
 
 	@Override
 	public void configure(UpdatableInjectionContext injectionContext) {

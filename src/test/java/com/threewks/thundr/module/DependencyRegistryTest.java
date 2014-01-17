@@ -25,30 +25,30 @@ import java.util.Iterator;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
-import com.threewks.thundr.injection.InjectionConfiguration;
-import com.threewks.thundr.module.test.TestInjectionConfiguration;
-import com.threewks.thundr.module.test.m1.M1InjectionConfiguration;
-import com.threewks.thundr.module.test.m2.M2InjectionConfiguration;
+import com.threewks.thundr.injection.Module;
+import com.threewks.thundr.module.test.TestModule;
+import com.threewks.thundr.module.test.m1.M1Module;
+import com.threewks.thundr.module.test.m2.M2Module;
 
 public class DependencyRegistryTest {
 
 	@Test
 	public void shouldRetainRegisteredDependenciesInOrder() {
 		DependencyRegistry dependencyRegistry = new DependencyRegistry();
-		dependencyRegistry.addDependency(M1InjectionConfiguration.class);
-		dependencyRegistry.addDependency(M2InjectionConfiguration.class);
-		dependencyRegistry.addDependency(TestInjectionConfiguration.class);
+		dependencyRegistry.addDependency(M1Module.class);
+		dependencyRegistry.addDependency(M2Module.class);
+		dependencyRegistry.addDependency(TestModule.class);
 
-		assertThat(dependencyRegistry.hasDependency(M1InjectionConfiguration.class), is(true));
-		assertThat(dependencyRegistry.hasDependency(M2InjectionConfiguration.class), is(true));
-		assertThat(dependencyRegistry.hasDependency(TestInjectionConfiguration.class), is(true));
+		assertThat(dependencyRegistry.hasDependency(M1Module.class), is(true));
+		assertThat(dependencyRegistry.hasDependency(M2Module.class), is(true));
+		assertThat(dependencyRegistry.hasDependency(TestModule.class), is(true));
 
 		assertThat(dependencyRegistry.getDependencies().isEmpty(), is(false));
 		assertThat(dependencyRegistry.getDependencies().size(), is(3));
-		Iterator<Class<? extends InjectionConfiguration>> iterator = dependencyRegistry.getDependencies().iterator();
-		assertThat(iterator.next(), Matchers.<Class<? extends InjectionConfiguration>> is(M1InjectionConfiguration.class));
-		assertThat(iterator.next(), Matchers.<Class<? extends InjectionConfiguration>> is(M2InjectionConfiguration.class));
-		assertThat(iterator.next(), Matchers.<Class<? extends InjectionConfiguration>> is(TestInjectionConfiguration.class));
+		Iterator<Class<? extends Module>> iterator = dependencyRegistry.getDependencies().iterator();
+		assertThat(iterator.next(), Matchers.<Class<? extends Module>> is(M1Module.class));
+		assertThat(iterator.next(), Matchers.<Class<? extends Module>> is(M2Module.class));
+		assertThat(iterator.next(), Matchers.<Class<? extends Module>> is(TestModule.class));
 	}
 
 	@Test
@@ -60,11 +60,11 @@ public class DependencyRegistryTest {
 	@Test
 	public void shouldOnlyRegisterEachDependencyOnce() {
 		DependencyRegistry dependencyRegistry = new DependencyRegistry();
-		dependencyRegistry.addDependency(M1InjectionConfiguration.class);
-		dependencyRegistry.addDependency(M1InjectionConfiguration.class);
-		dependencyRegistry.addDependency(M1InjectionConfiguration.class);
+		dependencyRegistry.addDependency(M1Module.class);
+		dependencyRegistry.addDependency(M1Module.class);
+		dependencyRegistry.addDependency(M1Module.class);
 
-		assertThat(dependencyRegistry.hasDependency(M1InjectionConfiguration.class), is(true));
+		assertThat(dependencyRegistry.hasDependency(M1Module.class), is(true));
 
 		assertThat(dependencyRegistry.getDependencies().isEmpty(), is(false));
 		assertThat(dependencyRegistry.getDependencies().size(), is(1));

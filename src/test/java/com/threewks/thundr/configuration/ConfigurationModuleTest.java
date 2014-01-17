@@ -33,9 +33,9 @@ import com.threewks.thundr.injection.InjectionContextImpl;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.test.TestSupport;
 
-public class ConfigurationInjectionConfigurationTest {
+public class ConfigurationModuleTest {
 
-	private ConfigurationInjectionConfiguration configuration = new ConfigurationInjectionConfiguration();
+	private ConfigurationModule configuration = new ConfigurationModule();
 	private UpdatableInjectionContext injectionContext = new InjectionContextImpl();
 	private PropertiesLoader propertiesLoader = mock(PropertiesLoader.class);
 

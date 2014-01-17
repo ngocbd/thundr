@@ -18,7 +18,7 @@
 package com.threewks.thundr.view;
 
 import com.threewks.thundr.http.exception.HttpStatusException;
-import com.threewks.thundr.injection.BaseInjectionConfiguration;
+import com.threewks.thundr.injection.BaseModule;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.route.RouteNotFoundException;
 import com.threewks.thundr.route.Routes;
@@ -40,7 +40,7 @@ import com.threewks.thundr.view.redirect.RouteRedirectViewResolver;
 import com.threewks.thundr.view.string.StringView;
 import com.threewks.thundr.view.string.StringViewResolver;
 
-public class ViewResolverInjectionConfiguration extends BaseInjectionConfiguration {
+public class ViewModule extends BaseModule {
 
 	@Override
 	public void initialise(UpdatableInjectionContext injectionContext) {

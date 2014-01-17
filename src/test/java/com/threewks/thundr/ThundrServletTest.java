@@ -39,12 +39,12 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 import com.threewks.thundr.action.ActionException;
-import com.threewks.thundr.configuration.ConfigurationInjectionConfiguration;
-import com.threewks.thundr.injection.InjectionConfiguration;
+import com.threewks.thundr.configuration.ConfigurationModule;
+import com.threewks.thundr.injection.Module;
 import com.threewks.thundr.injection.InjectionContextImpl;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
-import com.threewks.thundr.module.ModuleInjectionConfiguration;
-import com.threewks.thundr.route.RouteInjectionConfiguration;
+import com.threewks.thundr.module.ModulesModule;
+import com.threewks.thundr.route.RouteModule;
 import com.threewks.thundr.route.RouteType;
 import com.threewks.thundr.route.Routes;
 import com.threewks.thundr.test.TestSupport;
@@ -88,7 +88,7 @@ public class ThundrServletTest {
 		ServletConfig config = new MockServletConfig(servletContext);
 		ThundrServlet servlet = new ThundrServlet();
 		servlet = spy(servlet);
-		when(servlet.getBaseModules()).thenReturn(Collections.<Class<? extends InjectionConfiguration>> emptyList());
+		when(servlet.getBaseModules()).thenReturn(Collections.<Class<? extends Module>> emptyList());
 		servlet.init(config);
 		UpdatableInjectionContext injectionContext = getInjectionContextFromServlet(servlet);
 		assertThat(injectionContext, is(notNullValue()));
@@ -108,7 +108,7 @@ public class ThundrServletTest {
 		ServletConfig config = new MockServletConfig(servletContext);
 		ThundrServlet servlet = new ThundrServlet() {
 			@Override
-			protected java.util.List<java.lang.Class<? extends InjectionConfiguration>> getBaseModules() {
+			protected java.util.List<java.lang.Class<? extends Module>> getBaseModules() {
 				throw new RuntimeException("Expected");
 			};
 		};
@@ -118,7 +118,7 @@ public class ThundrServletTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void shouldUseBasicSetOfInjectionConfiguraitons() {
-		assertThat(servlet.getBaseModules(), Matchers.<Class<? extends InjectionConfiguration>> hasItems(ConfigurationInjectionConfiguration.class, ModuleInjectionConfiguration.class, RouteInjectionConfiguration.class));
+		assertThat(servlet.getBaseModules(), Matchers.<Class<? extends Module>> hasItems(ConfigurationModule.class, ModulesModule.class, RouteModule.class));
 	}
 
 	@Test

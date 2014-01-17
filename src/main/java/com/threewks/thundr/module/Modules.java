@@ -33,28 +33,23 @@ import com.atomicleopard.expressive.EList;
 import com.atomicleopard.expressive.ETransformer;
 import com.atomicleopard.expressive.Expressive;
 import com.atomicleopard.expressive.transform.CollectionTransformer;
-import com.threewks.thundr.injection.InjectionConfiguration;
 import com.threewks.thundr.injection.InjectionContext;
+import com.threewks.thundr.injection.Module;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.logger.Logger;
 
 public class Modules {
-	private Map<Class<? extends InjectionConfiguration>, Collection<Class<? extends InjectionConfiguration>>> moduleDependencies = new LinkedHashMap<Class<? extends InjectionConfiguration>, Collection<Class<? extends InjectionConfiguration>>>();
-	private Map<Class<? extends InjectionConfiguration>, InjectionConfiguration> instances = new LinkedHashMap<Class<? extends InjectionConfiguration>, InjectionConfiguration>();
-	private Map<InjectionConfiguration, ModuleStatus> status = new HashMap<InjectionConfiguration, ModuleStatus>();
-	private List<InjectionConfiguration> orderedModules = null;
+	private Map<Class<? extends Module>, Collection<Class<? extends Module>>> moduleDependencies = new LinkedHashMap<Class<? extends Module>, Collection<Class<? extends Module>>>();
+	private Map<Class<? extends Module>, Module> instances = new LinkedHashMap<Class<? extends Module>, Module>();
+	private Map<Module, ModuleStatus> status = new HashMap<Module, ModuleStatus>();
+	private List<Module> orderedModules = null;
 
 	public Modules() {
 	}
 
-	public void addModule(String modulePackage) {
-		Class<? extends InjectionConfiguration> module = Modules.loadModuleInjectionConfigurationClass(modulePackage);
-		addModule(module);
-	}
-
-	public void addModule(Class<? extends InjectionConfiguration> module) {
+	public void addModule(Class<? extends Module> module) {
 		if (!hasModule(module)) {
-			InjectionConfiguration instance = loadModule(module);
+			Module instance = loadModule(module);
 			moduleDependencies.put(module, null);
 			instances.put(module, instance);
 			status.put(instance, ModuleStatus.Added);
@@ -62,14 +57,14 @@ public class Modules {
 		}
 	}
 
-	public <T extends InjectionConfiguration> T getModule(Class<T> moduleClass) {
+	public <T extends Module> T getModule(Class<T> moduleClass) {
 		return Cast.as(instances.get(moduleClass), moduleClass);
 	}
 
-	public List<? extends InjectionConfiguration> getModules(Collection<Class<? extends InjectionConfiguration>> moduleClasses) {
-		List<InjectionConfiguration> result = new ArrayList<InjectionConfiguration>();
-		for (Class<? extends InjectionConfiguration> moduleClass : moduleClasses) {
-			InjectionConfiguration instance = instances.get(moduleClass);
+	public List<? extends Module> getModules(Collection<Class<? extends Module>> moduleClasses) {
+		List<Module> result = new ArrayList<Module>();
+		for (Class<? extends Module> moduleClass : moduleClasses) {
+			Module instance = instances.get(moduleClass);
 			if (instance != null) {
 				result.add(instance);
 			}
@@ -77,17 +72,17 @@ public class Modules {
 		return result;
 	}
 
-	public boolean hasModule(Class<? extends InjectionConfiguration> moduleClass) {
+	public boolean hasModule(Class<? extends Module> moduleClass) {
 		return instances.containsKey(moduleClass);
 	}
 
-	public List<InjectionConfiguration> listModules() {
-		return new ArrayList<InjectionConfiguration>(instances.values());
+	public List<Module> listModules() {
+		return new ArrayList<Module>(instances.values());
 	}
 
 	public void runStartupLifecycle(UpdatableInjectionContext injectionContext) {
 		Logger.debug("Loading modules...");
-		List<InjectionConfiguration> startupOrder = new ArrayList<InjectionConfiguration>();
+		List<Module> startupOrder = new ArrayList<Module>();
 		while (!allModulesStarted()) {
 			if (status.values().contains(ModuleStatus.Added)) {
 				resolveDependencies();
@@ -99,7 +94,7 @@ public class Modules {
 					allConfigured = configureNext(injectionContext);
 				}
 				if (allConfigured) {
-					InjectionConfiguration started = startNext(injectionContext);
+					Module started = startNext(injectionContext);
 					if (started != null) {
 						startupOrder.add(started);
 					}
@@ -109,7 +104,7 @@ public class Modules {
 		Logger.info("Modules loaded");
 		if (Logger.willDebug()) {
 			StringBuilder sb = new StringBuilder();
-			for (InjectionConfiguration injectionConfiguration : startupOrder) {
+			for (Module injectionConfiguration : startupOrder) {
 				sb.append("\n\t");
 				sb.append(injectionConfiguration.getClass().getSimpleName());
 			}
@@ -123,7 +118,7 @@ public class Modules {
 	 * @return true if all modules are initialised
 	 */
 	private boolean initialiseNext(UpdatableInjectionContext injectionContext) {
-		InjectionConfiguration initialise = getFirstModuleWithStatus(ModuleStatus.DependenciesResolved);
+		Module initialise = getFirstModuleWithStatus(ModuleStatus.DependenciesResolved);
 		if (initialise != null) {
 			initialise.initialise(injectionContext);
 			status.put(initialise, ModuleStatus.Initialised);
@@ -136,7 +131,7 @@ public class Modules {
 	 * @return true if all modules are already initialised
 	 */
 	private boolean configureNext(UpdatableInjectionContext injectionContext) {
-		InjectionConfiguration configure = getFirstModuleWithStatus(ModuleStatus.Initialised);
+		Module configure = getFirstModuleWithStatus(ModuleStatus.Initialised);
 		if (configure != null) {
 			configure.configure(injectionContext);
 			status.put(configure, ModuleStatus.Configured);
@@ -144,8 +139,8 @@ public class Modules {
 		return configure == null;
 	}
 
-	private InjectionConfiguration startNext(UpdatableInjectionContext injectionContext) {
-		InjectionConfiguration start = getFirstModuleWithStatus(ModuleStatus.Configured);
+	private Module startNext(UpdatableInjectionContext injectionContext) {
+		Module start = getFirstModuleWithStatus(ModuleStatus.Configured);
 		if (start != null) {
 			start.start(injectionContext);
 			status.put(start, ModuleStatus.Started);
@@ -153,9 +148,9 @@ public class Modules {
 		return start;
 	}
 
-	private InjectionConfiguration getFirstModuleWithStatus(ModuleStatus status) {
-		InjectionConfiguration result = null;
-		for (InjectionConfiguration injectionConfiguration : orderedModules) {
+	private Module getFirstModuleWithStatus(ModuleStatus status) {
+		Module result = null;
+		for (Module injectionConfiguration : orderedModules) {
 			if (status.equals(this.status.get(injectionConfiguration))) {
 				return injectionConfiguration;
 			}
@@ -169,9 +164,9 @@ public class Modules {
 	}
 
 	public void runStopLifecycle(InjectionContext injectionContext) {
-		List<InjectionConfiguration> reverseOrder = new LinkedList<InjectionConfiguration>(orderedModules);
+		List<Module> reverseOrder = new LinkedList<Module>(orderedModules);
 		Collections.reverse(reverseOrder);
-		for (InjectionConfiguration injectionConfiguration : reverseOrder) {
+		for (Module injectionConfiguration : reverseOrder) {
 			injectionConfiguration.stop(injectionContext);
 			status.put(injectionConfiguration, ModuleStatus.Stopped);
 		}
@@ -182,19 +177,19 @@ public class Modules {
 	 * 
 	 * @return
 	 */
-	protected List<InjectionConfiguration> determineDependencyOrder() {
-		List<InjectionConfiguration> orderedModules = new ArrayList<InjectionConfiguration>();
+	protected List<Module> determineDependencyOrder() {
+		List<Module> orderedModules = new ArrayList<Module>();
 
 		while (!orderedModules.containsAll(instances.values())) {
 			boolean anyAdded = false;
-			for (Map.Entry<Class<? extends InjectionConfiguration>, InjectionConfiguration> entry : instances.entrySet()) {
-				InjectionConfiguration instance = entry.getValue();
+			for (Map.Entry<Class<? extends Module>, Module> entry : instances.entrySet()) {
+				Module instance = entry.getValue();
 
 				if (!orderedModules.contains(instance)) {
-					Class<? extends InjectionConfiguration> configurationClass = entry.getKey();
+					Class<? extends Module> configurationClass = entry.getKey();
 
-					Collection<Class<? extends InjectionConfiguration>> dependencies = moduleDependencies.get(configurationClass);
-					List<? extends InjectionConfiguration> injectionConfigurations = getModules(dependencies);
+					Collection<Class<? extends Module>> dependencies = moduleDependencies.get(configurationClass);
+					List<? extends Module> injectionConfigurations = getModules(dependencies);
 					if (orderedModules.containsAll(injectionConfigurations)) {
 						orderedModules.add(instance);
 						anyAdded = true;
@@ -202,10 +197,9 @@ public class Modules {
 				}
 			}
 			if (!anyAdded) {
-				List<InjectionConfiguration> unloaded = Expressive.list(instances.values()).removeItems(orderedModules);
+				List<Module> unloaded = Expressive.list(instances.values()).removeItems(orderedModules);
 				EList<String> moduleNames = Transformers.toModuleNamesFromInstance.from(unloaded);
 				throw new ModuleLoadingException(
-						"",
 						"Unable to load modules - there are unloaded modules whose dependencies cannot be satisfied. This probably indicates a cyclical dependency. The following modules have not been loaded: %s",
 						StringUtils.join(moduleNames, " "));
 			}
@@ -218,15 +212,15 @@ public class Modules {
 	 */
 	public void resolveDependencies() {
 		while (hasMoreDependenciesToResolve()) {
-			for (InjectionConfiguration injectionConfiguration : getModulesWithUnresolvedDependencies()) {
+			for (Module injectionConfiguration : getModulesWithUnresolvedDependencies()) {
 
-				Class<? extends InjectionConfiguration> moduleClass = injectionConfiguration.getClass();
+				Class<? extends Module> moduleClass = injectionConfiguration.getClass();
 
 				DependencyRegistry dependencyRegistry = new DependencyRegistry();
 				injectionConfiguration.requires(dependencyRegistry);
-				Collection<Class<? extends InjectionConfiguration>> dependencies = dependencyRegistry.getDependencies();
+				Collection<Class<? extends Module>> dependencies = dependencyRegistry.getDependencies();
 				String moduleName = Transformers.toModuleName.from(moduleClass);
-				for (Class<? extends InjectionConfiguration> dependencyClass : dependencies) {
+				for (Class<? extends Module> dependencyClass : dependencies) {
 					addModule(dependencyClass);
 					Logger.debug("Module %s depends on %s", moduleName, Transformers.toModuleName.from(dependencyClass));
 				}
@@ -237,9 +231,9 @@ public class Modules {
 		}
 	}
 
-	private Collection<InjectionConfiguration> getModulesWithUnresolvedDependencies() {
-		Collection<InjectionConfiguration> result = new ArrayList<InjectionConfiguration>();
-		for (Map.Entry<InjectionConfiguration, ModuleStatus> loaded : status.entrySet()) {
+	private Collection<Module> getModulesWithUnresolvedDependencies() {
+		Collection<Module> result = new ArrayList<Module>();
+		for (Map.Entry<Module, ModuleStatus> loaded : status.entrySet()) {
 			if (ModuleStatus.Added.equals(loaded.getValue())) {
 				result.add(loaded.getKey());
 			}
@@ -251,34 +245,18 @@ public class Modules {
 		return status.values().contains(ModuleStatus.Added);
 	}
 
-	protected static InjectionConfiguration loadModule(Class<? extends InjectionConfiguration> moduleClass) {
+	protected static Module loadModule(Class<? extends Module> moduleClass) {
 		try {
 			Object newInstance = moduleClass.newInstance();
-			InjectionConfiguration configuration = Cast.as(newInstance, InjectionConfiguration.class);
+			Module configuration = Cast.as(newInstance, Module.class);
 			if (configuration == null) {
-				throw new ModuleLoadingException(moduleClass.getPackage().getName(), "the configuration class %s does not implement '%s'", moduleClass.getName(),
-						InjectionConfiguration.class.getName());
+				throw new ModuleLoadingException("Failed to load module '%s' - the configuration class %s does not implement '%s'", moduleClass.getName(), Module.class.getName());
 			}
 			return configuration;
 		} catch (InstantiationException e) {
 			throw new ModuleLoadingException(e, moduleClass.getPackage().getName(), "failed to instantiate configuration class %s: %s", moduleClass.getName(), e.getMessage());
 		} catch (IllegalAccessException e) {
 			throw new ModuleLoadingException(e, moduleClass.getPackage().getName(), "cannot instantiate configuration class %s: %s", moduleClass.getName(), e.getMessage());
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	protected static Class<? extends InjectionConfiguration> loadModuleInjectionConfigurationClass(String modulePackage) {
-		String className = StringUtils.capitalize(StringUtils.substringAfterLast(modulePackage, "."));
-		String fullClassName = modulePackage + String.format(".%sInjectionConfiguration", className);
-		try {
-			Class<?> configurationClass = Class.forName(fullClassName);
-			if (!InjectionConfiguration.class.isAssignableFrom(configurationClass)) {
-				throw new ModuleLoadingException(modulePackage, "the configuration class %s does not implement the %s interface", fullClassName, InjectionConfiguration.class.getSimpleName());
-			}
-			return (Class<? extends InjectionConfiguration>) configurationClass;
-		} catch (ClassNotFoundException e) {
-			throw new ModuleLoadingException(e, modulePackage, "the configuration class %s does not exist", fullClassName);
 		}
 	}
 
@@ -290,13 +268,13 @@ public class Modules {
 			}
 		};
 		public static final CollectionTransformer<Class<?>, String> toModuleNames = Expressive.Transformers.transformAllUsing(toModuleName);
-		public static final ETransformer<InjectionConfiguration, String> toModuleNameFromInstance = new ETransformer<InjectionConfiguration, String>() {
+		public static final ETransformer<Module, String> toModuleNameFromInstance = new ETransformer<Module, String>() {
 			@Override
-			public String from(InjectionConfiguration from) {
+			public String from(Module from) {
 				return from.getClass().getName();
 			}
 		};
-		public static final CollectionTransformer<InjectionConfiguration, String> toModuleNamesFromInstance = Expressive.Transformers.transformAllUsing(toModuleNameFromInstance);
+		public static final CollectionTransformer<Module, String> toModuleNamesFromInstance = Expressive.Transformers.transformAllUsing(toModuleNameFromInstance);
 	}
 
 	private enum ModuleStatus {
