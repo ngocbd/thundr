@@ -31,6 +31,7 @@ import java.util.Map;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -38,6 +39,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.atomicleopard.expressive.Expressive;
+import com.threewks.thundr.http.Cookies;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
 import com.threewks.thundr.test.mock.servlet.MockHttpSession;
@@ -72,14 +74,14 @@ public class JspViewResolverTest {
 	}
 
 	@Test
-	public void shouldOnlySetContentTypeAndCharacterEncodingIfNotAlreadyPresentOnResponse() {
+	public void shouldSetContentTypeAndCharacterEncodingIfAlreadyPresentOnResponse() {
 		resp.setContentType("made/up");
 		resp.setCharacterEncoding("utf-1");
 		resolver.resolve(req, resp, new JspView("view.jsp"));
 		assertThat(req.requestDispatcher().lastPath(), is("/WEB-INF/jsp/view.jsp"));
 		assertThat(req.requestDispatcher().included(), is(true));
-		assertThat(resp.getContentType(), is("made/up"));
-		assertThat(resp.getCharacterEncoding(), is("utf-1"));
+		assertThat(resp.getContentType(), is("text/html"));
+		assertThat(resp.getCharacterEncoding(), is("UTF-8"));
 	}
 
 	@Test
@@ -133,6 +135,21 @@ public class JspViewResolverTest {
 		thrown.expectMessage("Failed to resolve JSP view view.jsp (/WEB-INF/jsp/view.jsp) - Internal server error");
 
 		resolver.resolve(req, resp, new JspView("view.jsp", Expressive.<String, Object> map()));
+	}
+
+	@Test
+	public void shouldRespectExtendedViewValues() {
+		JspView view = new JspView("view.jsp");
+		Cookie cookie = Cookies.build("cookie").withValue("value2").build();
+		view.withContentType("content/type").withCharacterEncoding("UTF-16").withHeader("header", "value1").withCookie(cookie);
+
+		resolver.resolve(req, resp, view);
+		assertThat(req.requestDispatcher().lastPath(), is("/WEB-INF/jsp/view.jsp"));
+		assertThat(req.requestDispatcher().included(), is(true));
+		assertThat(resp.getContentType(), is("content/type"));
+		assertThat(resp.getCharacterEncoding(), is("UTF-16"));
+		assertThat(resp.<String> header("header"), is("value1"));
+		assertThat(resp.getCookies(), hasItem(cookie));
 	}
 
 	@Test

@@ -15,45 +15,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.view.string;
+package com.threewks.thundr.view.json;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-public class StringViewTest {
+public class JsonViewTest {
 	@Test
-	public void shouldRetainSpecifiedContent() {
-		assertThat(new StringView("Content").content().toString(), is("Content"));
-	}
-
-	@Test
-	public void shouldHaveContentMatchingFormattedArguments() {
-		assertThat(new StringView("Format %s %d", "value", 15).content().toString(), is("Format value 15"));
-	}
-
-	@Test
-	public void shouldHaveDefaultContentTypeOfTextPlain() {
-		assertThat(new StringView("").getContentType(), is("text/plain"));
-	}
-
-	@Test
-	public void shouldHaveSpecifiedContentType() {
-		StringView view = new StringView("content").withContentType("application/json");
-		assertThat(view.content(), is((CharSequence) "content"));
+	public void shouldRetainContentAndDefaultContentTypeAndCharacterEncoding() {
+		JsonView view = new JsonView("string");
+		assertThat(view.getOutput(), is((Object) "string"));
 		assertThat(view.getContentType(), is("application/json"));
-	}
-
-	@Test
-	public void shouldHaveToStringShowingContents() {
-		assertThat(new StringView("Content\r\r\n\tIs here ").toString(), is("Content\r\r\n\tIs here "));
+		assertThat(view.getCharacterEncoding(), is("UTF-8"));
 	}
 
 	@Test
 	public void shouldBeAbleToSetExtendedValuesDirectly() {
-		StringView view = new StringView("view content");
-		assertThat(view.getContentType(), is("text/plain"));
+		JsonView view = new JsonView("view");
+		assertThat(view.getContentType(), is("application/json"));
 		assertThat(view.getCharacterEncoding(), is("UTF-8"));
 		assertThat(view.getHeader("header"), is(nullValue()));
 		assertThat(view.getCookie("cookie"), is(nullValue()));

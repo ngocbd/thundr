@@ -20,9 +20,6 @@ package com.threewks.thundr.view.jsonp;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import jodd.util.MimeTypes;
-import jodd.util.StringPool;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.atomicleopard.expressive.Cast;
@@ -30,6 +27,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.threewks.thundr.json.GsonSupport;
+import com.threewks.thundr.view.BaseView;
 import com.threewks.thundr.view.ViewResolutionException;
 import com.threewks.thundr.view.ViewResolver;
 
@@ -61,10 +59,10 @@ public class JsonpViewResolver implements ViewResolver<JsonpView> {
 			JsonElement jsonElement = Cast.as(output, JsonElement.class);
 			String json = jsonElement == null ? create.toJson(output) : create.toJson(jsonElement);
 			String jsonp = getCallback(req) + "(" + json + ");";
-			resp.setContentType(MimeTypes.MIME_APPLICATION_JAVASCRIPT);
-			resp.setCharacterEncoding(StringPool.UTF_8);
-			resp.setContentLength(json.getBytes(StringPool.UTF_8).length);
-			resp.setStatus(HttpServletResponse.SC_OK);
+
+			String encoding = viewResult.getCharacterEncoding();
+			resp.setContentLength(jsonp.getBytes(encoding).length);
+			BaseView.applyToResponse(viewResult, resp);
 			resp.getWriter().write(jsonp);
 		} catch (Exception e) {
 			throw new ViewResolutionException(e, "Failed to generate JSONP output for object '%s': %s", output.toString(), e.getMessage());

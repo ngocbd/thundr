@@ -59,4 +59,20 @@ public class JspViewTest {
 		assertThat(new JspView("path/view.jsp").toString(), is("path/view.jsp (/WEB-INF/jsp/path/view.jsp)"));
 		assertThat(new JspView("path/view").toString(), is("path/view (/WEB-INF/jsp/path/view.jsp)"));
 	}
+
+	@Test
+	public void shouldBeAbleToSetExtendedValuesDirectly() {
+		JspView view = new JspView("view");
+		assertThat(view.getContentType(), is("text/html"));
+		assertThat(view.getCharacterEncoding(), is("UTF-8"));
+		assertThat(view.getHeader("header"), is(nullValue()));
+		assertThat(view.getCookie("cookie"), is(nullValue()));
+
+		view.withContentType("content/type").withCharacterEncoding("UTF-16").withHeader("header", "value1").withCookie("cookie", "value2");
+
+		assertThat(view.getContentType(), is("content/type"));
+		assertThat(view.getCharacterEncoding(), is("UTF-16"));
+		assertThat(view.getHeader("header"), is("value1"));
+		assertThat(view.getCookie("cookie"), is(notNullValue()));
+	}
 }

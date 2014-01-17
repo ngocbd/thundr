@@ -68,6 +68,23 @@ public class FileViewTest {
 	}
 
 	@Test
+	public void shouldBeAbleToSetExtendedValuesDirectly() throws UnsupportedEncodingException {
+		byte[] data = "Test data".getBytes("UTF-8");
+		FileView view = new FileView("filename.ext", data, "content/type");
+		assertThat(view.getContentType(), is("content/type"));
+		assertThat(view.getCharacterEncoding(), is(nullValue()));
+		assertThat(view.getHeader("header"), is(nullValue()));
+		assertThat(view.getCookie("cookie"), is(nullValue()));
+
+		view.withContentType("content/type").withCharacterEncoding("UTF-16").withHeader("header", "value1").withCookie("cookie", "value2");
+
+		assertThat(view.getContentType(), is("content/type"));
+		assertThat(view.getCharacterEncoding(), is("UTF-16"));
+		assertThat(view.getHeader("header"), is("value1"));
+		assertThat(view.getCookie("cookie"), is(notNullValue()));
+	}
+
+	@Test
 	public void shouldHaveToStringReturningFilenameAndContentType() throws UnsupportedEncodingException {
 		byte[] data = "Test data".getBytes("UTF-8");
 

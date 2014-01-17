@@ -20,33 +20,20 @@ package com.threewks.thundr.view.string;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import jodd.util.StringPool;
-
-import org.apache.commons.lang3.StringUtils;
-
+import com.threewks.thundr.view.BaseView;
 import com.threewks.thundr.view.ViewResolutionException;
 import com.threewks.thundr.view.ViewResolver;
 
 public class StringViewResolver implements ViewResolver<StringView> {
-	private String encoding;
 
 	public StringViewResolver() {
-		this(StringPool.UTF_8);
-	}
-
-	public StringViewResolver(String characterEncoding) {
-		this.encoding = characterEncoding;
 	}
 
 	@Override
 	public void resolve(HttpServletRequest req, HttpServletResponse resp, StringView viewResult) {
 		try {
-			if (StringUtils.isNotBlank(viewResult.contentType())) {
-				resp.setContentType(viewResult.contentType());
-			}
-			String content = viewResult.content().toString();
-			byte[] bytes = content.getBytes(this.encoding);
-			resp.setCharacterEncoding(this.encoding);
+			BaseView.applyToResponse(viewResult, resp);
+			byte[] bytes = viewResult.contentBytes();
 			resp.getOutputStream().write(bytes);
 			resp.flushBuffer();
 		} catch (Exception e) {

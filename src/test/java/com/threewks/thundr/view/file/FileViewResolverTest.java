@@ -17,22 +17,24 @@
  */
 package com.threewks.thundr.view.file;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
+
+import javax.servlet.http.Cookie;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.threewks.thundr.http.Cookies;
 import com.threewks.thundr.http.HttpSupport;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
 import com.threewks.thundr.view.ViewResolutionException;
 
 public class FileViewResolverTest {
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
+	@Rule public ExpectedException thrown = ExpectedException.none();
 
 	private MockHttpServletRequest req = new MockHttpServletRequest();
 	private MockHttpServletResponse resp = new MockHttpServletResponse();
@@ -58,6 +60,19 @@ public class FileViewResolverTest {
 		when(fileView.getContentType()).thenThrow(new RuntimeException("Expected exception"));
 
 		fileViewResolver.resolve(req, resp, fileView);
+	}
+
+	@Test
+	public void shouldRespectExtendedViewValues() {
+
+		Cookie cookie = Cookies.build("cookie").withValue("value2").build();
+		fileView.withContentType("content/type").withCharacterEncoding("UTF-16").withHeader("header", "value1").withCookie(cookie);
+
+		fileViewResolver.resolve(req, resp, fileView);
+		assertThat(resp.getContentType(), is("content/type"));
+		assertThat(resp.getCharacterEncoding(), is("UTF-16"));
+		assertThat(resp.<String> header("header"), is("value1"));
+		assertThat(resp.getCookies(), hasItem(cookie));
 	}
 
 	@Test

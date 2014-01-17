@@ -24,19 +24,20 @@ import static org.mockito.Mockito.*;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.threewks.thundr.http.Cookies;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
 import com.threewks.thundr.view.ViewResolutionException;
 
 public class StringViewResolverTest {
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
+	@Rule public ExpectedException thrown = ExpectedException.none();
 	private StringViewResolver stringViewResolver = new StringViewResolver();
 	private HttpServletRequest req = new MockHttpServletRequest();
 	private MockHttpServletResponse resp = new MockHttpServletResponse();
@@ -52,7 +53,7 @@ public class StringViewResolverTest {
 
 	@Test
 	public void shouldWriteNoContentTypeIfNotSet() {
-		stringViewResolver.resolve(req, resp, new StringView("My view result").contentType(null));
+		stringViewResolver.resolve(req, resp, new StringView("My view result").withContentType(null));
 		assertThat(resp.content(), is("My view result"));
 		assertThat(resp.isCommitted(), is(true));
 		assertThat(resp.getCharacterEncoding(), is("UTF-8"));
@@ -74,20 +75,34 @@ public class StringViewResolverTest {
 
 	@Test
 	public void shouldApplySpecifiedContentType() {
-		stringViewResolver.resolve(req, resp, new StringView("My view result").contentType("text/html"));
+		stringViewResolver.resolve(req, resp, new StringView("My view result").withContentType("text/html"));
 		assertThat(resp.content(), is("My view result"));
 		assertThat(resp.isCommitted(), is(true));
 		assertThat(resp.getCharacterEncoding(), is("UTF-8"));
 		assertThat(resp.getContentType(), is("text/html"));
 	}
-	
+
 	@Test
 	public void shouldUseDifferentCharacterEncodingWhenSpecified() throws UnsupportedEncodingException {
-		stringViewResolver = new StringViewResolver("UTF-16");
-		stringViewResolver.resolve(req, resp, new StringView("My view result").contentType("text/html"));
+		stringViewResolver = new StringViewResolver();
+		stringViewResolver.resolve(req, resp, new StringView("My view result").withContentType("text/html").withCharacterEncoding("UTF-16"));
 		assertThat(resp.getCharacterEncoding(), is("UTF-16"));
 		assertThat(resp.isCommitted(), is(true));
 		assertThat(resp.getContentType(), is("text/html"));
 		assertThat(resp.content(), is("My view result"));
+	}
+
+	@Test
+	public void shouldRespectExtendedViewValues() {
+		StringView view = new StringView("view content");
+		Cookie cookie = Cookies.build("cookie").withValue("value2").build();
+		view.withContentType("content/type").withCharacterEncoding("UTF-16").withHeader("header", "value1").withCookie(cookie);
+
+
+		stringViewResolver.resolve(req, resp, view);
+		assertThat(resp.getContentType(), is("content/type"));
+		assertThat(resp.getCharacterEncoding(), is("UTF-16"));
+		assertThat(resp.<String> header("header"), is("value1"));
+		assertThat(resp.getCookies(), hasItem(cookie));
 	}
 }

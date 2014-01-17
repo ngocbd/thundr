@@ -66,7 +66,7 @@ public class BaseMailerTest {
 	public void shouldSendEmailusingJavaMailWithEmailFields() throws MessagingException {
 		MailBuilder builder = mailer.mail(req);
 		builder.from("test@email.com").replyTo("reply@email.com").to("recipient@email.com").cc("cc@email.com").bcc("bcc@email.com");
-		builder.body(new StringView("Email body").contentType("text/plain"));
+		builder.body(new StringView("Email body").withContentType("text/plain"));
 		builder.subject("Subject");
 		builder.send();
 
@@ -81,7 +81,7 @@ public class BaseMailerTest {
 		Map<String, String> to = Expressive.map("steve@place.com", "Steve", "john@place.com", "John");
 		builder.from("sender@email.com", "System Name");
 		builder.to(to);
-		builder.body(new StringView("Email body").contentType("text/plain"));
+		builder.body(new StringView("Email body").withContentType("text/plain"));
 		builder.subject("Subject line");
 		builder.send();
 
@@ -99,7 +99,7 @@ public class BaseMailerTest {
 		MailBuilder builder = mailer.mail(req);
 		builder.from("sender@email.com", "System Name");
 		builder.to("steve@place.com", "Steve");
-		builder.body(new StringView("Email body").contentType("text/plain"));
+		builder.body(new StringView("Email body").withContentType("text/plain"));
 		builder.subject("Subject line");
 		builder.send();
 
@@ -134,7 +134,7 @@ public class BaseMailerTest {
 
 		MailBuilder builder = mailer.mail(req);
 		builder.from("sender@place.com", "Steve");
-		builder.body(new StringView("Email body").contentType("text/plain"));
+		builder.body(new StringView("Email body").withContentType("text/plain"));
 		builder.subject("Subject line");
 		builder.send();
 	}
@@ -157,7 +157,7 @@ public class BaseMailerTest {
 		MailBuilder builder = mailer.mail(req);
 		builder.from("sender@email.com");
 		builder.to("recipient@email.com");
-		builder.body(new StringView("Email body").contentType(null));
+		builder.body(new StringView("Email body").withContentType(null));
 		builder.subject("Subject line");
 		builder.send();
 
@@ -169,7 +169,7 @@ public class BaseMailerTest {
 		MailBuilder builder = mailer.mail(null);
 		builder.from("sender@email.com");
 		builder.to("recipient@email.com");
-		builder.body(new StringView("Email body").contentType(null));
+		builder.body(new StringView("Email body").withContentType(null));
 		builder.subject("Subject line");
 		builder.send();
 
@@ -181,7 +181,7 @@ public class BaseMailerTest {
 		MailBuilder builder = mock(MailBuilder.class);
 		when(builder.from()).thenReturn(entry("sender@email.com"));
 		when(builder.to()).thenReturn(email("recipient@email.com"));
-		when(builder.body()).thenReturn(new StringView("Email body").contentType(null));
+		when(builder.body()).thenReturn(new StringView("Email body").withContentType(null));
 		when(builder.subject()).thenReturn("Subject line");
 		mailer.send(builder);
 

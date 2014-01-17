@@ -17,16 +17,12 @@
  */
 package com.threewks.thundr.view.jsp;
 
-import java.util.Map;
-
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import jodd.util.StringPool;
-
 import com.threewks.thundr.exception.BaseException;
-import com.threewks.thundr.http.ContentType;
+import com.threewks.thundr.view.BaseView;
 import com.threewks.thundr.view.GlobalModel;
 import com.threewks.thundr.view.ViewResolutionException;
 import com.threewks.thundr.view.ViewResolver;
@@ -54,9 +50,9 @@ public class JspViewResolver implements ViewResolver<JspView> {
 				throw new BaseException("resource %s does not exist", viewResult.getView());
 			}
 			String url = resp.encodeRedirectURL(viewResult.getView());
-			includeModelInRequest(req, globalModel);
-			includeModelInRequest(req, viewResult.getModel());
-			includeContentTypeAndEncoding(resp);
+			BaseView.includeModelInRequest(req, globalModel);
+			BaseView.includeModelInRequest(req, viewResult.getModel());
+			BaseView.applyToResponse(viewResult, resp);
 			RequestDispatcher requestDispatcher = req.getRequestDispatcher(url);
 			requestDispatcher.include(req, resp);
 		} catch (Exception e) {
@@ -69,20 +65,4 @@ public class JspViewResolver implements ViewResolver<JspView> {
 		return this.getClass().getSimpleName();
 	}
 
-	public static void includeContentTypeAndEncoding(HttpServletResponse resp) {
-		// Content type needs to be set on the response because we use include, not forward
-		if (resp.getContentType() == null) {
-			resp.setContentType(ContentType.TextHtml.value());
-		}
-		if (resp.getCharacterEncoding() == null) {
-			// Character encoding needs to be set on the response because include does not set the character encoding use the jsp page directive.
-			resp.setCharacterEncoding(StringPool.UTF_8);
-		}
-	}
-
-	public static void includeModelInRequest(HttpServletRequest req, Map<String, Object> model) {
-		for (Map.Entry<String, Object> modelEntry : model.entrySet()) {
-			req.setAttribute(modelEntry.getKey(), modelEntry.getValue());
-		}
-	}
 }

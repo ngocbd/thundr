@@ -18,12 +18,13 @@
 package com.threewks.thundr.view.json;
 
 import static com.atomicleopard.expressive.Expressive.map;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Rule;
@@ -33,6 +34,7 @@ import org.junit.rules.ExpectedException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.threewks.thundr.http.Cookies;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
 import com.threewks.thundr.view.ViewResolutionException;
@@ -87,6 +89,19 @@ public class JsonViewResolverTest {
 		JsonView viewResult = new JsonView(map("key", "value"));
 		resolver.resolve(req, resp, viewResult);
 		assertThat(resp.getContentType(), is("application/json"));
+	}
+
+	@Test
+	public void shouldRespectExtendedViewValues() {
+		JsonView view = new JsonView(map("key", "value"));
+		Cookie cookie = Cookies.build("cookie").withValue("value2").build();
+		view.withContentType("content/type").withCharacterEncoding("UTF-16").withHeader("header", "value1").withCookie(cookie);
+
+		resolver.resolve(req, resp, view);
+		assertThat(resp.getContentType(), is("content/type"));
+		assertThat(resp.getCharacterEncoding(), is("UTF-16"));
+		assertThat(resp.<String> header("header"), is("value1"));
+		assertThat(resp.getCookies(), hasItem(cookie));
 	}
 
 	private JsonElement createJsonElement() {

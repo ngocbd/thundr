@@ -17,14 +17,23 @@
  */
 package com.threewks.thundr.view.json;
 
+import javax.servlet.http.HttpServletResponse;
+
+import jodd.util.MimeTypes;
+import jodd.util.StringPool;
+
+import com.threewks.thundr.view.BaseView;
 import com.threewks.thundr.view.View;
 
-public class JsonView implements View {
+public class JsonView extends BaseView<JsonView> implements View {
 	private Object output;
 
 	public JsonView(Object output) {
 		super();
 		this.output = output;
+		withContentType(MimeTypes.MIME_APPLICATION_JSON);
+		withCharacterEncoding(StringPool.UTF_8);
+		withStatusCode(HttpServletResponse.SC_OK);
 	}
 
 	public Object getOutput() {

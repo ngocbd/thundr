@@ -18,12 +18,13 @@
 package com.threewks.thundr.view.jsonp;
 
 import static com.atomicleopard.expressive.Expressive.map;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Rule;
@@ -33,6 +34,7 @@ import org.junit.rules.ExpectedException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.threewks.thundr.http.Cookies;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
 import com.threewks.thundr.view.ViewResolutionException;
@@ -52,7 +54,7 @@ public class JsonpViewResolverTest {
 		assertThat(resp.status(), is(HttpServletResponse.SC_OK));
 		assertThat(resp.content(), is("callback({\"key\":\"value\"});"));
 		assertThat(resp.getCharacterEncoding(), is("UTF-8"));
-		assertThat(resp.getContentLength(), is(15));
+		assertThat(resp.getContentLength(), is(26));
 	}
 
 	@Test
@@ -63,18 +65,18 @@ public class JsonpViewResolverTest {
 		assertThat(resp.status(), is(HttpServletResponse.SC_OK));
 		assertThat(resp.content(), is("callback({\"key\":\"value\"});"));
 		assertThat(resp.getCharacterEncoding(), is("UTF-8"));
-		assertThat(resp.getContentLength(), is(15));
+		assertThat(resp.getContentLength(), is(26));
 	}
 
 	@Test
-	public void shouldNameCallbackMethodBasedOnCalbackParameter() throws IOException {
+	public void shouldNameCallbackMethodBasedOnCallbackParameter() throws IOException {
 		req.parameter("callback", "abcdef");
 		JsonpView viewResult = new JsonpView(map("key", "value"));
 		resolver.resolve(req, resp, viewResult);
 		assertThat(resp.status(), is(HttpServletResponse.SC_OK));
 		assertThat(resp.content(), is("abcdef({\"key\":\"value\"});"));
 		assertThat(resp.getCharacterEncoding(), is("UTF-8"));
-		assertThat(resp.getContentLength(), is(15));
+		assertThat(resp.getContentLength(), is(24));
 	}
 
 	@Test
@@ -98,6 +100,19 @@ public class JsonpViewResolverTest {
 		JsonpView viewResult = new JsonpView(map("key", "value"));
 		resolver.resolve(req, resp, viewResult);
 		assertThat(resp.getContentType(), is("application/javascript"));
+	}
+
+	@Test
+	public void shouldRespectExtendedViewValues() {
+		JsonpView view = new JsonpView(map("key", "value"));
+		Cookie cookie = Cookies.build("cookie").withValue("value2").build();
+		view.withContentType("content/type").withCharacterEncoding("UTF-16").withHeader("header", "value1").withCookie(cookie);
+
+		resolver.resolve(req, resp, view);
+		assertThat(resp.getContentType(), is("content/type"));
+		assertThat(resp.getCharacterEncoding(), is("UTF-16"));
+		assertThat(resp.<String> header("header"), is("value1"));
+		assertThat(resp.getCookies(), hasItem(cookie));
 	}
 
 	private JsonElement createJsonElement() {

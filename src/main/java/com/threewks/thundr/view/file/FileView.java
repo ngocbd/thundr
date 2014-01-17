@@ -23,21 +23,23 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import com.threewks.thundr.view.BaseView;
+import com.threewks.thundr.view.View;
+
 /**
  * This view is for serving files to controller consumers.
  * The given data (InputStream, byte[] or File) will be streamed to the client with the specified filename (as content-disposition) and content-type.
  * 
  * @see FileViewResolver
  */
-public class FileView {
+public class FileView extends BaseView<FileView> implements View {
 	private InputStream is;
-	private String contentType;
 	private String fileName;
 
 	public FileView(String filename, InputStream stream, String contentType) {
 		this.fileName = filename;
 		this.is = stream;
-		this.contentType = contentType;
+		withContentType(contentType);
 	}
 
 	public FileView(String filename, byte[] data, String contentType) {
@@ -56,13 +58,9 @@ public class FileView {
 		return is;
 	}
 
-	public String getContentType() {
-		return contentType;
-	}
-
 	@Override
 	public String toString() {
-		return String.format("%s (%s)", fileName, contentType);
+		return String.format("%s (%s)", fileName, getContentType());
 	}
 
 }

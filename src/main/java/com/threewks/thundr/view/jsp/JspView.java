@@ -20,11 +20,15 @@ package com.threewks.thundr.view.jsp;
 import java.util.HashMap;
 import java.util.Map;
 
+import jodd.util.StringPool;
+
 import org.apache.commons.lang3.StringUtils;
 
+import com.threewks.thundr.http.ContentType;
+import com.threewks.thundr.view.BaseView;
 import com.threewks.thundr.view.View;
 
-public class JspView implements View {
+public class JspView extends BaseView<JspView> implements View {
 	private String view;
 	private Map<String, Object> model;
 
@@ -35,6 +39,8 @@ public class JspView implements View {
 	public JspView(String view, Map<String, Object> model) {
 		this.view = view;
 		this.model = model;
+		withContentType(ContentType.TextHtml.value());
+		withCharacterEncoding(StringPool.UTF_8);
 	}
 
 	public String getView() {
