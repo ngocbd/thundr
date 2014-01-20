@@ -17,13 +17,12 @@
  */
 package com.threewks.thundr.view.string;
 
-import java.io.UnsupportedEncodingException;
-
-import jodd.util.StringPool;
-
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.view.BaseView;
 import com.threewks.thundr.view.View;
+import jodd.util.StringPool;
+
+import java.io.UnsupportedEncodingException;
 
 public class StringView extends BaseView<StringView> implements View {
 	private CharSequence content;
@@ -35,6 +34,7 @@ public class StringView extends BaseView<StringView> implements View {
 	}
 
 	public StringView(String format, Object... args) {
+		this(format);
 		this.content = String.format(format, args);
 	}
 
