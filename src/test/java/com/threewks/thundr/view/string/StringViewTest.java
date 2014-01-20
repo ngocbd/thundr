@@ -17,10 +17,11 @@
  */
 package com.threewks.thundr.view.string;
 
+import jodd.util.StringPool;
+import org.junit.Test;
+
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
 
 public class StringViewTest {
 	@Test
@@ -34,8 +35,11 @@ public class StringViewTest {
 	}
 
 	@Test
-	public void shouldHaveDefaultContentTypeOfTextPlain() {
+	public void shouldHaveDefaultContentTypeOfTextPlainAndCharEncondingUTF8() {
 		assertThat(new StringView("").getContentType(), is("text/plain"));
+		assertThat(new StringView("", "value").getContentType(), is("text/plain"));
+		assertThat(new StringView("").getCharacterEncoding(), is(StringPool.UTF_8));
+		assertThat(new StringView("", "value").getCharacterEncoding(), is(StringPool.UTF_8));
 	}
 
 	@Test
