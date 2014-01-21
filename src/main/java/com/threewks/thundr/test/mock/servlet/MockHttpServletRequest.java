@@ -17,24 +17,31 @@
  */
 package com.threewks.thundr.test.mock.servlet;
 
-import com.atomicleopard.expressive.Cast;
-import com.threewks.thundr.http.ContentType;
+import static com.atomicleopard.expressive.Expressive.list;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.Principal;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.Principal;
-import java.util.*;
 
-import static com.atomicleopard.expressive.Expressive.list;
+import com.atomicleopard.expressive.Cast;
+import com.threewks.thundr.http.ContentType;
 
 @SuppressWarnings("rawtypes")
 public class MockHttpServletRequest implements HttpServletRequest {
@@ -54,6 +61,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 	private String serverName;
 	private List<Cookie> cookies = list();
 	private URL url;
+	private Boolean inputStreamUsed = null;
 
 	public MockHttpServletRequest() {
 		url(path);
@@ -184,9 +192,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
 		return contentType;
 	}
 
-	@SuppressWarnings("resource")
 	@Override
 	public ServletInputStream getInputStream() throws IOException {
+		if (Boolean.FALSE.equals(inputStreamUsed)) {
+			throw new IOException("Called getInputStream() after getReader() was called");
+		}
+		inputStreamUsed = true;
 		String body = (content == null) ? "" : content;
 		final ByteArrayInputStream inputStream = new ByteArrayInputStream(body.getBytes(this.getCharacterEncoding()));
 		return new ServletInputStream() {
@@ -240,7 +251,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public BufferedReader getReader() throws IOException {
-		return null;
+		if (Boolean.TRUE.equals(inputStreamUsed)) {
+			throw new IOException("Called getReader() after getInputStream() was called");
+		}
+		inputStreamUsed = false;
+		return new BufferedReader(new StringReader(content));
 	}
 
 	@Override

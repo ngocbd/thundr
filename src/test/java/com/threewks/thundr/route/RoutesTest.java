@@ -17,12 +17,9 @@
  */
 package com.threewks.thundr.route;
 
-import static com.atomicleopard.expressive.Expressive.*;
 import static com.threewks.thundr.route.RouteType.GET;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -39,10 +36,15 @@ import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.action.Action;
 import com.threewks.thundr.action.ActionException;
 import com.threewks.thundr.action.ActionResolver;
+import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
+import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
 
 public class RoutesTest {
 	@Rule public ExpectedException thrown = ExpectedException.none();
 	private Routes routesObj;
+
+	private MockHttpServletRequest req = new MockHttpServletRequest();
+	private MockHttpServletResponse resp = new MockHttpServletResponse();
 
 	@Before
 	public void before() {
@@ -176,6 +178,33 @@ public class RoutesTest {
 		thrown.expectMessage("Unable to add the route 'GET /route/{var2}' - the route 'GET /route/{var}' already exists which matches the same pattern");
 		routesObj.addRoute(RouteType.GET, "/route/{var}", null, new TestAction("action"));
 		routesObj.addRoute(RouteType.GET, "/route/{var2}", null, new TestAction("action"));
+	}
+
+	@Test
+	public void shouldInvokeRouteByReturningTheResultOfTheAction() {
+		routesObj.addRoute(RouteType.GET, "/route", null, new TestAction("actionName"));
+		Object result = routesObj.invoke("/route", RouteType.GET, req, resp);
+		assertThat(result, is(notNullValue()));
+		assertThat(result instanceof TestAction, is(true));
+	}
+
+	@Test
+	public void shouldThrowRouteNotFoundExceptionWhenRouteIsntMatched() {
+		thrown.expect(RouteNotFoundException.class);
+		thrown.expectMessage("No route matching the request GET /route\n");
+		routesObj.invoke("/route", RouteType.GET, req, resp);
+	}
+
+	@Test
+	public void shouldReturnNamedRouteOrNull() {
+		Route route = new Route(RouteType.GET, "/route", "name");
+		routesObj.addRoute(route, new TestAction("actionName"));
+
+		assertThat(routesObj.getRoute("name"), is(route));
+		assertThat(routesObj.getRoute("otherName"), is(nullValue()));
+		assertThat(routesObj.getRoute(null), is(nullValue()));
+		assertThat(routesObj.getRoute(""), is(nullValue()));
+
 	}
 
 	private static class TestAction implements Action {

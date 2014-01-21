@@ -17,7 +17,6 @@
  */
 package com.threewks.thundr.action.method.bind.json;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +26,9 @@ import javax.servlet.http.HttpServletResponse;
 import com.atomicleopard.expressive.Expressive;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.threewks.thundr.action.method.bind.ActionMethodBinder;
 import com.threewks.thundr.action.method.bind.BindException;
 import com.threewks.thundr.action.method.bind.path.PathVariableBinder;
@@ -68,16 +70,47 @@ public class GsonBinder implements ActionMethodBinder {
 			String sanitisedContentType = ContentType.cleanContentType(req.getContentType());
 			if (canBind(sanitisedContentType)) {
 				ParameterDescription jsonParameterDescription = findParameterDescriptionForJsonParameter(bindings);
+				Gson gson = gsonBuilder.create();
 				if (jsonParameterDescription != null) {
+					bindToSingleParameter(bindings, gson, req, jsonParameterDescription);
+				} else {
+					bindToUnboundParameters(bindings, req, gson);
+				}
+			}
+		}
+	}
+
+	private void bindToUnboundParameters(Map<ParameterDescription, Object> bindings, HttpServletRequest req, Gson gson) {
+		try {
+			JsonObject json = new JsonParser().parse(req.getReader()).getAsJsonObject();
+
+			for (Map.Entry<ParameterDescription, Object> entry : bindings.entrySet()) {
+				if (entry.getValue() == null) {
+					ParameterDescription parameterDescription = entry.getKey();
 					try {
-						Gson gson = gsonBuilder.create();
-						Object converted = gson.fromJson(req.getReader(), jsonParameterDescription.type());
-						bindings.put(jsonParameterDescription, converted);
-					} catch (IOException e) {
-						throw new BindException(e, "Failed to bind %s %s using JSON - can only bind the first object parameter", jsonParameterDescription.type(), jsonParameterDescription.name());
+						JsonElement jsonElement = json.get(parameterDescription.name());
+						if (jsonElement != null) {
+							Object value = gson.fromJson(jsonElement, parameterDescription.type());
+							bindings.put(parameterDescription, value);
+						}
+					} catch (Exception e) {
+						throw new BindException(e, "Failed to bind parameter '%s' as %s using JSON: %s", parameterDescription.name(), parameterDescription.type(), e.getMessage());
 					}
 				}
 			}
+		} catch (BindException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new BindException(e, "Failed to bind JSON: %s", e.getMessage());
+		}
+	}
+
+	private void bindToSingleParameter(Map<ParameterDescription, Object> bindings, Gson gson, HttpServletRequest req, ParameterDescription jsonParameterDescription) {
+		try {
+			Object converted = gson.fromJson(req.getReader(), jsonParameterDescription.type());
+			bindings.put(jsonParameterDescription, converted);
+		} catch (Exception e) {
+			throw new BindException(e, "Failed to bind parameter '%s' as %s using JSON: %s", jsonParameterDescription.name(), jsonParameterDescription.type(), e.getMessage());
 		}
 	}
 

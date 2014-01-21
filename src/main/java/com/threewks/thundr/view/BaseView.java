@@ -25,8 +25,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.threewks.thundr.http.Cookies;
+import com.threewks.thundr.http.StatusCode;
 import com.threewks.thundr.http.exception.HttpStatusException;
 import com.threewks.thundr.view.redirect.RedirectView;
+import com.threewks.thundr.view.redirect.RouteRedirectView;
 
 /**
  * {@link BaseView} provides common functionality for adding metainformation to the
@@ -115,8 +117,14 @@ public abstract class BaseView<Self extends BaseView<Self>> implements View {
 	 * Sets the response code of the response.
 	 * Care needs to be taken to use this appropriately.
 	 * 
-	 * For example, to send a redirect, prefer a {@link RedirectView},
-	 * or to send an error, consider using an {@link HttpStatusException} or setting {@link HttpServletResponse#sendError(int)}
+	 * For example, to send a redirect, prefer a {@link RedirectView} or {@link RouteRedirectView}
+	 * 
+	 * To send an error:
+	 * <ul>
+	 * <li>To use the containers configured error page, throw {@link HttpStatusException} or setting {@link HttpServletResponse#sendError(int)}</li>
+	 * <li>To send an error with your view as content, use this method and set an error status code</li>
+	 * </ul>
+	 * 
 	 * 
 	 * @param code
 	 * @return this view
@@ -124,6 +132,25 @@ public abstract class BaseView<Self extends BaseView<Self>> implements View {
 	public Self withStatusCode(int code) {
 		this.statusCode = code;
 		return self;
+	}
+
+	/**
+	 * Sets the response code of the response.
+	 * Care needs to be taken to use this appropriately.
+	 * 
+	 * For example, to send a redirect, prefer a {@link RedirectView} or {@link RouteRedirectView}
+	 * 
+	 * To send an error:
+	 * <ul>
+	 * <li>To use the containers configured error page, throw {@link HttpStatusException} or setting {@link HttpServletResponse#sendError(int)}</li>
+	 * <li>To send an error with your view as content, use this method and set an error status code</li>
+	 * </ul>
+	 * 
+	 * @param code
+	 * @return this view
+	 */
+	public Self withStatusCode(StatusCode code) {
+		return withStatusCode(code.getCode());
 	}
 
 	/**
@@ -189,7 +216,7 @@ public abstract class BaseView<Self extends BaseView<Self>> implements View {
 			resp.setCharacterEncoding(characterEncoding);
 		}
 	}
-	
+
 	public static void includeModelInRequest(HttpServletRequest req, Map<String, Object> model) {
 		for (Map.Entry<String, Object> modelEntry : model.entrySet()) {
 			req.setAttribute(modelEntry.getKey(), modelEntry.getValue());
