@@ -64,11 +64,15 @@ public class GsonBinder implements ActionMethodBinder {
 		return ContentType.ApplicationJson.value().equalsIgnoreCase(contentType);
 	}
 
+	protected boolean shouldBind(Map<ParameterDescription, Object> bindings) {
+		return bindings.containsValue(null);
+	}
+
 	@Override
 	public void bindAll(Map<ParameterDescription, Object> bindings, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVariables) {
 		if (!bindings.isEmpty()) {
 			String sanitisedContentType = ContentType.cleanContentType(req.getContentType());
-			if (canBind(sanitisedContentType)) {
+			if (canBind(sanitisedContentType) && shouldBind(bindings)) {
 				ParameterDescription jsonParameterDescription = findParameterDescriptionForJsonParameter(bindings);
 				Gson gson = gsonBuilder.create();
 				if (jsonParameterDescription != null) {

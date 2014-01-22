@@ -19,8 +19,11 @@ package com.threewks.thundr.action.method.bind.json;
 
 import static com.atomicleopard.expressive.Expressive.*;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -194,5 +197,24 @@ public class GsonBinderTest {
 		req.content("{ \"name\": \"pojo name\", \"value\": \"not a number\" }");
 
 		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+	}
+
+	@Test
+	public void shouldOnlyBindIfThereAreUnboundVariablesLeavingReaderAndInputStreamUnconsumed() throws IOException {
+		ParameterDescription stringParameterDescription = new ParameterDescription("name", String.class);
+		ParameterDescription intParameterDescription = new ParameterDescription("value", int.class);
+		Map<ParameterDescription, Object> bindings = mapKeys(intParameterDescription, stringParameterDescription).<Object> to(15, "existing");
+
+		req.content("{ \"name\": \"pojo name\", \"value\": 12 }");
+
+		req = spy(req);
+		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+
+		Object intValue = bindings.get(intParameterDescription);
+		Object stringValue = bindings.get(stringParameterDescription);
+		assertThat(intValue, is((Object) 15));
+		assertThat(stringValue, is((Object) "existing"));
+		
+		verify(req, never()).getInputStream();
 	}
 }
