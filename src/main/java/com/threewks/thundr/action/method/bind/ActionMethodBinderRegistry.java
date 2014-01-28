@@ -41,8 +41,8 @@ public class ActionMethodBinderRegistry {
 		registerActionMethodBinder(new RequestClassBinder());
 		registerActionMethodBinder(new HttpBinder());
 		registerActionMethodBinder(new RequestAttributeBinder());
-		registerActionMethodBinder(new SessionAttributeBinder());
 		registerActionMethodBinder(new RequestHeaderBinder());
+		registerActionMethodBinder(new SessionAttributeBinder());
 		registerActionMethodBinder(new CookieBinder());
 		// These are last so that we can avoid running them if all parameters are bound by an alternative method
 		registerActionMethodBinder(new GsonBinder());

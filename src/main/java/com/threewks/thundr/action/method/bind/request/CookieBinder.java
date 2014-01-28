@@ -44,7 +44,7 @@ public class CookieBinder implements ActionMethodBinder {
 
 	@Override
 	public void bindAll(Map<ParameterDescription, Object> bindings, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVariables) {
-		if (req.getCookies() != null) {
+		if (req.getCookies() != null && bindings.values().contains(null)) {
 			ParameterBinderSet parameterBinderSet = new ParameterBinderSet();
 			Map<String, List<String>> cookieValueLookup = createCookieMap(req);
 			Map<String, String[]> parameterMap = ParameterBinderSet.convertListMapToArrayMap(cookieValueLookup);
@@ -53,7 +53,7 @@ public class CookieBinder implements ActionMethodBinder {
 			Map<String, List<Cookie>> lookup = toLookup.from(list(req.getCookies()));
 			for (Map.Entry<ParameterDescription, Object> binding : bindings.entrySet()) {
 				ParameterDescription key = binding.getKey();
-				if (key.isA(Cookie.class)) {
+				if (binding.getValue() == null && key.isA(Cookie.class)) {
 					String name = key.name();
 					List<Cookie> namedCookies = lookup.get(name);
 					Cookie cookie = isNotEmpty(namedCookies) ? namedCookies.get(0) : null;

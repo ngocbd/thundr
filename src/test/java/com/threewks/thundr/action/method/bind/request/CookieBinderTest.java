@@ -128,6 +128,58 @@ public class CookieBinderTest {
 	}
 
 	@Test
+	public void shouldNotBindIfAllVariablesAlreadyBound() {
+		ParameterDescription varParam1 = new ParameterDescription("cookie", Cookie.class);
+		ParameterDescription varParam2 = new ParameterDescription("cookieValue", String.class);
+		Cookie existingCookie = new Cookie("cookie", "existingValue1");
+		bindings.put(varParam1, existingCookie);
+		bindings.put(varParam2, "existingValue2");
+
+		Cookie requestCookie = new Cookie("cookie", "newValue");
+		Cookie requestCookieValue = new Cookie("cookieValue", "newValue2");
+		req.cookie(requestCookie);
+		req.cookie(requestCookieValue);
+
+		binder.bindAll(bindings, req, resp, pathVariables);
+
+		assertThat(bindings.get(varParam1), is((Object) existingCookie));
+		assertThat(bindings.get(varParam2), is((Object) "existingValue2"));
+	}
+	
+	@Test
+	public void shouldNotBindIfNoCookiesExistingOnTheRequest() {
+		ParameterDescription varParam1 = new ParameterDescription("cookie", Cookie.class);
+		ParameterDescription varParam2 = new ParameterDescription("cookieValue", String.class);
+		bindings.put(varParam1, null);
+		bindings.put(varParam2, null);
+
+
+		binder.bindAll(bindings, req, resp, pathVariables);
+
+		assertThat(bindings.get(varParam1), is(nullValue()));
+		assertThat(bindings.get(varParam2), is(nullValue()));
+	}
+
+	@Test
+	public void shouldOnlyBindValuesNotAlreadyBound() {
+		ParameterDescription varParam1 = new ParameterDescription("cookie", Cookie.class);
+		ParameterDescription varParam2 = new ParameterDescription("cookieValue", String.class);
+		Cookie existingCookie = new Cookie("cookie", "existingValue1");
+		bindings.put(varParam1, existingCookie);
+		bindings.put(varParam2, null);
+
+		Cookie requestCookie = new Cookie("cookie", "newValue1");
+		Cookie requestCookieValue = new Cookie("cookieValue", "newValue2");
+		req.cookie(requestCookie);
+		req.cookie(requestCookieValue);
+
+		binder.bindAll(bindings, req, resp, pathVariables);
+
+		assertThat(bindings.get(varParam1), is((Object) existingCookie));
+		assertThat(bindings.get(varParam2), is((Object) "newValue2"));
+	}
+
+	@Test
 	public void shouldHandleCoreTypeParamBindings() {
 		ParameterDescription param1 = new ParameterDescription("param1", String.class);
 		ParameterDescription param2 = new ParameterDescription("param2", int.class);
