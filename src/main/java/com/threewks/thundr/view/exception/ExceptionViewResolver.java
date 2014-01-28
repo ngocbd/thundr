@@ -38,7 +38,10 @@ public class ExceptionViewResolver implements ViewResolver<Throwable> {
 			messages.add(cause.getMessage());
 		}
 		try {
-			Throwable exceptionOfInterest = viewResult instanceof ViewResolutionException ? viewResult.getCause() : viewResult;
+			Throwable exceptionOfInterest = viewResult;
+			if (viewResult instanceof ViewResolutionException && viewResult.getCause() != null) {
+				exceptionOfInterest = viewResult.getCause();
+			}
 			StringWriter stringWriter = new StringWriter();
 			PrintWriter writer = new PrintWriter(stringWriter);
 			for (String message : messages) {

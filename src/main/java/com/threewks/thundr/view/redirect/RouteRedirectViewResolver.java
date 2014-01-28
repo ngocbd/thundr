@@ -54,7 +54,7 @@ public class RouteRedirectViewResolver implements ViewResolver<RouteRedirectView
 		try {
 			return route.getReverseRoute(viewResult.getPathVariables());
 		} catch (ReverseRouteException e) {
-			throw new ViewResolutionException("Failed to redirect to route '%s': %s", route.getRoute(), e.getMessage());
+			throw new ViewResolutionException(e, "Failed to redirect to route '%s': %s", route.getRoute(), e.getMessage());
 		}
 	}
 

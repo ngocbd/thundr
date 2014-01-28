@@ -27,6 +27,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.threewks.thundr.view.ViewResolutionException;
+
 public class ExceptionViewResolverTest {
 	private ExceptionViewResolver resolver = new ExceptionViewResolver();
 	private HttpServletRequest req = mock(HttpServletRequest.class);
@@ -39,5 +41,22 @@ public class ExceptionViewResolverTest {
 		resolver.resolve(req, resp, viewResult);
 
 		verify(resp).sendError(Mockito.eq(500), Mockito.startsWith("message\ncause\njava.lang.Exception: message"));
+	}
+
+	@Test
+	public void shouldReturnStatus500WithViewResolutionExceptionCauseMessage() throws IOException {
+		Exception cause = new Exception("cause");
+		Throwable viewResult = new ViewResolutionException(cause, "ViewResolutionMessage");
+		resolver.resolve(req, resp, viewResult);
+
+		verify(resp).sendError(Mockito.eq(500), Mockito.startsWith("ViewResolutionMessage\ncause"));
+	}
+
+	@Test
+	public void shouldReturnStatus500WithViewResolutionExceptionBecauseNoCauseIsProvided() throws IOException {
+		Throwable viewResult = new ViewResolutionException("message");
+		resolver.resolve(req, resp, viewResult);
+
+		verify(resp).sendError(Mockito.eq(500), Mockito.startsWith("message\ncom.threewks.thundr.view.ViewResolutionException: message"));
 	}
 }
