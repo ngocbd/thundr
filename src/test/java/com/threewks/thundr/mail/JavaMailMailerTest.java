@@ -25,6 +25,7 @@ import java.util.Map;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,6 +33,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 import com.atomicleopard.expressive.Expressive;
+import com.threewks.thundr.http.RequestThreadLocal;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.view.ViewResolverRegistry;
 import com.threewks.thundr.view.string.StringView;
@@ -50,11 +52,17 @@ public class JavaMailMailerTest {
 
 		mailer = spy(mailer);
 		doNothing().when(mailer).sendMessage(Mockito.any(Message.class));
+		RequestThreadLocal.set(req, null);
+	}
+
+	@After
+	public void after() {
+		RequestThreadLocal.clear();
 	}
 
 	@Test
 	public void shouldSendEmailusingJavaMailWithEmailFields() throws MessagingException {
-		MailBuilder builder = mailer.mail(req);
+		MailBuilder builder = mailer.mail();
 		builder.from("test@email.com").replyTo("reply@email.com").to("recipient@email.com").cc("cc@email.com").bcc("bcc@email.com");
 		builder.body(new StringView("Email body").withContentType("text/plain"));
 		builder.subject("Subject");
@@ -68,7 +76,7 @@ public class JavaMailMailerTest {
 
 	@Test
 	public void shouldSendBasicEmailUsingNames() throws MessagingException {
-		MailBuilder builder = mailer.mail(req);
+		MailBuilder builder = mailer.mail();
 		Map<String, String> to = Expressive.map("steve@place.com", "Steve", "john@place.com", "John");
 		builder.from("sender@email.com", "System Name");
 		builder.to(to);
@@ -88,7 +96,7 @@ public class JavaMailMailerTest {
 
 		doThrow(new MessagingException("expected message")).when(mailer).sendMessage(Mockito.any(Message.class));
 
-		MailBuilder builder = mailer.mail(req);
+		MailBuilder builder = mailer.mail();
 		builder.from("sender@email.com", "System Name");
 		builder.to("steve@place.com", "Steve");
 		builder.body(new StringView("Email body").withContentType("text/plain"));
@@ -103,7 +111,7 @@ public class JavaMailMailerTest {
 		thrown.expect(MailException.class);
 		thrown.expectMessage("No sender has been set for this email");
 
-		MailBuilder builder = mailer.mail(req);
+		MailBuilder builder = mailer.mail();
 		builder.to("steve@place.com", "Steve");
 		builder.body(new StringView("Email body").withContentType("text/plain"));
 		builder.subject("Subject line");
@@ -115,7 +123,7 @@ public class JavaMailMailerTest {
 		thrown.expect(MailException.class);
 		thrown.expectMessage("No recipient (to, cc or bcc) has been set for this email");
 
-		MailBuilder builder = mailer.mail(req);
+		MailBuilder builder = mailer.mail();
 		builder.from("sender@place.com", "Steve");
 		builder.body(new StringView("Email body").withContentType("text/plain"));
 		builder.subject("Subject line");
@@ -127,7 +135,7 @@ public class JavaMailMailerTest {
 		thrown.expect(MailException.class);
 		thrown.expectMessage("Failed to send an email - unable to set a sender or recipient of 'ju nk' <null>:");
 
-		MailBuilder builder = mailer.mail(req);
+		MailBuilder builder = mailer.mail();
 		builder.from("ju nk");
 		builder.to("steve", "Steve");
 		builder.body(new StringView("Email body").withContentType("text/plain"));
@@ -140,7 +148,7 @@ public class JavaMailMailerTest {
 		thrown.expect(MailException.class);
 		thrown.expectMessage("Failed to render email body: null");
 
-		MailBuilder builder = mailer.mail(req);
+		MailBuilder builder = mailer.mail();
 		builder.from("junk");
 		builder.to("steve", "Steve");
 		builder.body("No resolver registered for strings");

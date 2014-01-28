@@ -25,17 +25,28 @@ import static org.mockito.Mockito.*;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
+import com.threewks.thundr.http.RequestThreadLocal;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 
 public class MailBuilderImplTest {
 
 	private Mailer mailer = mock(Mailer.class);
 	private MockHttpServletRequest req = new MockHttpServletRequest();
-	private MailBuilderImpl builder = new MailBuilderImpl(mailer, req);
+	private MailBuilderImpl builder = new MailBuilderImpl(mailer);
+
+	@Before
+	public void before() {
+		RequestThreadLocal.set(req, null);
+	}
+
+	@After
+	public void after() {
+		RequestThreadLocal.clear();
+	}
 
 	@Test
 	public void shouldRetainSubject() {
@@ -127,11 +138,6 @@ public class MailBuilderImplTest {
 		builder.body("String");
 
 		assertThat(builder.<String> body(), is("String"));
-	}
-
-	@Test
-	public void shouldRetainRequest() {
-		assertThat(builder.request(), is(sameInstance((HttpServletRequest) req)));
 	}
 
 	@Test

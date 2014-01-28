@@ -17,10 +17,8 @@
  */
 package com.threewks.thundr.mail;
 
-import javax.servlet.http.HttpServletRequest;
-
 public interface Mailer {
-	public MailBuilder mail(HttpServletRequest request) throws MailException;
+	public MailBuilder mail() throws MailException;
 
 	public void send(MailBuilder mailBuilder) throws MailException;
 }

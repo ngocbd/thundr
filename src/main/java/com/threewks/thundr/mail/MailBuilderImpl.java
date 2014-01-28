@@ -21,11 +21,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 public class MailBuilderImpl implements MailBuilder {
 	private Mailer mailer;
-	private HttpServletRequest request;
 	private String subject;
 	private Map<String, String> from = new HashMap<String, String>();
 	private Map<String, String> replyTo = new HashMap<String, String>();
@@ -34,9 +31,8 @@ public class MailBuilderImpl implements MailBuilder {
 	private Map<String, String> bcc = new HashMap<String, String>();
 	private Object body;
 
-	public MailBuilderImpl(Mailer mailer, HttpServletRequest request) {
+	public MailBuilderImpl(Mailer mailer) {
 		this.mailer = mailer;
-		this.request = request;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -160,9 +156,5 @@ public class MailBuilderImpl implements MailBuilder {
 	@Override
 	public Map.Entry<String, String> replyTo() {
 		return replyTo.isEmpty() ? null : replyTo.entrySet().iterator().next();
-	}
-
-	public HttpServletRequest request() {
-		return request;
 	}
 }

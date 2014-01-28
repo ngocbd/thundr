@@ -37,11 +37,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import com.threewks.thundr.action.ActionException;
 import com.threewks.thundr.configuration.ConfigurationModule;
-import com.threewks.thundr.injection.Module;
+import com.threewks.thundr.http.RequestThreadLocal;
 import com.threewks.thundr.injection.InjectionContextImpl;
+import com.threewks.thundr.injection.Module;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.module.ModulesModule;
 import com.threewks.thundr.route.RouteModule;
@@ -350,6 +353,47 @@ public class ThundrServletTest {
 
 		when(routes.invoke(anyString(), Mockito.any(RouteType.class), Mockito.any(HttpServletRequest.class), Mockito.any(HttpServletResponse.class))).thenReturn(false);
 		servlet.applyRoute(RouteType.GET, new MockHttpServletRequest("/get/"), resp);
+	}
+
+	@Test
+	public void shouldSetAndClearRequestAndResponseIntoRequestScope() throws ServletException, IOException {
+		final MockHttpServletRequest req = new MockHttpServletRequest();
+		req.method("GET");
+		servlet = spy(servlet);
+
+		when(routes.invoke(anyString(), Mockito.any(RouteType.class), Mockito.any(HttpServletRequest.class), Mockito.any(HttpServletResponse.class))).thenAnswer(new Answer<String>() {
+			@Override
+			public String answer(InvocationOnMock invocation) throws Throwable {
+				assertThat(RequestThreadLocal.getRequest(), is((HttpServletRequest) req));
+				assertThat(RequestThreadLocal.getResponse(), is((HttpServletResponse) resp));
+				return "view";
+			}
+		});
+
+		servlet.service(req, resp);
+		assertThat(RequestThreadLocal.getRequest(), is(nullValue()));
+		assertThat(RequestThreadLocal.getResponse(), is(nullValue()));
+	}
+
+	@Test
+	public void shouldSetAndClearRequestAndResponseIntoRequestScopeOnException() throws ServletException, IOException {
+		thrown.expect(ViewResolverNotFoundException.class);
+		final MockHttpServletRequest req = new MockHttpServletRequest();
+		req.method("GET");
+		servlet = spy(servlet);
+
+		when(routes.invoke(anyString(), Mockito.any(RouteType.class), Mockito.any(HttpServletRequest.class), Mockito.any(HttpServletResponse.class))).thenAnswer(new Answer<String>() {
+			@Override
+			public String answer(InvocationOnMock invocation) throws Throwable {
+				assertThat(RequestThreadLocal.getRequest(), is((HttpServletRequest) req));
+				assertThat(RequestThreadLocal.getResponse(), is((HttpServletResponse) resp));
+				throw new ViewResolverNotFoundException("Intentional");
+			}
+		});
+
+		servlet.service(req, resp);
+		assertThat(RequestThreadLocal.getRequest(), is(nullValue()));
+		assertThat(RequestThreadLocal.getResponse(), is(nullValue()));
 	}
 
 	private void setInjectionContextIntoServlet(UpdatableInjectionContext injectionContext) {

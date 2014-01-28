@@ -29,9 +29,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.atomicleopard.expressive.Cast;
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.http.ContentType;
+import com.threewks.thundr.http.RequestThreadLocal;
 import com.threewks.thundr.http.SyntheticHttpServletResponse;
 import com.threewks.thundr.view.ViewResolver;
 import com.threewks.thundr.view.ViewResolverRegistry;
@@ -43,8 +43,8 @@ public abstract class BaseMailer implements Mailer {
 		this.viewResolverRegistry = viewResolverRegistry;
 	}
 
-	public MailBuilder mail(HttpServletRequest request) {
-		return new MailBuilderImpl(this, request);
+	public MailBuilder mail() {
+		return new MailBuilderImpl(this);
 	}
 
 	public void send(MailBuilder mailBuilder) {
@@ -82,8 +82,7 @@ public abstract class BaseMailer implements Mailer {
 		 */
 		Object body = mailBuilder.body();
 		SyntheticHttpServletResponse resp = new SyntheticHttpServletResponse();
-		MailBuilderImpl mailBuilderImpl = Cast.as(mailBuilder, MailBuilderImpl.class);
-		HttpServletRequest req = mailBuilderImpl == null ? null : mailBuilderImpl.request();
+		HttpServletRequest req = RequestThreadLocal.getRequest();
 		Map<String, Object> attributes = getAttributes(req); // save the current set of request attributes
 		try {
 			ViewResolver<Object> viewResolver = viewResolverRegistry.findViewResolver(body);
@@ -96,7 +95,8 @@ public abstract class BaseMailer implements Mailer {
 		return resp;
 	}
 
-	protected abstract void sendInternal(Entry<String, String> from, Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject, String content, String contentType);
+	protected abstract void sendInternal(Entry<String, String> from, Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject,
+			String content, String contentType);
 
 	protected void validateRecipients(Map<String, String> to, Map<String, String> cc, Map<String, String> bcc) {
 		if (Expressive.isEmpty(to) && Expressive.isEmpty(cc) && Expressive.isEmpty(bcc)) {

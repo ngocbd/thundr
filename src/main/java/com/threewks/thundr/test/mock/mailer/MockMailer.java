@@ -19,8 +19,6 @@ package com.threewks.thundr.test.mock.mailer;
 
 import static com.atomicleopard.expressive.Expressive.list;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.atomicleopard.expressive.EList;
 import com.threewks.thundr.mail.MailBuilder;
 import com.threewks.thundr.mail.MailException;
@@ -33,7 +31,7 @@ public class MockMailer implements Mailer {
 	}
 
 	@Override
-	public MailBuilder mail(HttpServletRequest request) {
+	public MailBuilder mail() {
 		return new MockMailBuilder(this);
 	}
 

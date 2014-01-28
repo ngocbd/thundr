@@ -33,6 +33,7 @@ import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.action.ActionException;
 import com.threewks.thundr.configuration.ConfigurationModule;
 import com.threewks.thundr.http.HttpSupport;
+import com.threewks.thundr.http.RequestThreadLocal;
 import com.threewks.thundr.injection.Module;
 import com.threewks.thundr.injection.InjectionContextImpl;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
@@ -116,6 +117,7 @@ public class ThundrServlet extends HttpServlet {
 		String requestPath = req.getRequestURI();
 		try {
 			Logger.debug("Invoking path %s", requestPath);
+			RequestThreadLocal.set(req, resp);
 			Routes routes = injectionContext.get(Routes.class);
 			final Object viewResult = routes.invoke(requestPath, routeType, req, resp);
 			if (viewResult != null) {
@@ -136,6 +138,8 @@ public class ThundrServlet extends HttpServlet {
 					viewResolver.resolve(req, resp, e);
 				}
 			}
+		} finally {
+			RequestThreadLocal.clear();
 		}
 	}
 
