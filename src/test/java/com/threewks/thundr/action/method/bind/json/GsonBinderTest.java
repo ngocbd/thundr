@@ -19,7 +19,6 @@ package com.threewks.thundr.action.method.bind.json;
 
 import static com.atomicleopard.expressive.Expressive.*;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -105,11 +104,28 @@ public class GsonBinderTest {
 	}
 
 	@Test
-	public void shouldBindJsonToExplodedParametersWhenNoPojoAvailableToBindTo() {
+	public void shouldNotBindJsonToExplodedParametersWhenNoPojoAvailableAndAHttpRequestIsPresent() {
 		ParameterDescription requestParameterDescription = new ParameterDescription("req", HttpServletRequest.class);
 		ParameterDescription stringParameterDescription = new ParameterDescription("name", String.class);
 		ParameterDescription intParameterDescription = new ParameterDescription("value", int.class);
 		Map<ParameterDescription, Object> bindings = mapKeys(requestParameterDescription, intParameterDescription, stringParameterDescription).to(null, null, null, null);
+		req.content("{ \"name\": \"pojo name\", \"value\": 5 }");
+
+		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+
+		Object stringValue = bindings.get(stringParameterDescription);
+		Object intValue = bindings.get(intParameterDescription);
+		assertThat(stringValue, is(nullValue()));
+		assertThat(intValue, is(nullValue()));
+
+		assertThat(bindings.get(requestParameterDescription), is(nullValue()));
+	}
+
+	@Test
+	public void shouldBindJsonToExplodedParametersWhenNoPojoAvailableToBindTo() {
+		ParameterDescription stringParameterDescription = new ParameterDescription("name", String.class);
+		ParameterDescription intParameterDescription = new ParameterDescription("value", int.class);
+		Map<ParameterDescription, Object> bindings = mapKeys(intParameterDescription, stringParameterDescription).to(null, null, null);
 		req.content("{ \"name\": \"pojo name\", \"value\": 5 }");
 
 		gsonBinder.bindAll(bindings, req, resp, pathVariables);
@@ -120,8 +136,38 @@ public class GsonBinderTest {
 		Object intValue = bindings.get(intParameterDescription);
 		assertThat(intValue, is(notNullValue()));
 		assertThat(intValue, is((Object) 5));
+	}
 
-		assertThat(bindings.get(requestParameterDescription), is(nullValue()));
+	@Test
+	public void shouldNotBindJsonToExplodedParametersWhenNoContentStreamAvailable() throws IOException {
+		ParameterDescription stringParameterDescription = new ParameterDescription("name", String.class);
+		ParameterDescription intParameterDescription = new ParameterDescription("value", int.class);
+		Map<ParameterDescription, Object> bindings = mapKeys(intParameterDescription, stringParameterDescription).to(null, null, null);
+		HttpServletRequest req = mock(HttpServletRequest.class);
+		when(req.getReader()).thenReturn(null);
+		when(req.getContentType()).thenReturn(ContentType.ApplicationJson.value());
+
+		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+
+		Object stringValue = bindings.get(stringParameterDescription);
+		Object intValue = bindings.get(intParameterDescription);
+		assertThat(stringValue, is(nullValue()));
+		assertThat(intValue, is(nullValue()));
+	}
+
+	@Test
+	public void shouldNotBindJsonToPojoWhenNoContentStreamAvailable() throws IOException {
+		ParameterDescription parameterDescription = new ParameterDescription("pojo", TestPojo.class);
+		Map<ParameterDescription, Object> bindings = map(parameterDescription, null);
+
+		HttpServletRequest req = mock(HttpServletRequest.class);
+		when(req.getReader()).thenReturn(null);
+		when(req.getContentType()).thenReturn(ContentType.ApplicationJson.value());
+
+		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+
+		Object boundValue = bindings.get(parameterDescription);
+		assertThat(boundValue, is(nullValue()));
 	}
 
 	@Test
@@ -214,7 +260,7 @@ public class GsonBinderTest {
 		Object stringValue = bindings.get(stringParameterDescription);
 		assertThat(intValue, is((Object) 15));
 		assertThat(stringValue, is((Object) "existing"));
-		
+
 		verify(req, never()).getInputStream();
 	}
 }

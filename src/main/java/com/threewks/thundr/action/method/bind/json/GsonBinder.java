@@ -17,9 +17,11 @@
  */
 package com.threewks.thundr.action.method.bind.json;
 
+import java.io.BufferedReader;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -39,7 +41,15 @@ import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.json.GsonSupport;
 
 public class GsonBinder implements ActionMethodBinder {
+	/**
+	 * When trying to bind to a Pojo/DTO, we know there is a specific set of objects that we shouldn't bother trying with. This list contains those types.
+	 */
 	public static final List<Class<?>> NonBindableTypes = Expressive.list(PathVariableBinder.PathVariableTypes).addItems(RequestClassBinder.BoundTypes).addItems(CookieBinder.BoundTypes);
+	/**
+	 * When trying to bind to the individual parameters of the json body, there are parameters that imply the controller wants to handle the request body itself and mean this binder shouldnt consume
+	 * the input stream.
+	 */
+	public static final List<Class<?>> TypesIndicatingBindingShouldBeSkipped = Expressive.<Class<?>> list(HttpServletRequest.class, ServletRequest.class);
 
 	private GsonBuilder gsonBuilder;
 
@@ -64,19 +74,15 @@ public class GsonBinder implements ActionMethodBinder {
 		return ContentType.ApplicationJson.value().equalsIgnoreCase(contentType);
 	}
 
-	protected boolean shouldBind(Map<ParameterDescription, Object> bindings) {
-		return bindings.containsValue(null);
-	}
-
 	@Override
 	public void bindAll(Map<ParameterDescription, Object> bindings, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVariables) {
-		if (!bindings.isEmpty()) {
+		if (!bindings.isEmpty() && bindings.containsValue(null)) {
 			String sanitisedContentType = ContentType.cleanContentType(req.getContentType());
-			if (canBind(sanitisedContentType) && shouldBind(bindings)) {
+			if (canBind(sanitisedContentType)) {
 				ParameterDescription jsonParameterDescription = findParameterDescriptionForJsonParameter(bindings);
 				Gson gson = gsonBuilder.create();
 				if (jsonParameterDescription != null) {
-					bindToSingleParameter(bindings, gson, req, jsonParameterDescription);
+					bindToSingleParameter(bindings, req, gson, jsonParameterDescription);
 				} else {
 					bindToUnboundParameters(bindings, req, gson);
 				}
@@ -85,34 +91,51 @@ public class GsonBinder implements ActionMethodBinder {
 	}
 
 	private void bindToUnboundParameters(Map<ParameterDescription, Object> bindings, HttpServletRequest req, Gson gson) {
-		try {
-			JsonObject json = new JsonParser().parse(req.getReader()).getAsJsonObject();
+		if (shouldBindToUnboundParameters(bindings)) {
+			try {
+				BufferedReader reader = req.getReader();
+				if (reader != null) {
+					JsonObject json = new JsonParser().parse(reader).getAsJsonObject();
 
-			for (Map.Entry<ParameterDescription, Object> entry : bindings.entrySet()) {
-				if (entry.getValue() == null) {
-					ParameterDescription parameterDescription = entry.getKey();
-					try {
-						JsonElement jsonElement = json.get(parameterDescription.name());
-						if (jsonElement != null) {
-							Object value = gson.fromJson(jsonElement, parameterDescription.type());
-							bindings.put(parameterDescription, value);
+					for (Map.Entry<ParameterDescription, Object> entry : bindings.entrySet()) {
+						if (entry.getValue() == null) {
+							ParameterDescription parameterDescription = entry.getKey();
+							try {
+								JsonElement jsonElement = json.get(parameterDescription.name());
+								if (jsonElement != null) {
+									Object value = gson.fromJson(jsonElement, parameterDescription.type());
+									bindings.put(parameterDescription, value);
+								}
+							} catch (Exception e) {
+								throw new BindException(e, "Failed to bind parameter '%s' as %s using JSON: %s", parameterDescription.name(), parameterDescription.type(), e.getMessage());
+							}
 						}
-					} catch (Exception e) {
-						throw new BindException(e, "Failed to bind parameter '%s' as %s using JSON: %s", parameterDescription.name(), parameterDescription.type(), e.getMessage());
 					}
 				}
+			} catch (BindException e) {
+				throw e;
+			} catch (Exception e) {
+				throw new BindException(e, "Failed to bind JSON: %s", e.getMessage());
 			}
-		} catch (BindException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new BindException(e, "Failed to bind JSON: %s", e.getMessage());
 		}
 	}
 
-	private void bindToSingleParameter(Map<ParameterDescription, Object> bindings, Gson gson, HttpServletRequest req, ParameterDescription jsonParameterDescription) {
+	protected boolean shouldBindToUnboundParameters(Map<ParameterDescription, Object> bindings) {
+		for (ParameterDescription parameterDescription : bindings.keySet()) {
+			if (TypesIndicatingBindingShouldBeSkipped.contains(parameterDescription.classType())) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private void bindToSingleParameter(Map<ParameterDescription, Object> bindings, HttpServletRequest req, Gson gson, ParameterDescription jsonParameterDescription) {
 		try {
-			Object converted = gson.fromJson(req.getReader(), jsonParameterDescription.type());
-			bindings.put(jsonParameterDescription, converted);
+			BufferedReader reader = req.getReader();
+			if (reader != null) {
+				Object converted = gson.fromJson(reader, jsonParameterDescription.type());
+				bindings.put(jsonParameterDescription, converted);
+			}
 		} catch (Exception e) {
 			throw new BindException(e, "Failed to bind parameter '%s' as %s using JSON: %s", jsonParameterDescription.name(), jsonParameterDescription.type(), e.getMessage());
 		}
