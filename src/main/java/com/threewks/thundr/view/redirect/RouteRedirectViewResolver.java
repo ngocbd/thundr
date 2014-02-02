@@ -22,6 +22,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.threewks.thundr.http.URLEncoder;
 import com.threewks.thundr.route.ReverseRouteException;
 import com.threewks.thundr.route.Route;
 import com.threewks.thundr.route.Routes;
@@ -43,6 +44,10 @@ public class RouteRedirectViewResolver implements ViewResolver<RouteRedirectView
 			throw new ViewResolutionException("Cannot redirect to the route named '%s': no route with this name exists", routeName);
 		}
 		String reverseRoute = getReverseRoute(viewResult, route);
+		String queryString = URLEncoder.encodeQueryString(viewResult.getQueryParameters());
+		if (queryString.length() > 1) {
+			reverseRoute += queryString;
+		}
 		try {
 			resp.sendRedirect(reverseRoute);
 		} catch (IOException e) {

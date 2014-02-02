@@ -25,6 +25,7 @@ import com.threewks.thundr.view.View;
 public class RouteRedirectView implements View {
 	private String route;
 	private Map<String, Object> pathVariables;
+	private Map<String, Object> queryParameters;
 
 	public RouteRedirectView(String route) {
 		this(route, Collections.<String, Object> emptyMap());
@@ -35,12 +36,22 @@ public class RouteRedirectView implements View {
 		this.pathVariables = pathVariables;
 	}
 
+	public RouteRedirectView(String route, Map<String, Object> pathVariables, Map<String, Object> queryParameters) {
+		this.route = route;
+		this.pathVariables = pathVariables;
+		this.queryParameters = queryParameters;
+	}
+
 	public String getRoute() {
 		return route;
 	}
 
 	public Map<String, Object> getPathVariables() {
 		return pathVariables;
+	}
+
+	public Map<String, Object> getQueryParameters() {
+		return queryParameters;
 	}
 
 	@Override

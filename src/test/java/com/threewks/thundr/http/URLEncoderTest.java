@@ -21,6 +21,11 @@ import static com.threewks.thundr.http.URLEncoder.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
 ;
@@ -121,8 +126,33 @@ public class URLEncoderTest {
 	@Test
 	public void shouldDecodePath() {
 		assertThat(decodePathComponent(encodePathComponent("This is - some, stuff & ? more things")), is("This is - some, stuff & ? more things"));
-		assertThat(decodePathComponent(encodePathComponent("This is **)()()@#!898492834dfkajd fkjd><\":}{}- some, stuff & ? more things")), is("This is **)()()@#!898492834dfkajd fkjd><\":}{}- some, stuff & ? more things"));
+		assertThat(decodePathComponent(encodePathComponent("This is **)()()@#!898492834dfkajd fkjd><\":}{}- some, stuff & ? more things")),
+				is("This is **)()()@#!898492834dfkajd fkjd><\":}{}- some, stuff & ? more things"));
+	}
 
+	@Test
+	public void shouldEncodeQueryParameters() {
+		assertThat(encodeQueryString(paramMap("param1", "value1", "param2", 2)), is("?param1=value1&param2=2"));
+		assertThat(encodeQueryString(paramMap("par am1", "val ue1", "param2", 2)), is("?par%20am1=val%20ue1&param2=2"));
+		assertThat(encodeQueryString(paramMap("par=am1", "val=ue1", "param2", 2)), is("?par%3Dam1=val%3Due1&param2=2"));
+		assertThat(encodeQueryString(paramMap("par&am1", "val&ue1", "param2", 2)), is("?par%26am1=val%26ue1&param2=2"));
+		assertThat(encodeQueryString(paramMap("param1", "value1", "param2", null)), is("?param1=value1&param2="));
+		assertThat(encodeQueryString(paramMap("param1", "value1", "param2", new DateTime(2014, 1, 30, 12, 0, 0, 0).withZoneRetainFields(DateTimeZone.UTC))),
+				is("?param1=value1&param2=2014-01-30T12%3A00%3A00.000Z"));
+
+		// basic whitespace and empty values
+		assertThat(encodeQueryString(null), is("?"));
+		assertThat(encodeQueryString(paramMap()), is("?"));
+	}
+
+	private Map<String, Object> paramMap(Object... values) {
+		Map<String, Object> results = new LinkedHashMap<String, Object>();
+		for (int i = 0; i < values.length; i += 2) {
+			String key = (String) values[i];
+			Object value = (Object) values[i + 1];
+			results.put(key, value);
+		}
+		return results;
 	}
 
 }

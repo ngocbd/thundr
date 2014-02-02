@@ -72,6 +72,19 @@ public class RouteRedirectViewResolverTest {
 		resolver.resolve(req, resp, viewResult);
 		verify(resp).sendRedirect("/route/expected");
 	}
+	@Test
+	public void shouldRedirectToNamedRouteWithQueryParameters() throws IOException {
+		RouteRedirectView viewResult = new RouteRedirectView("route2", Expressive.<String, Object> map("var", "expected"), Expressive.<String, Object> map("q1", "v1", "q2", "v2"));
+		resolver.resolve(req, resp, viewResult);
+		verify(resp).sendRedirect("/route/expected?q2=v2&q1=v1");
+	}
+
+	@Test
+	public void shouldOnlyIncludeQueryStringIfNecessary() throws IOException {
+		RouteRedirectView viewResult = new RouteRedirectView("route2", Expressive.<String, Object> map("var", "expected"), Expressive.<String, Object> map());
+		resolver.resolve(req, resp, viewResult);
+		verify(resp).sendRedirect("/route/expected");
+	}
 
 	@Test
 	public void shouldThrowViewResolutionExceptionWhenRedirectFails() throws IOException {

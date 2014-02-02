@@ -19,7 +19,13 @@ package com.threewks.thundr.http;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.threewks.thundr.exception.BaseException;
 
@@ -56,6 +62,25 @@ public class URLEncoder {
 	 */
 	public static final String encodeQueryComponent(String value) {
 		return escapeUsingPattern(acceptableQueryCharacters, value);
+	}
+
+	/**
+	 * Encodes the given query parameters into the query string such that it returns <code>?param1=value1&param2=value2&....</code>
+	 * 
+	 * @param parameters
+	 * @return
+	 */
+	public static final String encodeQueryString(Map<String, Object> parameters) {
+		if (parameters == null) {
+			parameters = Collections.emptyMap();
+		}
+		List<String> fragments = new ArrayList<String>(parameters.size());
+		for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+			String key = entry.getKey();
+			String value = entry.getValue() == null ? "" : entry.getValue().toString();
+			fragments.add(encodeQueryComponent(key) + "=" + encodeQueryComponent(value));
+		}
+		return "?" + StringUtils.join(fragments, "&");
 	}
 
 	public static final String decodePathComponent(String value) {

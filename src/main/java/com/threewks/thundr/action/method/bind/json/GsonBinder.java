@@ -140,7 +140,7 @@ public class GsonBinder implements ActionMethodBinder {
 			throw new BindException(e, "Failed to bind parameter '%s' as %s using JSON: %s", jsonParameterDescription.name(), jsonParameterDescription.type(), e.getMessage());
 		}
 	}
-
+	
 	private ParameterDescription findParameterDescriptionForJsonParameter(Map<ParameterDescription, Object> bindings) {
 		for (Map.Entry<ParameterDescription, Object> bindingEntry : bindings.entrySet()) {
 			ParameterDescription parameterDescription = bindingEntry.getKey();
