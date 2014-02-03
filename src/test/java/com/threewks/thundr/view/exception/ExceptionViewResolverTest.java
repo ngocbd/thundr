@@ -59,4 +59,11 @@ public class ExceptionViewResolverTest {
 
 		verify(resp).sendError(Mockito.eq(500), Mockito.startsWith("message\ncom.threewks.thundr.view.ViewResolutionException: message"));
 	}
+
+	@Test
+	public void shouldSwallowAnyIOExceptionsDuringViewResolution() throws IOException {
+		ViewResolutionException viewResult = mock(ViewResolutionException.class);
+		doThrow(new IOException("intentional")).when(resp).sendError(anyInt(), anyString());
+		resolver.resolve(req, resp, viewResult);
+	}
 }

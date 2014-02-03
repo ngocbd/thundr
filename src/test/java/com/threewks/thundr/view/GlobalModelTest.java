@@ -50,4 +50,30 @@ public class GlobalModelTest {
 		assertThat(globalModel.get("key"), is(nullValue()));
 		assertThat(globalModel.containsValue("other"), is(false));
 	}
+
+	@Test
+	public void shouldDelegateForStandardJavaObjectAndMapMethods() {
+		GlobalModel globalModel1 = new GlobalModel();
+		GlobalModel globalModel2 = new GlobalModel();
+		GlobalModel globalModel3 = new GlobalModel();
+		globalModel1.put("key", "value");
+		globalModel2.put("key", "value");
+		assertThat(globalModel1.equals(globalModel2), is(true));
+		assertThat(globalModel2.equals(globalModel1), is(true));
+		assertThat(globalModel1.equals(globalModel3), is(false));
+
+		assertThat(globalModel1.hashCode() == globalModel2.hashCode(), is(true));
+
+		assertThat(globalModel1.keySet(), is(globalModel2.keySet()));
+		assertThat(globalModel1.keySet(), is(not(globalModel3.keySet())));
+		assertThat(globalModel1.values(), hasItems(globalModel2.values().toArray()));
+		assertThat(globalModel3.values(), not(hasItems(globalModel1.values().toArray())));
+
+		assertThat(globalModel1.isEmpty(), is(false));
+		assertThat(globalModel3.isEmpty(), is(true));
+
+		globalModel1.clear();
+		assertThat(globalModel1.isEmpty(), is(true));
+
+	}
 }

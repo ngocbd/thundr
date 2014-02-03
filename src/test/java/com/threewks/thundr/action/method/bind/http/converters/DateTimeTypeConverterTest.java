@@ -22,11 +22,18 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Date;
 
+import jodd.typeconverter.TypeConversionException;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class DateTimeTypeConverterTest {
+
+	@Rule public ExpectedException thrown = ExpectedException.none();
+
 	@SuppressWarnings("deprecation")
 	@Test
 	public void shouldCreateDateFromVariousValues() {
@@ -37,5 +44,12 @@ public class DateTimeTypeConverterTest {
 		assertThat(convertor.convert(new Date(2014 - 1900, 0, 14)).compareTo(new DateTime(2014, 1, 14, 0, 0, 0, 0)), is(0));
 		assertThat(convertor.convert(new DateTime(2014, 1, 2, 3, 4).getMillis()).compareTo(new DateTime(2014, 1, 2, 3, 4)), is(0));
 		assertThat(convertor.convert(new DateTime(2014, 1, 2, 3, 4)).compareTo(new DateTime(2014, 1, 2, 3, 4)), is(0));
+	}
+
+	@Test
+	public void shouldThrowTypeConversionExceptionWhenCannotCreateUUID() {
+		thrown.expect(TypeConversionException.class);
+		DateTimeTypeConverter converter = new DateTimeTypeConverter();
+		converter.convert("abc");
 	}
 }

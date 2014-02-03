@@ -24,7 +24,6 @@ import java.lang.reflect.Type;
 import jodd.util.ReflectUtil;
 
 import com.atomicleopard.expressive.Cast;
-import com.threewks.thundr.logger.Logger;
 
 public class ParameterDescription {
 	private String name;
@@ -38,10 +37,6 @@ public class ParameterDescription {
 
 	public boolean isA(Class<?> is) {
 		Class<?> clazz = classType();
-		if (clazz == null) {
-			Logger.warn("Clazz is null, type is %s", type);
-		}
-
 		return clazz == null ? false : clazz.isAssignableFrom(is);
 	}
 

@@ -36,6 +36,7 @@ import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.action.Action;
 import com.threewks.thundr.action.ActionException;
 import com.threewks.thundr.action.ActionResolver;
+import com.threewks.thundr.action.redirect.RedirectAction;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
 
@@ -135,6 +136,16 @@ public class RoutesTest {
 	}
 
 	@Test
+	public void shouldReturnPreviouslyAddedActionResolver() {
+		ActionResolver<TestAction> actionResolver = routesObj.getActionResolver(TestAction.class);
+		assertThat(actionResolver, is(notNullValue()));
+		assertThat(actionResolver instanceof TestActionResolver, is(true));
+
+		// This is unregistered
+		assertThat(routesObj.getActionResolver(RedirectAction.class), is(nullValue()));
+	}
+
+	@Test
 	public void shouldHaveRouteAfterAddingRoutes() {
 		Routes routes = new Routes();
 		routes.addActionResolver(TestAction.class, new TestActionResolver());
@@ -204,6 +215,20 @@ public class RoutesTest {
 		assertThat(routesObj.getRoute("otherName"), is(nullValue()));
 		assertThat(routesObj.getRoute(null), is(nullValue()));
 		assertThat(routesObj.getRoute(""), is(nullValue()));
+	}
+
+	@Test
+	public void shouldListRoutes() {
+		Routes routes = new Routes();
+		routes.addActionResolver(TestAction.class, new TestActionResolver());
+		Route route1 = new Route(RouteType.GET, "/path/*.jpg", null);
+		Route route2 = new Route(RouteType.PUT, "/path/*.jpg", "PUT");
+		routes.addRoute(route1, new TestAction("action1"));
+		routes.addRoute(route2, new TestAction("action2"));
+
+		String expected = "GET     /path/*.jpg                                                       : action1\n"
+				+ "PUT     /path/*.jpg                                                  (PUT): action2\n";
+		assertThat(routes.listRoutes(), is(expected));
 
 	}
 

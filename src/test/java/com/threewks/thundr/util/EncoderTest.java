@@ -25,9 +25,16 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.codec.binary.Hex;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import com.threewks.thundr.exception.BaseException;
 
 public class EncoderTest {
+
+	@Rule public ExpectedException thrown = ExpectedException.none();
+
 	@Test
 	public void shouldEncodeHex() {
 		assertThat(new Encoder("0").hex().string(), is("30"));
@@ -88,5 +95,26 @@ public class EncoderTest {
 		MessageDigest md5 = MessageDigest.getInstance("MD5");
 		String expected = new String(Hex.encodeHex(md5.digest(input.getBytes())));
 		assertThat(new Encoder(input).md5().hex().string(), is(expected));
+	}
+
+	@Test
+	public void shouldThrowBaseExceptionWhenTryingToRunUnknownDigest() {
+		thrown.expect(BaseException.class);
+		thrown.expectMessage("'made-up' MessageDigest algorithm unavailable");
+		new Encoder("content").digest("made-up");
+	}
+
+	@Test
+	public void shouldThrowBaseExceptionWhenTryingToConvertToStringUsingUnknownStringEncoding() {
+		thrown.expect(BaseException.class);
+		thrown.expectMessage("The specified encoding 'MADE_UP' is not supported");
+		new Encoder("content").string("MADE_UP");
+	}
+
+	@Test
+	public void shouldThrowBaseExceptionWhenTryingToConvertToBytesUsingUnknownStringEncoding() {
+		thrown.expect(BaseException.class);
+		thrown.expectMessage("The specified encoding 'MADE_UP' is not supported");
+		new Encoder("content", "MADE_UP");
 	}
 }

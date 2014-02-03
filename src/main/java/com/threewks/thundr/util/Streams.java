@@ -70,14 +70,8 @@ public class Streams {
 	}
 
 	public static String getResourceAsString(String resource) {
-		try {
-			InputStream resourceAsStream = getResourceAsStream(resource);
-			return readString(resourceAsStream);
-		} catch (BaseException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new BaseException(e, "Could not load resource %s: %s", resource, e.getMessage());
-		}
+		InputStream resourceAsStream = getResourceAsStream(resource);
+		return readString(resourceAsStream);
 	}
 
 	public static InputStream getResourceAsStream(String resource) {

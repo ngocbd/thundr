@@ -119,7 +119,7 @@ public class Encoder {
 			data = md.digest(data);
 			return this;
 		} catch (NoSuchAlgorithmException e) {
-			throw new BaseException(e, "%s MessageDigest algorithm unavailable", algorithm);
+			throw new BaseException(e, "'%s' MessageDigest algorithm unavailable", algorithm);
 		}
 	}
 

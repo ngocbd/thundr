@@ -59,12 +59,14 @@ public class Routes {
 		Map<String, Route> routesForRouteType = this.routes.get(routeType);
 		if (routesForRouteType.containsKey(path)) {
 			Route existingRoute = routesForRouteType.get(path);
-			throw new RouteException("Unable to add the route '%s %s' - the route '%s %s' already exists which matches the same pattern", route.getRouteType(), route.getRoute(), existingRoute.getRouteType(), existingRoute.getRoute());
+			throw new RouteException("Unable to add the route '%s %s' - the route '%s %s' already exists which matches the same pattern", route.getRouteType(), route.getRoute(),
+					existingRoute.getRouteType(), existingRoute.getRoute());
 		}
 		if (StringUtils.isNotBlank(name)) {
 			if (namedRoutes.containsKey(name)) {
 				Route existingRoute = namedRoutes.get(name);
-				throw new RouteException("Unable to add the route '%s %s' with the name '%s' - the route '%s %s' has already been registered with this name", route.getRouteType(), route.getRoute(), name, existingRoute.getRouteType(), existingRoute.getRoute());
+				throw new RouteException("Unable to add the route '%s %s' with the name '%s' - the route '%s %s' has already been registered with this name", route.getRouteType(), route.getRoute(),
+						name, existingRoute.getRouteType(), existingRoute.getRoute());
 			}
 			this.namedRoutes.put(name, route);
 		}
@@ -190,6 +192,11 @@ public class Routes {
 	public <A extends Action> void addActionResolver(Class<A> actionType, ActionResolver<A> actionResolver) {
 		actionResolvers.put(actionType, actionResolver);
 		Logger.debug("Added action resolver %s for actions of type %s", actionResolver.getClass().getSimpleName(), actionType);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <A extends Action> ActionResolver<A> getActionResolver(Class<A> actionType) {
+		return (ActionResolver<A>) actionResolvers.get(actionType);
 	}
 
 	@SuppressWarnings("unchecked")

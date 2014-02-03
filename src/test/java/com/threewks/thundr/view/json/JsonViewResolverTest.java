@@ -109,4 +109,13 @@ public class JsonViewResolverTest {
 		return gson.fromJson("{\"key\":\"value\"}", JsonElement.class);
 	}
 
+	@Test
+	public void shouldAllowAccessToInternalGsonBuilder() {
+		assertThat(resolver.getGsonBuilder(), is(notNullValue()));
+
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		resolver = new JsonViewResolver(gsonBuilder);
+		assertThat(resolver.getGsonBuilder(), is(sameInstance(gsonBuilder)));
+	}
+
 }

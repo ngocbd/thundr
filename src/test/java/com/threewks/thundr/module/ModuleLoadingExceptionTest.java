@@ -15,36 +15,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.action.method.bind.http.converters;
+package com.threewks.thundr.module;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
-import java.util.UUID;
-
-import jodd.typeconverter.TypeConversionException;
-
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
-public class UUIDTypeConverterTest {
-
-	@Rule public ExpectedException thrown = ExpectedException.none();
+public class ModuleLoadingExceptionTest {
 
 	@Test
-	public void shouldGiveUUIDFromStringUUID() {
-		UUID randomUUID = UUID.randomUUID();
-		UUIDTypeConverter converter = new UUIDTypeConverter();
-		assertThat(converter.convert(randomUUID), is(randomUUID));
-		assertThat(converter.convert(randomUUID.toString()), is(randomUUID));
-		assertThat(converter.convert(null), is(nullValue()));
+	public void shouldRetainCauseAndMessage() {
+		Throwable cause = new RuntimeException("expected");
+		ModuleLoadingException e = new ModuleLoadingException(cause, "Error: %s", "message");
+		assertThat(e.getCause(), is(cause));
+		assertThat(e.getMessage(), is("Error: message"));
 	}
 
 	@Test
-	public void shouldThrowTypeConversionExceptionWhenCannotCreateUUID() {
-		thrown.expect(TypeConversionException.class);
-		UUIDTypeConverter converter = new UUIDTypeConverter();
-		converter.convert("abc");
+	public void shouldRetainMessage() {
+		ModuleLoadingException e = new ModuleLoadingException("Error: %s", "message");
+		assertThat(e.getCause(), is(nullValue()));
+		assertThat(e.getMessage(), is("Error: message"));
 	}
 }

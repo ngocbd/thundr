@@ -115,6 +115,15 @@ public class JsonpViewResolverTest {
 		assertThat(resp.getCookies(), hasItem(cookie));
 	}
 
+	@Test
+	public void shouldAllowAccessToInternalGsonBuilder() {
+		assertThat(resolver.getGsonBuilder(), is(notNullValue()));
+
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		resolver = new JsonpViewResolver(gsonBuilder);
+		assertThat(resolver.getGsonBuilder(), is(sameInstance(gsonBuilder)));
+	}
+
 	private JsonElement createJsonElement() {
 		Gson gson = new GsonBuilder().create();
 		return gson.fromJson("{\"key\":\"value\"}", JsonElement.class);

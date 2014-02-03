@@ -15,36 +15,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.action.method.bind.http.converters;
+package com.threewks.thundr.view;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
-import java.util.UUID;
-
-import jodd.typeconverter.TypeConversionException;
-
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
-public class UUIDTypeConverterTest {
-
-	@Rule public ExpectedException thrown = ExpectedException.none();
+public class ViewResolverNotFoundExceptionTest {
 
 	@Test
-	public void shouldGiveUUIDFromStringUUID() {
-		UUID randomUUID = UUID.randomUUID();
-		UUIDTypeConverter converter = new UUIDTypeConverter();
-		assertThat(converter.convert(randomUUID), is(randomUUID));
-		assertThat(converter.convert(randomUUID.toString()), is(randomUUID));
-		assertThat(converter.convert(null), is(nullValue()));
+	public void shouldFormatAndRetainMessage() {
+		ViewResolverNotFoundException e = new ViewResolverNotFoundException("format: %s", "message");
+		assertThat(e.getMessage(), is("format: message"));
+		assertThat(e.getCause(), is(nullValue()));
 	}
 
 	@Test
-	public void shouldThrowTypeConversionExceptionWhenCannotCreateUUID() {
-		thrown.expect(TypeConversionException.class);
-		UUIDTypeConverter converter = new UUIDTypeConverter();
-		converter.convert("abc");
+	public void shouldFormatAndRetainMessageAndCause() {
+		Throwable cause = new RuntimeException("cause");
+		ViewResolverNotFoundException e = new ViewResolverNotFoundException(cause, "format: %s", "message");
+		assertThat(e.getMessage(), is("format: message"));
+		assertThat(e.getCause(), is(cause));
 	}
 }

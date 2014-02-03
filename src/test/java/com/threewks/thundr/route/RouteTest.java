@@ -201,7 +201,12 @@ public class RouteTest {
 		thrown.expectMessage("Cannot generate a reverse route for /path/{var}/split/{var2} - one or more parameters were null");
 		Route route = new Route(null, "/path/{var}/split/{var2}", null);
 		assertThat(route.getReverseRoute(map("var", "value", "var2", null)), is("/path/value/split/"));
+	}
 
+	@Test
+	public void shouldConvertRouteToString() {
+		Route route = new Route(RouteType.GET, "/route/{var}/location.ext", "Name");
+		assertThat(route.toString(), is("GET     /route/{var}/location.ext                                   (Name)"));
 	}
 
 	private Matcher<String> isPath(String format, Object... args) {
