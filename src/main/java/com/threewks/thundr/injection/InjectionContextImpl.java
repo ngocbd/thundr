@@ -230,7 +230,7 @@ public class InjectionContextImpl implements UpdatableInjectionContext {
 				}
 			}
 			if (existing.size() > 1) {
-				throw new InjectionException("Unable to get an instance of %s - the result is ambiguous. The following matches exist: %s", type.getName(), StringUtils.join(existing.keySet(), ", "));
+				throw new InjectionException("Unable to get an instance of %s - the result is ambiguous. The following matches exist: %s. Check the casing of the expected parameter matches exactly.", type.getName(), StringUtils.join(existing.keySet(), ", "));
 			}
 			if (existing.size() == 1) {
 				return existing.values().iterator().next();

@@ -143,7 +143,7 @@ public class InjectionContextImplTest {
 		thrown.expectMessage("Unable to get an instance of java.util.Date - the result is ambiguous. The following matches exist: ");
 		thrown.expectMessage("date1");
 		thrown.expectMessage("date2");
-		
+
 		context.inject(new Date()).named("date1").as(Date.class);
 		context.inject(new Date()).named("date2").as(Date.class);
 
@@ -156,11 +156,34 @@ public class InjectionContextImplTest {
 		thrown.expectMessage("Unable to get an instance of java.util.Date - the result is ambiguous. The following matches exist: ");
 		thrown.expectMessage("date1");
 		thrown.expectMessage("date2");
-		
+
 		context.inject(new Date()).named("date1").as(Date.class);
 		context.inject(new Date()).named("date2").as(Date.class);
 
 		context.get(Date.class, "date");
+	}
+
+	@Test
+	public void shouldBeAbleToInvokeConstructorWithNamedInstanceWhenMoreThanOneNamedInstanceInjected() {
+		context.inject(new TestClass("testClass1")).named("testClass1").as(TestClass.class);
+		context.inject(new TestClass("testClass2")).named("testClass2").as(TestClass.class);
+		context.inject(TestClass3.class).as(TestClass3.class);
+
+		TestClass3 testClass3 = context.get(TestClass3.class, null);
+		assertThat(testClass3, is(notNullValue()));
+		assertThat(testClass3.getTestClass1().getArg1(), is("testClass1"));
+	}
+
+	@Test
+	public void shouldBeAbleToInvokeConstructorWithNamedInstanceWhenMoreThanOneNamedTypeInjected() {
+		context.inject("testClass1").named("arg1").as(String.class);
+		context.inject(TestClass.class).named("testClass1").as(TestClass.class);
+		context.inject(TestClass.class).named("testClass2").as(TestClass.class);
+		context.inject(TestClass3.class).as(TestClass3.class);
+
+		TestClass3 testClass3 = context.get(TestClass3.class, null);
+		assertThat(testClass3, is(notNullValue()));
+		assertThat(testClass3.getTestClass1().getArg1(), is("testClass1"));
 	}
 
 	@Test
@@ -170,6 +193,7 @@ public class InjectionContextImplTest {
 
 		assertThat(context.get(Date.class, "date1"), is(notNullValue()));
 	}
+
 	@Test
 	public void shouldReturnNullWhenNoNamedTypePresent() {
 		assertThat(context.get(Date.class), is(nullValue()));
