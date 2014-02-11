@@ -1,0 +1,271 @@
+---
+layout: 0.9/base
+title: Views
+description: Using views in thundr
+versionUrl: /0.9
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/basics.html">
+						Basics
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html">
+						Controllers
+					</a>
+				</li>
+
+				<li class="nav-header active">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html">
+						Views
+					</a>
+				</li>
+
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#views" data-target="#views">
+						Views
+					</a>
+				</li>
+
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#jspView" data-target="#jspView">
+						JspView
+					</a>
+				</li>
+
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#redirectView" data-target="#redirectView">
+						RedirectView
+					</a>
+				</li>
+
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#jsonView" data-target="#jsonView">
+						JsonView
+					</a>
+				</li>
+
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#stringView" data-target="#stringView">
+						StringView
+					</a>
+				</li>
+
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#httpStatusException" data-target="#httpStatusException">
+						HttpStatusException
+					</a>
+				</li>
+
+				<li class="divider"></li>
+
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#viewResolver" data-target="#viewResolver">
+						ViewResolver <span class="label label-info">Advanced</span>
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html">
+						Actions
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/injection-context.html">
+						Dependancy injection
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/email.html">
+						Email
+					</a>
+				</li>
+			</ul>
+		</div>
+	</aside>
+
+	<article id="views" class="col-md-9">
+		<div class="page-header">
+			<h1>thundr <small>views</small></h1>
+		</div>
+
+		<section id="page-overview" class="overview">
+		</section>
+
+		<section id="views">
+			<h4>Views</h4>
+
+			<p><a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html">Controller</a> methods can return a <code>View</code> object, which
+				controls what content is returned to the request client.</p>
+
+			<p>thundr handles views by passing them to registered a <code>ViewResolver</code>. You can read more about
+				registering custom view and view resolvers <a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#viewResolver">here</a>.</p>
+
+			<p>Below are the views that thundr supports out of the box, you can also inspect the ViewResolver hierarchy to see
+				all implementations.</p>
+		</section>
+
+		<section id="jspView" class="panel panel-default">
+  			<div class="panel-heading">
+    			<h4 class="panel-title">
+    				<a data-toggle="collapse"  href="#jspViewInner">
+						JspView
+						<i class="fa fa-minus-circle pull-right"></i>
+					</a>
+				</h4>
+			</div>
+
+			<div id="jspViewInner" class="panel-collapse collapse in">
+     		 	<div class="panel-body">
+					<p><code>JspView</code> results in a jsp being processed and served from the Servlet engine. You specify
+						the jsp file location, and optionally provide a data model to back it. Unless the jsp rendering
+						fails, an Html file and a 200 OK will be sent back to the user. </p>
+
+					<p>The jsp file is considered to be relative to the path /WEB-INF/jsp/, unless it is given as an
+						absolute path (i.e. starts with a forward slash, /)</p>
+
+{% highlight java %}
+...
+Map<String, Object> model = ... 
+return new JspView("path/to/my.jsp", model);
+...
+{% endhighlight %}
+					</div>
+			</div>
+		</section>
+
+		<section id="redirectView" class="panel panel-default">
+  			<div class="panel-heading">
+    			<h4 class="panel-title">
+    				<a data-toggle="collapse"  href="#redirectViewInner">
+						RedirectView
+						<i class="fa fa-minus-circle pull-right"></i>
+					</a>
+				</h4>
+			</div>
+
+			<div id="redirectViewInner" class="panel-collapse collapse in">
+     		 	<div class="panel-body">
+					<p><code>RedirectView</code> results in a temporary redirect (302) being sent back to the client with
+						the specified location. This will send a browser to the new url.</p>
+
+{% highlight java %}
+...
+return new RedirectView("http://www.google.com.au/search?q=thundr");
+...
+{% endhighlight %}
+				</div>
+			</div>
+		</section>
+		
+		<section id="jsonView" class="panel panel-default">
+  			<div class="panel-heading">
+    			<h4 class="panel-title">
+    				<a data-toggle="collapse"  href="#jsonViewInner">
+						JsonView
+						<i class="fa fa-minus-circle pull-right"></i>
+					</a>
+				</h4>
+			</div>
+			<div id="jsonViewInner" class="panel-collapse collapse in">
+     		 	<div class="panel-body">
+					<p><code>JsonView</code> uses the <a href="http://code.google.com/p/google-gson/">Gson library</a> to
+						serialize the given object to json, and return it to the request client.</p>
+
+{% highlight java %}
+...
+MyDto dto = ... 
+return new JsonView(dto);
+...
+{% endhighlight %}
+				</div>
+			</div>
+		</section>
+
+
+		<section id="stringView" class="panel panel-default">
+  			<div class="panel-heading">
+    			<h4 class="panel-title">
+    				<a data-toggle="collapse"  href="#stringViewInner">
+						StringView
+						<i class="fa fa-minus-circle pull-right"></i>
+					</a>
+				</h4>
+			</div>
+
+			<div id="stringViewInner" class="panel-collapse collapse in">
+     		 	<div class="panel-body">
+					<p><code>StringView</code> is a simple view which returns the given string as the response content, with
+						a response code of 200 OK. </p>
+
+{% highlight java %}
+...
+return new StringView("Hello!");
+...
+{% endhighlight %}
+				</div>
+			</div>
+		</section>
+		
+		<section id="httpStatusException" class="panel panel-default">
+  			<div class="panel-heading">
+    			<h4 class="panel-title">
+    				<a data-toggle="collapse"  href="#httpStatusExceptionInner">
+						HttpStatusException
+						<i class="fa fa-minus-circle pull-right"></i>
+					</a>
+				</h4>
+			</div>
+
+			<div id="httpStatusExceptionInner" class="panel-collapse collapse in">
+     		 	<div class="panel-body">
+					<p><code>HttpStatusException</code> is a RuntimeException which takes a status code as a constructor
+						parameter.</p>
+
+					<p>When thrown, the specified status code is returned to the client as an http error, along with the
+						specified message.</p>
+
+{% highlight java %}
+...
+throw new HttpStatusException(HttpServletResponse.SC_BAD_REQUEST, "Bad request at %d", System.currentTimeMillis());
+...
+{% endhighlight %}
+
+					<p>The servlet engine will process the response code as normal, so if your web.xml maps a jsp, then this
+						is the content returned to the client. e.g.</p>
+
+{% highlight xml %}				
+...
+<error-page>
+    <error-code>404</error-code>
+    <location>/WEB-INF/jsp/errors/404.jsp</location>
+</error-page>
+...
+{% endhighlight %}
+				</div>
+			</div>
+		</section>
+
+		<section id="viewResolver">
+			<h4><code>ViewResolver</code> <span class="label label-info">Advanced</span></h4>
+
+			<p>The <code>ViewResolverRegistry</code> returns a <code>ViewResolver</code> based on the class type of the view
+				returned from a controller method. The view resolver is then given the view instance, the servlet request and
+				servlet response and is expected to generate some output to the servlet response.</p>
+
+			<p>The view resolver registry is available in the <code>InjectionContext</code> during startup. An instance of a
+				<code>ViewResolver</code> can be registered at this point against <strong>any</strong> class type. That is,
+				while most views do implement the <code>View</code> interface, this is for convenience and not a requirement.
+			</p>
+		</section>
+	</article>
+</div>
+		

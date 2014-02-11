@@ -9,84 +9,114 @@ description: Using views in thundr
 		<div class="module_nav">
 			<ul class="nav nav-pills nav-stacked" role="navigation">
 				<li class="nav-header ">
-					<a href="{{ site.url }}/thundr/basics.html">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/basics.html">
 						Basics
 					</a>
 				</li>
 
 				<li class="nav-header ">
-					<a href="{{ site.url }}/thundr/controllers.html">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html">
 						Controllers
 					</a>
 				</li>
 
 				<li class="nav-header active">
-					<a href="{{ site.url }}/thundr/views.html">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html">
 						Views
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}/thundr/views.html#views" data-target="#views">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#views" data-target="#views">
 						Views
 					</a>
 				</li>
+				
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#baseView" data-target="#baseView">
+						BaseView
+					</a>
+				</li>
+				<li class="divider"></li>
+				
 
 				<li>
-					<a href="{{ site.url }}/thundr/views.html#jspView" data-target="#jspView">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#jspView" data-target="#jspView">
 						JspView
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}/thundr/views.html#redirectView" data-target="#redirectView">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#redirectView" data-target="#redirectView">
 						RedirectView
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#routeRedirectView" data-target="#routeRedirectView">
+						RouteRedirectView
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}/thundr/views.html#jsonView" data-target="#jsonView">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#jsonView" data-target="#jsonView">
 						JsonView
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}/thundr/views.html#stringView" data-target="#stringView">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#stringView" data-target="#stringView">
 						StringView
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}/thundr/views.html#httpStatusException" data-target="#httpStatusException">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#httpStatusException" data-target="#httpStatusException">
 						HttpStatusException
 					</a>
 				</li>
 
 				<li class="divider"></li>
-
+				
 				<li>
-					<a href="{{ site.url }}/thundr/views.html#viewResolver" data-target="#viewResolver">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#globalModel" data-target="#globalModel">
+						Global Model
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#viewResolver" data-target="#viewResolver">
 						ViewResolver <span class="label label-info">Advanced</span>
 					</a>
 				</li>
 
 				<li class="nav-header ">
-					<a href="{{ site.url }}/thundr/actions.html">
-						Actions
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html">
+						Routes and Actions
 					</a>
 				</li>
 
 				<li class="nav-header ">
-					<a href="{{ site.url }}/thundr/injection-context.html">
-						Dependancy injection
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html">
+						Modules
 					</a>
 				</li>
 
 				<li class="nav-header ">
-					<a href="{{ site.url }}/thundr/email.html">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/jsp.html">						
+						Jsp						
+					</a>
+				</li>
+	
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/email.html">
 						Email
 					</a>
 				</li>
+				
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html">
+						Utilities
+					</a>
+				</li>				
 			</ul>
 		</div>
 	</aside>
@@ -102,16 +132,36 @@ description: Using views in thundr
 		<section id="views">
 			<h4>Views</h4>
 
-			<p><a href="{{ site.url }}/thundr/controllers.html">Controller</a> methods can return a <code>View</code> object, which
+			<p><a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html">Controller</a> methods can return a <code>View</code> object, which
 				controls what content is returned to the request client.</p>
 
 			<p>thundr handles views by passing them to registered a <code>ViewResolver</code>. You can read more about
-				registering custom view and view resolvers <a href="{{ site.url }}/thundr/views.html#viewResolver">here</a>.</p>
+				registering custom view and view resolvers <a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#viewResolver">here</a>.</p>
 
-			<p>Below are the views that thundr supports out of the box, you can also inspect the ViewResolver hierarchy to see
+			<p>Below are the views that thundr supports out of the box. You can also inspect the ViewResolver hierarchy to see
 				all implementations.</p>
 		</section>
 
+
+	<section id="baseView">
+			<h4><code>BaseView</code></h4>
+			<p>
+				The BaseView is a base view class that provides common behaviour to View implementations.
+				All of the view types below (with the exception of the HttpStatusException) implement the base view.
+			</p>
+			<p>
+				This provides a common interface to add additional information to the response.
+			</p>
+{% highlight java %}
+...
+return new StringView("Hello!")
+	.withStatus(StatusCode.BadRequest)
+	.withHeader(HttpSupport.Header.ContentType, "text/plain")
+	.withCookie("user", userId);
+...
+{% endhighlight %}			
+		</section>
+		<h4>View types</h4>
 		<section id="jspView" class="panel panel-default">
   			<div class="panel-heading">
     			<h4 class="panel-title">
@@ -137,6 +187,14 @@ Map<String, Object> model = ...
 return new JspView("path/to/my.jsp", model);
 ...
 {% endhighlight %}
+					<blockquote>
+					The model passed into the view will be enhanced with all request attributes and the <a href="#globalModel">global model</a> when the view is rendered.
+					This means you can access any request attributes or entries in the globabl model in you jsp using EL, without
+					adding them by hand to your model.
+					</blockquote>
+					<p>
+						You can read more about thundr support for jsps <a href="jsp.html">here</a>.
+					</p>
 					</div>
 			</div>
 		</section>
@@ -161,6 +219,43 @@ return new JspView("path/to/my.jsp", model);
 return new RedirectView("http://www.google.com.au/search?q=thundr");
 ...
 {% endhighlight %}
+				</div>
+			</div>
+		</section>
+		
+		<section id="routeRedirectView" class="panel panel-default">
+  			<div class="panel-heading">
+    			<h4 class="panel-title">
+    				<a data-toggle="collapse"  href="#routeRedirectViewInner">
+						RouteRedirectView
+						<i class="fa fa-minus-circle pull-right"></i>
+					</a>
+				</h4>
+			</div>
+
+			<div id="routeRedirectViewInner" class="panel-collapse collapse in">
+     		 	<div class="panel-body">
+					<p><code>RouteRedirectView</code> results in a temporary redirect (302) being sent back to the client. 
+					The location is generated to match whatever the specified route has as a url.
+					This will send a browser to the new url.
+					</p>
+					<p> If we assume the following route was configured:</p>
+{% highlight java %}
+...
+routes.addRoute(RouteType.GET, "/users/{userId}/view", "UserView", new MethodAction(UserController.class, "view"));
+...
+{% endhighlight %}
+					<p>Then this would result in a redirect to '/user/1234/view'</p>
+{% highlight java %}
+...
+Map<String, Object> pathVariables = map("userId", 1234);
+return new RouteRedirectView("UserView", pathVariables);
+...
+{% endhighlight %}
+					<p>
+					The RouteRedirectView decouples the redirect from the configured route. This makes it easier to change/refactor routes
+					without needing to search/replace in your code base.
+					</p> 
 				</div>
 			</div>
 		</section>
@@ -253,17 +348,92 @@ throw new HttpStatusException(HttpServletResponse.SC_BAD_REQUEST, "Bad request a
 			</div>
 		</section>
 
+		<section id="globalModel">
+			<h4><code>GlobalModel</code></h4>
+
+			<p>The <code>GlobalModel</code> is a data model which allows you to provide data into all template rendering <code>View</code>
+			implementations without needing to add them in every controller. This is very useful for cross cutting needs.
+			</p>
+			<p>
+			The global model is configured at startup in your <a href="{{ site.url }}{{ page.versionUrl }}/thundr/basics.html#applicationModule">ApplicationModule</a>.
+			</p>
+{% highlight java %}
+public class ApplicationModule implements Module {
+...
+	@Override
+	public void configure(UpdatableInjectionContext injectionContext) {
+		super.configure(injectionContext);
+		GlobalModel globalModel = injectionContext.get(GlobalModel.class);
+		String applicationUrlFromApplicationProperties = injectionContext.get("applicationUrl")
+		globalModel.put("applicationUrl", applicationUrlFromApplicationProperties);
+		...
+{% endhighlight %}
+			<p>
+				In this example, the value configured in the application.properties file will now be available in
+				all template views (e.g. <a href="#jspView">JspView</a>, <a href="{{ site.url }}{{ page.versionUrl }}/thundr-handlebars/index.html#handlebarsView">HandlebarsView</a> etc). We could then use it as follows:
+			</p>	
+{% highlight jsp %}
+...
+	<a href="${applicationUrl}/path/to/awesome.page">It's awesome!</a>
+...
+{% endhighlight %}
+			<blockquote>
+				The <code>GlobalModel</code> can be very powerful if you put a factory class or lookup implementation in it.
+				For example, you could include a wrapper around a ThreadLocal containing the logged in user, or a factory that
+				looks up request based reference data.  
+			</blockquote>					
+			<div class="alert alert-warning">
+				Remember that the GlobalModel is a <strong>global model</strong> - it is shared by all views, and should only be
+				used in a stateless capacity. If you alter it at runtime, particularly in a request, then you are doing something wrong.
+			</div>
+		</section>
 		<section id="viewResolver">
 			<h4><code>ViewResolver</code> <span class="label label-info">Advanced</span></h4>
 
-			<p>The <code>ViewResolverRegistry</code> returns a <code>ViewResolver</code> based on the class type of the view
-				returned from a controller method. The view resolver is then given the view instance, the servlet request and
-				servlet response and is expected to generate some output to the servlet response.</p>
-
-			<p>The view resolver registry is available in the <code>InjectionContext</code> during startup. An instance of a
-				<code>ViewResolver</code> can be registered at this point against <strong>any</strong> class type. That is,
-				while most views do implement the <code>View</code> interface, this is for convenience and not a requirement.
+			<p>
+			Every type of <code>View</code> is rendered by a <code>ViewResolver</code>. You can create your own views just by implementing 
+			a ViewResolver and registering it with thundr at startup.
 			</p>
+{% highlight java %}
+public class ApplicationModule implements Module {
+...
+  @Override
+  public void configure(UpdatableInjectionContext injectionContext) {
+    super.configure(injectionContext);
+    ViewResolverRegistry viewResolverRegistry = injectionContext.get(ViewResolverRegistry.class);
+    viewResolverRegistry.addResolver(MyView.class, new MyViewResolver());
+    ...
+{% endhighlight %}			
+			<p>
+			You can register <em>any</em> class as a view, it doesn't need to implement the <code>View</code> interface, or extend <code>BaseView</code>.
+			This means you can register any of your application model classes, any exception type or any other class for that matter.
+			That is, while most views do implement the <code>View</code> interface, this is for convenience and not a requirement.
+			</p>		
+			<p>
+				At runtime, thundr will look at the type of the view returned from a controller method and find the appropriate <code>ViewResolver</code> in 
+				the <code>ViewResolverRegistry</code>.
+			</p>
+			<p>
+				The view resolver is then given the view instance, the servlet request and
+				servlet response and is expected to generate some output to the servlet response.
+			</p>
+			<blockquote>
+				If you're implementing a <code>ViewResolver</code> for sharing in a module, use the following guidelines:
+				<ul>
+					<li>
+						Implement the <code>View</code> interface. This allows controllers to return View, rather than Object when they mix return types
+					</li>
+					<li>
+						Extend <code>BaseView</code> and in your view resolver call the <code>BaseView.applyToResponse</code> method. This allows consumers to use a consistent interface. This may not always be appropriate, but usually is.
+					</li>
+					<li>
+						If you're writing a template style view (e.g. Jsp, Handlebars, Mustache, Freemarker etc) make sure you allow consumers to specify a model, and also include the global model.
+					</li>
+					<li>
+						If you're writing a data style view (e.g. Json, Xml etc) consider writing a <a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#parameterBinding">ParameterBinder or BinaryParameterBinder</a> so that the same representation can be consumed by controllers.
+					</li>
+				</ul>
+			</blockquote>
 		</section>
 	</article>
 </div>

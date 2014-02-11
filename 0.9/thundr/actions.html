@@ -1,7 +1,8 @@
 ---
-layout: base
+layout: 0.9/base
 title: Actions
 description: thundr framework actions
+versionUrl: /0.9
 ---
 
 <div class="row">
@@ -28,7 +29,7 @@ description: thundr framework actions
 
 				<li class="nav-header active">
 					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html">
-						Routes and Actions		
+						Actions						
 					</a>
 				</li>
 
@@ -83,27 +84,16 @@ description: thundr framework actions
 				</li>
 					
 				<li class="nav-header ">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html">
-						Modules					
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/injection-context.html">
+						Dependancy injection						
 					</a>
 				</li>
 
-				<li class="nav-header ">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/jsp.html">						
-						Jsp						
-					</a>
-				</li>
-				
 				<li class="nav-header ">
 					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/email.html">						
 						Email						
 					</a>
 				</li>
-				<li class="nav-header ">
-				<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html">
-					Utilities
-				</a>
-			</li>
 			</ul>
 		</div>
 	</aside>
@@ -127,20 +117,21 @@ description: thundr framework actions
 			</p>
 
 			<p>
-				Routes are defined in Modules at application startup. You register your routes on the <code>Routes</code> instance.
+				By default routes are loaded from the resource file <code>routes.json</code>. Within this file, routes 
+				are defined as a json structure.
 			</p>
-{% highlight java %}
-public class ApplicationModule implements Module {
-  @Override
-  public void start(UpdatableInjectionContext injectionContext) {
-    Routes routes = injectionContext.get(Routes.class);
-    
-    routes.addRoute(RouteType.GET, "/", "dashboard", new MethodAction(AccountController.class, "dashboard"));
-    routes.addRoute(RouteType.GET, "/signup", "signup.get", new MethodAction(AccountController.class, "signupGet"));
-    routes.addRoute(RouteType.POST, "/signup", "signup.post", new MethodAction(AccountController.class, "signupPost"));
-    routes.addRoute(RouteType.GET, "/view/{id}", "signup.post", new MethodAction(AccountController.class, "view"));
-  }
+
+{% highlight json %}
+{
+    "/"          : "au.com.threewks.thundrweb.Controller.home",
+    "/form/"     : {
+        "GET"    : "au.com.threewks.thundrweb.Controller.getForm",
+        "POST"   : "au.com.threewks.thundrweb.Controller.postForm"
+    },
+    "/view/{id}" : "au.com.threewks.thundrweb.Controller.view"
+}
 {% endhighlight %}
+
 			<p>
 				Routes can map to different types of actions. The most common action is <code>MethodAction</code>, 
 				which will result in a method being invoked on a 
@@ -148,26 +139,13 @@ public class ApplicationModule implements Module {
 			</p>
 
 			<p>
-				In the above example, requests to the base url &#39;/&#39; will be processed by the <em>dashboard</em> 
-				method defined in the <em>AccountController</em> class. GET Requests on &#39;/signup/&#39; will be processed 
-				by <em>signupGet()</em> and POSTs will be processed by <em>signupPost()</em>. Finally, requests matching 
+				In the above example, requests to the base url &#39;/&#39; will be processed by the <em>home</em> 
+				method defined in the <em>Controller</em> class. GET Requests on &#39;/form/&#39; will be processed 
+				by <em>getForm()</em> and POSTs will be processed by <em>postForm()</em>. Finally, requests matching 
 				the path <code>/view/*</code> will be processed by the method with the name <em>view</em>, with the 
 				addition that the value matching the wildcard can be passed as a parameter with the name &#39;id&#39;, 
 				permitting <em>view(String id)</em>.            
 			</p>
-			<p>
-				The path defined in a route is used as a wildcard match, and the action invoked is the first matched route based on the order they're added.
-			</p>
-			<p>
-				The following are valid in a route path:
-			</p>
-			<ul>
-				<li><strong>/path/components</strong> - standard path components</li>
-				<li><strong>/path/{variables}/</strong> - path variables are named parameters available when <a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#dataBindingSources">binding to controller methods</a></li>
-				<li><strong>/path/*/wildcards</strong> - wildcards with a single asterisk match just one path fragment. i.e. <em>/path/value/wildcards</em> matches and <em>/path/multi/value/wildcards</em> does not</li>
-				<li><strong>/path/**/wildcards</strong> - double wildcards match any number of path fragments.  i.e. both <em>/path/value/wildcards</em> and <em>/path/multi/value/wildcards</em> match</li>
-				<li><strong>/file/*.ext</strong> - extensions can be used in conjuction with other matching rules</li>
-			</ul>
 		</section>
 			
 		<section id="actionsSummary">
@@ -204,7 +182,7 @@ public class ApplicationModule implements Module {
 
 {% highlight java %}
 ...
-routes.addRoute(RouteType.GET, "/route/{variable}", null, new MethodAction(Controller.class, "actionMethod"));
+"/route/{variable}": "com.threewks.thundr.Controller.actionMethod"
 ...
 {% endhighlight %}
 
@@ -250,8 +228,8 @@ public class Controller {
 
 {% highlight java %}
 ...
-routes.addRoute(RouteType.GET, "/favicon.ico", null, new StaticResourceAction());
-routes.addRoute(RouteType.GET, "/static/**", null, new StaticResourceAction());
+"/favicon.ico": "static",
+"/static/**": "static",
 ...
 {% endhighlight %}
 
@@ -275,8 +253,8 @@ routes.addRoute(RouteType.GET, "/static/**", null, new StaticResourceAction());
 
 {% highlight java %}
 ...
-routes.addRoute(RouteType.GET, "/old", null, new RedirectAction("/new"));
-routes.addRoute(RouteType.GET, "/old/{withParam}", null, new RedirectAction("/new/{withParam}"));
+"/old": "redirect:/new",
+"/old/{withParam}": "redirect:/new/{withParam}",
 ...
 {% endhighlight %}
 
@@ -309,8 +287,8 @@ routes.addRoute(RouteType.GET, "/old/{withParam}", null, new RedirectAction("/ne
 
 {% highlight java %}
 ...
-routes.addRoute(RouteType.GET, "/requestedPath", null, new RewriteAction("/rewritten"));
-routes.addRoute(RouteType.GET, "/rewritten", null, new MethodAction(Controller.class, "method"));
+"/requestedPath"    : "rewrite:/rewritten",
+"/rewritten"        : "com.threewks.thundr.Controller.method"
 ...
 {% endhighlight %}
 
@@ -327,23 +305,29 @@ routes.addRoute(RouteType.GET, "/rewritten", null, new MethodAction(Controller.c
 				routes, although in general this is not necessary. 
 			</p>
 
-			<p>An action resolver is responsible for resolving an action when a route is requested by an http client</p>
+			<p>An action resolver has two responsibilities:</p>
+
+			<ul>
+				<li>creating an <code>Action</code> for a route if it can process that route, and</li>
+				<li>resolving an action it created when a route is requested by an http client</li>
+			</ul>
+
 			<p>
 				Action resolution usually involves binding data based on route configuration and request parameters, 
 				and serving up response content and http response codes. This is done using the standard Java Servlet 
 				interfaces, <code>HttpServletRequest</code> and <code>HttpServletResponse</code>.
 			</p>
 
-			<p>If you wish to register a custom Action and ActionResolver, do so when your Module is configured.</p>
+			<p>If you wish to register a custom Action and ActionResolver, you can invoke the method</p>
 
 {% highlight java %}			
-public class MyModule implements Module {
-	@Override
-	public void configure(UpdatableInjectionContext injectionContext) {
-		super.configure(injectionContext);
-		Routes routes = injectionContext.get(Routes.class);
-		routes.addActionResolver(MyAction.class, new MyActionResolver<MyAction>());
+Routes.addActionResolver(Class<A> actionType, ActionResolver<A> actionResolver);
 {% endhighlight %}
+
+			<p>
+				This needs to be done before the routes are loaded. The <code>Routes</code> object is available in the 
+				<code>InjectionConfiguration</code> during startup.
+			</p>
 		</section>
 	</article>
 </div>

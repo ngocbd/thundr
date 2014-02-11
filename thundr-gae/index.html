@@ -9,30 +9,63 @@ description: Using the Google App Engine module
 		<div class="module_nav">			
 			<ul class="nav nav-pills nav-stacked" role="navigation">			 					
 				<li class="nav-header active">
-					<a href="{{ site.url }}/thundr-gae/index.html">
-						GAE
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr-gae/index.html">
+						AppEngine
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}/thundr-gae/index.html#page-overview" data-target="#page-overview">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr-gae/index.html#page-overview" data-target="#page-overview">
 						Overview
 					</a>
 				</li>
-
-				<li class="divider"></li>
-						
+				
 				<li>
-					<a href="{{ site.url }}/thundr-gae/index.html#settingUp" data-target="#settingUp">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr-gae/index.html#settingUp" data-target="#settingUp">
 						Setting Up
 					</a>
 				</li>
+				
+				<li class="divider"></li>
 							
 				<li>
-					<a href="{{ site.url }}/thundr-gae/index.html#moduleFeatures" data-target="#moduleFeatures">
-						Module Features					
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr-gae/index.html#platform" data-target="#platform">
+						Platform				
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr-gae/index.html#searchService" data-target="#searchService">
+						SearchService				
+					</a>
+				</li>
+				  
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr-gae/index.html#httpService" data-target="#httpService">
+						HttpService				
 					</a>
 				</li>  
+				
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr-gae/index.html#objectify" data-target="#objectify">
+						Objectify				
+					</a>
+				</li>
+				
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr-gae/index.html#repository" data-target="#repository">
+						Repository				
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr-gae/index.html#testing" data-target="#testing">
+						Testing				
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr-gae/index.html#sample" data-target="#sample">
+						Sample				
+					</a>
+				</li>
 			</ul>
 		</div>
 	</aside>
@@ -51,7 +84,7 @@ description: Using the Google App Engine module
 			</p>
 
 			<p>
-				<em>thundr-gae</em> is a thundr module which enables thundr to run in this environment 
+				<em>thundr-gae</em> is a platform module for thundr which enables thundr to run in this environment 
 				adding abstractions around some common functions.
 			</p>
 		</section>
@@ -60,55 +93,72 @@ description: Using the Google App Engine module
 			<h4>Setting Up</h4>
 
 			<p>
-				Beyond <a href="{{ site.url }}/thundr/basics.html#applicationConfiguration">normal thundr setup</a> 
-				(i.e. <code>web.xml</code>, <code>application.properties</code>, <code>modules.properties</code> 
-				and an <code>InjectionConfiguration</code>), you will need to pull in the <em>thundr-gae</em> module 
+				Beyond <a href="{{ site.url }}{{ page.versionUrl }}/thundr/basics.html#applicationConfiguration">normal thundr setup</a> 
+				(i.e. <code>web.xml</code>, <code>application.properties</code>, and an <code>ApplicationModule</code>), you will need to pull in the <em>thundr-gae</em> module 
 				and configure it.
 			</p>
 
 			<p>
 				This is accomplished by adding the <em>thundr-gae</em> library to your project (or adding the 
-				dependency to your maven or similar config). You then need to load the <em>thundr-gae</em> module by 
-				adding it to your <code>modules.properties</code> file.
+				dependency to your maven or similar config). You then need to add a dependency on the module.
 			</p>
-
-			<p>pom.xml</p>
-
+			<p><code>pom.xml</code> - <a target="_blank" href="http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.threewks.thundr%22%20AND%20a%3A%22thundr-gae%22">Click here to find the latest version</a></p>
 {% highlight xml %}
 ...
 <dependency>
     <groupId>com.threewks.thundr</groupId>
     <artifactId>thundr-gae</artifactId>
-    <version>0.9.11</version>
+    <version>1.0</version>
     <scope>compile</scope>
 </dependency>
 ...
 {% endhighlight %}
 
-			<p>modules.properties</p>
+
+			<p>Your <code>ApplicationModule</code></p>
 
 {% highlight java %}
-com.mycompany.myapp=
-com.threewks.thundr.gae=
+...
+	@Override
+	public void requires(DependencyRegistry dependencyRegistry) {
+		super.requires(dependencyRegistry);
+		dependencyRegistry.addDependency(GaeModule.class);
+	}
+...
 {% endhighlight %}
-
-			<blockquote>
-				Remember order is important in modules.properties - include the <em>thundr-gae</em> module 
-				<strong>after</strong> you application.				
-			</blockquote>
+			<p>
+				You also need to specify an <a href="https://developers.google.com/appengine/docs/java/config/appconfig">appengine-web.xml</a>, which is 
+				basic appengine configuration (i.e. not thundr specific)
+			</p>
 		</section>
-				
-		<section id="moduleFeatures">
-			<h4>Module Features</h4>
-
-			<ul>
-				<li>
-					<h5>SearchService</h5>
+		<section id="platform">
+			<h3>Platform</h3>
+			<p>
+				<em>thundr-gae</em> acts as a <a href="{{ site.url }}{{ page.versionUrl }}/thundr/basics.html#platforms">platform module</a> for thundr. As such, 
+				it controls what environment thundr considers itself to be running in.
+			</p>
+			<p>
+				<code>GaeModule</code> specifies the current application id as the environment. That is, in your <code>appengine-web.xml</code>,
+				 the value in the <code>&lt;application/&gt;</code> element. 
+			</p>
+			<p>
+				If running the local devserver, the environment will be set to 'dev'.
+			</p>
+			<p>
+				This value is automatically included into the <a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#globalModel">Global Model</a>,
+				along with the application version (<code>&lt;version/&gt;</code>)
+			</p>
+			<p>
+				You can access this meta-information directly yourself using <code>GaeEnvironment</code> if you need to.
+			</p>
+		</section>		
+		<section id="searchService">
+					<h3>SearchService</h3>
 
 					<p>
 						The module provides an abstraction on top of the native 
 						<a href="https://developers.google.com/appengine/docs/java/search/">AppEngine search service</a>. 
-						This abstraction allows you to interact with the search service using your<br>
+						This abstraction allows you to interact with the search service using your
 						java object model (i.e. pojos and javabeans), rather than the low level api. The search service 
 						is implemented by the <em>class com.threewks.thundr.search.google.GoogleSearchService</em>.
 					</p>
@@ -118,16 +168,20 @@ com.threewks.thundr.gae=
 private SearchService searchService;
 
 public MyController(SearchService searchService){
-   this.searchService = searchService;
+	this.searchService = searchService;
 }
 
 public DomainModel search(String query, long time){
-SearchRequest<DomainModel> query = searchService.search(DomainModel.class);
-   // to perform a general query across all fields
-   query = query.query("search terms");
-
-   // to perform a query on a specific field
-   query = query.field("timestamp").greaterThan(time);
+	SearchRequest<DomainModel> query = searchService.search(DomainModel.class);
+	// to perform a general query across all fields
+	query = query.query("search terms");
+	
+	// to perform a query on a specific field
+	query = query.field("timestamp").greaterThan(time);
+	
+	SearchResult<DomainModel> searchResult = query.search();
+	EList<String> ids = searchResult.getSearchResultIds();
+	...
 }
 ...
 {% endhighlight %}
@@ -136,16 +190,24 @@ SearchRequest<DomainModel> query = searchService.search(DomainModel.class);
 						As you can see from this simple example, the SearchService provides a fluent api for querying 
 						specific fields.<br>It also provides facilities for limits, orders and offsets.    
 					</p>
-				</li>
-
-				<li>
-					<h5>HttpService</h5>
+					<p>
+						The search service provides an asynchronous interface on the underlying search service, so you can perform
+						operations such as datastore reads or http requests in parallel.
+					</p>
+					<p>
+						The search service also only currently returns ids for matching documents. To retrieve the actual entities, you
+						should then fetch them from your persistence store, whether it's the datastore or cloud sql.
+					</p>
+		</section>
+		<section id="httpService">
+			<h3>HttpService</h3>
 
 					<p>
-						The module provides an implementation of the HttpService defined in the thundr-http module 
-						<span class="label label-warning">Undocumented</span>. This is required because of the need to 
-						use the <a href="https://developers.google.com/appengine/docs/java/urlfetch/">UrlFetchService</a>. 
-						You can then inject it into your controllers and services like this:
+						The module provides an implementation of the <code>HttpService</code> defined in the thundr-http jar.
+					</p>
+					<p>
+					 	This is a fluent API which abstracts the <a href="https://developers.google.com/appengine/docs/java/urlfetch/">UrlFetchService</a>. 
+						You can then inject it into your controllers and services and use it as in the following example:
 					</p>
 
 {% highlight java %}
@@ -156,37 +218,229 @@ public MyController(HttpService httpService){
    this.httpService = httpService;
 }
 ...
+private Pojo loadRemotePojo(String id){
+	HttpResponse httpResponse = httpService.request(remoteUrl).parameter("id", id).get();
+	String response = httpResponse.getBody();
+	Gson gson = gsonBuilder.create();
+	T typedResponse = gson.fromJson(response, Pojo.class);
+	return typedResponse;
+}
+...
 {% endhighlight %}
-
-				</li>
-
-				<li>
-					<h5>CounterRepository</h5>
-					
-					<p>
-						Atomic incrementing counters can be a little tricky in distributed environment. 
-						<em>thundr-gae</em> provides an implementation for sharding counters based on the discussion 
-						<a href="https://developers.google.com/appengine/articles/sharding_counters">here</a>.
-					</p>
-
-					<p>You can use this in your project by adding it to your injection configuration like this:</p>
-
+			<p>
+				The HttpService provides an asynchronous interface for making remote calls.
+				You can run the call in parallel with other asynchronous operations, such as datastore reads.
+			</p>
+		</section>
+		<section id="objectify">
+			<h3>Objectify</h3>
+			
+			<p>
+				We recommend using <a href="https://code.google.com/p/objectify-appengine/">Objectify</a> as best practice for interacting with the low-level datastore.
+			</p>
+			<p>
+				It provides a more useful and usable api than JDO or JPA, and more correctly aligns with how the datastore fundamentally works.
+			</p>
+			<p>
+				It is also gives a significant productivity boost over the raw low level api.
+			</p>
+			<p>
+				In line with this, the thundr-gae module now includes a dependency on version 4 of objectify.
+			</p>
+			<p>
+				The <code>ObjectifyModule</code> is not automatically included as a dependency, doing so will configure
+				objectify for typical use.
+			</p>
 {% highlight java %}
 ...
-MemcacheService cacheService = MemcacheServiceFactory.getMemcacheService();
-DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
-CounterRepository counterRepository = new DatastoreCounterRepository(cacheService, datastoreService);
-injectionContext.inject(counterRepository).as(CounterRepository.class);
+	@Override
+	public void requires(DependencyRegistry dependencyRegistry) {
+		super.requires(dependencyRegistry);
+		dependencyRegistry.addDependency(GaeModule.class);
+		dependencyRegistry.addDependency(ObjectifyModule.class);
+	}
 ...
 {% endhighlight %}
-
-					<p>You can later use this in code like this:</p>
-
-{% highlight java %}					
-long currentCount = counterRepository.incrementCount("CounterType", entityId);
+			<p>
+				Doing this will configure Joda date/time types to work directly with objectify, and inject the <code>ObjectifyFactory</code> into the <code>InjectionContext</code>.
+			</p>
+			<h4>Configuring the Objectify filter</h4>
+			<p>
+				For Objectify to work, you <strong>must</strong> add the filter to your web.xml.
+{% highlight xml %}
+...
+	<!-- Clean up transactions, transaction contexts and async operations at the end of a request -->	
+	<filter>
+		<filter-name>ObjectifyFilter</filter-name>
+		<filter-class>com.googlecode.objectify.ObjectifyFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>ObjectifyFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+...
 {% endhighlight %}
-				</li>
-			</ul>
+			</p>
+			<blockquote>
+				<p>
+					Static access or instance injection?
+				</p>
+				<p>
+					Objectify, like the low level appengine API, is based on static access.
+				</p>
+				<p> 
+					Generally we would consider this bad practice, it results in tighter code coupling
+					and makes testing harder.
+				</p>
+				<p>	 
+					In the case of Objectify, it is very important that you access an Objectify instance
+					through the static accessor <code>ObjectifyService.ofy()</code> - this is because 
+					the Objectify instance returned is scoped to a transaction.
+				</p>
+				<p>
+					You can read more <a href="https://code.google.com/p/objectify-appengine/wiki/FrequentlyAskedQuestions#Can_I_use_Dependency_Injection_(Spring,_Guice,_Weld)_with_Object">here</a>
+				</p>					  
+			</blockquote>
+		</section>
+		<section id="repository">
+			<h3>Repository</h3>
+			<p>
+				The <code>Repository</code> interface defines the API for a basic data persistence service.
+			</p>
+			<p>
+				You can instantiate a repository by using the <code>BaseRepository</code>. This class combines <a href="#objectify">Objectify</a>
+				and the <a href="#searchService">SearchService</a> to have a unified interfae to save/load/query/search your entity. 
+			</p>
+			<p>
+				To use BaseRepository, your entity must be an Objectify entity and implement the <code>RepositoryEntity</code> interface.
+				The only constraint this places on you is that you need to use a <code>Long id</code>.  
+			</p>
+{% highlight java %}
+@Entity
+public class MyEntity implements RepositoryEntity{
+	@Id private Long id;
+	...
+	// All you entity data, @Indexed as appropriate
+	@Index 
+	private String field1;
+	private Long field2;
+	...
+	public Long getId() {
+		return id;
+	}
+	...			
+{% endhighlight %}	
+			<p>
+				You can then create a repository like this:
+			</p>
+{% highlight java %}
+...
+  List<String> searchableFields = Arrays.asList("field1", "field2");
+  Repository<MyEntity> repository = new BaseRepository<MyEntity>(MyEntity.class, searchableFields, searchService);
+...			
+{% endhighlight %}	
+			<p>
+				The 'searchableFields' parameter is a list of the properties of your entity which can be searched on.
+				This controls what fields are stored in the <code>SearchService</code>, and therefore can be filtered and sorted
+				on when calling the <code>Repository.search()</code> method.
+			</p>
+			<p>
+				For basic usage (crud and search), this will give you the majority of the utility you need.
+				If you need to add custom functions or want a specific type to make injection easier, just extend the BaseRepository.
+			</p>
+{% highlight java %}
+public class MyEntityRepository extends BaseRepository<MyEntity> {
+	private static final List<String> searchableFields = Arrays.asList("field1", "field2");
+	public MyEntityRepository(SearchService searchService) {
+		super(MyEntity.class, searchableFields, searchService);
+	}
+...
+  	public List<MyEntity> someCustomFunction(){
+...  	
+  	}
+...			
+{% endhighlight %}
+			<p>
+				The <code>Repository</code> exposes an asynchronous interface through <code>AsyncResult</code>
+				- typically any save/put operations need to act on both the datastore and search service, and 
+				will do so concurrently on both.
+			</p>
+			<blockquote>
+				<h5>Using the Repository without the SearchService</h5>
+				<p>
+					You can use the Repository (or BaseRepository) without the search service.
+				</p>
+				<p>
+					Just pass null or an empty list for the fields to be indexed.
+				</p>
+				<p>
+					If you do so, attempting to call search will result in an exception.
+				</p>
+			</blockquote>
+		</section>
+		<section id="testing">
+			<h3>Testing</h3>
+			<p>
+				Testing against appengine APIs can be a little bit of a hassle. The standard access pattern is
+				static, so you have to set up the <code>LocalServiceTestHelper</code> in all your tests.
+			</p>
+			<p>
+				<em>thundr-gae</em> also has a testing jar, which has a couple of helpful JUnit <a href="https://github.com/junit-team/junit/wiki/Rules">@Rules</a>
+			</p>
+			<p>
+				In your pom.xml (or equivalent):
+			</p>
+{% highlight xml %}
+...
+<dependency>
+	<groupId>com.threewks.thundr</groupId>
+	<artifactId>thundr-gae</artifactId>
+	<version>${thundr.version}</version>
+	<scope>test</scope>
+	<type>test-jar</type>
+</dependency>
+<dependency>
+	<groupId>com.google.appengine</groupId>
+	<artifactId>appengine-testing</artifactId>
+	<version>${gae.version}</version>
+	<scope>test</scope>
+</dependency>
+<dependency>
+	<groupId>com.google.appengine</groupId>
+	<artifactId>appengine-api-stubs</artifactId>
+	<version>${gae.version}</version>
+	<scope>test</scope>
+</dependency>
+...
+{% endhighlight %}		
+		<p>
+			In your unit tests:
+		</p>
+{% highlight java %}
+public TestClass {
+...
+  @Rule
+  public SetupAppengine setupAppengine = new SetupAppengine();
+  @Rule
+  public SetupObjectify setupObjectify = new SetupObjectify(Entity1.class, Entity2.class);
+...	
+{% endhighlight %}		
+		<p>
+			This will result in the <code>LocalServiceTestHelper</code> being configured, and 
+			if you need Objectify entities configured, the ones you specified will be registered.
+		</p>
+		<p>
+			You must always add the SetupAppengine rule before the SetupObjectify rule.
+		</p>
+		</section>
+		<section id="sample">
+			<h3>Sample?</h3>
+			<p>
+				All a bit hard? Don't worry - just <a href="https://github.com/3wks/thundr-sample/tree/gae">clone the <em>thundr-sample</em> project</a> and take a look.
+			</p>
+			<p>
+				Feel free to re-initialise it as your own git repository and hack away.
+			</p>
 		</section>
 	</article>
 </div>

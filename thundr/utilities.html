@@ -1,0 +1,206 @@
+---
+layout: base
+title: Utilities
+description: thundr utilities
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/basics.html">
+						Basics
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html">
+						Controllers
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html">
+						Views
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html">
+						Routes and Actions
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html">
+						Modules
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/jsp.html">						
+						Jsp						
+					</a>
+				</li>
+
+				<li class="nav-header">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/email.html">
+						Email
+					</a>
+				</li>
+				
+				<li class="nav-header active">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html">
+						Utilities
+					</a>
+				</li>
+				
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html#encoder" data-target="#encoder">
+						Encoder
+					</a>
+				</li>
+
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html#streams" data-target="#streams">
+						Streams
+					</a>
+				</li>
+				
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html#logger" data-target="#logger">
+						Logger
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html#urlEncoder" data-target="#urlEncoder">
+						URLEncoder
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html#cookies" data-target="#cookies">
+						Cookies
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html#httpSupport" data-target="#httpSupport">
+						HttpSupport
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html#statusCode" data-target="#statusCode">
+						StatusCode
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html#contentType" data-target="#contentType">
+						ContentType
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html#baseException" data-target="#baseException">
+						BaseException
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html#environment" data-target="#environment">
+						Environment
+					</a>
+				</li>
+			</ul>
+		</div>
+	</aside>
+
+	<article id="utilities" class="col-md-9">
+		<div class="page-header">
+			<h1>thundr <small>utilities</small></h1>
+		</div>
+
+		<section id="page-overview" class="overview">
+			thundr has a lot of utility code which can help you succinctly and rapidly deliver your application code.
+		</section>
+
+
+		<section id="encoder">
+			<h4><code>com.threewks.thundr.util.Encoder</code></h4>
+
+			<p>
+				Encoder provides a fluent api for encoding strings and binary data in various ways.
+			</p>
+			<p>
+				If you need to do something with Hex, Base32, Base64, MD5, SHA1, SHA256 etc, then this is a good place to look.
+			</p>
+		</section>
+		<section id="streams">
+			<h4><code>com.threewks.thundr.util.Streams</code></h4>
+			<p>
+				This utility class has convenience methods for dealing with Streams.
+			</p>
+		</section>
+		<section id="logger">
+			<h4><code>com.threewks.thundr.logger.Logger</code></h4>
+			<p>
+				A statically accessible Logger which sits on top of Java Util Logging (JUL).
+			</p>
+			<p>
+				All of thundr logs through this interface, and you can too.
+			</p>
+		</section>
+		<section id="urlEncoder">
+			<h4><code>com.threewks.thundr.http.URLEncoder</code></h4>
+			<p>
+				Provides convenience methods for dealing with url components that need encoding.
+			</p>
+		</section>
+		<section id="cookies">
+			<h4><code>com.threewks.thundr.http.Cookies</code></h4>
+			<p>
+				Provides a builder for creating Cookies, and some convenience methods for extracting them from a <code>HttpServletRequest</code>.
+			</p>
+		</section>
+		<section id="httpSupport">
+			<h4><code>com.threewks.thundr.http.HttpSupport</code></h4>
+			<p>
+				HttpSupport contains a range on constants and convenience methods for dealing with HTTP stuff.
+			</p>
+			<ul>
+				<li><strong>HttpSupport.Headers</strong> - a set of constants for common Http headers</li>
+				<li><strong>HttpSupport.Methods</strong> - a set of constants and methods for Http methods (GET/PUT/POST etc)</li>
+				<li><strong>HttpSupport.Authorizations</strong> - a set of constants for common authorizations</li>
+			</ul>
+		</section>
+		<section id="statusCode">
+			<h4><code>com.threewks.thundr.http.StatusCode</code></h4>
+			<p>
+				An enumeration for Http status codes, and utility methods for dealing with and understanding them.
+			</p>
+		</section>
+		<section id="contentType">
+			<h4><code>com.threewks.thundr.http.ContentType</code></h4>
+			<p>
+				An enumeration for common content types, and utility methods for dealing with them.
+			</p>
+		</section>
+		<section id="baseException">
+			<h4><code>com.threewks.thundr.exception.BaseException</code></h4>
+			<p>
+				A base exception class the allows you to pass a string format and args instead of just a message. Most if not all of the exceptions from thundr extend this - and you can too.
+			</p>
+		</section>
+		<section id="environment">
+			<h4><code>com.threewks.thundr.configuration.Environment</code></h4>
+			<p>
+				This class contains the current environment as configured for thundr.
+			</p>
+			<p>
+				 This is useful if you need to switch implementations or behaviour based on the current environment.
+			</p>
+			<p>
+				Generally, this sort of logic only belongs in your ApplicationModule, where you would inject a different implementation based on the environment.
+			</p>
+		</section>
+	</article>
+</div>
+
+		

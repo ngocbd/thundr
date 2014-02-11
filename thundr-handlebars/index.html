@@ -9,24 +9,35 @@ description: Using the Handlebars templating module
 		<div class="module_nav">
 			<ul class="nav nav-pills nav-stacked" role="navigation">
 				<li class="nav-header active">
-					<a href="{{ site.url }}/thundr-handlebars/index.html">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr-handlebars/index.html">
 						Handlebars
 					</a>
 				</li>
 
-				<li><a href="{{ site.url }}/thundr-handlebars/index.html#page-overview" data-target="#page-overview">Overview</a></li>
+				<li><a href="{{ site.url }}{{ page.versionUrl }}/thundr-handlebars/index.html#page-overview" data-target="#page-overview">Overview</a></li>
 				
 				<li class="divider"></li>
 
 				<li>
-					<a href="{{ site.url }}/thundr-handlebars/index.html#settingUp" data-target="#settingUp">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr-handlebars/index.html#settingUp" data-target="#settingUp">
 						Setting Up
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}/thundr-handlebars/index.html#moduleFeatures" data-target="#moduleFeatures">
-						Module Features
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr-handlebars/index.html#handlebarsView" data-target="#handlebarsView">
+						HandlebarsView
+					</a>
+				</li>
+				
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr-handlebars/index.html#helpers" data-target="#helpers">
+						Helpers
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr-handlebars/index.html#sample" data-target="#sample">
+						Sample
 					</a>
 				</li>
 			</ul>			
@@ -47,7 +58,7 @@ description: Using the Handlebars templating module
 			</p>
 
 			<p>
-				thundr-handlebars provides the HandlebarsView and HandlebarsViewResolver implementations 
+				thundr-handlebars provides the <code>HandlebarsView</code> and <code>HandlebarsViewResolver</code> implementations 
 				that allow you to use handlebars templates with thundr.
 			</p>
 
@@ -59,46 +70,50 @@ description: Using the Handlebars templating module
 		<section id="settingUp">
 			<h4>Setting Up</h4>
 
-			<p>Including the thundr-handlebars module will automatically register the HandlebarsViewResovler.</p>
+			<p>
+				Including the thundr-handlebars module will automatically register the HandlebarsViewResovler.
+			</p>
 
 			<p>
 				This is accomplished by adding the <em>thundr-handlebars</em> library to your project (or adding the 
-				dependency to your maven or similar config). You then need to load the <em>thundr-handlebars</em> 
-				module by adding it to your <code>modules.properties</code> file.
+				dependency to your maven or similar config). You then need to add a dependency on the <code>HandlebarsModule</code>
+				in your <code>ApplicationModule</code>. 
 			</p>
 
-			<p>pom.xml</p>
-
+			<p>
+				pom.xml - <a target="_blank" href="http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.threewks.thundr%22%20AND%20a%3A%22thundr-handlebars%22">Click here to find the latest version</a>
+			</p>
 {% highlight xml %}
 ...
 <dependency>
     <groupId>com.threewks.thundr</groupId>
     <artifactId>thundr-handlebars</artifactId>
-    <version>0.9.11</version>
+    <version>1.0</version>
     <scope>compile</scope>
 </dependency>
 ...
 {% endhighlight %}
 
-			<p>modules.properties</p>
+			<p>Your <code>ApplicationModule</code></p>
 
 {% highlight java %}
-com.mycompany.myapp=
-com.threewks.thundr.handlebars=
+...
+	@Override
+	public void requires(DependencyRegistry dependencyRegistry) {
+		super.requires(dependencyRegistry);
+		dependencyRegistry.addDependency(HandlebarsModule.class);
+	}
+...
 {% endhighlight %}
 		</section>
 			
-		<section id="moduleFeatures">
-			<h4>Module Features</h4>
+		<section id="handlebarsView">
+			<h3>HandlebarsView</h3>
 
-			<ul>
-				<li>
-					<h5>HandlebarsView and HandlebarsViewResolver</h5>
-
-					<p>
-						Once you have included the module, you can return a HandlebarsView from any controller 
-						method (or provide it for emails) like the following example:
-					</p>
+			<p>
+				Once you have included the module, you can return a HandlebarsView from any controller 
+				method (or provide it for <a href="{{ site.url }}{{ page.versionUrl }}/thundr/email.html">emails</a>) like the following example:
+			</p>
 
 {% highlight java %}
 ...
@@ -109,8 +124,44 @@ public HandlebarsView view() {
 }
 ...
 {% endhighlight %}
-				</li>
-			</ul>
+			<p>
+				<code>HandlebarsView</code> extends <a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#baseView">BaseView</a>, so
+				you can set headers, cookies, status code etc on it.
+			</p>
+			<p>
+				It also respects the <a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#globalModel">Global Model</a>.
+			</p>
+		</section>
+		<section id="helpers">
+			<h3>Helpers</h3>
+			<p>
+				The power of Handlebars comes from the ability to register helpers, which execute adhoc code that
+				can be invoked from inside templates.
+			</p>
+			<p>
+				<code>HandlebarsModule</code> preregisters <code>com.github.jknack.handlebars.helper.StringHelpers</code> for you.
+			</p>
+			<p>
+				If you wish to register custom helpers, you can do so in your <code>ApplicationModule</code> in <code>configure()</code> or
+				<code>start()</code> by getting the <code>Handlebars</code> instance out of the injection context.
+			</p>
+{% highlight java %}
+...
+@Override
+public void start(UpdatableInjectionContext injectionContext) {
+	super.start(injectionContext);
+
+	Handlebars handlebars = injectionContext.get(Handlebars.class);
+	handlebars.registerHelper("myHelper", new MyHelper());
+}
+...
+{% endhighlight %}
+		</section>
+		<section id="sample">
+			<h3>Sample?</h3>
+			<p>
+				Too hard - show me some code. <a href="https://github.com/3wks/thundr-sample/tree/handlebars">Clone the <em>thundr-sample</em> project</a> and take a look. 
+			</p>
 		</section>
 	</article>
 </div>

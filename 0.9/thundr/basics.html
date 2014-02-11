@@ -1,7 +1,8 @@
 ---
-layout: base
+layout: 0.9/base
 title: Basics
 description: thundr framework basics
+versionUrl: /0.9
 ---
 
 <div class="row">
@@ -44,24 +45,21 @@ description: thundr framework basics
 			</li>
 
 			<li>
-				<a href="{{ site.url }}{{ page.versionUrl }}/thundr/basics.html#applicationModule" data-target="#applicationModule">
-					ApplicationModule
+				<a href="{{ site.url }}{{ page.versionUrl }}/thundr/basics.html#modulesProperties" data-target="#modulesProperties">
+					modules.properties
 				</a>
 			</li>
+
+
 			<li>
-				<a href="{{ site.url }}{{ page.versionUrl }}/thundr/basics.html#routes" data-target="#routes">
-					Routes
+				<a href="{{ site.url }}{{ page.versionUrl }}/thundr/basics.html#injectionConfiguration" data-target="#injectionConfiguration">
+					InjectionConfiguration
 				</a>
 			</li>
 
 			<li>
 				<a href="{{ site.url }}{{ page.versionUrl }}/thundr/basics.html#applicationProperties" data-target="#applicationProperties">
 					application.properties
-				</a>
-			</li>
-			<li>
-				<a href="{{ site.url }}{{ page.versionUrl }}/thundr/basics.html#platforms" data-target="#platforms">
-					Platforms
 				</a>
 			</li>
 
@@ -79,31 +77,19 @@ description: thundr framework basics
 
 			<li class="nav-header ">
 				<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html">
-					Routes and Actions
+					Actions
 				</a>
 			</li>
 
 			<li class="nav-header ">
-				<a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html">
-					Modules
-				</a>
-			</li>
-
-			<li class="nav-header ">
-				<a href="{{ site.url }}{{ page.versionUrl }}/thundr/jsp.html">						
-					Jsp						
+				<a href="{{ site.url }}{{ page.versionUrl }}/thundr/injection-context.html">
+					Dependancy injection
 				</a>
 			</li>
 
 			<li class="nav-header ">
 				<a href="{{ site.url }}{{ page.versionUrl }}/thundr/email.html">
 					Email
-				</a>
-			</li>
-			
-			<li class="nav-header ">
-				<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html">
-					Utilities
 				</a>
 			</li>
 		</ul>
@@ -143,7 +129,13 @@ description: thundr framework basics
 	<section id="basicExample">
 		<h4>Basic Example</h4>
 
-		<p>Given the following Controller and View implementations, we can see the basics of how thundr would render a page</p>
+		<p>Routes file - routes.json <a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html">more</a></p>
+
+{% highlight json %}
+{
+    "/"        : "com.threewks.web.Controller.home"
+}
+{% endhighlight %}
 
 		<p>Controller - Controller.java <a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html">more</a></p>
 
@@ -178,7 +170,7 @@ public class Controller {
 </html>
 {% endhighlight %}
 
-		<p>Assuming that when you visit the url <code>http://localhost:8080/</code> thundr takes care of invoking your controller method, you would be served
+		<p>With these three files, if you were to visit the url <code>http://localhost:8080/</code> you would be served
 			a page with the content &#39;Hello World!&#39;.</p>
 
 		<p>We can see the basics of thundr and the three elements of the MVC interacting here:</p>
@@ -189,7 +181,7 @@ public class Controller {
 				map with our message,
 			</li>
 			<li>which is then provided to our <a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html">view</a>, a JspView.</li>
-			<li>thundr takes care of the rest, serving up our jsp as html, substituting the el variable ${message} with
+			<li>thundr takes care of the rest, serving up our jsp as html, substituting the el variable \${message} with
 				the text &#39;Hello World!&#39;.
 			</li>
 		</ul>
@@ -204,8 +196,8 @@ public class Controller {
 			required for a thundr based application.</p>
 		<ul>
 			<li><a href="#webXml">web.xml</a> - configuring the thundr servlet</li>
-			<li><a href="#applicationModule">ApplicationModule</a> - your dependency injection configuration</li>
-			<li><a href="#routes">Routes</a> - configure url mappings to controllers</li>
+			<li><a href="#modulesProperties">modules.properties</a> - defining the thundr modules in use</li>
+			<li><a href="#injectionConfiguration">InjectionConfiguation</a> - your dependency injection configuration</li>
 			<li><a href="#applicationProperties">application properties</a> - your environmental properties</li>
 		</ul>
 	</section>
@@ -237,105 +229,88 @@ public class Controller {
 		<p>Beyond this, you can use any servlets, servlet filters or other web.xml features you want. Remember that
 			thundr is capable of invoking a servlet as a controller if you so wish. </p>
 	</section>
-	<section id="applicationModule">
-		<h4><code>ApplicationModule</code></h4>
-		
-		<p>
-			When your application starts up, you need to specify all the classes it will use. 
-			Generally these are the controllers, service classes and repository/DAL classes.
-		</p>
-		<p>
-			You do this in your <code>ApplicationModule</code> class. This is where you configure your dependency injection container
-			(called the InjectionContext) so that thundr can invoke your controller methods. 
-		</p>
-		<p>
-			thundr looks for your ApplicationModule in the default package (i.e. no package), and it must implement the 
-			<code>com.threewks.thundr.injection.Module</code> interface.
-		</p>
-		
-		<p>Below is a minimal ApplicationModule, which uses a base class, rather than the Module interface directly, and injects a sample controller, service dependency and configures a single route.</p>
+
+	<section id="modulesProperties">
+		<h4><code>modules.properties</code></h4>
+
+		<p>thundr is extensible, it allows extra features and components to be added to applications. These components
+			are called <strong>modules</strong>.</p>
+
+		<p>Modules are configured by adding them to resource <em>modules.properties</em>.</p>
+
+		<p>This file is a standard java properties file, where only the key values are of interest.<br>Each entry causes
+			a module to be loaded. The minimum modules file only needs to contain the package for the module which is
+			the application.</p>
+
+		<p>for the application defined in com.mycompany.myapp - modules.properties</p>
 
 {% highlight java %}
-import com.threewks.thundr.injection.BaseModule;
-
-public class ApplicationModule extends BaseModule {
-	@Override
-	public void configure(UpdatableInjectionContext injectionContext) {
-		super.configure(injectionContext);
-		injectionContext.inject(MyServiceImpl.class).as(MyServiceInterface.class);
-		
-		Routes routes = injectionContext.get(Routes.class);
-		routes.addRoute(RouteType.GET, "/", null, new MethodAction(MyController.class, "home"));
-	}
-}
-
+com.mycompany.myapp=
 {% endhighlight %}
 		
-		<p>Components are contributed to thundr as <em>modules</em>. A module is defined as a group of code and a <code>Module</code> file which connects them together</p>
-		<p>You application itself forms a module to make available all the instances and classes you wish to
-			inject into your controllers and each-other.
-			You can read more about modules <a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html">here</a>
-		</p>
+		<blockquote>
+			The order of modules in this file is significant, you should always put your application module at the top.
+		</blockquote>
 	</section>
 
 
-	<section id="routes">
-		<h4>Routes</h4>
-		
-		<p>
-			Routes control which controller method (or other action) is invoked when a request is served.
-		</p>
-		<p>
-			Routes are added programatically during application startup in your ApplicationModule. By the time your ApplicationModule
-			is invoked, thundr will have put many objects into your InjectionContext. One of these is the <code>com.threewks.thundr.route.Routes</code> object.
-		</p>
-		<p>
-			This class is the central registry of where different requests get routed to in your application.
-		</p>
-		<p>
-			You can simply call the <code>Routes.addRoute</code> method to add routes.
-		</p>
-{% highlight java %}
-import com.threewks.thundr.injection.BaseModule;
+	<section id="injectionConfiguration">
+		<h4><code>InjectionConfiguration</code></h4>
 
-public class ApplicationModule extends BaseModule {
-  @Override
-  public void configure(UpdatableInjectionContext injectionContext) {
-    super.configure(injectionContext);
-    // Get the routes out of the injection context
-    Routes routes = injectionContext.get(Routes.class);
-		
-    // add desired routes
-    routes.addRoute(RouteType.GET, "/", null, new MethodAction(MyController.class, "home"));
-    routes.addRoute(RouteType.POST, "/", null, new MethodAction(MyController.class, "update"));
-  }
+		<p>A module is defined as a group of code and an <code>InjectionConfiguration</code> file.</p>
+
+		<p>You application uses an InjectionConfiguration to make available all the instances and classes you wish to
+			inject into your controllers and each-other</p>
+
+		<p>Your injection configuration needs to implement
+			<code>com.threewks.thundr.injection.InjectionConfiguration</code>. It also has to have a specific name,
+			which is <strong>X</strong>InjectionConfiguration where <strong>X</strong> is the name of the package it
+			resides in. </p>
+
+		<p>For example, if your injection configuration is in the package <code>com.mycompany.myapp</code>, your<br>configuration
+			must be the java class <code>com.mycompany.myapp.MyappInjectionConfiguration</code>. In this case, your <em>module</em>
+			will be com.mycompany.myapp.</p>
+
+		<p>com.mycompany.myapp.MyappInjectionConfiguration</p>
+
+{% highlight java %}	
+package com.mycompany.myapp;
+
+import com.threewks.thundr.injection.BaseInjectionConfiguration;
+import com.threewks.thundr.injection.InjectionConfiguration;
+import com.threewks.thundr.injection.UpdatableInjectionContext;
+import com.threewks.thundr.profiler.BasicProfiler;
+import com.threewks.thundr.profiler.Profiler;
+
+public class MyappInjectionConfiguration implements InjectionConfiguration {
+
+    @Override
+    public void configure(UpdatableInjectionContext injectionContext) {
+        injectionContext.inject(MyServiceImpl.class).as(MyServiceInterface.class);
+        injectionContext.inject(MyRepositoryImpl.class).as(MyRepositoryInterface.class);
+    }
 }
 {% endhighlight %}
-	<p>
-		A route consists of the following basic elements:
-		<ul>
-			<li><strong>RouteType</strong> - GET, PUT, POST, DELETE - the http method that this route should match</li>
-			<li><strong>Route</strong> - the url pattern that this route should match</li>
-			<li><strong>Name</strong> - routes can be named so that they can be easily referred to - this helps keep your application DRY</li>
-			<li><strong>Action</strong> - if the route type and route match, this action will be executed. In the example above, a MethodAction results in a controller method being invoked</li>
-		</ul>
-		
-		Read more about routes and actions <a href="actions.html">here</a>.
-	</p>
 
+		<blockquote>
+			The naming rules for an InjectionConfiguration are case sensitive! My<strong>a</strong>ppInjectionConfiguration
+				is not the same as My<strong>A</strong>ppInjectionConfiguration.
+		</blockquote>
+
+		<p>Rather than implement <code>InjectionConfiguration</code>, you can also extend <code>BaseInjectionConfiguration</code>
+			for convenience.</p>
 	</section>
-	
+
 	<section id="applicationProperties">
 		<h4><code>application.properties</code></h4>
 
 		<p>thundr automatically loads properties from the <code>application.properties</code> file and puts them as
-			named strings into the InjectionContext. This makes them available both in your ApplicationModule and
+			named strings into the InjectionContext. This makes them available both in your InjectionConfiguration and
 			also as constructor arguments to injected dependencies.</p>
 
-		<p>This file is suitable for specifying configuration values that change per environment. That is, while your
-			dependency configuration is generally environmentally agnostic, the application properties will generally not
-			be. 
-		</p>
+		<p>This file is suitable for specifying configuration values that change per environment. That is, while all the
+			other configuration is generally environmentally agnostic, the application properties will generally not
+			be. </p>
 
 		<p>This allows your built war file to be portable through environments without requiring rebuilding.</p>
 
@@ -353,39 +328,6 @@ serverUrl%production=www.production.com
 			The environment named &#39;dev&#39; is special, in that it specifically applies to local development,
 			rather than a target deployment environment.
 		</blockquote>
-	</section>
-	<section id="platforms">
-		<h4>Platforms</h4>
-
-		<p>
-			thundr can run on anywhere you can run a servlet container. 
-		</p>
-		<p>
-			To configure the environment for different platforms, you need a platform <a href="modules.html">Module</a>.
-			Minimally, all a platform module does is specify which environment (dev, test, uat, prod etc)
-			the application is currently running in.
-		</p>
-		<p>
-		Some platform modules, like <a href="{{ site.url }}{{ page.versionUrl }}/thundr-gae/">thundr-gae</a> expose more useful behaviour.
-		</p>
-		<p>
-			If you don't have a platform module, be sure to set your environment at startup in your <code>ApplicationModule</code> 
-		</p>
-{% highlight java %}
-import com.threewks.thundr.injection.BaseModule;
-
-public class ApplicationModule extends BaseModule {
-...
-	@Override
-	public void initialise(UpdatableInjectionContext injectionContext) {
-		super.initialise(injectionContext);
-		Environment.set("environmentName");
-	}
-...
-{% endhighlight %}		
-	</section>
-	<section>
-		Now that you know the basics, read more about <a href="controllers.html">Controllers</a>
 	</section>
 </article>
 </div>

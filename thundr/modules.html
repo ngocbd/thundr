@@ -9,85 +9,107 @@ description: Dependency injection in thundr
 		<div class="module_nav">
 			<ul class="nav nav-pills nav-stacked" role="navigation">
 				<li class="nav-header ">
-					<a href="{{ site.url }}/thundr/basics.html">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/basics.html">
 						Basics
 					</a>
 				</li>
 
 				<li class="nav-header ">
-					<a href="{{ site.url }}/thundr/controllers.html">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html">
 						Controllers
 					</a>
 				</li>
 
 				<li class="nav-header ">
-					<a href="{{ site.url }}/thundr/views.html">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html">
 						Views
 					</a>
 				</li>
 
 				<li class="nav-header ">
-					<a href="{{ site.url }}/thundr/actions.html">
-						Actions
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html">
+						Routes and Actions
 					</a>
 				</li>
 
 				<li class="nav-header active">
-					<a href="{{ site.url }}/thundr/injection-context.html">
-						Dependancy injection
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html">
+						Modules
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}/thundr/injection-context.html#page-overview" data-target="#page-overview">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html#page-overview" data-target="#page-overview">
 						Overview
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html#modules" data-target="#modules">
+						Modules
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html#module-lifecycle" data-target="#module-lifecycle">
+						Module Lifecycle
 					</a>
 				</li>
 
 				<li class="divider"></li>
 
 				<li>
-					<a href="{{ site.url }}/thundr/injection-context.html#injectionContext" data-target="#injectionContext">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html#injectionContext" data-target="#injectionContext">
 						InjectionContext
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}/thundr/injection-context.html#injectionTypes" data-target="#injectionTypes">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html#injectionTypes" data-target="#injectionTypes">
 						Injection by type
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}/thundr/injection-context.html#namedTypes" data-target="#namedTypes">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html#namedTypes" data-target="#namedTypes">
 						Injection by named type
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}/thundr/injection-context.html#instantiation" data-target="#instantiation">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html#instantiation" data-target="#instantiation">
 						Instantiation
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}/thundr/injection-context.html#properties" data-target="#properties">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html#properties" data-target="#properties">
 						Properties
 					</a>
 				</li>
 
 				<li class="nav-header ">
-					<a href="{{ site.url }}/thundr/email.html">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/jsp.html">						
+						Jsp						
+					</a>
+				</li>
+	
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/email.html">
 						Email
 					</a>
 				</li>
+				
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html">
+						Utilities
+					</a>
+				</li>				
 			</ul>
 		</div>
 	</aside>
 
-	<article id="injectionContext" class="col-md-9">
+	<article id="modules-overview" class="col-md-9">
 		<div class="page-header">
-			<h1>thundr <small>dependancy injection</small></h1>
+			<h1>thundr <small>Modules</small></h1>
 		</div>
 
 		<section id="page-overview" class="overview">
@@ -95,50 +117,78 @@ description: Dependency injection in thundr
 
 			<p>thundr utilises the <a href="http://en.wikipedia.org/wiki/Dependency_injection">dependency injection</a>
 				pattern to help configure your code at runtime. In particular, any classes you wish to use as <a
-						href="{{ site.url }}/thundr/controllers.html">controllers</a> are created by thundr using its dependency
+						href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html">controllers</a> are created by thundr using its dependency
 				injection framework.<br>If your controller requires dependencies, they need to be configured so that thundr
-				can provide them.</p>
+				can provide them.
+			</p>
 
-			<p>Unlike many frameworks, dependencies are configured using basic java in thundr. It does this by enforcing a
-				specified entry point for configuring your application, which is your InjectionConfiguration class. </p>
+			<p>
+				Unlike many frameworks, dependencies are configured using basic java in thundr. The classes that configure dependencies are called 
+				modules, and they must implement the <code>Module</code> interface. Modules are included from two places - the basic thundr modules
+				are bootstrapped automatically, and the rest are included by you for your specific application. The second group are brought in by
+				the module that defines your application, which is your <code>ApplicationModule</code> class. 
+			</p>
 
-			<p>Your application uses an InjectionConfiguration to make available all the instances and classes you wish to
+			<p>
+				Your application uses your ApplicationModule to make available all the instances and classes you wish to
 				inject into your controllers and each-other. It is up to you how much you wish to rely on this, but in
 				general utilising dependency injection increases the testability of controllers and other code resources,
-				and reduces code coupling. </p>
-
-			<p>Your injection configuration needs to implement
-				<code>com.threewks.thundr.injection.InjectionConfiguration</code>. It also has to have a specific name,
-				which is <strong>X</strong>InjectionConfiguration where <strong>X</strong> is the name of the package it
-				resides in. This requirement means that thundr doesn&#39;t need to perform any classpath scanning to locate
-				configuration resources.</p>
-
-			<p>For example, if your injection configuration is in the package <code>com.mycompany.myapp</code>, your
-				configuration must be the java class <code>com.mycompany.myapp.MyappInjectionConfiguration</code>. In this
-				case, you <em>module</em> will be com.mycompany.myapp.</p>
-
-			<p>com.mycompany.myapp.MyappInjectionConfiguration</p>
-
-{% highlight java %}
-package com.mycompany.myapp;
-
-import com.threewks.thundr.injection.BaseInjectionConfiguration;
-import com.threewks.thundr.injection.InjectionConfiguration;
-import com.threewks.thundr.injection.UpdatableInjectionContext;
-import com.threewks.thundr.profiler.BasicProfiler;
-import com.threewks.thundr.profiler.Profiler;
-
-public class MyappInjectionConfiguration implements InjectionConfiguration {
-
-    @Override
-    public void configure(UpdatableInjectionContext injectionContext) {
-        injectionContext.inject(MyServiceImpl.class).as(MyServiceInterface.class);
-        injectionContext.inject(MyRepositoryImpl.class).as(MyRepositoryInterface.class);
-    }
-}
-{% endhighlight %}
+				and reduces code coupling. 
+			</p>
 		</section>
-
+		<section id="modules">
+			<h4>Modules</h4>
+			<p>
+				thundr itself is composed of sets of <strong>modules</strong>. A module is defined as a group of classes that are collectively configured
+				together through an implementation of the <code>com.threewks.thundr.injection.Module</code> interface. 
+			</p>
+			<p>
+				Modules express dependencies between each other so that they can be run in the correct order.
+			</p>
+			<p>
+				Your <code>ApplicationModule</code> is just a normal module with the added restriction that it needs a specific name and to be located in the default (i.e. no) package.
+				This allows thundr to locate your ApplicationModule without any configuration or classpath scanning. 
+			</p>
+			
+			<blockquote>
+			<p>If you want your ApplicationModule to have a different name or package, you can specify its full name in the application property 'applicationModule'.</p>
+{% highlight properties %}
+applicationModule=com.company.project.ProjectModule
+{% endhighlight %}
+			<p>Generally, sticking to the convention makes your code more accessible</p>
+			</blockquote>
+		</section>
+		<section id="module-lifecycle">
+			<h4>Module Lifecycle</h4>
+			<p>
+				To allow modules to interact by providing instances to each other, they have a set lifecycle.
+				On startup, for every lifecycle phase, each module in your application will be called in the order defined by their dependency graph.
+			</p>
+			<p>
+				That is, each module will have <strong>initialise</strong> called, then each module will have <strong>configure</strong> called, then <strong>start</strong>.
+			</p>
+			<p>  
+				When you implement <code>Module</code> you must implement each of the following in lifecycle methods:
+			</p>
+			<ul>
+				<li>
+					<strong>requires(DependencyRegistry dependencyRegistry)</strong> - here you register any modules that your module is dependent on. thundr will figure out
+					the correct order to run each of the module's lifecycle methods in
+				</li>
+				<li>
+					<strong>initialise(UpdatableInjectionContext injectionContext)</strong> - this method is for providing instances and classes into the injection context that the module provides that have no dependencies. 
+				</li>
+				<li>
+					<strong>configure(UpdatableInjectionContext injectionContext)</strong> - this method is for injecting instances and classes into the injection context. At this point, all dependencies for the module you're implementing should have been specified, so generally you can put all your configuration here. 
+				</li>
+				<li>
+					<strong>start(UpdatableInjectionContext injectionContext)</strong> - this method is for starting any tasks or bootstrapping anything with a startup phase. At this point all modules have been configured. This is also the lifecycle in which you should add your routes. 
+				</li>
+				<li>
+					<strong>stop(InjectionContext injectionContext)</strong> - when your application is closing down, this method is called. You can use it to stop and dispose of any resources. 
+				</li>
+			</ul>
+		</section> 
 		<section id="injectionContext">
 			<h4><code>InjectionContext</code></h4>
 

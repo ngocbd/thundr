@@ -1,7 +1,8 @@
 ---
-layout: base
+layout: 0.9/base
 title: Controllers
 description: Using controllers in thundr
+versionUrl: /0.9
 ---
 
 <div class="row">
@@ -33,14 +34,8 @@ description: Using controllers in thundr
 				</li>
 
 				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#dataBindingSources" data-target="#dataBindingSources">
-						Data binding sources
-					</a>
-				</li>
-				
-				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#dataBindingTypes" data-target="#dataBindingTypes">
-						Data binding types
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#dataBinding" data-target="#dataBinding">
+						Data binding
 					</a>
 				</li>
 
@@ -62,22 +57,6 @@ description: Using controllers in thundr
 					</a>
 				</li>
 
-				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#extendingDataBinding" data-target="#extendingDataBinding">
-						Extending data binding <span class="label label-info">Advanced</span>
-					</a>
-				</li>
-				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#parameterBinding" data-target="#parameterBinding">
-						Parameter Binding <span class="label label-info">Advanced</span>
-					</a>
-				</li>
-				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#actionMethodBinding" data-target="#actionMethodBinding">
-						Action method binding <span class="label label-info">Advanced</span>
-					</a>
-				</li>
-				
 				<li class="nav-header ">
 					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html">
 						Views
@@ -86,31 +65,19 @@ description: Using controllers in thundr
 
 				<li class="nav-header ">
 					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html">
-						Routes and Actions
+						Actions
 					</a>
 				</li>
 
 				<li class="nav-header ">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html">
-						Modules
-					</a>
-				</li>
-
-				<li class="nav-header ">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/jsp.html">						
-						Jsp						
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/injection-context.html">
+						Dependancy injection
 					</a>
 				</li>
 
 				<li class="nav-header ">
 					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/email.html">
 						Email
-					</a>
-				</li>
-				
-				<li class="nav-header ">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html">
-						Utilities
 					</a>
 				</li>
 			</ul>
@@ -171,8 +138,6 @@ public class Controller {
 				<li>JspView - renders a jsp - <a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#jspView">more</a></li>
 				<li>RedirectView - redirects the client to a new url - <a
 						href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#redirectView">more</a></li>
-				<li>RouteRedirectView - redirects the client to a new named route - <a
-						href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#routeRedirectView">more</a></li>
 				<li>JsonView - uses the <a href="http://code.google.com/p/google-gson/">Gson library</a> to return json to the
 					client - <a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#jsonView">more</a></li>
 				<li>StringView - returns a string to the client - <a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#stringView">more</a></li>
@@ -180,50 +145,18 @@ public class Controller {
 					- <a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#httpStatusException">more</a></li>
 				<li>StringView - returns a string to the client - <a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#stringView">more</a></li>
 			</ul>
-			<div class="alert alert-info">
-				<span class="label label-info">Advanced</span>
-				<p>
-				Any class can be returned or thrown as a View, they don't even to implement the <code>com.threewks.thundr.view.View</code> interface.
-				</p>
-			</div>
 		</section>
 
-		<section id="dataBindingSources">
-			<h4>Data binding Sources</h4>
+		<section id="dataBinding">
+			<h4>Data binding</h4>
 
 			<p>When a controller method is invoked, data from the request is bound and passed in using the method
-				parameters.
-			</p>
+				parameters.</p>
 
 			<p>thundr binds data using the names of the variables and automatically converts to the target types.</p>
 
-			<p>Data is bound from the following locations (in the listed priority order):</p>
+			<p>Data is bound from the following locations:</p>
 			<ul>
-				<li>
-					<p><strong>Path variables</strong> - that is named variables as portion of the route. e.g.</p>
-
-{% highlight java %}
-routes.addRoute(GET, "/{path}/{variables}", null, new MethodAction(Controller.class, "method"));
-{% endhighlight %}
-	
-					<p>will bind to</p>
-
-{% highlight java %}
-public View method(long path, String variables){ ... }
-{% endhighlight %}
-				</li>
-				
-				<li>
-					<p>
-						<strong>Servlet classes</strong> - thundr will pass in a <code>HttpServletRequest</code>, 
-						<code>HttpServletResponse</code> and an <code>HttpSession</code> object. For example:
-					</p>
-
-{% highlight java %}
-public JspView view(HttpServletRequest req, HttpServletResponse resp){ ... }
-{% endhighlight %}
-				</li>
-				
 				<li>
 
 					<p>
@@ -252,46 +185,41 @@ public JspView method(String param1, Long param2){ ... }
 public JspView method(String param1, Long param2){ ... }
 {% endhighlight %}
 
-					<p>
-					thundr is capable of binding all basic java types, collection classes and javabeans.
-					</p>
+					<p>thundr is capable of binding all basic java types, collection classes and javabeans. <span
+							class="label label-warning">Link to more about binding</span></p>
 				</li>
+
 				<li>
-					<p><strong>Request attributes</strong> - these are attributes on the servlet request which can be added through filters or by the container itself.</p>
-					<p>For example, if you have a request attribute of type com.company.RequestId named 'requestId', the following would bind:</p>
-{% highlight java %}
-public View method(RequestId requestId){ ... }
-{% endhighlight %}
-					 
-				</li>
-				<li>
-					<p><strong>Request headers</strong> - for example we could get the referer using the following: </p>
+					<p><strong>Path variables</strong> - that is named variables as portion of the route. e.g.</p>
 
 {% highlight java %}
-public JspView method(String referer){ ... }
+"/{path}/{variables}" : "com.threewks.web.Controller.method"
+{% endhighlight %}
+	
+					<p>will bind to</p>
+
+{% highlight java %}
+public JspView method(long path, String variables){ ... }
+{% endhighlight %}
+				</li>
+
+				<li>		
+					<p><strong>Multipart data</strong> - we can post files for example like this:</p>
+
+{% highlight html %}
+<form action="/page" enctype="multipart/form-data" method="post">
+	<input type="text" name="filename" value=""/>
+	<input type="file" name="fileData" value=""/>
+</form>
 {% endhighlight %}
 
-					<blockquote>Headers are bound using a special transformation - the parameters they bind to must be camel case, split
-						on the dash &#39;-&#39; character.<br>For example, the header X-Http-Something will bind to
-						xHttpSomething. This helps eliminate issues across containers, some of which standarise headers and some
-						of which do not.<br>Some other examples of header names which bind to xHttpSomething are
-						X-HTTP-SOMETHING, x-http-something and X-HTTP-someThing.
-					</blockquote>
-				</li>
-				<li>
-					<p><strong>Session attributes</strong> - these are attributes on the session which can be added through filters or by the container itself</p>
-					<p>For example, if you have a session attribute of type com.company.User named 'user', the following would bind:</p>
+					<p>which would bind to</p>
+
 {% highlight java %}
-public View method(User user){ ... }
+public JspView postFile(String filename, byte[] fileData){ ... }
 {% endhighlight %}
 				</li>
-				<li>
-					<p><strong>Cookies</strong> - cookie values submitted by the client will be bound onto parameters of the same name</p>
-{% highlight java %}
-public View method(String cookieName, Cookie otherCookieName){ ... }
-{% endhighlight %}
-					
-				</li>
+
 				<li>
 					<p><strong>Json</strong> - using <a href="http://code.google.com/p/google-gson/">Gson</a>, json requests
 					will bind data automatically.</p>
@@ -332,45 +260,33 @@ public class MyDTO {
 					<p>it can automatically bind onto</p>
 
 {% highlight java %}
-public View method(MyDTO dto){ ... }
+public JspView method(MyDTO dto){ ... }
 {% endhighlight %}
-					<blockquote>
-					thundr will attempt to bind to the first pojo parameter that has no data already bound to it. 
-					<strong>Best practice is therefore to always put the pojo you want your json to bind to as the first parameter.</strong>
-					</blockquote>
-
-				<p>You can also bind to parameters without a DTO like this:</p>
-{% highlight java %}
-public View method(long id, List<String> names){ ... }
-{% endhighlight %}	
-				<blockquote>
-					thundr will only try to bind json to 'exploded' parameters if there are unbound parameters and neither an HttpServletRequest or ServletRequest parameter are present.
-					The inclusion of these indicates that you wish to process the input yourself, and thundr will not consume the HttpServletRequest input stream.
-				</blockquote>
 				</li>
-				<li>		
-					<p><strong>Multipart data</strong> - we can post files for example like this:</p>
 
-{% highlight html %}
-<form action="/page" enctype="multipart/form-data" method="post">
-	<input type="text" name="name" value=""/>
-	<input type="file" name="fileData" value=""/>
-</form>
-{% endhighlight %}
-
-					<p>which would bind to</p>
-
-{% highlight java %}
-public JspView postFile(String name, MultipartFile fileData){ ... }
-{% endhighlight %}
-					<p>as well as the following two variants</p>
-{% highlight java %}
-public JspView postFile(String name, byte[] fileData){ ... }
-{% endhighlight %}
-{% highlight java %}
-public JspView postFile(String name, InputStream fileData){ ... }
-{% endhighlight %}
+				<li>
 					<p>
+						<strong>Servlet classes</strong> - thundr will pass in a <code>HttpServletRequest</code>, 
+						<code>HttpServletResponse</code> and an <code>HttpSession</code> object. For example:
+					</p>
+
+{% highlight java %}
+public JspView view(HttpServletRequest req, HttpServletResponse resp){ ... }
+{% endhighlight %}
+				</li>
+
+				<li>
+					<p><strong>Request headers</strong> - for example we could get the referer using the following: </p>
+
+{% highlight java %}
+public JspView method(String referer){ ... }
+{% endhighlight %}
+
+					<p>Headers are bound using a special transformation - the parameters they bind to must be camel case, split
+						on the dash &#39;-&#39; character.<br>For example, the header X-Http-Something will bind to
+						xHttpSomething. This helps eliminate issues across containers, some of which standarise headers and some
+						of which do not.<br>Some other examples of header names which bind to xHttpSomething are
+						X-HTTP-SOMETHING, x-http-something and X-HTTP-someThing.</p>
 				</li>
 			</ul>
 
@@ -385,9 +301,7 @@ public JspView postFile(String name, InputStream fileData){ ... }
 				controller can as well.
 			</blockquote>
 		</section>
-		<section id="dataBindingTypes">
-			<h4>Data binding types</h4>
-		</section>
+
 
 		<section id="separationOfConcerns">
 			<h4>Separation of concerns</h4>
@@ -434,7 +348,7 @@ public class Controller {
 		<section id="injection">
 			<h4>Injection &amp; Controller Instantiation</h4>
 
-			<p>Controller classes are instantiated by the <a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html#injectionContext">InjectionContext</a>.
+			<p>Controller classes are instantiated by the <a href="{{ site.url }}{{ page.versionUrl }}/thundr/injection-context.html#injectionContext">InjectionContext</a>.
 				As such each instance can be shared between multiple, concurrent requests, so implementations should be treated
 				as stateless.<br>Also, there is no guarantee that controllers are singletons and implementations should also
 				take this into account.</p>
@@ -445,7 +359,7 @@ public class Controller {
 				property. Note that the InjectionContext does not currently support the full JSR 330 specification, just the
 				basic @Inject annotation.</p>
 
-			<p>You can read more <a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html">here</a> about the InjectionContext,
+			<p>You can read more <a href="{{ site.url }}{{ page.versionUrl }}/thundr/injection-context.html">here</a> about the InjectionContext,
 				dependency injection in thundr and how to write controller and service classes the &#39;right&#39; way. </p>
 
 			<p>The below example demonstrates the different ways dependencies can be injected into controllers.</p>
@@ -486,7 +400,7 @@ public class Controller {
 				implementing the <code>ActionInterceptor</code> interface.</p>
 
 			<p>The two are registered together during <a
-					href="{{ site.url }}{{ page.versionUrl }}/thundr/basics.html#applicationModule">configuration</a> in the <code>ActionInterceptorRegistry</code>.
+					href="{{ site.url }}{{ page.versionUrl }}/thundr/basics.html#injectionConfiguration">configuration</a> in the <code>ActionInterceptorRegistry</code>.
 			</p>
 
 			<p><strong> Example </strong></p>
@@ -543,12 +457,12 @@ public class RequireRoleActionInterceptor implements ActionInterceptor<RequireRo
 }
 {% endhighlight %}
 
-			<p><strong><em>ApplicationModule.java</em></strong> - we register the annotation and the action interceptor
-				together in our ApplicationModule at startup.</p>
+			<p><strong><em>MyInjectionConfiguration.java</em></strong> - we register the annotation and the action interceptor
+				together in our InjectionConfiguration at startup.</p>
 
 {% highlight java %}
 ...
-public class ApplicationModule extends BaseModule {
+public class MyInjectionConfiguration extends BaseInjectionConfiguration {
 ...
 
     @Override
@@ -575,154 +489,6 @@ public class Controller {
     }
 ...
 {% endhighlight %}
-			<p>
-				In this example the ActionInterceptor also sets the user object into the request as an attribute. This means
-				that this object is now available through standard thundr binding. This allows the following.
-			</p>
-{% highlight java %}
-...
-    @RequireRole
-    public StringView get(User user){
-        return new StringView(user.getName());
-    }
-...
-{% endhighlight %}			
-		</section>
-		<section id="extendingDataBinding">
-			<h4>
-				Extending data binding <span class="label label-info">Advanced</span>
-			</h4>
-			<p>
-				thundr automatically knows how to bind many different data types, but sometimes you may want to automatically bind types relevant to your application, or provide
-				a thundr module that enables a new type of data binding.
-			</p>
-			<p>
-				There are two ways of extending data binding in thundr. 
-				The first allows you to control how an individual parameter in a controller method is bound to. 
-				This is refered to as <a href="#parameterBinding">Parameter Binding</a>.
-				The second allows you to control how data is parsed from a request. 
-				This is referred to as <a href="#actionMethodBinding">Action Method Binding</a>.
-			</p>
-		</section>
-		<section id="parameterBinding">
-			<h4>
-				Parameter Binding <span class="label label-info">Advanced</span>
-			</h4>
-			<p>
-				Parameter Binding controls how data from a request is bound onto a parameter to a controller method. For example, you could
-				define how data is bound onto both the user and address parameters in the following controller:
-			</p>
-{% highlight java %}
-...
-	public View updateUserAddressFromPost(User user, Address address) {
-...
-{% endhighlight %}					
-			<p>
-				This is enabled in thundr by registering an implementation of either a <code>ParameterBinder</code> or a <code>BinaryParameterBinder</code>.
-			</p>
-			<p>
-			Parameter binders are registered at startup in your <code>Module</code> (either ApplicationModule or the Module definition for your reusable library).
-			You register a binder by invoking one of <code>ParameterBinderSet.registerGlobalBinder(binder)</code>.
-			</p>
-{% highlight java %}
-public class MyModule implements Module {
-...
-	@Override
-	public void configure(UpdatableInjectionContext injectionContext) {
-		super.configure(injectionContext);
-		
-		MyUserService userService = new MyUserService();
-		MyGeoService geoService = new MyGeoService();
-		
-		ParameterBinderSet.registerGlobalBinder(new UserParameterBinder(userService));
-		ParameterBinderSet.registerGlobalBinder(new AddressParameterBinder(geoService));
-...
-{% endhighlight %}		
-		<h5><code>ParameterBinder</code></h5>
-		<p>
-			ParameterBinders are used to bind data to controller methods on general requests. They'll be invoked on GET/PUT/POST/PATCH/DELETE for most content types.
-			Some request types may have binary components (such as multipart/form-data). BinaryParameterBinders are used to bind parameters received in binary form.
-			In general, you probably only need to implement a ParameterBinder, not a BinaryParameterBinder. 
-		</p>	
-		<p>
-			To implement a ParameterBinder, you just need to extract the relevant data from the <code>HttpPostDataMap</code> and return the
-			value you'd like to bind. If your binder cannot bind, just return null.
-		</p>
-{% highlight java %}
-public class MyParameterBinder implements ParameterBinder<User> {
-  private MyUserService userService;
-  public MyParameterBinder(MyUserService userService){
-    this.userService = userService;
-  }
-  public boolean willBind(ParameterDescription parameterDescription){
-    return parameterDescription.isA(User.class);
-  }
-  
-  public User bind(ParameterBinderSet binders, ParameterDescription parameterDescription, HttpPostDataMap pathMap){
-    String[] userIds = pathMap.get("userId");
-    if(userIds != null && userIds.length > 0){
-      String userId = userIds[0];
-      return userService.getUser(userID);
-    }
-    return null;
-  }
-}  
-{% endhighlight %}			
-		<h5><code>BinaryParameterBinder</code></h5>
-		<p>
-		A BindaryParameterBinder performs the same role as a ParameterBinder, but receives content in binary form. This is to account
-		for multipart/form-data posts, and other formats which are received in binary format.
-		</p>
-		<p>
-			Implementing a BinaryParameterBinder is largely similar to implementing a ParameterBinder except the data comes from a <code>MultipartFile</code> instead of from a <code>HttpPostDataMap</code>.
-		</p>
-		
-		<h5>Action Method Binding</h5>
-		<p>
-		
-		</p>
-		</section>
-		<section id="actionMethodBinding">
-			<h4>
-				Action Method Binding <span class="label label-info">Advanced</span>
-			</h4>
-			<p>
-				Where a <code>ParameterBinder</code> allows you to control data binding to an individual parameter of a controller method, an <code>ActionMethodBinder</code>
-				allows you to control how data is acquired from a request and how all of the parameters are bound on the controller method.
-			</p>
-			<p>
-				For example, if you were to consider an Xml post - the body of the request contains character data which could conceivably bind to all or any of the parameters, depending
-				on the contents of the payload and how it is interpreted.
-			</p>
-			<p>
-				In this scenario, you should write an ActionMethodBinder to marshal out of the data representation and bind onto the parameters.
-			</p>
-			<p>
-				An ActionMethodBinder also receives the request, response and path variables of the request.
-				If any data (such as content type, a header or part of the path) is necessary to conditionally provide a parameter or control the flow of logic
-				then an ActionMethodBinder is appropriate, rather than a ParameterBinder.
-			</p>
-			<p>
-				ActionMethodBinders are registered with the <code>ActionMethodBinderRegistry</code> in your Module.
-			</p>
-{% highlight java %}			
-public class MyModule extends BaseModule {
-  @Override
-  protected void configure(UpdatableInjectionContext injectionContext) {
-    super.configure(injectionContext);
-    ActionMethodBinderRegistry methodActionResolverRegistry = injectionContext.get(ActionMethodBinderRegistry.class);
-    methodActionResolverRegistry.registerActionMethodBinder(new MyActionMethodBinder());
-  }
-{% endhighlight %}
-			<p>
-				When implementing an <code>ActionMethodBinder</code>, you should follow the following conventions:
-			</p>		
-			<ul>
-				<li><em>Do not override bindings that already have values</em> - All registered action method binders run in registration order. If a value has been provided already then it means that another binder has already dealt with it.</li>
-				<li><em>Do not consume the HttpServletRequest input stream unless necessary</em> - once the stream is consumed, it cannot be read again. This prevents other binders or the controller itself reading the stream.</li>
-				<li><em>If the HttpServletRequest/ServletRequest is one of the parameters, do not consume the input stream</em> - this can be interpreted loosely to mean the controller wishes to handle some part of the request directly themself.</li>
-				<li><em>Use the <code>ParameterBinderSet</code> to bind parameters if you can</em> - doing so allows all registered ParameterBinders to bind data automatically</li>
-			</ul>
 		</section>
 	</article>
 </div>

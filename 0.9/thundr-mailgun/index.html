@@ -1,5 +1,5 @@
 ---
-layout: base
+layout: 0.9/base
 title: Mailgun
 description: Using the Mailgun module
 ---
@@ -52,43 +52,31 @@ description: Using the Mailgun module
 				and track email effortlessly. 
 			</p>
 
-			<p><em>thundr-mailgun</em> provides the API integration for services exposed by mailgun</p>
+			<p>thundr-mailgun provides the API integration for services exposed by mailgun</p>
 		</section>
 
 		<section id="settingUp">
 			<h4>Setting Up</h4>
 
-			<p>
-				Including the <em>thundr-mailgun</em> jar in your project will enable you to instantiate a <code>MailgunImpl</code>,
-				which provides access to Mailgun APIs through the <code>Mailgun</code> interface.
-			</p>
-			<p>
-				<code>Mailgun</code> also implements the standard <a href="{{ site.url }}{{ page.versionUrl }}/thundr/email.html">thundr Mailer</a>, so you can swap it out
-				interchangably with the built in <code>JavaMailMailer</code>.
-			</p>
-			<p>
-				Mailgun depends on an implementation of the thundr-http module.
-			</p>
-			
+			<p>Including the <em>thundr-mailgun</em> jar in your project will enable you to instantiate a MailgunImpl,
+				which provides access to Mailgun APIs through the Mailgun interface.<br>Mailgun depends on an
+				implementation of the thundr-http module. </p>
 
-			<p>
-				pom.xml <a target="_blank" href="http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.threewks.thundr%22%20AND%20a%3A%22thundr-mailgun%22">Click here to find the latest version</a>
-			</p>
-			
+			<p>pom.xml</p>
 
 {% highlight xml %}
 ...
 <dependency>
     <groupId>com.threewks.thundr</groupId>
     <artifactId>thundr-mailgun</artifactId>
-    <version>1.0</version>
+    <version>0.9.11</version>
     <scope>compile</scope>
 </dependency>
 <!-- thundr-http-ning or thundr-gae -->
 <dependency>
     <groupId>com.threewks.thundr</groupId>
     <artifactId>thundr-http-ning</artifactId>
-    <version>1.0</version>
+    <version>0.9.11</version>
     <scope>compile</scope>
 </dependency>
 ...
@@ -98,11 +86,7 @@ description: Using the Mailgun module
 ...
 HttpService httpService;
 Mailgun mailgun = new MailgunImpl(httpService, "mydomain.mailgun.org", "key_myApiKey");
-MailBuilder mail = mailgun.mail();
-mail.from("from@email.com", "From");
-mail.to("recipient@email.com", "Recipient");
-mail.subject("subject");
-mail.body(new StringView("body")).send();
+mailgun.sendEmail("sender@domain.com", "to@domain.com", null, "Subject", "<html><body>Content</body></html>");
 ...
 {% endhighlight %}
 		</section>
@@ -117,9 +101,6 @@ mail.body(new StringView("body")).send();
 						Email can be sent through the mailgun 
 						<a href="http://documentation.mailgun.com/api-sending.html#api-sending-messages">messages</a> 
 						service using the sendEmail method.
-					</p>
-					<p>
-						This is a legacy method, you should prefer to use the <code>Mailgun.mail()</code> method.
 					</p>
 
 {% highlight java %}

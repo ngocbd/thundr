@@ -1,7 +1,8 @@
 ---
-layout: base
+layout: 0.9/base
 title: Email
 description: Sending emails with thundr
+versionUrl: /0.9
 ---
 
 <div class="row">
@@ -28,19 +29,13 @@ description: Sending emails with thundr
 
 				<li class="nav-header ">
 					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html">
-						Routes and Actions
+						Actions
 					</a>
 				</li>
 
 				<li class="nav-header ">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html">
-						Modules
-					</a>
-				</li>
-				
-				<li class="nav-header ">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/jsp.html">						
-						Jsp						
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/injection-context.html">
+						Dependancy injection
 					</a>
 				</li>
 
@@ -73,12 +68,6 @@ description: Sending emails with thundr
 						Limitations
 					</a>
 				</li>
-				
-				<li class="nav-header ">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html">
-						Utilities
-					</a>
-				</li>
 			</ul>
 		</div>
 	</aside>
@@ -96,7 +85,7 @@ description: Sending emails with thundr
 			<h4>Email</h4>
 
 			<p>thundr has framework support for sending of emails. To send an email, you use the fluent api returned from
-				the <code>Mailer.mail()</code> method.</p>
+				the <code>Mailer.mail(HttpServletRequest req)</code> method.</p>
 
 			<p>The <code>MailBuilder</code> returned from this method has a variety of email specific properties you can
 				set. In addition, you specify the body of the email using the standard <code>View</code> framework of
@@ -109,12 +98,12 @@ description: Sending emails with thundr
 			<h4>Example</h4>
 
 {% highlight java %}
-public void sendEmail(String recipientEmail, String recipientName){
+public void sendEmail(HttpServletRequest req, String recipientEmail, String recipientName){
     Map<String, Object> model = new HashMap<String, Object>();
     model.put("message", "Hello world!");
     JspView view = new JspView("emails/test.jsp", model);
 
-    MailBuilder mail = mailer.mail();
+    MailBuilder mail = mailer.mail(req);
     mail.to(recipientEmail, recipientName);
     mail.from("no-reply@mydomain.com", "no-reply");
     mail.replyTo("no-reply@mydomain.com", "no-reply");
@@ -131,12 +120,12 @@ public void sendEmail(String recipientEmail, String recipientName){
 
 			<p>
 				To set up the Mailer, you just need to make it available in the <code>InjectionContext</code> in your 
-				<a href="{{ site.url }}{{ page.versionUrl }}/thundr/basics.html#applicationModule">ApplicationModule</a>.
+				<a href="{{ site.url }}{{ page.versionUrl }}/thundr/basics.html#injectionConfiguration">InjectionConfiguration</a>.
 			</p>
 
 {% highlight java %}
 ...
-injectionContext.inject(JavaMailMailer.class).as(Mailer.class);
+injectionContext.inject(Mailer.class).as(Mailer.class);
 ...
 {% endhighlight %}
 		</section>
@@ -144,7 +133,7 @@ injectionContext.inject(JavaMailMailer.class).as(Mailer.class);
 		<section id="limitations">
 			<h4>Limitations</h4>
 
-			<p>The JavaMailMailer implementation of Mailer is built on top of the standard <code>javax.mail</code> api. If your target platform cannot send
+			<p>thundr mail is build on top of the standard <code>javax.mail</code> api. If your target platform cannot send
 				email using this api, or if it requires additional configuration you will need to configure this yourself.
 			</p>
 
