@@ -17,8 +17,23 @@
  */
 package com.threewks.thundr.mail;
 
+/**
+ * Mailer defines an api for sending email in thundr. {@link MailBuilder} provides a fluent api for sending an email.
+ */
 public interface Mailer {
+	/**
+	 * Start building an email using a new {@link MailBuilder}
+	 * 
+	 * @return
+	 * @throws MailException
+	 */
 	public MailBuilder mail() throws MailException;
 
+	/**
+	 * Takes a {@link MailBuilder} earlier provided from {@link #mail()} and sends the email configured in it.
+	 * 
+	 * @param mailBuilder
+	 * @throws MailException
+	 */
 	public void send(MailBuilder mailBuilder) throws MailException;
 }

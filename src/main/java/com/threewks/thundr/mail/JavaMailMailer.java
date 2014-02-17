@@ -35,6 +35,9 @@ import org.apache.commons.lang3.StringUtils;
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.view.ViewResolverRegistry;
 
+/**
+ * An implementation of {@link Mailer} which uses javax.mail.
+ */
 public class JavaMailMailer extends BaseMailer {
 
 	public JavaMailMailer(ViewResolverRegistry viewResolverRegistry) {

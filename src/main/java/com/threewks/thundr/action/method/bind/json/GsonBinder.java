@@ -44,7 +44,7 @@ public class GsonBinder implements ActionMethodBinder {
 	/**
 	 * When trying to bind to a Pojo/DTO, we know there is a specific set of objects that we shouldn't bother trying with. This list contains those types.
 	 */
-	public static final List<Class<?>> NonBindableTypes = Expressive.list(PathVariableBinder.PathVariableTypes).addItems(RequestClassBinder.BoundTypes).addItems(CookieBinder.BoundTypes);
+	public static final List<Class<?>> NonBindableTypes = Expressive.list(PathVariableBinder.PathVariableTypes).addItems(RequestClassBinder.BoundTypes).addItems(CookieBinder.BoundTypes).addItems(Boolean.class, boolean.class);
 	/**
 	 * When trying to bind to the individual parameters of the json body, there are parameters that imply the controller wants to handle the request body itself and mean this binder shouldnt consume
 	 * the input stream.

@@ -75,7 +75,7 @@ public abstract class BaseMailer implements Mailer {
 
 	protected SyntheticHttpServletResponse renderContent(MailBuilder mailBuilder) {
 		/*
-		 * Wrapping the request is highly sensitive to the app server implementation.
+		 * Wrapping the request is highly sensitive to the container implementation.
 		 * For example, while the Servlet include interface specifies we can pass in a {@link ServletRequestWrapper},
 		 * Jetty is having none of it. To avoid ramifications across different application servers, we just reuse the
 		 * originating request. To help avoid issues, we restore all attributes after the response is rendered.
