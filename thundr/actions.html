@@ -78,7 +78,7 @@ description: thundr framework actions
 
 				<li>
 					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html#actionResolver" data-target="#actionResolver">
-						ActionResolver <span class="label label-info">Advanced</span>
+						ActionResolver
 					</a>
 				</li>
 					
@@ -100,10 +100,15 @@ description: thundr framework actions
 					</a>
 				</li>
 				<li class="nav-header ">
-				<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html">
-					Utilities
-				</a>
-			</li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html">
+						Utilities
+					</a>
+				</li>
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/glossary.html">
+						Glossary
+					</a>
+				</li>						
 			</ul>
 		</div>
 	</aside>
@@ -344,6 +349,10 @@ public class MyModule implements Module {
 		Routes routes = injectionContext.get(Routes.class);
 		routes.addActionResolver(MyAction.class, new MyActionResolver<MyAction>());
 {% endhighlight %}
+		</section>
+		<hr/>
+		<section>
+			Next, read about <a href="modules.html">modules</a>
 		</section>
 	</article>
 </div>

@@ -106,6 +106,11 @@ description: thundr framework basics
 					Utilities
 				</a>
 			</li>
+			<li class="nav-header ">
+				<a href="{{ site.url }}{{ page.versionUrl }}/thundr/glossary.html">
+					Glossary
+				</a>
+			</li>			
 		</ul>
 	</div>
 </aside>
@@ -368,8 +373,24 @@ serverUrl%production=www.production.com
 		<p>
 		Some platform modules, like <a href="{{ site.url }}{{ page.versionUrl }}/thundr-gae/">thundr-gae</a> expose more useful behaviour.
 		</p>
+		<blockquote>
+			<p>
+			thundr comes with a built in platform module <code>com.threewks.thundr.platform.DefaultPlatformModule</code>
+			</p>
+			<p>
+				This configures the thundr environment using the system property <code>thundrEnvironment</code>, or if not present
+				the environment variable with the same name.
+			</p>
+			<p>
+			If you're running in a normal servlet container, just add this dependency in your ApplicationModule.
+			</p>
+			<p>
+			You can then specify the system property either as an environment or container variable.
+			</p>
+		</blockquote>
 		<p>
-			If you don't have a platform module, be sure to set your environment at startup in your <code>ApplicationModule</code> 
+			If you don't want to use a platform module, be sure to set your environment at startup in your <code>ApplicationModule</code> in the
+			initialise phase.
 		</p>
 {% highlight java %}
 import com.threewks.thundr.injection.BaseModule;
@@ -384,6 +405,7 @@ public class ApplicationModule extends BaseModule {
 ...
 {% endhighlight %}		
 	</section>
+	<hr/>
 	<section>
 		Now that you know the basics, read more about <a href="controllers.html">Controllers</a>
 	</section>

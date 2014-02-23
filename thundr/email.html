@@ -79,6 +79,11 @@ description: Sending emails with thundr
 						Utilities
 					</a>
 				</li>
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/glossary.html">
+						Glossary
+					</a>
+				</li>				
 			</ul>
 		</div>
 	</aside>
@@ -150,6 +155,10 @@ injectionContext.inject(JavaMailMailer.class).as(Mailer.class);
 
 			<p>Currently thundr mail only supports basic html emails. It does not create multipart mails, and does not
 				support embedded content, such as cid references and attachments.</p>
+		</section>
+		<hr/>
+		<section>
+			Next, read about handy <a href="utilities.html">utility code</a> included in thundr
 		</section>
 	</article>
 </div>

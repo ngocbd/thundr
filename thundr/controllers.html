@@ -58,23 +58,23 @@ description: Using controllers in thundr
 
 				<li>
 					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#actionInterceptors" data-target="#actionInterceptors">
-						ActionInterceptors <span class="label label-info">Advanced</span>
+						ActionInterceptors
 					</a>
 				</li>
 
 				<li>
 					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#extendingDataBinding" data-target="#extendingDataBinding">
-						Extending data binding <span class="label label-info">Advanced</span>
+						Extending data binding
 					</a>
 				</li>
 				<li>
 					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#parameterBinding" data-target="#parameterBinding">
-						Parameter Binding <span class="label label-info">Advanced</span>
+						Parameter Binding
 					</a>
 				</li>
 				<li>
 					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#actionMethodBinding" data-target="#actionMethodBinding">
-						Action method binding <span class="label label-info">Advanced</span>
+						Action method binding
 					</a>
 				</li>
 				
@@ -113,6 +113,11 @@ description: Using controllers in thundr
 						Utilities
 					</a>
 				</li>
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/glossary.html">
+						Glossary
+					</a>
+				</li>				
 			</ul>
 		</div>
 	</aside>
@@ -723,6 +728,10 @@ public class MyModule extends BaseModule {
 				<li><em>If the HttpServletRequest/ServletRequest is one of the parameters, do not consume the input stream</em> - this can be interpreted loosely to mean the controller wishes to handle some part of the request directly themself.</li>
 				<li><em>Use the <code>ParameterBinderSet</code> to bind parameters if you can</em> - doing so allows all registered ParameterBinders to bind data automatically</li>
 			</ul>
+		</section>
+		<hr/>
+		<section>
+			Next up, read about <a href="views.html">views</a>
 		</section>
 	</article>
 </div>
