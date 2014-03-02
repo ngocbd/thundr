@@ -260,6 +260,29 @@ public JspView method(String param1, Long param2){ ... }
 					<p>
 					thundr is capable of binding all basic java types, collection classes and javabeans.
 					</p>
+					<p>
+					An example of binding to a javabean:
+					</p>
+{% highlight java %}
+<form action="/page" method="post">
+   <input type="text" name="form.param1" value="parameter value"/>
+   <input type="text" name="form.param2" value="2"/>
+</form>
+{% endhighlight %}
+					<p>binds to</p>
+{% highlight java %}
+public JspView method(FormDTO form){ ... }
+
+public static class FormDTO{
+	private String param1;
+	private Long param2;
+
+	public void setParam1(String param1){ this.param1 = param1; }
+	public void setParam2(Long param2){ this.param2 = param2; }
+	public String getParam1(){ return this.param1; }
+	public Long getParam2(){ return this.param2; }
+}
+{% endhighlight %}
 				</li>
 				<li>
 					<p><strong>Request attributes</strong> - these are attributes on the servlet request which can be added through filters or by the container itself.</p>
