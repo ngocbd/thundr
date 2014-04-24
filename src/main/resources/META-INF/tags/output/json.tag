@@ -18,9 +18,13 @@
 
 --%>
 <%@ tag body-content="empty" trimDirectiveWhitespaces="true" description=""%>
-<%@ attribute name="gson" required="true" type="com.google.gson.Gson" description="A Gson instance to perform the JSON conversion with" %>
+<%@ tag import="com.google.gson.Gson" %>
 <%@ attribute name="value" required="true" type="java.lang.Object" description="Object to convert to JSON." %>
+<%@ attribute name="gson" required="false" type="com.google.gson.Gson" description="Override the default Gson instance to perform the JSON conversion with" %>
 <%@ taglib prefix="t" uri="http://threewks.com/thundr/tags" %>
 <%
+	if (gson == null) {
+		gson = new Gson();
+	}
 	out.print(gson.toJson(value));
 %>
