@@ -40,6 +40,7 @@ import com.threewks.thundr.logger.Logger;
 
 public class Routes {
 	private Map<Route, Action> actionsForRoutes = new HashMap<Route, Action>();
+
 	private Map<RouteType, Map<String, Route>> routes = createRoutesMap();
 	private Map<String, Route> namedRoutes = new HashMap<String, Route>();
 

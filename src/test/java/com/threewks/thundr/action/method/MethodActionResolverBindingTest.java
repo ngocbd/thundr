@@ -44,7 +44,7 @@ public class MethodActionResolverBindingTest {
 	private Map<String, String> emptyMap = Collections.emptyMap();
 
 	private HttpServletRequest request;
-	private MethodActionResolver resolver = new MethodActionResolver(null);
+	private MethodActionResolver resolver = new MethodActionResolver(null, null);
 
 	@Before
 	public void before() {

@@ -25,30 +25,23 @@ import jodd.util.StringPool;
 import org.apache.commons.lang3.StringUtils;
 
 import com.threewks.thundr.http.ContentType;
-import com.threewks.thundr.view.BaseView;
+import com.threewks.thundr.view.TemplateView;
 import com.threewks.thundr.view.View;
 
-public class JspView extends BaseView<JspView> implements View {
-	private String view;
-	private Map<String, Object> model;
-
+public class JspView extends TemplateView<JspView> implements View {
 	public JspView(String view) {
 		this(view, new HashMap<String, Object>());
 	}
 
 	public JspView(String view, Map<String, Object> model) {
-		this.view = view;
-		this.model = model;
+		super(view, model);
 		withContentType(ContentType.TextHtml.value());
 		withCharacterEncoding(StringPool.UTF_8);
 	}
 
+	@Override
 	public String getView() {
 		return completeViewName(view);
-	}
-
-	public Map<String, Object> getModel() {
-		return model;
 	}
 
 	@Override

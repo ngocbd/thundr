@@ -17,9 +17,12 @@
  */
 package com.threewks.thundr.view;
 
+import jodd.util.MimeTypes;
+
 import com.threewks.thundr.http.exception.HttpStatusException;
 import com.threewks.thundr.injection.BaseModule;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
+import com.threewks.thundr.module.DependencyRegistry;
 import com.threewks.thundr.route.RouteNotFoundException;
 import com.threewks.thundr.route.Routes;
 import com.threewks.thundr.view.exception.ExceptionViewResolver;
@@ -27,12 +30,18 @@ import com.threewks.thundr.view.exception.HttpStatusExceptionViewResolver;
 import com.threewks.thundr.view.exception.RouteNotFoundViewResolver;
 import com.threewks.thundr.view.file.FileView;
 import com.threewks.thundr.view.file.FileViewResolver;
+import com.threewks.thundr.view.json.JsonNegotiator;
 import com.threewks.thundr.view.json.JsonView;
 import com.threewks.thundr.view.json.JsonViewResolver;
+import com.threewks.thundr.view.jsonp.JsonpNegotiator;
 import com.threewks.thundr.view.jsonp.JsonpView;
 import com.threewks.thundr.view.jsonp.JsonpViewResolver;
 import com.threewks.thundr.view.jsp.JspView;
 import com.threewks.thundr.view.jsp.JspViewResolver;
+import com.threewks.thundr.view.negotiating.NegotiatingView;
+import com.threewks.thundr.view.negotiating.NegotiatingViewResolver;
+import com.threewks.thundr.view.negotiating.ViewNegotiatorRegistry;
+import com.threewks.thundr.view.negotiating.ViewNegotiatorRegistryImpl;
 import com.threewks.thundr.view.redirect.RedirectView;
 import com.threewks.thundr.view.redirect.RedirectViewResolver;
 import com.threewks.thundr.view.redirect.RouteRedirectView;
@@ -41,30 +50,45 @@ import com.threewks.thundr.view.string.StringView;
 import com.threewks.thundr.view.string.StringViewResolver;
 
 public class ViewModule extends BaseModule {
+	@Override
+	public void requires(DependencyRegistry dependencyRegistry) {
+		super.requires(dependencyRegistry);
+	}
 
 	@Override
 	public void initialise(UpdatableInjectionContext injectionContext) {
-		ViewResolverRegistry viewResolverRegistry = new ViewResolverRegistry();
-		injectionContext.inject(viewResolverRegistry).as(ViewResolverRegistry.class);
-		GlobalModel globalModel = new GlobalModel();
-		injectionContext.inject(globalModel).as(GlobalModel.class);
+		injectionContext.inject(ViewResolverRegistry.class).as(ViewResolverRegistry.class);
+		injectionContext.inject(ViewNegotiatorRegistryImpl.class).as(ViewNegotiatorRegistry.class);
+		injectionContext.inject(GlobalModel.class).as(GlobalModel.class);
 	}
 
 	@Override
 	public void configure(UpdatableInjectionContext injectionContext) {
 		GlobalModel globalModel = injectionContext.get(GlobalModel.class);
-		ViewResolverRegistry viewResolverRegistry = injectionContext.get(ViewResolverRegistry.class);
-		addViewResolvers(viewResolverRegistry, injectionContext, globalModel);
 		globalModel.put("routes", injectionContext.get(Routes.class));
+
+		ViewResolverRegistry viewResolverRegistry = injectionContext.get(ViewResolverRegistry.class);
+
+		addViewResolvers(viewResolverRegistry, injectionContext, globalModel);
 	}
 
 	protected void addViewResolvers(ViewResolverRegistry viewResolverRegistry, UpdatableInjectionContext injectionContext, GlobalModel globalModel) {
 		Routes routes = injectionContext.get(Routes.class);
+		ViewNegotiatorRegistry viewNegotiatorRegistry = injectionContext.get(ViewNegotiatorRegistry.class);
+
 		ExceptionViewResolver exceptionViewResolver = new ExceptionViewResolver();
 		HttpStatusExceptionViewResolver statusViewResolver = new HttpStatusExceptionViewResolver();
+		NegotiatingViewResolver negotiatingViewResolver = new NegotiatingViewResolver(viewResolverRegistry, viewNegotiatorRegistry);
 
 		injectionContext.inject(exceptionViewResolver).as(ExceptionViewResolver.class);
 		injectionContext.inject(statusViewResolver).as(HttpStatusExceptionViewResolver.class);
+		injectionContext.inject(negotiatingViewResolver).as(NegotiatingViewResolver.class);
+
+		// Register built in content negotiators
+
+		viewNegotiatorRegistry.setDefaultNegotiator(new JsonNegotiator());
+		viewNegotiatorRegistry.addNegotiator(MimeTypes.MIME_APPLICATION_JSON, new JsonNegotiator());
+		viewNegotiatorRegistry.addNegotiator(MimeTypes.MIME_APPLICATION_JAVASCRIPT, new JsonpNegotiator());
 
 		viewResolverRegistry.addResolver(Throwable.class, exceptionViewResolver);
 		viewResolverRegistry.addResolver(HttpStatusException.class, statusViewResolver);
@@ -76,5 +100,6 @@ public class ViewModule extends BaseModule {
 		viewResolverRegistry.addResolver(FileView.class, new FileViewResolver());
 		viewResolverRegistry.addResolver(JspView.class, new JspViewResolver(globalModel));
 		viewResolverRegistry.addResolver(StringView.class, new StringViewResolver());
+		viewResolverRegistry.addResolver(NegotiatingView.class, negotiatingViewResolver);
 	}
 }

@@ -15,21 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.json;
+package com.threewks.thundr.view.negotiating.strategy;
 
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
+import com.threewks.thundr.view.negotiating.NegotiatingView;
+import com.threewks.thundr.view.negotiating.Negotiator;
+import com.threewks.thundr.view.negotiating.ViewNegotiatorRegistry;
 
-import com.google.gson.GsonBuilder;
+/**
+ * Finds a {@link Negotiator} using the content type set on the {@link NegotiatingView}.
+ * If no matching negotiator exists, returns null
+ */
+public class ContentTypeNegotiationStrategy implements NegotiationStrategy {
 
-public class GsonSupport {
-	public static GsonBuilder createBasicGsonBuilder() {
-		GsonBuilder gsonBuilder = new GsonBuilder();
-		gsonBuilder.registerTypeAdapter(DateTime.class, new DateTimeTypeConvertor());
-		gsonBuilder.registerTypeAdapter(DateTimeZone.class, new DateTimeZoneTypeConvertor());
-		gsonBuilder.registerTypeAdapter(Map.class, new JsonToMapDeserializer());
-		return gsonBuilder;
+	@Override
+	public Negotiator<?> findNegotiator(HttpServletRequest req, NegotiatingView view, ViewNegotiatorRegistry viewNegotiatorRegistry) {
+		return viewNegotiatorRegistry.getNegotiator(view.getContentType());
 	}
+
 }

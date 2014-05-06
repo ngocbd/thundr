@@ -138,7 +138,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 	}
 
 	public MockHttpServletRequest header(Map<String, String[]> headers) {
-		this.headers.putAll(parameters);
+		this.headers.putAll(headers);
 		return this;
 	}
 

@@ -22,13 +22,18 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
+import com.threewks.thundr.http.StatusCode;
+import com.threewks.thundr.view.DataView;
+import com.threewks.thundr.view.negotiating.NegotiatingView;
+
 public class JsonpViewTest {
 	@Test
-	public void shouldRetainContentAndDefaultContentTypeAndCharacterEncoding() {
+	public void shouldRetainContentAndDefaultContentTypeAndCharacterEncodingAndStatus() {
 		JsonpView view = new JsonpView("string");
 		assertThat(view.getOutput(), is((Object) "string"));
 		assertThat(view.getContentType(), is("application/javascript"));
 		assertThat(view.getCharacterEncoding(), is("UTF-8"));
+		assertThat(view.getStatusCode(), is(200));
 	}
 
 	@Test
@@ -45,5 +50,31 @@ public class JsonpViewTest {
 		assertThat(view.getCharacterEncoding(), is("UTF-16"));
 		assertThat(view.getHeader("header"), is("value1"));
 		assertThat(view.getCookie("cookie"), is(notNullValue()));
+	}
+	
+
+	@Test
+	public void shouldAllowCreationFromADataViewDefaultingContentTypeAndCharacterEncodingAndStatus() {
+		DataView<?> dataView = new NegotiatingView("Test output");
+		assertThat(dataView.getContentType(), is(nullValue()));
+		assertThat(dataView.getCharacterEncoding(), is(nullValue()));
+		assertThat(dataView.getStatusCode(), is(nullValue()));
+
+		JsonpView view = new JsonpView(dataView);
+		assertThat(view.getOutput(), is((Object) "Test output"));
+		assertThat(view.getContentType(), is("application/javascript"));
+		assertThat(view.getCharacterEncoding(), is("UTF-8"));
+		assertThat(view.getStatusCode(), is(200));
+	}
+
+	@Test
+	public void shouldAllowCreationFromADataViewRespectingExistingContentTypeAndCharacterEncoding() {
+		DataView<?> dataView = new NegotiatingView("Test output").withStatusCode(StatusCode.BadRequest).withCharacterEncoding("UTF-7").withContentType("text/plain");
+
+		JsonpView view = new JsonpView(dataView);
+		assertThat(view.getOutput(), is((Object) "Test output"));
+		assertThat(view.getContentType(), is("text/plain"));
+		assertThat(view.getCharacterEncoding(), is("UTF-7"));
+		assertThat(view.getStatusCode(), is(400));
 	}
 }

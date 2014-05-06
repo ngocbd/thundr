@@ -46,6 +46,7 @@ public class RouteModule extends BaseModule {
 	public void initialise(UpdatableInjectionContext injectionContext) {
 		super.initialise(injectionContext);
 		injectionContext.inject(new Routes()).as(Routes.class);
+		injectionContext.inject(new Filters()).as(Filters.class);
 	}
 
 	@Override

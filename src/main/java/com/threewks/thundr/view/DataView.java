@@ -15,21 +15,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.json;
+package com.threewks.thundr.view;
 
-import java.util.Map;
+/**
+ * A base class for 'data' views. Data views essentially expose a representation of a data object.
+ * For example, an xml or json view are data views.
+ * 
+ * @param <Self>
+ */
+public abstract class DataView<Self extends DataView<Self>> extends BaseView<Self> {
+	protected Object output;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
+	protected DataView(Object output) {
+		super();
+		this.output = output;
+	}
 
-import com.google.gson.GsonBuilder;
+	protected DataView(DataView<?> other) {
+		super(other);
+		this.output = other.output;
+	}
 
-public class GsonSupport {
-	public static GsonBuilder createBasicGsonBuilder() {
-		GsonBuilder gsonBuilder = new GsonBuilder();
-		gsonBuilder.registerTypeAdapter(DateTime.class, new DateTimeTypeConvertor());
-		gsonBuilder.registerTypeAdapter(DateTimeZone.class, new DateTimeZoneTypeConvertor());
-		gsonBuilder.registerTypeAdapter(Map.class, new JsonToMapDeserializer());
-		return gsonBuilder;
+	public Object getOutput() {
+		return output;
 	}
 }

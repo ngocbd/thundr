@@ -41,6 +41,7 @@ import com.threewks.thundr.exception.BaseException;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.logger.Logger;
+import com.threewks.thundr.route.Filters;
 import com.threewks.thundr.route.RouteType;
 
 public class MethodActionResolver implements ActionResolver<MethodAction>, ActionInterceptorRegistry {
@@ -50,10 +51,12 @@ public class MethodActionResolver implements ActionResolver<MethodAction>, Actio
 	private ActionMethodBinderRegistry methodBinderRegistry = new ActionMethodBinderRegistry();
 	private UpdatableInjectionContext injectionContext;
 	private Map<Method, Map<Annotation, ActionInterceptor<Annotation>>> interceptorCache = new WeakHashMap<Method, Map<Annotation, ActionInterceptor<Annotation>>>();
+	private Filters filters;
 
-	public MethodActionResolver(UpdatableInjectionContext injectionContext) {
+	public MethodActionResolver(UpdatableInjectionContext injectionContext, Filters filters) {
 		this.injectionContext = injectionContext;
 		this.methodBinderRegistry.registerDefaultActionMethodBinders();
+		this.filters = filters;
 	}
 
 	@Override
@@ -92,32 +95,59 @@ public class MethodActionResolver implements ActionResolver<MethodAction>, Actio
 	public Object resolve(MethodAction action, RouteType routeType, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws ActionException {
 		Object controller = getOrCreateController(action);
 		Map<Annotation, ActionInterceptor<Annotation>> interceptors = getInterceptors(action);
-		Object result = null;
-		Exception exception = null;
+		Object result = beforeFilters(routeType, req, resp);
 		try {
-			result = beforeInterceptors(interceptors, req, resp);
-			if (result == null) {
-				List<?> arguments = bindArguments(action, req, resp, pathVars);
-				result = action.invoke(controller, arguments);
-				result = afterInterceptors(result, interceptors, req, resp);
-			}
-		} catch (InvocationTargetException e) {
-			// we need to unwrap InvocationTargetExceptions to get at the real exception
-			exception = Cast.as(e.getTargetException(), Exception.class);
-			if (exception == null) {
-				throw new BaseException(e);
-			}
+			result = beforeInterceptors(interceptors, req, resp, result);
+			result = invokeAction(action, req, resp, pathVars, controller, result);
+			result = afterInterceptors(result, interceptors, req, resp);
+			result = afterFilters(routeType, req, resp, result);
 		} catch (Exception e) {
-			exception = e;
-		}
-		if (exception != null) {
-			result = exceptionInterceptors(interceptors, req, resp, exception);
+			result = exceptionInterceptors(interceptors, req, resp, e);
+			result = exceptionFilters(routeType, req, resp, e, result);
 			if (result == null) {
-				throw new ActionException(exception, "Failed in %s: %s", action, exception.getMessage());
+				throw new ActionException(e, "Failed in %s: %s", action, e.getMessage());
 			}
 		}
 		Logger.debug("%s -> %s resolved", req.getRequestURI(), action);
 		return result;
+	}
+
+	private Object invokeAction(MethodAction action, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars, Object controller, Object existingResult) throws Exception {
+		if (existingResult != null) {
+			return existingResult;
+		}
+		try {
+			List<?> arguments = bindArguments(action, req, resp, pathVars);
+			return action.invoke(controller, arguments);
+		} catch (InvocationTargetException e) {
+			// we need to unwrap InvocationTargetExceptions to get at the real exception
+			Exception exception = Cast.as(e.getTargetException(), Exception.class);
+			throw exception == null ? new BaseException(e) : exception;
+		}
+	}
+
+	private Object beforeFilters(RouteType routeType, HttpServletRequest req, HttpServletResponse resp) {
+		return filters == null ? null : filters.before(routeType, req, resp);
+	}
+
+	private Object afterFilters(RouteType routeType, HttpServletRequest req, HttpServletResponse resp, Object existingResult) {
+		if (filters != null) {
+			Object result = filters.after(routeType, existingResult, req, resp);
+			if (result != null) {
+				return result;
+			}
+		}
+		return existingResult;
+	}
+
+	private Object exceptionFilters(RouteType routeType, HttpServletRequest req, HttpServletResponse resp, Exception exception, Object existingResult) {
+		if (filters != null) {
+			Object view = filters.exception(routeType, exception, req, resp);
+			if (view != null) {
+				return view;
+			}
+		}
+		return existingResult;
 	}
 
 	private Map<Annotation, ActionInterceptor<Annotation>> getInterceptors(MethodAction action) {
@@ -164,7 +194,10 @@ public class MethodActionResolver implements ActionResolver<MethodAction>, Actio
 		return null;
 	}
 
-	private Object beforeInterceptors(Map<Annotation, ActionInterceptor<Annotation>> interceptors, HttpServletRequest req, HttpServletResponse resp) {
+	private Object beforeInterceptors(Map<Annotation, ActionInterceptor<Annotation>> interceptors, HttpServletRequest req, HttpServletResponse resp, Object existingResult) {
+		if (existingResult != null) {
+			return existingResult;
+		}
 		for (Map.Entry<Annotation, ActionInterceptor<Annotation>> interceptorEntry : interceptors.entrySet()) {
 			Object interceptorResult = interceptorEntry.getValue().before(interceptorEntry.getKey(), req, resp);
 			if (interceptorResult != null) {

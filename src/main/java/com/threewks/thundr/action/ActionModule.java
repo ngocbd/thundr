@@ -31,6 +31,7 @@ import com.threewks.thundr.action.staticResource.StaticResourceAction;
 import com.threewks.thundr.action.staticResource.StaticResourceActionResolver;
 import com.threewks.thundr.injection.BaseModule;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
+import com.threewks.thundr.route.Filters;
 import com.threewks.thundr.route.Routes;
 
 public class ActionModule extends BaseModule {
@@ -38,9 +39,10 @@ public class ActionModule extends BaseModule {
 	@Override
 	public void configure(UpdatableInjectionContext injectionContext) {
 		Routes routes = injectionContext.get(Routes.class);
+		Filters filters = injectionContext.get(Filters.class);
 		ServletContext servletContext = injectionContext.get(ServletContext.class);
 
-		MethodActionResolver methodActionResolver = new MethodActionResolver(injectionContext);
+		MethodActionResolver methodActionResolver = new MethodActionResolver(injectionContext, filters);
 		injectionContext.inject(methodActionResolver).as(MethodActionResolver.class);
 		// The MethodActionResolver is special because we use it to perform controller interception
 		injectionContext.inject(methodActionResolver).as(ActionInterceptorRegistry.class);

@@ -19,24 +19,34 @@ package com.threewks.thundr.view.json;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
+
 import jodd.util.MimeTypes;
 import jodd.util.StringPool;
 
-import com.threewks.thundr.view.BaseView;
-import com.threewks.thundr.view.View;
+import com.threewks.thundr.view.DataView;
 
-public class JsonView extends BaseView<JsonView> implements View {
-	private Object output;
+public class JsonView extends DataView<JsonView> {
 
 	public JsonView(Object output) {
-		super();
-		this.output = output;
-		withContentType(MimeTypes.MIME_APPLICATION_JSON);
-		withCharacterEncoding(StringPool.UTF_8);
-		withStatusCode(HttpServletResponse.SC_OK);
+		super(output);
+		applyDefaults();
 	}
 
-	public Object getOutput() {
-		return output;
+	protected JsonView(DataView<?> other) {
+		super(other);
+		applyDefaults();
+	}
+
+	private void applyDefaults() {
+		if (StringUtils.isBlank(getContentType())) {
+			withContentType(MimeTypes.MIME_APPLICATION_JSON);
+		}
+		if (StringUtils.isBlank(getCharacterEncoding())) {
+			withCharacterEncoding(StringPool.UTF_8);
+		}
+		if (getStatusCode() == null) {
+			withStatusCode(HttpServletResponse.SC_OK);
+		}
 	}
 }

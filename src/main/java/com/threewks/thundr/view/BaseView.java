@@ -41,12 +41,25 @@ import com.threewks.thundr.view.redirect.RouteRedirectView;
  */
 public abstract class BaseView<Self extends BaseView<Self>> implements View {
 
-	private Map<String, String> headers = new LinkedHashMap<String, String>();
-	private Map<String, Cookie> cookies = new LinkedHashMap<String, Cookie>();
-	private Integer statusCode;
-	private String contentType;
-	private String characterEncoding;
-	@SuppressWarnings("unchecked") private Self self = (Self) this;
+	protected Map<String, String> headers = new LinkedHashMap<String, String>();
+	protected Map<String, Cookie> cookies = new LinkedHashMap<String, Cookie>();
+	protected Integer statusCode;
+	protected String contentType;
+	protected String characterEncoding;
+	@SuppressWarnings("unchecked")
+	protected Self self = (Self) this;
+
+	protected BaseView() {
+
+	}
+
+	protected BaseView(BaseView<?> other) {
+		this.headers.putAll(other.headers);
+		this.cookies.putAll(other.cookies);
+		this.statusCode = other.statusCode;
+		this.contentType = other.contentType;
+		this.characterEncoding = other.characterEncoding;
+	}
 
 	/**
 	 * Sets the specified header in the response

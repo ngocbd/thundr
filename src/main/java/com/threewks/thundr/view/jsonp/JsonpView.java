@@ -19,24 +19,34 @@ package com.threewks.thundr.view.jsonp;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
+
 import jodd.util.MimeTypes;
 import jodd.util.StringPool;
 
-import com.threewks.thundr.view.BaseView;
+import com.threewks.thundr.view.DataView;
 import com.threewks.thundr.view.View;
 
-public class JsonpView extends BaseView<JsonpView> implements View {
-	private Object output;
-
+public class JsonpView extends DataView<JsonpView> implements View {
 	public JsonpView(Object output) {
-		super();
-		this.output = output;
-		withContentType(MimeTypes.MIME_APPLICATION_JAVASCRIPT);
-		withCharacterEncoding(StringPool.UTF_8);
-		withStatusCode(HttpServletResponse.SC_OK);
+		super(output);
+		applyDefaults();
 	}
 
-	public Object getOutput() {
-		return output;
+	public JsonpView(DataView<?> other) {
+		super(other);
+		applyDefaults();
+	}
+	
+	private void applyDefaults() {
+		if (StringUtils.isBlank(getContentType())) {
+			withContentType(MimeTypes.MIME_APPLICATION_JAVASCRIPT);
+		}
+		if (StringUtils.isBlank(getCharacterEncoding())) {
+			withCharacterEncoding(StringPool.UTF_8);
+		}
+		if (getStatusCode() == null) {
+			withStatusCode(HttpServletResponse.SC_OK);
+		}
 	}
 }

@@ -58,7 +58,7 @@ public class JsonpViewResolver implements ViewResolver<JsonpView> {
 			Gson create = gsonBuilder.create();
 			JsonElement jsonElement = Cast.as(output, JsonElement.class);
 			String json = jsonElement == null ? create.toJson(output) : create.toJson(jsonElement);
-			String jsonp = getCallback(req) + "(" + json + ");";
+			String jsonp = wrapJsonInCallback(req, json);
 
 			String encoding = viewResult.getCharacterEncoding();
 			resp.setContentLength(jsonp.getBytes(encoding).length);
@@ -69,7 +69,11 @@ public class JsonpViewResolver implements ViewResolver<JsonpView> {
 		}
 	}
 
-	protected String getCallback(HttpServletRequest req) {
+	public static String wrapJsonInCallback(HttpServletRequest req, String json) {
+		return getCallback(req) + "(" + json + ");";
+	}
+
+	public static String getCallback(HttpServletRequest req) {
 		Object callback = req.getParameter("callback");
 		String callbackStr = callback == null ? null : StringUtils.trimToNull(callback.toString());
 		callbackStr = callbackStr == null ? "callback" : callbackStr;
