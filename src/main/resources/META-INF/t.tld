@@ -37,6 +37,11 @@
 		<name>set</name>
 		<path>/META-INF/tags/logic/set.tag</path>
 	</tag-file>
+	<!-- Output Tags -->
+	<tag-file>
+		<name>json</name>
+		<path>/META-INF/tags/output/json.tag</path>
+	</tag-file>
 
 	<!-- Element tags -->
 	<tag-file>
