@@ -27,6 +27,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.threewks.thundr.http.StatusCode;
+import com.threewks.thundr.injection.Module;
+import com.threewks.thundr.view.View;
 import com.threewks.thundr.view.ViewResolver;
 import com.threewks.thundr.view.ViewResolverRegistry;
 import com.threewks.thundr.view.negotiating.strategy.AcceptsHeaderNegotiationStrategy;
@@ -35,6 +37,29 @@ import com.threewks.thundr.view.negotiating.strategy.DefaultNegotiatorNegotiatio
 import com.threewks.thundr.view.negotiating.strategy.FileExtensionNegotiationStrategy;
 import com.threewks.thundr.view.negotiating.strategy.NegotiationStrategy;
 
+/**
+ * This view resolver performs content negotiation.
+ * It determines the final output format (json, xml etc) based on the client request.
+ * 
+ * It finds a delegate {@link View} implementation using the {@link ViewNegotiatorRegistry}, and then
+ * invokes the {@link ViewResolver} for that view.
+ * 
+ * First, a content type is derived based on the request using the registered {@link NegotiationStrategy} instances.
+ * These are added using {@link #addNegotiationStrategy(NegotiationStrategy)} add application startup (in your {@link Module}).
+ * 
+ * This content type is then mapped to a {@link Negotiator} using the {@link ViewNegotiatorRegistry}.
+ * 
+ * Finally, the {@link Negotiator} provides a view implementation, which is resolved as normal using the {@link ViewResolverRegistry}.
+ * 
+ * By default, the content type is determined using the following strategies (in order):
+ * - If a content type has been explicitly set, it will be used (i.e. {@link NegotiatingView#withContentType(String)}) - {@link ContentTypeNegotiationStrategy} - If the request has a file extension
+ * which can be mapped to a content type, it will be used (i.e. /path/file.xml ) - {@link FileExtensionNegotiationStrategy} - If the client send an Accepts header, content negotiation will occur based
+ * on the given mime types and their quality - {@link AcceptsHeaderNegotiationStrategy} - If a default {@link Negotiator} has been set on the {@link ViewNegotiatorRegistry}, it will be used.
+ * 
+ * If you add further any more {@link NegotiationStrategy} instances, they will take priority, last added being the most important
+ * 
+ * If negotiation fails, 406 (Not Acceptable) will be returned.
+ */
 public class NegotiatingViewResolver implements ViewResolver<NegotiatingView> {
 	protected ViewResolverRegistry viewResolverRegistry;
 	protected ViewNegotiatorRegistry viewNegotiatorRegistry;

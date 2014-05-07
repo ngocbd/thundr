@@ -17,7 +17,17 @@
  */
 package com.threewks.thundr.view.negotiating;
 
+import com.threewks.thundr.injection.Module;
+import com.threewks.thundr.view.DataView;
+import com.threewks.thundr.view.ViewResolver;
 
+/**
+ * A {@link Negotiator} is used to allow a {@link ViewResolver} to participate in content-negotiation using the {@link NegotiatingView}.
+ * 
+ * Negotiators are added to the {@link ViewNegotiatorRegistry} using {@link ViewNegotiatorRegistry#addNegotiator(String, Negotiator)} at application startup in your {@link Module}.
+ * 
+ * A {@link Negotiator} implementation should return the view object (usually a {@link DataView}) desired.
+ */
 public interface Negotiator<V> {
 	public V create(NegotiatingView view);
 }

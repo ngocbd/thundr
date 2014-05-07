@@ -19,6 +19,18 @@ package com.threewks.thundr.view.negotiating;
 
 import com.threewks.thundr.view.DataView;
 
+/**
+ * {@link NegotiatingView} indicates that the response data format (json, xml etc)
+ * should be negotiated between the client and server.
+ * 
+ * You provide the data model (in the form of a pojo or collection), and based on the client
+ * request and server preference, the format of the final output will be determined.
+ * 
+ * {@link NegotiatingView} is resolved by the {@link NegotiatingViewResolver} which delegates
+ * back into other view/view resolver combinations.
+ *
+ * @see NegotiatingViewResolver
+ */
 public class NegotiatingView extends DataView<NegotiatingView> {
 	public NegotiatingView(Object output) {
 		super(output);

@@ -20,11 +20,20 @@ package com.threewks.thundr.route;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.threewks.thundr.injection.Module;
+
+/**
+ * Filters allow a before, after and exception cutpoint on controller methods invoked based on the
+ * request url.
+ * 
+ * They can be added in your {@link Module} by calling {@link Filters#add(String, Filter)}.
+ */
 public interface Filter {
 	/**
 	 * Invoked before the controller method is called, and before binding happens for the controller method. Returning null from this method allows normal execution to continue,
 	 * returning anything else results in the controller not being invoked and the returned view being resolved.
-	 * @param routeType 
+	 * 
+	 * @param routeType
 	 * 
 	 * @param req
 	 * @param resp
@@ -37,7 +46,7 @@ public interface Filter {
 	 * return value will be resolved as the view instead of the controller's returned view.
 	 * 
 	 * @param view the view the controller returned after execution
-	 * @param view2 
+	 * @param view2
 	 * @param req
 	 * @param resp
 	 * @return the view to resolve instead of the controllers result, or null to use the result of the controller execution
@@ -47,7 +56,8 @@ public interface Filter {
 	/**
 	 * Invoked if the controller method execution throws an exception. This method can return a view which will be resolved instead of the exception, or null
 	 * if the exception should be resolved to a view normally.
-	 * @param routeType 
+	 * 
+	 * @param routeType
 	 * 
 	 * @param e the exception thrown from the controller method
 	 * @param req
