@@ -17,6 +17,7 @@
     limitations under the License.
 
 --%>
+<%@tag import="com.threewks.thundr.json.GsonSupport"%>
 <%@ tag body-content="empty" trimDirectiveWhitespaces="true" description=""%>
 <%@ tag import="com.google.gson.Gson" %>
 <%@ attribute name="value" required="true" type="java.lang.Object" description="Object to convert to JSON." %>
@@ -24,7 +25,7 @@
 <%@ taglib prefix="t" uri="http://threewks.com/thundr/tags" %>
 <%
 	if (gson == null) {
-		gson = new Gson();
+		gson = GsonSupport.createBasicGsonBuilder().create();
 	}
 	out.print(gson.toJson(value));
 %>
