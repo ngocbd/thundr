@@ -17,8 +17,12 @@
  */
 package com.threewks.thundr.view.negotiating.strategy;
 
+import static com.atomicleopard.expressive.Expressive.*;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -94,5 +98,14 @@ public class AcceptsHeaderNegotiationStrategyTest {
 
 		Negotiator<?> result = strategy.findNegotiator(req, view, viewNegotiatorRegistry);
 		assertThat(result, is(jsonNegotiator));
+	}
+
+	@Test
+	public void shouldReturnNullWhenAcceptHeaderNotPresent() {
+		viewNegotiatorRegistry.addNegotiator("application/json", jsonNegotiator);
+		viewNegotiatorRegistry.addNegotiator("application/javascript", jsonpNegotiator);
+
+		Negotiator<?> result = strategy.findNegotiator(req, view, viewNegotiatorRegistry);
+		assertThat(result, is(nullValue()));
 	}
 }

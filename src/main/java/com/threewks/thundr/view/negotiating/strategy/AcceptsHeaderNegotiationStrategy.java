@@ -46,12 +46,14 @@ public class AcceptsHeaderNegotiationStrategy implements NegotiationStrategy {
 	@Override
 	public Negotiator<?> findNegotiator(HttpServletRequest req, NegotiatingView view, ViewNegotiatorRegistry viewNegotiatorRegistry) {
 		String acceptsHeader = Headers.getHeader(HttpSupport.Header.Accept, req);
-		List<AcceptsComponent> orderedAcceptsHeader = cleanAndOrderAcceptHeader(acceptsHeader);
-		for (AcceptsComponent acceptsComponent : orderedAcceptsHeader) {
-			String accept = acceptsComponent.getAccept();
-			Negotiator<?> negotiator = viewNegotiatorRegistry.getNegotiator(accept);
-			if (negotiator != null) {
-				return negotiator;
+		if (StringUtils.isNotBlank(acceptsHeader)) {
+			List<AcceptsComponent> orderedAcceptsHeader = cleanAndOrderAcceptHeader(acceptsHeader);
+			for (AcceptsComponent acceptsComponent : orderedAcceptsHeader) {
+				String accept = acceptsComponent.getAccept();
+				Negotiator<?> negotiator = viewNegotiatorRegistry.getNegotiator(accept);
+				if (negotiator != null) {
+					return negotiator;
+				}
 			}
 		}
 		return null;
