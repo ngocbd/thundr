@@ -34,7 +34,8 @@ import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
 import com.threewks.thundr.view.ViewResolutionException;
 
 public class FileViewResolverTest {
-	@Rule public ExpectedException thrown = ExpectedException.none();
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	private MockHttpServletRequest req = new MockHttpServletRequest();
 	private MockHttpServletResponse resp = new MockHttpServletResponse();
@@ -49,6 +50,26 @@ public class FileViewResolverTest {
 		assertThat(resp.getContentType(), is("content/type"));
 		assertThat(resp.containsHeader(HttpSupport.Header.ContentDisposition), is(true));
 		assertThat((String) resp.header(HttpSupport.Header.ContentDisposition), is("attachment; filename=filename.ext"));
+	}
+
+	@Test
+	public void shouldWriteDispositionToHeaders() {
+		fileView.withDisposition(Disposition.Inline);
+		fileViewResolver.resolve(req, resp, fileView);
+
+		assertThat(resp.getContentType(), is("content/type"));
+		assertThat(resp.containsHeader(HttpSupport.Header.ContentDisposition), is(true));
+		assertThat((String) resp.header(HttpSupport.Header.ContentDisposition), is("inline; filename=filename.ext"));
+	}
+
+	@Test
+	public void shouldAllowDispositionHeaderToBeOverriddeByExtendedHeaders() {
+		fileView.withHeader(HttpSupport.Header.ContentDisposition, "something-else");
+		fileViewResolver.resolve(req, resp, fileView);
+
+		assertThat(resp.getContentType(), is("content/type"));
+		assertThat(resp.containsHeader(HttpSupport.Header.ContentDisposition), is(true));
+		assertThat((String) resp.header(HttpSupport.Header.ContentDisposition), is("something-else"));
 	}
 
 	@Test

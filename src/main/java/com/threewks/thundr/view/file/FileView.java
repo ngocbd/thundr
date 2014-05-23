@@ -35,6 +35,7 @@ import com.threewks.thundr.view.View;
 public class FileView extends BaseView<FileView> implements View {
 	private InputStream is;
 	private String fileName;
+	private Disposition disposition = Disposition.Attachment;
 
 	public FileView(String filename, InputStream stream, String contentType) {
 		this.fileName = filename;
@@ -56,6 +57,15 @@ public class FileView extends BaseView<FileView> implements View {
 
 	public InputStream getData() {
 		return is;
+	}
+
+	public Disposition getDisposition() {
+		return disposition;
+	}
+
+	public FileView withDisposition(Disposition disposition) {
+		this.disposition = disposition;
+		return this;
 	}
 
 	@Override

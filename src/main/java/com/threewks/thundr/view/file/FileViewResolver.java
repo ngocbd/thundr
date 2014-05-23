@@ -32,8 +32,8 @@ public class FileViewResolver implements ViewResolver<FileView> {
 	public void resolve(HttpServletRequest req, HttpServletResponse resp, FileView viewResult) {
 		try {
 			ServletOutputStream outputStream = resp.getOutputStream();
+			resp.addHeader(HttpSupport.Header.ContentDisposition, String.format("%s; filename=%s", viewResult.getDisposition().getValue(), viewResult.getFileName()));
 			BaseView.applyToResponse(viewResult, resp);
-			resp.addHeader(HttpSupport.Header.ContentDisposition, String.format("attachment; filename=%s", viewResult.getFileName()));
 			Streams.copy(viewResult.getData(), outputStream);
 			outputStream.flush();
 		} catch (Exception e) {
