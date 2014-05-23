@@ -100,7 +100,7 @@ public class Filters {
 	 * @return a view to use instead of calling through to the controller method, or null if execution should continue
 	 */
 	public Object before(RouteType routeType, HttpServletRequest req, HttpServletResponse resp) {
-		List<Filter> matchingFilters = findMatchingFilters(req.getPathInfo());
+		List<Filter> matchingFilters = findMatchingFilters(req.getRequestURI());
 		for (Filter filter : matchingFilters) {
 			Object result = filter.before(routeType, req, resp);
 			if (result != null) {
@@ -120,7 +120,7 @@ public class Filters {
 	 * @return a view to use instead of the result from the controller method, or null if the given result should be used
 	 */
 	public Object after(RouteType routeType, Object view, HttpServletRequest req, HttpServletResponse resp) {
-		List<Filter> matchingFilters = findMatchingFilters(req.getPathInfo());
+		List<Filter> matchingFilters = findMatchingFilters(req.getRequestURI());
 		for (int i = matchingFilters.size() - 1; i >= 0; i--) {
 			Filter filter = matchingFilters.get(i);
 			Object result = filter.after(routeType, view, req, resp);

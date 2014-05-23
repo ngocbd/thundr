@@ -104,7 +104,7 @@ public class MethodActionResolverTest {
 		TestActionInterceptor registeredInterceptor = new TestActionInterceptor(null, null, null);
 		MethodAction action = prepareActionMethod("intercept", registeredInterceptor);
 
-		when(req.getPathInfo()).thenReturn("/request");
+		when(req.getRequestURI()).thenReturn("/request");
 
 		resolver.resolve(action, RouteType.GET, req, resp, pathVars);
 
@@ -121,7 +121,7 @@ public class MethodActionResolverTest {
 		TestActionInterceptor registeredInterceptor = new TestActionInterceptor(null, null, null);
 		MethodAction action = prepareActionMethod("intercept", registeredInterceptor);
 
-		when(req.getPathInfo()).thenReturn("/request");
+		when(req.getRequestURI()).thenReturn("/request");
 
 		Object view = resolver.resolve(action, RouteType.GET, req, resp, pathVars);
 
@@ -187,7 +187,7 @@ public class MethodActionResolverTest {
 		TestActionInterceptor registeredInterceptor = new TestActionInterceptor(null, null, null);
 		MethodAction action = prepareActionMethod("intercept", registeredInterceptor);
 
-		when(req.getPathInfo()).thenReturn("/request");
+		when(req.getRequestURI()).thenReturn("/request");
 
 		resolver.resolve(action, RouteType.GET, req, resp, pathVars);
 
@@ -204,7 +204,7 @@ public class MethodActionResolverTest {
 		TestActionInterceptor registeredInterceptor = new TestActionInterceptor(null, null, null);
 		MethodAction action = prepareActionMethod("intercept", registeredInterceptor);
 
-		when(req.getPathInfo()).thenReturn("/request");
+		when(req.getRequestURI()).thenReturn("/request");
 
 		Object view = resolver.resolve(action, RouteType.GET, req, resp, pathVars);
 
@@ -243,7 +243,7 @@ public class MethodActionResolverTest {
 		TestActionInterceptor registeredInterceptor = new TestActionInterceptor(null, "Expected After", null);
 		MethodAction action = prepareActionMethod("intercept", registeredInterceptor);
 
-		when(req.getPathInfo()).thenReturn("/request");
+		when(req.getRequestURI()).thenReturn("/request");
 
 		assertThat((String) resolver.resolve(action, RouteType.GET, req, resp, pathVars), is("Expected After"));
 		assertThat(registeredInterceptor.beforeInvoked, is(true));
