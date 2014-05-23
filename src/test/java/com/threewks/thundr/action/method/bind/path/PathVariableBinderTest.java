@@ -36,7 +36,9 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.threewks.thundr.action.method.TestAnnotation;
 import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.route.RouteType;
 
 public class PathVariableBinderTest {
 
@@ -72,6 +74,7 @@ public class PathVariableBinderTest {
 		ParameterDescription param13 = new ParameterDescription("param13", BigInteger.class);
 		ParameterDescription param14 = new ParameterDescription("param14", UUID.class);
 		ParameterDescription param15 = new ParameterDescription("param15", DateTime.class);
+		ParameterDescription param16 = new ParameterDescription("param16", RouteType.class); // arbitrary enum, not specifically the route type
 
 		parameterDescriptions.put(param1, null);
 		parameterDescriptions.put(param2, null);
@@ -88,6 +91,7 @@ public class PathVariableBinderTest {
 		parameterDescriptions.put(param13, null);
 		parameterDescriptions.put(param14, null);
 		parameterDescriptions.put(param15, null);
+		parameterDescriptions.put(param16, null);
 
 		String uuidString = UUID.randomUUID().toString();
 		DateTime dateTime = new DateTime();
@@ -106,6 +110,8 @@ public class PathVariableBinderTest {
 		pathVariables.put("param13", "13");
 		pathVariables.put("param14", uuidString);
 		pathVariables.put("param15", dateTime.toString());
+		pathVariables.put("param16", "POST");
+		;
 
 		pathVariableBinder.bindAll(parameterDescriptions, request, response, pathVariables);
 
@@ -124,6 +130,7 @@ public class PathVariableBinderTest {
 		assertThat(parameterDescriptions.get(param13), is((Object) BigInteger.valueOf(13)));
 		assertThat(parameterDescriptions.get(param14), is((Object) UUID.fromString(uuidString)));
 		assertThat(parameterDescriptions.get(param15), is((Object) dateTime));
+		assertThat(parameterDescriptions.get(param16), is((Object) RouteType.POST));
 	}
 
 	@Test
@@ -131,18 +138,23 @@ public class PathVariableBinderTest {
 		ParameterDescription param1 = new ParameterDescription("param1", String.class);
 		ParameterDescription param2 = new ParameterDescription("param2", Color.class);
 		ParameterDescription param3 = new ParameterDescription("param3", Object.class);
+		ParameterDescription param4 = new ParameterDescription("param4", TestAnnotation.class);
 
 		parameterDescriptions.put(param1, null);
 		parameterDescriptions.put(param2, null);
+		parameterDescriptions.put(param3, null);
+		parameterDescriptions.put(param4, null);
 
 		pathVariables.put("param1", "string-value");
 		pathVariables.put("param2", Color.BLACK.toString());
 		pathVariables.put("param3", "3");
+		pathVariables.put("param4", "something");
 
 		pathVariableBinder.bindAll(parameterDescriptions, request, response, pathVariables);
 
 		assertThat(parameterDescriptions.get(param1), is((Object) "string-value"));
 		assertThat(parameterDescriptions.get(param2), is(nullValue()));
 		assertThat(parameterDescriptions.get(param3), is(nullValue()));
+		assertThat(parameterDescriptions.get(param4), is(nullValue()));
 	}
 }
