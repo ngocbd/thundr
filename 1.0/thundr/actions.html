@@ -11,37 +11,37 @@ description: thundr framework actions
 		<div class="module_nav">			
 			<ul class="nav nav-pills nav-stacked" role="navigation">
 				<li class="nav-header">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/basics.html">						
+					<a href="{{ site.url }}/1.0/thundr/basics.html">						
 						Basics						
 					</a>
 				</li>
 					
 				<li class="nav-header">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html">						
+					<a href="{{ site.url }}/1.0/thundr/controllers.html">						
 						Controllers						
 					</a>
 				</li>
 
 				<li class="nav-header">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html">
+					<a href="{{ site.url }}/1.0/thundr/views.html">
 						Views
 					</a>
 				</li>
 
 				<li class="nav-header active">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html">
+					<a href="{{ site.url }}/1.0/thundr/actions.html">
 						Routes and Actions		
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html#routes" data-target="#routes">
+					<a href="{{ site.url }}/1.0/thundr/actions.html#routes" data-target="#routes">
 						Routes					
 					</a>
 				</li>
 			
 				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html#actionsSummary" data-target="#actionsSummary">
+					<a href="{{ site.url }}/1.0/thundr/actions.html#actionsSummary" data-target="#actionsSummary">
 						Actions
 					</a>
 				</li>
@@ -51,25 +51,25 @@ description: thundr framework actions
 				</li>
 
 				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html#methodAction" data-target="#methodAction">
+					<a href="{{ site.url }}/1.0/thundr/actions.html#methodAction" data-target="#methodAction">
 						MethodAction					
 					</a>
 				</li>
 								
 				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html#staticResourceAction" data-target="#staticResourceAction">
+					<a href="{{ site.url }}/1.0/thundr/actions.html#staticResourceAction" data-target="#staticResourceAction">
 						StaticResourceAction					
 					</a>
 				</li>
 		
 				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html#redirectAction" data-target="#redirectAction">
+					<a href="{{ site.url }}/1.0/thundr/actions.html#redirectAction" data-target="#redirectAction">
 						RedirectAction
 					</a>
 				</li>
 		
 				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html#rewriteAction" data-target="#rewriteAction">
+					<a href="{{ site.url }}/1.0/thundr/actions.html#rewriteAction" data-target="#rewriteAction">
 						RewriteAction
 					</a>
 				</li>
@@ -79,35 +79,35 @@ description: thundr framework actions
 				</li>
 
 				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html#actionResolver" data-target="#actionResolver">
+					<a href="{{ site.url }}/1.0/thundr/actions.html#actionResolver" data-target="#actionResolver">
 						ActionResolver
 					</a>
 				</li>
 					
 				<li class="nav-header ">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html">
+					<a href="{{ site.url }}/1.0/thundr/modules.html">
 						Modules					
 					</a>
 				</li>
 
 				<li class="nav-header ">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/jsp.html">						
+					<a href="{{ site.url }}/1.0/thundr/jsp.html">						
 						Jsp						
 					</a>
 				</li>
 				
 				<li class="nav-header ">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/email.html">						
+					<a href="{{ site.url }}/1.0/thundr/email.html">						
 						Email						
 					</a>
 				</li>
 				<li class="nav-header ">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html">
+					<a href="{{ site.url }}/1.0/thundr/utilities.html">
 						Utilities
 					</a>
 				</li>
 				<li class="nav-header ">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/glossary.html">
+					<a href="{{ site.url }}/1.0/thundr/glossary.html">
 						Glossary
 					</a>
 				</li>						
@@ -151,7 +151,7 @@ public class ApplicationModule implements Module {
 			<p>
 				Routes can map to different types of actions. The most common action is <code>MethodAction</code>, 
 				which will result in a method being invoked on a 
-				<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html">controller</a>. 
+				<a href="{{ site.url }}/1.0/thundr/controllers.html">controller</a>. 
 			</p>
 
 			<p>
@@ -170,7 +170,7 @@ public class ApplicationModule implements Module {
 			</p>
 			<ul>
 				<li><strong>/path/components</strong> - standard path components</li>
-				<li><strong>/path/{variables}/</strong> - path variables are named parameters available when <a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#dataBindingSources">binding to controller methods</a></li>
+				<li><strong>/path/{variables}/</strong> - path variables are named parameters available when <a href="{{ site.url }}/1.0/thundr/controllers.html#dataBindingSources">binding to controller methods</a></li>
 				<li><strong>/path/*/wildcards</strong> - wildcards with a single asterisk match just one path fragment. i.e. <em>/path/value/wildcards</em> matches and <em>/path/multi/value/wildcards</em> does not</li>
 				<li><strong>/path/**/wildcards</strong> - double wildcards match any number of path fragments.  i.e. both <em>/path/value/wildcards</em> and <em>/path/multi/value/wildcards</em> match</li>
 				<li><strong>/file/*.ext</strong> - extensions can be used in conjuction with other matching rules</li>
@@ -204,7 +204,7 @@ public class ApplicationModule implements Module {
 						This type of action results in a method being invoked on a class. Classes invoked like this 
 						are referred to as <em>controllers</em>, however this is a semantic distinction - any class 
 						can be used as a controller. You can read more about controllers 
-						<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html">here</a>.
+						<a href="{{ site.url }}/1.0/thundr/controllers.html">here</a>.
 					</p>
 
 					<p>For example, the route</p>

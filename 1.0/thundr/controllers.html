@@ -10,112 +10,112 @@ description: Using controllers in thundr
 		<div class="module_nav">
 			<ul class="nav nav-pills nav-stacked" role="navigation">
 				<li class="nav-header ">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/basics.html">
+					<a href="{{ site.url }}/1.0/thundr/basics.html">
 						Basics
 					</a>
 				</li>
 
 				<li class="nav-header active">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html">
+					<a href="{{ site.url }}/1.0/thundr/controllers.html">
 						Controllers
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#controllers" data-target="#controllers">
+					<a href="{{ site.url }}/1.0/thundr/controllers.html#controllers" data-target="#controllers">
 						Controllers
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#views" data-target="#views">
+					<a href="{{ site.url }}/1.0/thundr/controllers.html#views" data-target="#views">
 						Views
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#dataBindingSources" data-target="#dataBindingSources">
+					<a href="{{ site.url }}/1.0/thundr/controllers.html#dataBindingSources" data-target="#dataBindingSources">
 						Data binding sources
 					</a>
 				</li>
 				
 				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#dataBindingTypes" data-target="#dataBindingTypes">
+					<a href="{{ site.url }}/1.0/thundr/controllers.html#dataBindingTypes" data-target="#dataBindingTypes">
 						Data binding types
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#separationOfConcerns" data-target="#separationOfConcerns">
+					<a href="{{ site.url }}/1.0/thundr/controllers.html#separationOfConcerns" data-target="#separationOfConcerns">
 						Seperation of concerns
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#injection" data-target="#injection">
+					<a href="{{ site.url }}/1.0/thundr/controllers.html#injection" data-target="#injection">
 						Injection
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#actionInterceptors" data-target="#actionInterceptors">
+					<a href="{{ site.url }}/1.0/thundr/controllers.html#actionInterceptors" data-target="#actionInterceptors">
 						ActionInterceptors
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#extendingDataBinding" data-target="#extendingDataBinding">
+					<a href="{{ site.url }}/1.0/thundr/controllers.html#extendingDataBinding" data-target="#extendingDataBinding">
 						Extending data binding
 					</a>
 				</li>
 				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#parameterBinding" data-target="#parameterBinding">
+					<a href="{{ site.url }}/1.0/thundr/controllers.html#parameterBinding" data-target="#parameterBinding">
 						Parameter Binding
 					</a>
 				</li>
 				<li>
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#actionMethodBinding" data-target="#actionMethodBinding">
+					<a href="{{ site.url }}/1.0/thundr/controllers.html#actionMethodBinding" data-target="#actionMethodBinding">
 						Action method binding
 					</a>
 				</li>
 				
 				<li class="nav-header ">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html">
+					<a href="{{ site.url }}/1.0/thundr/views.html">
 						Views
 					</a>
 				</li>
 
 				<li class="nav-header ">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html">
+					<a href="{{ site.url }}/1.0/thundr/actions.html">
 						Routes and Actions
 					</a>
 				</li>
 
 				<li class="nav-header ">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html">
+					<a href="{{ site.url }}/1.0/thundr/modules.html">
 						Modules
 					</a>
 				</li>
 
 				<li class="nav-header ">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/jsp.html">						
+					<a href="{{ site.url }}/1.0/thundr/jsp.html">						
 						Jsp						
 					</a>
 				</li>
 
 				<li class="nav-header ">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/email.html">
+					<a href="{{ site.url }}/1.0/thundr/email.html">
 						Email
 					</a>
 				</li>
 				
 				<li class="nav-header ">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html">
+					<a href="{{ site.url }}/1.0/thundr/utilities.html">
 						Utilities
 					</a>
 				</li>
 				<li class="nav-header ">
-					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/glossary.html">
+					<a href="{{ site.url }}/1.0/thundr/glossary.html">
 						Glossary
 					</a>
 				</li>				
@@ -132,7 +132,7 @@ description: Using controllers in thundr
 		</section>
 
 		<section id="controllers">
-			<p>We refer to the classes invoked when using the typical <a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html#routes">route</a> as
+			<p>We refer to the classes invoked when using the typical <a href="{{ site.url }}/1.0/thundr/actions.html#routes">route</a> as
 				<em>controllers</em>.</p>
 
 			<p>When a http client makes a request, the appropriate method inside a controller is invoked. The method can perform
@@ -141,7 +141,7 @@ description: Using controllers in thundr
 
 			<p>Controller classes are ordinary classes, they don&#39;t require implementing any interfaces or annotations to
 				function. Having one or more routes directing to a method inside a class is enough for thundr to <a
-						href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#injection">create</a> and invoke your controller class when a
+						href="{{ site.url }}/1.0/thundr/controllers.html#injection">create</a> and invoke your controller class when a
 				request is made.</p>
 			<h4>Basic Example</h4>
 
@@ -174,17 +174,17 @@ public class Controller {
 				being processed and sent back to the user.<br>thundr supports different views, which control the content and
 				http response returned to the user.</p>
 			<ul>
-				<li>JspView - renders a jsp - <a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#jspView">more</a></li>
+				<li>JspView - renders a jsp - <a href="{{ site.url }}/1.0/thundr/views.html#jspView">more</a></li>
 				<li>RedirectView - redirects the client to a new url - <a
-						href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#redirectView">more</a></li>
+						href="{{ site.url }}/1.0/thundr/views.html#redirectView">more</a></li>
 				<li>RouteRedirectView - redirects the client to a new named route - <a
-						href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#routeRedirectView">more</a></li>
+						href="{{ site.url }}/1.0/thundr/views.html#routeRedirectView">more</a></li>
 				<li>JsonView - uses the <a href="http://code.google.com/p/google-gson/">Gson library</a> to return json to the
-					client - <a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#jsonView">more</a></li>
-				<li>StringView - returns a string to the client - <a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#stringView">more</a></li>
+					client - <a href="{{ site.url }}/1.0/thundr/views.html#jsonView">more</a></li>
+				<li>StringView - returns a string to the client - <a href="{{ site.url }}/1.0/thundr/views.html#stringView">more</a></li>
 				<li>HttpStatusException - when thrown, this exception results in an error code being sent to the request client
-					- <a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#httpStatusException">more</a></li>
-				<li>StringView - returns a string to the client - <a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html#stringView">more</a></li>
+					- <a href="{{ site.url }}/1.0/thundr/views.html#httpStatusException">more</a></li>
+				<li>StringView - returns a string to the client - <a href="{{ site.url }}/1.0/thundr/views.html#stringView">more</a></li>
 			</ul>
 			<div class="alert alert-info">
 				<span class="label label-info">Advanced</span>
@@ -463,7 +463,7 @@ public class Controller {
 		<section id="injection">
 			<h4>Injection &amp; Controller Instantiation</h4>
 
-			<p>Controller classes are instantiated by the <a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html#injectionContext">InjectionContext</a>.
+			<p>Controller classes are instantiated by the <a href="{{ site.url }}/1.0/thundr/modules.html#injectionContext">InjectionContext</a>.
 				As such each instance can be shared between multiple, concurrent requests, so implementations should be treated
 				as stateless.<br>Also, there is no guarantee that controllers are singletons and implementations should also
 				take this into account.</p>
@@ -474,7 +474,7 @@ public class Controller {
 				property. Note that the InjectionContext does not currently support the full JSR 330 specification, just the
 				basic @Inject annotation.</p>
 
-			<p>You can read more <a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html">here</a> about the InjectionContext,
+			<p>You can read more <a href="{{ site.url }}/1.0/thundr/modules.html">here</a> about the InjectionContext,
 				dependency injection in thundr and how to write controller and service classes the &#39;right&#39; way. </p>
 
 			<p>The below example demonstrates the different ways dependencies can be injected into controllers.</p>
@@ -515,7 +515,7 @@ public class Controller {
 				implementing the <code>ActionInterceptor</code> interface.</p>
 
 			<p>The two are registered together during <a
-					href="{{ site.url }}{{ page.versionUrl }}/thundr/basics.html#applicationModule">configuration</a> in the <code>ActionInterceptorRegistry</code>.
+					href="{{ site.url }}/1.0/thundr/basics.html#applicationModule">configuration</a> in the <code>ActionInterceptorRegistry</code>.
 			</p>
 
 			<p><strong> Example </strong></p>
