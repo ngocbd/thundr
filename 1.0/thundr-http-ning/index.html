@@ -1,0 +1,153 @@
+---
+layout: 1.0/base
+versionUrl: /1.0
+title: thundr-http-ning
+description: thundr-http-ning is an implementation of thundr-http using Ning's Asynchronous Http Client  
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header active">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr-http-ning/index.html">
+						thundr-http-ning
+					</a>
+				</li>
+
+				<li><a href="{{ site.url }}{{ page.versionUrl }}/thundr-http-ning/index.html#page-overview" data-target="#page-overview">Overview</a></li>
+				
+				<li class="divider"></li>
+
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr-http-ning/index.html#settingUp" data-target="#settingUp">
+						Setting Up
+					</a>
+				</li>
+
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr-http-ning/index.html#httpService" data-target="#httpService">
+						HttpService
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr-http-ning/index.html#customisation" data-target="#customisation">
+						Customisation
+					</a>
+				</li>
+			</ul>			
+		</div>
+	</aside>
+
+	<article id="index" class="col-md-9">
+		<div class="page-header">
+			<h1>thundr <small>with Ning's Async Http Client</small></h1>
+		</div>
+
+		<section id="page-overview" class="overview">
+			<h2>Overview</h2>
+
+			<p>
+				Ning provide an <a href="https://github.com/AsyncHttpClient/async-http-client">asynchronous http client</a>, which this thundr module
+				wraps to conform to the API defined in the thundr-http library.
+			</p>
+			
+			<p>
+				<a href="https://github.com/3wks/thundr-http-ning">Source on github</a> <i class="fa fa-large fa-github"></i>
+			</p>			
+		</section>
+				
+		<section id="settingUp">
+			<h4>Setting Up</h4>
+
+			<p>
+				Including the thundr-http-ning jar and adding a module dependency on the <code>NingModule</code> will result in a <code>HttpServiceNing</code>
+				implementation being made available in your <code>InjectionContext</code>
+			</p>
+
+			<p>
+				pom.xml - <a target="_blank" href="http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.threewks.thundr%22%20AND%20a%3A%22thundr-http-ning%22">Click here to find the latest version</a>
+			</p>
+{% highlight xml %}
+...
+<dependency>
+    <groupId>com.threewks.thundr</groupId>
+    <artifactId>thundr-http-ning</artifactId>
+    <version>1.0.0</version>
+    <scope>compile</scope>
+</dependency>
+...
+{% endhighlight %}
+
+			<p>Your <code>ApplicationModule</code></p>
+
+{% highlight java %}
+...
+  @Override
+  public void requires(DependencyRegistry dependencyRegistry) {
+    super.requires(dependencyRegistry);
+    dependencyRegistry.addDependency(NingModule.class);
+  }
+...
+{% endhighlight %}
+		</section>
+			
+				<section id="httpService">
+			<h3>HttpService</h3>
+
+					<p>
+						The module provides an implementation of the <code>HttpService</code> defined in the thundr-http jar.
+					</p>
+					<p>
+					 	This is a fluent API which abstracts Ning's <code>AsyncHttpClient</code>. 
+						You can then inject it into your controllers and services and use it as in the following example:
+					</p>
+
+{% highlight java %}
+...
+private HttpService httpService;
+
+public MyController(HttpService httpService){
+   this.httpService = httpService;
+}
+...
+private Pojo loadRemotePojo(String id){
+  HttpResponse httpResponse = httpService.request(remoteUrl).parameter("id", id).get();
+  String response = httpResponse.getBody();
+  Gson gson = gsonBuilder.create();
+  T typedResponse = gson.fromJson(response, Pojo.class);
+  return typedResponse;
+}
+...
+{% endhighlight %}
+			<p>
+				The HttpService provides an asynchronous interface for making remote calls.
+				You can run the call in parallel with other operations to reduce request latency.
+			</p>
+		</section>
+		<section id="customisation">
+			<h3>Customisation</h3>
+			<p>
+				If you want to customise the configuration of the <code>AsyncHttpClient</code>, rather than adding a direct dependency
+				on the <code>NingModule</code>, you can instantiate and inject the <code>HttpServiceNing</code> yourself. 
+			</p>
+{% highlight java %}
+...
+@Override
+public void configure(UpdatableInjectionContext injectionContext) {
+  super.configure(injectionContext);
+  
+  AsyncHttpClientConfig config = new AsyncHttpClientConfig.Builder()
+        .setMaximumConnectionsPerHost(10)
+        .setMaximumConnectionsTotal(100)
+        .build();
+        
+  HttpServiceNing ning = new HttpServiceNing(config);
+  injectionContext.inject(ning).as(HttpService.class);
+}
+...
+{% endhighlight %}
+		</section>
+	</article>
+</div>
+		

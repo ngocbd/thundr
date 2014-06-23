@@ -1,0 +1,114 @@
+---
+layout: 1.1/base
+title: thundr-contrib-csv
+description: A thundr module for CSV processing 
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header active">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr-contrib/index.html">
+						thundr-contrib-csv
+					</a>
+				</li>
+
+				<li><a href="{{ site.url }}{{ page.versionUrl }}/thundr-contrib/index.html#page-overview" data-target="#page-overview">thundr-contrib</a></li>
+				
+				<li class="divider"></li>
+				
+				<li><a href="{{ site.url }}{{ page.versionUrl }}/thundr-contrib/thundr-contrib-csv.html#overview" data-target="#overview">Overview</a></li>
+				<li><a href="{{ site.url }}{{ page.versionUrl }}/thundr-contrib/thundr-contrib-csv.html#setting-up" data-target="#setting-up">Setting Up</a></li>
+				<li><a href="{{ site.url }}{{ page.versionUrl }}/thundr-contrib/thundr-contrib-csv.html#binding" data-target="#binding">Binding</a></li>
+				<li><a href="{{ site.url }}{{ page.versionUrl }}/thundr-contrib/thundr-contrib-csv.html#views" data-target="#view">Views</a></li>
+			</ul>			
+		</div>
+	</aside>
+
+	<article id="index" class="col-md-9">
+		<div class="page-header">
+			<h1>thundr <small>contrib-csv</small></h1>
+		</div>
+
+		<section id="overview" class="overview">
+			<h2>Overview</h2>
+
+			<p>
+				This module provides functionality to make using and processing csvs easier. It handles data binding in controllers and view resolution for
+				output of CSVs
+			</p>
+			<p>
+				It uses <a href="http://opencsv.sourceforge.net/">opencsv</a> for csv processing.
+			</p>
+			<p>
+				<a href="https://github.com/3wks/thundr-contrib-csv">Source on github <i class="fa fa-large fa-github"></i></a>
+			</p>
+		</section>
+		<section id="setting-up">
+			<h2>Setting up</h2>
+			<p>
+				Add the module dependency to your build tool and require the module in your ApplicationModule:
+			</p>
+			<p>
+				pom.xml - <a target="_blank" href="http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.threewks.thundr%22%20AND%20a%3A%22thundr-contrib-csv%22">Click here to find the latest version</a>
+			</p>
+{% highlight xml %}
+...
+<dependency>
+    <groupId>com.threewks.thundr</groupId>
+    <artifactId>thundr-csv</artifactId>
+    <version>1.1.0</version>
+    <scope>compile</scope>
+</dependency>
+...
+{% endhighlight %}
+
+			<p>Your <code>ApplicationModule</code></p>
+
+{% highlight java %}
+...
+	@Override
+	public void requires(DependencyRegistry dependencyRegistry) {
+		super.requires(dependencyRegistry);
+		dependencyRegistry.addDependency(CsvModule.class);
+	}
+...
+{% endhighlight %}
+
+		</section>			
+				
+		<section id="binding">
+			<h4>Binding</h4>
+			<p>
+				When sending multipart data containing text/csv entries, the following binding will happen automatically:
+			</p>
+{% highlight java %}
+public View post1(List<String[]> data){ ... }
+
+public View post2(CsvReader data){ ... }
+
+public View post2(List<MyJavaBean> data){ ... }
+{% endhighlight %}
+			<p>
+				In the case of the third variation, this will only work on javabean properties (and you require a default or no-args ctor).
+				The uploaded csv also must have a header row where the column names match the bean properties to set.
+			</p>
+			<p>
+				When posting data as a csv which is not multipart, but has a mime type of text/csv, the above bindings will also work.
+			</p>
+		</section>
+		<section id="views">
+			<h4>Views</h4>
+			<p>
+				This module also provides the <code>CsvView</code> and <code>CsvViewResolver</code>, which will result in a csv file being received by the caller.
+				You create a <code>CsvView</code> by invoking one of the static factory methods, which allow you to supply the row data in a variety of structures.
+			</p>
+{% highlight java %}			
+public CsvView get(){ ... return CsvView.fromArrays(rows) }
+  
+public CsvView get(){ ... return CsvView.fromLists(rows) }
+{% endhighlight %}			
+		</section>
+	</article>
+</div>

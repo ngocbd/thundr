@@ -1,0 +1,359 @@
+---
+layout: 1.1/base
+title: Actions
+description: thundr framework actions
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">			
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/basics.html">						
+						Basics						
+					</a>
+				</li>
+					
+				<li class="nav-header">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html">						
+						Controllers						
+					</a>
+				</li>
+
+				<li class="nav-header">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/views.html">
+						Views
+					</a>
+				</li>
+
+				<li class="nav-header active">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html">
+						Routes and Actions		
+					</a>
+				</li>
+
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html#routes" data-target="#routes">
+						Routes					
+					</a>
+				</li>
+			
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html#actionsSummary" data-target="#actionsSummary">
+						Actions
+					</a>
+				</li>
+								
+				<li>
+					<hr/>
+				</li>
+
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html#methodAction" data-target="#methodAction">
+						MethodAction					
+					</a>
+				</li>
+								
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html#staticResourceAction" data-target="#staticResourceAction">
+						StaticResourceAction					
+					</a>
+				</li>
+		
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html#redirectAction" data-target="#redirectAction">
+						RedirectAction
+					</a>
+				</li>
+		
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html#rewriteAction" data-target="#rewriteAction">
+						RewriteAction
+					</a>
+				</li>
+			
+				<li>
+					<hr/>
+				</li>
+
+				<li>
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/actions.html#actionResolver" data-target="#actionResolver">
+						ActionResolver
+					</a>
+				</li>
+					
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/modules.html">
+						Modules					
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/jsp.html">						
+						Jsp						
+					</a>
+				</li>
+				
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/email.html">						
+						Email						
+					</a>
+				</li>
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/utilities.html">
+						Utilities
+					</a>
+				</li>
+				<li class="nav-header ">
+					<a href="{{ site.url }}{{ page.versionUrl }}/thundr/glossary.html">
+						Glossary
+					</a>
+				</li>						
+			</ul>
+		</div>
+	</aside>
+
+	<article id="actions" class="col-md-9">
+		<div class="page-header">
+			<h1>thundr <small>Actions</small></h1>
+		</div>
+
+		<section id="page-overview" class="overview">			
+		</section>
+
+		<section id="routes">
+			<h2>Routes</h2>
+
+			<p>Incoming web requests are handled by thundr using <em>routes</em>.</p>
+
+			<p>
+				A route is a url wildcard pattern which maps to an <em>action</em>. Each route is of a http request 
+				type - <em>GET</em>, <em>PUT</em>, <em>POST</em> or <em>DELETE</em>. 
+			</p>
+
+			<p>
+				Routes are defined in Modules at application startup. You register your routes on the <code>Routes</code> instance.
+			</p>
+{% highlight java %}
+public class ApplicationModule implements Module {
+  @Override
+  public void start(UpdatableInjectionContext injectionContext) {
+    Routes routes = injectionContext.get(Routes.class);
+    
+    routes.addRoute(RouteType.GET, "/", "dashboard", new MethodAction(AccountController.class, "dashboard"));
+    routes.addRoute(RouteType.GET, "/signup", "signup.get", new MethodAction(AccountController.class, "signupGet"));
+    routes.addRoute(RouteType.POST, "/signup", "signup.post", new MethodAction(AccountController.class, "signupPost"));
+    routes.addRoute(RouteType.GET, "/view/{id}", "signup.post", new MethodAction(AccountController.class, "view"));
+  }
+{% endhighlight %}
+			<p>
+				Routes can map to different types of actions. The most common action is <code>MethodAction</code>, 
+				which will result in a method being invoked on a 
+				<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html">controller</a>. 
+			</p>
+
+			<p>
+				In the above example, requests to the base url &#39;/&#39; will be processed by the <em>dashboard</em> 
+				method defined in the <em>AccountController</em> class. GET Requests on &#39;/signup/&#39; will be processed 
+				by <em>signupGet()</em> and POSTs will be processed by <em>signupPost()</em>. Finally, requests matching 
+				the path <code>/view/*</code> will be processed by the method with the name <em>view</em>, with the 
+				addition that the value matching the wildcard can be passed as a parameter with the name &#39;id&#39;, 
+				permitting <em>view(String id)</em>.            
+			</p>
+			<p>
+				The path defined in a route is used as a wildcard match, and the action invoked is the first matched route based on the order they're added.
+			</p>
+			<p>
+				The following are valid in a route path:
+			</p>
+			<ul>
+				<li><strong>/path/components</strong> - standard path components</li>
+				<li><strong>/path/{variables}/</strong> - path variables are named parameters available when <a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html#dataBindingSources">binding to controller methods</a></li>
+				<li><strong>/path/*/wildcards</strong> - wildcards with a single asterisk match just one path fragment. i.e. <em>/path/value/wildcards</em> matches and <em>/path/multi/value/wildcards</em> does not</li>
+				<li><strong>/path/**/wildcards</strong> - double wildcards match any number of path fragments.  i.e. both <em>/path/value/wildcards</em> and <em>/path/multi/value/wildcards</em> match</li>
+				<li><strong>/file/*.ext</strong> - extensions can be used in conjuction with other matching rules</li>
+			</ul>
+		</section>
+			
+		<section id="actionsSummary">
+			<h4><code>Actions</code></h4>
+
+			<p>
+				Each route maps to a single <code>Action</code>. Actions determine how your application handles a web 
+				request. In general, an action will usually result in some code being invoked, but other types of 
+				actions exist.
+			</p>
+
+			<p>Currently thundr supports the following actions out of the box:</p>
+		</section>
+			
+		<section id="methodAction" class="panel panel-default">
+  			<div class="panel-heading">
+    			<h4 class="panel-title">
+    				<a data-toggle="collapse" href="#methodActionInner">
+    					MethodAction
+    					<i class="fa fa-minus-circle pull-right"></i> 
+    				</a>
+    			</h4>
+ 			 </div>
+ 			 <div id="methodActionInner" class="panel-collapse collapse in">
+     		 	<div class="panel-body">
+					<p>
+						This type of action results in a method being invoked on a class. Classes invoked like this 
+						are referred to as <em>controllers</em>, however this is a semantic distinction - any class 
+						can be used as a controller. You can read more about controllers 
+						<a href="{{ site.url }}{{ page.versionUrl }}/thundr/controllers.html">here</a>.
+					</p>
+
+					<p>For example, the route</p>
+
+{% highlight java %}
+...
+routes.addRoute(RouteType.GET, "/route/{variable}", null, new MethodAction(Controller.class, "actionMethod"));
+...
+{% endhighlight %}
+
+						<p>will invoke the method</p>
+
+{% highlight java %}
+package com.threewks.thundr;
+
+public class Controller {
+...
+    public StringView actionMethod(String variable){
+        doSomething();
+        return new StringView("Ok!");
+    }
+...
+{% endhighlight %}
+			
+				</div>
+			</div>
+		</section>
+
+		<section id="staticResourceAction" class="panel panel-default">
+  			<div class="panel-heading">
+    			<h4 class="panel-title">
+    				<a data-toggle="collapse" href="#staticResourceActionInner">
+    					StaticResourceAction
+    					<i class="fa fa-minus-circle pull-right"></i>
+    				</a>
+    			</h4>
+ 			 </div>
+ 			 <div id="staticResourceActionInner" class="panel-collapse collapse in">
+     		 	<div class="panel-body">
+					<p>
+						This type of action results in a resource being served directly. This is useful when 
+						serving javascript, css, text files or other resources which don&#39;t require any 
+						processing by your application.
+					</p>
+
+					<p>
+						The routes below result in the favicon and all files under the folder &#39;static&#39; 
+						being server as static resources. 
+					</p>
+
+{% highlight java %}
+...
+routes.addRoute(RouteType.GET, "/favicon.ico", null, new StaticResourceAction());
+routes.addRoute(RouteType.GET, "/static/**", null, new StaticResourceAction());
+...
+{% endhighlight %}
+
+				</div>
+			</div>
+		</section>
+
+		<section id="redirectAction" class="panel panel-default">
+  			<div class="panel-heading">
+    			<h4 class="panel-title">
+    				<a data-toggle="collapse" href="#redirectActionInner">
+    					RedirectAction
+    					<i class="fa fa-minus-circle pull-right"></i>
+    				</a>
+    			</h4>
+ 			 </div>
+ 			 <div id="redirectActionInner" class="panel-collapse collapse in">
+     		 	<div class="panel-body">
+			
+				<p>This type of action results in a HTTP redirect being sent to the web request client (i.e. the user&#39;s browser). This will result in the browser requesting the resource specified in the redirect route.<br>The redirect is a <em>temporary redirect</em>, or 302.</p>
+
+{% highlight java %}
+...
+routes.addRoute(RouteType.GET, "/old", null, new RedirectAction("/new"));
+routes.addRoute(RouteType.GET, "/old/{withParam}", null, new RedirectAction("/new/{withParam}"));
+...
+{% endhighlight %}
+
+				</div>
+			</div>
+		</section>
+
+		<section id="rewriteAction" class="panel panel-default">
+  			<div class="panel-heading">
+    			<h4 class="panel-title">
+    				<a data-toggle="collapse" href="#rewriteActionInner">
+    					RewriteAction
+    					<i class="fa fa-minus-circle pull-right"></i>
+    				</a>
+    			</h4>
+ 			 </div>
+ 			 <div id="rewriteActionInner" class="panel-collapse collapse in">
+     		 	<div class="panel-body">
+					<p>
+						This type of action is used to cause another route to handle the request. It is similar in 
+						concept to the rewrite rules in an Apache config, but could also be considered to act as an 
+						alias.
+					</p>
+
+					<p>
+						In the below example, the rewrite rule will cause the rewritten route to be invoked as 
+						though the request client invoked it directly, but unlike a redirect will be served with 
+						the url it was requested on.
+					</p>
+
+{% highlight java %}
+...
+routes.addRoute(RouteType.GET, "/requestedPath", null, new RewriteAction("/rewritten"));
+routes.addRoute(RouteType.GET, "/rewritten", null, new MethodAction(Controller.class, "method"));
+...
+{% endhighlight %}
+
+				</div>
+			</div>
+		</section>
+
+		<section id="actionResolver">
+			<h4><code>ActionResolver</code> <span class="label label-info">Advanced</span></h4>
+
+			<p>
+				Each type of action is handled by an <code>ActionResolver</code>. ActionResolvers process an Action 
+				when a route is requested. You can create and configure custom Action and ActionResolvers to handle 
+				routes, although in general this is not necessary. 
+			</p>
+
+			<p>An action resolver is responsible for resolving an action when a route is requested by an http client</p>
+			<p>
+				Action resolution usually involves binding data based on route configuration and request parameters, 
+				and serving up response content and http response codes. This is done using the standard Java Servlet 
+				interfaces, <code>HttpServletRequest</code> and <code>HttpServletResponse</code>.
+			</p>
+
+			<p>If you wish to register a custom Action and ActionResolver, do so when your Module is configured.</p>
+
+{% highlight java %}			
+public class MyModule implements Module {
+	@Override
+	public void configure(UpdatableInjectionContext injectionContext) {
+		super.configure(injectionContext);
+		Routes routes = injectionContext.get(Routes.class);
+		routes.addActionResolver(MyAction.class, new MyActionResolver<MyAction>());
+{% endhighlight %}
+		</section>
+		<hr/>
+		<section>
+			Next, read about <a href="modules.html">modules</a>
+		</section>
+	</article>
+</div>
+		
