@@ -64,8 +64,9 @@ public abstract class BaseMailer implements Mailer {
 			String contentType = syntheticResponse.getContentType();
 			contentType = ContentType.cleanContentType(contentType);
 			contentType = StringUtils.isBlank(contentType) ? ContentType.TextHtml.value() : contentType;
+			List<Attachment> attachments = mailBuilder.attachments();
 
-			sendInternal(from, replyTo, to, cc, bcc, subject, content, contentType);
+			sendInternal(from, replyTo, to, cc, bcc, subject, content, contentType, attachments);
 		} catch (MailException e) {
 			throw e;
 		} catch (Exception e) {
@@ -96,7 +97,7 @@ public abstract class BaseMailer implements Mailer {
 	}
 
 	protected abstract void sendInternal(Entry<String, String> from, Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject,
-			String content, String contentType);
+			String content, String contentType, List<Attachment> attachments);
 
 	protected void validateRecipients(Map<String, String> to, Map<String, String> cc, Map<String, String> bcc) {
 		if (Expressive.isEmpty(to) && Expressive.isEmpty(cc) && Expressive.isEmpty(bcc)) {

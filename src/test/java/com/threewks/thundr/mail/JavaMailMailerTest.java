@@ -20,6 +20,7 @@ package com.threewks.thundr.mail;
 import static com.threewks.thundr.mail.MailBuilderImplTest.entry;
 import static org.mockito.Mockito.*;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import javax.mail.Message;
@@ -33,11 +34,14 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 import com.atomicleopard.expressive.Expressive;
+import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.RequestThreadLocal;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.view.ViewResolverRegistry;
 import com.threewks.thundr.view.string.StringView;
 import com.threewks.thundr.view.string.StringViewResolver;
+
+import jodd.io.StringInputStream;
 
 public class JavaMailMailerTest {
 
@@ -45,6 +49,7 @@ public class JavaMailMailerTest {
 	private ViewResolverRegistry viewResolverRegistry = new ViewResolverRegistry();
 	private JavaMailMailer mailer = new JavaMailMailer(viewResolverRegistry);
 	private MockHttpServletRequest req = new MockHttpServletRequest();
+	private ArrayList<Attachment> NoAttachments = new ArrayList<Attachment>();
 
 	@Before
 	public void before() throws MessagingException {
@@ -70,7 +75,7 @@ public class JavaMailMailerTest {
 
 		verify(mailer).send(builder);
 		verify(mailer).sendInternal(entry("test@email.com"), entry("reply@email.com"), email("recipient@email.com"), email("cc@email.com"), email("bcc@email.com"), "Subject", "Email body",
-				"text/plain");
+				"text/plain", NoAttachments);
 		verify(mailer).sendMessage(Mockito.any(Message.class));
 	}
 
@@ -85,7 +90,30 @@ public class JavaMailMailerTest {
 		builder.send();
 
 		verify(mailer).send(builder);
-		verify(mailer).sendInternal(entry("sender@email.com", "System Name"), null, to, empty(), empty(), "Subject line", "Email body", "text/plain");
+		verify(mailer).sendInternal(entry("sender@email.com", "System Name"), null, to, empty(), empty(), "Subject line", "Email body", "text/plain", NoAttachments);
+		verify(mailer).sendMessage(Mockito.any(Message.class));
+	}
+
+	@Test
+	public void shouldSendEmailWithAttachment() throws Exception {
+		MailBuilder builder = mailer.mail();
+
+		Map<String, String> to = Expressive.map("foo@example.org", "Foo");
+		Attachment attachment = new AttachmentBuilder()
+				.name("test.txt")
+				.contentType(ContentType.TextPlain)
+				.data(new StringInputStream("some data", StringInputStream.Mode.ALL))
+				.build();
+
+		builder.from("sender@example.org", "Sender");
+		builder.to(to);
+		builder.body(new StringView("Email body").withContentType("text/plain"));
+		builder.subject("Subject line");
+		builder.attach(attachment);
+		builder.send();
+
+		verify(mailer).send(builder);
+		verify(mailer).sendInternal(entry("sender@example.org", "Sender"), null, to, empty(), empty(), "Subject line", "Email body", "text/plain", builder.attachments());
 		verify(mailer).sendMessage(Mockito.any(Message.class));
 	}
 
@@ -103,7 +131,7 @@ public class JavaMailMailerTest {
 		builder.subject("Subject line");
 		builder.send();
 
-		verify(mailer).sendInternal(entry("sender@email.com", "System Name"), null, email("steve@place.com", "Steve"), empty(), empty(), "Subject line", "Email body", "text/plain");
+		verify(mailer).sendInternal(entry("sender@email.com", "System Name"), null, email("steve@place.com", "Steve"), empty(), empty(), "Subject line", "Email body", "text/plain", NoAttachments);
 	}
 
 	@Test

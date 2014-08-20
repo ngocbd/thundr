@@ -17,6 +17,7 @@
  */
 package com.threewks.thundr.mail;
 
+import java.util.List;
 import java.util.Map;
 
 import com.threewks.thundr.view.ViewResolver;
@@ -76,19 +77,19 @@ public interface MailBuilder {
 	/**
 	 * Set the email address of the sender of the email
 	 * 
-	 * @param emailAddress
+	 * @param email
 	 * @return
 	 */
-	public MailBuilder from(String emailAddress);
+	public MailBuilder from(String email);
 
 	/**
 	 * Set the email address and name of the sender of the email
 	 * 
-	 * @param emailAddress
+	 * @param email
 	 * @param name
 	 * @return
 	 */
-	public MailBuilder from(String emailAddress, String name);
+	public MailBuilder from(String email, String name);
 
 	/**
 	 * Get the 'to' recipients of the email as a map of email addresses to names
@@ -100,23 +101,23 @@ public interface MailBuilder {
 	/**
 	 * Add the given email address to the 'to' recipients of the email
 	 * 
-	 * @param emailAddress
+	 * @param email
 	 * @return
 	 */
-	public MailBuilder to(String emailAddress);
+	public MailBuilder to(String email);
 
 	/**
 	 * Add the given email address and name to the 'to' recipients of the email
 	 * 
-	 * @param emailAddress
+	 * @param email
 	 * @return
 	 */
-	public MailBuilder to(String emailAddress, String name);
+	public MailBuilder to(String email, String name);
 
 	/**
 	 * Add the given map of email address to names to the 'to' recipients of the email
 	 * 
-	 * @param emailAddress
+	 * @param to
 	 * @return
 	 */
 	public MailBuilder to(Map<String, String> to);
@@ -131,23 +132,23 @@ public interface MailBuilder {
 	/**
 	 * Add the given email address to the 'cc' recipients of the email
 	 * 
-	 * @param emailAddress
+	 * @param email
 	 * @return
 	 */
-	public MailBuilder cc(String emailAddress);
+	public MailBuilder cc(String email);
 
 	/**
 	 * Add the given email address and name to the 'cc' recipients of the email
 	 * 
-	 * @param emailAddress
+	 * @param email
 	 * @return
 	 */
-	public MailBuilder cc(String emailAddress, String name);
+	public MailBuilder cc(String email, String name);
 
 	/**
 	 * Add the given map of email address to names to the 'cc' recipients of the email
 	 * 
-	 * @param emailAddress
+	 * @param cc
 	 * @return
 	 */
 	public MailBuilder cc(Map<String, String> cc);
@@ -162,23 +163,23 @@ public interface MailBuilder {
 	/**
 	 * Add the given email address to the 'bcc' recipients of the email
 	 * 
-	 * @param emailAddress
+	 * @param email
 	 * @return
 	 */
-	public MailBuilder bcc(String emailAddress);
+	public MailBuilder bcc(String email);
 
 	/**
 	 * Add the given email address and name to the 'bcc' recipients of the email
 	 * 
-	 * @param emailAddress
+	 * @param email
 	 * @return
 	 */
-	public MailBuilder bcc(String emailAddress, String name);
+	public MailBuilder bcc(String email, String name);
 
 	/**
 	 * Add the given map of email address to names to the 'bcc' recipients of the email
 	 * 
-	 * @param emailAddress
+	 * @param email
 	 * @return
 	 */
 	public MailBuilder bcc(Map<String, String> bcc);
@@ -193,7 +194,7 @@ public interface MailBuilder {
 	/**
 	 * Set the email address of the 'reply to' address of the email
 	 * 
-	 * @param emailAddress
+	 * @param email
 	 * @return
 	 */
 	public MailBuilder replyTo(String email);
@@ -201,9 +202,24 @@ public interface MailBuilder {
 	/**
 	 * Set the email address and name of the 'reply to' address of the email
 	 * 
-	 * @param emailAddress
+	 * @param email
 	 * @param name
 	 * @return
 	 */
 	public MailBuilder replyTo(String email, String name);
+
+	/**
+	 * Attaches the attachment to the email.
+	 *
+	 * @param attachment the attachment
+	 * @return
+	 */
+	public MailBuilder attach(Attachment attachment);
+
+	/**
+	 * Get the attachments of the email.
+	 *
+	 * @return a list of attachments
+	 */
+	public List<Attachment> attachments();
 }

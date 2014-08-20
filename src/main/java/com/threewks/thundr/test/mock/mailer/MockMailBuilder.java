@@ -17,10 +17,13 @@
  */
 package com.threewks.thundr.test.mock.mailer;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.threewks.thundr.mail.Attachment;
 import com.threewks.thundr.mail.MailBuilder;
 
 public class MockMailBuilder implements MailBuilder {
@@ -32,6 +35,7 @@ public class MockMailBuilder implements MailBuilder {
 	private Map<String, String> to = new HashMap<String, String>();
 	private Map<String, String> cc = new HashMap<String, String>();
 	private Map<String, String> bcc = new HashMap<String, String>();
+	private List<Attachment> attachments = new ArrayList<Attachment>();
 
 	public MockMailBuilder(MockMailer mail) {
 		this.mail = mail;
@@ -151,6 +155,17 @@ public class MockMailBuilder implements MailBuilder {
 	public MailBuilder replyTo(String email, String name) {
 		this.replyTo = Collections.singletonMap(email, name);
 		return this;
+	}
+
+	@Override
+	public MailBuilder attach(Attachment attachment) {
+		attachments.add(attachment);
+		return this;
+	}
+
+	@Override
+	public List<Attachment> attachments() {
+		return Collections.unmodifiableList(attachments);
 	}
 
 	@Override
