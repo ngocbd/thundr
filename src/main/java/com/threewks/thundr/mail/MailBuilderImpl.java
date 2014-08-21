@@ -23,6 +23,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.threewks.thundr.view.BaseView;
+import com.threewks.thundr.view.file.Disposition;
+import com.threewks.thundr.view.file.FileView;
+
 public class MailBuilderImpl implements MailBuilder {
 	private Mailer mailer;
 	private String subject;
@@ -162,8 +166,14 @@ public class MailBuilderImpl implements MailBuilder {
 	}
 
 	@Override
-	public MailBuilder attach(Attachment attachment) {
-		attachments.add(attachment);
+	public MailBuilder attach(FileView view) {
+		attachments.add(new Attachment(view));
+		return this;
+	}
+
+	@Override
+	public MailBuilder attach(String name, BaseView view, Disposition disposition) {
+		attachments.add(new Attachment(name, view, disposition));
 		return this;
 	}
 

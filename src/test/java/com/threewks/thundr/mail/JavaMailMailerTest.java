@@ -34,14 +34,12 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 import com.atomicleopard.expressive.Expressive;
-import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.RequestThreadLocal;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.view.ViewResolverRegistry;
+import com.threewks.thundr.view.file.Disposition;
 import com.threewks.thundr.view.string.StringView;
 import com.threewks.thundr.view.string.StringViewResolver;
-
-import jodd.io.StringInputStream;
 
 public class JavaMailMailerTest {
 
@@ -99,17 +97,12 @@ public class JavaMailMailerTest {
 		MailBuilder builder = mailer.mail();
 
 		Map<String, String> to = Expressive.map("foo@example.org", "Foo");
-		Attachment attachment = new AttachmentBuilder()
-				.name("test.txt")
-				.contentType(ContentType.TextPlain)
-				.data(new StringInputStream("some data", StringInputStream.Mode.ALL))
-				.build();
 
 		builder.from("sender@example.org", "Sender");
 		builder.to(to);
 		builder.body(new StringView("Email body").withContentType("text/plain"));
 		builder.subject("Subject line");
-		builder.attach(attachment);
+		builder.attach("test.txt", new StringView("Blah"), Disposition.Attachment);
 		builder.send();
 
 		verify(mailer).send(builder);

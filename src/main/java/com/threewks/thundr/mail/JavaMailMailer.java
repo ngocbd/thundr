@@ -41,6 +41,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.http.ContentType;
+import com.threewks.thundr.http.SyntheticHttpServletResponse;
 import com.threewks.thundr.view.ViewResolverRegistry;
 
 import jodd.util.Base64;
@@ -111,17 +112,18 @@ public class JavaMailMailer extends BaseMailer {
 	private void addAttachments(Multipart multipart, List<Attachment> attachments) throws MessagingException, IOException {
 		for (Attachment attachment : attachments) {
 			InternetHeaders headers = new InternetHeaders();
-			headers.addHeader("Content-Type", attachment.getContentType());
+			headers.addHeader("Content-Type", attachment.contentType());
 			headers.addHeader("Content-Transfer-Encoding", "base64");
 
-			byte[] base64EncodedData = Base64.encodeToByte(attachment.getData());
+			SyntheticHttpServletResponse response = render(attachment.view());
+			byte[] base64Encoded = Base64.encodeToByte(response.getResponseContentAsBytes());
 
-			MimeBodyPart part = new MimeBodyPart(headers, base64EncodedData);
-			part.setFileName(attachment.getName());
+			MimeBodyPart part = new MimeBodyPart(headers, base64Encoded);
+			part.setFileName(attachment.name());
+			part.setDisposition(attachment.disposition().getValue());
 
-			if (attachment.getContentId() != null && ImageContentTypes.contains(attachment.getContentType())) {
-				part.setContentID(attachment.getContentId());
-				part.setDisposition(MimeBodyPart.INLINE);
+			if (attachment.isInline()) {
+				part.setContentID(attachment.contentId());
 			}
 
 			multipart.addBodyPart(part);
@@ -135,10 +137,4 @@ public class JavaMailMailer extends BaseMailer {
 			throw new MailException(e, "Failed to send an email - unable to set a sender or recipient of '%s' <%s>: %s", entry.getKey(), entry.getValue(), e.getMessage());
 		}
 	}
-
-	private static List<String> ImageContentTypes = Expressive.list(
-			ContentType.ImageGif.value(),
-			ContentType.ImageJpeg.value(),
-			ContentType.ImagePng.value()
-	);
 }

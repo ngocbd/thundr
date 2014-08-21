@@ -28,12 +28,12 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
-import jodd.util.StringPool;
-import jodd.util.URLCoder;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.threewks.thundr.exception.BaseException;
+
+import jodd.util.StringPool;
+import jodd.util.URLCoder;
 
 public class SyntheticHttpServletResponse implements HttpServletResponse {
 	private String contentType = ContentType.TextHtml.value();
@@ -63,17 +63,27 @@ public class SyntheticHttpServletResponse implements HttpServletResponse {
 	 */
 	public String getResponseContent() {
 		try {
+			return getResponseContentAsOutputStream().toString(characterEncoding);
+		} catch (UnsupportedEncodingException e) {
+			throw new BaseException(e, "Failed to get output, this platform does not support the specified character encoding '%s': %s", characterEncoding, e.getMessage());
+		}
+	}
+
+	public ByteArrayOutputStream getResponseContentAsOutputStream() {
+		try {
 			if (writer != null) {
 				writer.flush();
 				writer.close();
 			}
 			os.flush();
-			return baos.toString(characterEncoding);
-		} catch (UnsupportedEncodingException e) {
-			throw new BaseException(e, "Failed to get output, this platform does not support the specified character encoding '%s': %s", characterEncoding, e.getMessage());
+			return baos;
 		} catch (IOException e) {
 			throw new BaseException(e, "Failed to get output, could not flush a ByteArrayOutputStream!: ", e.getMessage());
 		}
+	}
+
+	public byte[] getResponseContentAsBytes() {
+		return getResponseContentAsOutputStream().toByteArray();
 	}
 
 	@Override

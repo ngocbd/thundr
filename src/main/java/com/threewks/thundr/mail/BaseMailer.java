@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.atomicleopard.expressive.ETransformer;
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.RequestThreadLocal;
@@ -37,6 +38,7 @@ import com.threewks.thundr.view.ViewResolver;
 import com.threewks.thundr.view.ViewResolverRegistry;
 
 public abstract class BaseMailer implements Mailer {
+	protected Map<Class<?>, ETransformer<Attachment, Object>> attachmentTransformers = new HashMap<Class<?>, ETransformer<Attachment, Object>>();
 	protected ViewResolverRegistry viewResolverRegistry;
 
 	public BaseMailer(ViewResolverRegistry viewResolverRegistry) {
@@ -59,7 +61,7 @@ public abstract class BaseMailer implements Mailer {
 		validateRecipients(to, cc, bcc);
 
 		try {
-			SyntheticHttpServletResponse syntheticResponse = renderContent(mailBuilder);
+			SyntheticHttpServletResponse syntheticResponse = render(mailBuilder.body());
 			String content = syntheticResponse.getResponseContent();
 			String contentType = syntheticResponse.getContentType();
 			contentType = ContentType.cleanContentType(contentType);
@@ -74,20 +76,19 @@ public abstract class BaseMailer implements Mailer {
 		}
 	}
 
-	protected SyntheticHttpServletResponse renderContent(MailBuilder mailBuilder) {
+	protected SyntheticHttpServletResponse render(Object view) {
 		/*
 		 * Wrapping the request is highly sensitive to the container implementation.
 		 * For example, while the Servlet include interface specifies we can pass in a {@link ServletRequestWrapper},
 		 * Jetty is having none of it. To avoid ramifications across different application servers, we just reuse the
 		 * originating request. To help avoid issues, we restore all attributes after the response is rendered.
 		 */
-		Object body = mailBuilder.body();
 		SyntheticHttpServletResponse resp = new SyntheticHttpServletResponse();
 		HttpServletRequest req = RequestThreadLocal.getRequest();
 		Map<String, Object> attributes = getAttributes(req); // save the current set of request attributes
 		try {
-			ViewResolver<Object> viewResolver = viewResolverRegistry.findViewResolver(body);
-			viewResolver.resolve(req, resp, body);
+			ViewResolver<Object> viewResolver = viewResolverRegistry.findViewResolver(view);
+			viewResolver.resolve(req, resp, view);
 		} catch (Exception e) {
 			throw new MailException(e, "Failed to render email body: %s", e.getMessage());
 		} finally {

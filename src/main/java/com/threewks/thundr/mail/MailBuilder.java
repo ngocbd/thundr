@@ -20,8 +20,11 @@ package com.threewks.thundr.mail;
 import java.util.List;
 import java.util.Map;
 
+import com.threewks.thundr.view.BaseView;
 import com.threewks.thundr.view.ViewResolver;
 import com.threewks.thundr.view.ViewResolverRegistry;
+import com.threewks.thundr.view.file.Disposition;
+import com.threewks.thundr.view.file.FileView;
 
 /**
  * A fluent api for building and sending an email.
@@ -208,13 +211,24 @@ public interface MailBuilder {
 	 */
 	public MailBuilder replyTo(String email, String name);
 
+
 	/**
-	 * Attaches the attachment to the email.
+	 * Add an attachment.
 	 *
-	 * @param attachment the attachment
+	 * @param view a file
 	 * @return
 	 */
-	public MailBuilder attach(Attachment attachment);
+	public MailBuilder attach(FileView view);
+
+	/**
+	 * Add an attachment.
+	 *
+	 * @param name the file name
+	 * @param view the view to render the attachment with
+	 * @param disposition the type of attachment (i.e. inline or not)
+	 * @return
+	 */
+	public MailBuilder attach(String name, BaseView view, Disposition disposition);
 
 	/**
 	 * Get the attachments of the email.

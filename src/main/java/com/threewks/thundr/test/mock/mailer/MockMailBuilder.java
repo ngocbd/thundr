@@ -25,6 +25,9 @@ import java.util.Map;
 
 import com.threewks.thundr.mail.Attachment;
 import com.threewks.thundr.mail.MailBuilder;
+import com.threewks.thundr.view.BaseView;
+import com.threewks.thundr.view.file.Disposition;
+import com.threewks.thundr.view.file.FileView;
 
 public class MockMailBuilder implements MailBuilder {
 	private MockMailer mail;
@@ -158,8 +161,14 @@ public class MockMailBuilder implements MailBuilder {
 	}
 
 	@Override
-	public MailBuilder attach(Attachment attachment) {
-		attachments.add(attachment);
+	public MailBuilder attach(FileView view) {
+		attachments.add(new Attachment(view));
+		return this;
+	}
+
+	@Override
+	public MailBuilder attach(String name, BaseView view, Disposition disposition) {
+		attachments.add(new Attachment(name, view, disposition));
 		return this;
 	}
 
