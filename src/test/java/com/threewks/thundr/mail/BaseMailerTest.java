@@ -25,7 +25,6 @@ import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -56,7 +55,7 @@ public class BaseMailerTest {
 	private BaseMailer mailer = spy(new BaseMailer(viewResolverRegistry) {
 		@Override
 		protected void sendInternal(Entry<String, String> from, Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject, String content,
-				String contentType, List<Attachment> attachments) {
+				String contentType) {
 		}
 	});
 	private MockHttpServletRequest req = new MockHttpServletRequest();
@@ -83,7 +82,7 @@ public class BaseMailerTest {
 
 		verify(mailer).send(builder);
 		verify(mailer).sendInternal(entry("test@email.com"), entry("reply@email.com"), email("recipient@email.com"), email("cc@email.com"), email("bcc@email.com"), "Subject", "Email body",
-				"text/plain", NoAttachments);
+				"text/plain");
 	}
 
 	@Test
@@ -97,7 +96,7 @@ public class BaseMailerTest {
 		builder.send();
 
 		verify(mailer).send(builder);
-		verify(mailer).sendInternal(entry("sender@email.com", "System Name"), null, to, empty(), empty(), "Subject line", "Email body", "text/plain", NoAttachments);
+		verify(mailer).sendInternal(entry("sender@email.com", "System Name"), null, to, empty(), empty(), "Subject line", "Email body", "text/plain");
 	}
 
 	@Test
@@ -105,7 +104,7 @@ public class BaseMailerTest {
 		thrown.expect(MailException.class);
 		thrown.expectMessage("Failed to send an email: expected message");
 
-		doThrow(new RuntimeException("expected message")).when(mailer).sendInternal(anyEntry(), anyEntry(), anyMap(), anyMap(), anyMap(), anyString(), anyString(), anyString(), anyListOf(Attachment.class));
+		doThrow(new RuntimeException("expected message")).when(mailer).sendInternal(anyEntry(), anyEntry(), anyMap(), anyMap(), anyMap(), anyString(), anyString(), anyString());
 
 		MailBuilder builder = mailer.mail();
 		builder.from("sender@email.com", "System Name");
@@ -114,7 +113,7 @@ public class BaseMailerTest {
 		builder.subject("Subject line");
 		builder.send();
 
-		verify(mailer).sendInternal(entry("sender@email.com", "System Name"), null, email("steve@place.com", "Steve"), empty(), empty(), "Subject line", "Email body", "text/plain", NoAttachments);
+		verify(mailer).sendInternal(entry("sender@email.com", "System Name"), null, email("steve@place.com", "Steve"), empty(), empty(), "Subject line", "Email body", "text/plain");
 	}
 
 	@Test
@@ -172,7 +171,7 @@ public class BaseMailerTest {
 		builder.subject("Subject line");
 		builder.send();
 
-		verify(mailer).sendInternal(entry("sender@email.com"), null, email("recipient@email.com"), empty(), empty(), "Subject line", "Email body", "text/html", NoAttachments);
+		verify(mailer).sendInternal(entry("sender@email.com"), null, email("recipient@email.com"), empty(), empty(), "Subject line", "Email body", "text/html");
 	}
 
 	@Test
@@ -185,7 +184,7 @@ public class BaseMailerTest {
 		builder.subject("Subject line");
 		builder.send();
 
-		verify(mailer).sendInternal(entry("sender@email.com"), null, email("recipient@email.com"), empty(), empty(), "Subject line", "Email body", "text/html", NoAttachments);
+		verify(mailer).sendInternal(entry("sender@email.com"), null, email("recipient@email.com"), empty(), empty(), "Subject line", "Email body", "text/html");
 	}
 
 	@Test
@@ -197,7 +196,7 @@ public class BaseMailerTest {
 		when(builder.subject()).thenReturn("Subject line");
 		mailer.send(builder);
 
-		verify(mailer).sendInternal(entry("sender@email.com"), null, email("recipient@email.com"), empty(), empty(), "Subject line", "Email body", "text/html", NoAttachments);
+		verify(mailer).sendInternal(entry("sender@email.com"), null, email("recipient@email.com"), empty(), empty(), "Subject line", "Email body", "text/html");
 	}
 
 	@Test
@@ -230,7 +229,7 @@ public class BaseMailerTest {
 		builder.subject("Subject line");
 		builder.send();
 
-		verify(mailer).sendInternal(entry("sender@email.com"), null, email("recipient@email.com"), empty(), empty(), "Subject line", "Email body", "text/html", NoAttachments);
+		verify(mailer).sendInternal(entry("sender@email.com"), null, email("recipient@email.com"), empty(), empty(), "Subject line", "Email body", "text/html");
 
 		assertThat(req.getAttribute("initial"), is((Object) "value"));
 		assertThat(req.getAttribute("updated"), is((Object) 1));

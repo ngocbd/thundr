@@ -19,6 +19,7 @@ package com.threewks.thundr.http;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -63,27 +64,18 @@ public class SyntheticHttpServletResponse implements HttpServletResponse {
 	 */
 	public String getResponseContent() {
 		try {
-			return getResponseContentAsOutputStream().toString(characterEncoding);
+			return getResponseContentInternal().toString(characterEncoding);
 		} catch (UnsupportedEncodingException e) {
 			throw new BaseException(e, "Failed to get output, this platform does not support the specified character encoding '%s': %s", characterEncoding, e.getMessage());
 		}
 	}
 
-	public ByteArrayOutputStream getResponseContentAsOutputStream() {
-		try {
-			if (writer != null) {
-				writer.flush();
-				writer.close();
-			}
-			os.flush();
-			return baos;
-		} catch (IOException e) {
-			throw new BaseException(e, "Failed to get output, could not flush a ByteArrayOutputStream!: ", e.getMessage());
-		}
+	public OutputStream getResponseContentAsOutputStream() {
+		return getResponseContentInternal();
 	}
 
 	public byte[] getResponseContentAsBytes() {
-		return getResponseContentAsOutputStream().toByteArray();
+		return getResponseContentInternal().toByteArray();
 	}
 
 	@Override
@@ -253,5 +245,18 @@ public class SyntheticHttpServletResponse implements HttpServletResponse {
 	@Override
 	public void setStatus(int sc, String sm) {
 		// noop
+	}
+
+	private ByteArrayOutputStream getResponseContentInternal() {
+		try {
+			if (writer != null) {
+				writer.flush();
+				writer.close();
+			}
+			os.flush();
+			return baos;
+		} catch (IOException e) {
+			throw new BaseException(e, "Failed to get output, could not flush a ByteArrayOutputStream!: ", e.getMessage());
+		}
 	}
 }

@@ -17,7 +17,7 @@
  */
 package com.threewks.thundr.mail;
 
-import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -40,7 +40,6 @@ import javax.mail.internet.MimeMultipart;
 import org.apache.commons.lang3.StringUtils;
 
 import com.atomicleopard.expressive.Expressive;
-import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.SyntheticHttpServletResponse;
 import com.threewks.thundr.view.ViewResolverRegistry;
 
@@ -56,6 +55,12 @@ public class JavaMailMailer extends BaseMailer {
 	}
 
 	@Override
+	protected void sendInternal(Entry<String, String> from, Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject,
+			String content, String contentType) {
+		sendInternal(from, replyTo, to, cc, bcc, subject, content, contentType, Collections.<Attachment>emptyList());
+	}
+
+	@Override
 	protected void sendInternal(Map.Entry<String, String> from, Map.Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject,
 			String content, String contentType, List<Attachment> attachments) {
 		try {
@@ -66,21 +71,24 @@ public class JavaMailMailer extends BaseMailer {
 			if (replyTo != null) {
 				message.setReplyTo(new Address[] { emailAddress(replyTo) });
 			}
+
+			message.setSubject(subject);
+
+			if (Expressive.isEmpty(attachments)) {
+				message.setContent(content, contentType);
+			} else {
+				Multipart multipart = new MimeMultipart("mixed");  // subtype must be "mixed" or inline & regular attachments won't play well together
+				addBody(multipart, content, contentType);
+				addAttachments(multipart, attachments);
+				message.setContent(multipart);
+			}
+
 			addRecipients(to, message, RecipientType.TO);
 			addRecipients(cc, message, RecipientType.CC);
 			addRecipients(bcc, message, RecipientType.BCC);
 
-			message.setSubject(subject);
-
-			Multipart multipart = new MimeMultipart("mixed");  // subtype must be "mixed" or inline & regular attachments won't play well together
-			addBody(multipart, content, contentType);
-			addAttachments(multipart, attachments);
-			message.setContent(multipart);
-
 			sendMessage(message);
 		} catch (MessagingException e) {
-			throw new MailException(e, "Failed to send an email: %s", e.getMessage());
-		} catch (IOException e) {
 			throw new MailException(e, "Failed to send an email: %s", e.getMessage());
 		}
 	}
@@ -90,12 +98,6 @@ public class JavaMailMailer extends BaseMailer {
 	}
 
 	private void addBody(Multipart multipart, String content, String contentType) throws MessagingException {
-		if (ContentType.TextHtml.value().equals(contentType)) {
-			BodyPart textPart = new MimeBodyPart();
-			textPart.setText("This message is intended for viewing with an HTML capable email client.");
-			multipart.addBodyPart(textPart);
-		}
-
 		BodyPart messageBodyPart = new MimeBodyPart();
 		messageBodyPart.setContent(content, contentType);
 		multipart.addBodyPart(messageBodyPart);
@@ -109,14 +111,14 @@ public class JavaMailMailer extends BaseMailer {
 		}
 	}
 
-	private void addAttachments(Multipart multipart, List<Attachment> attachments) throws MessagingException, IOException {
+	private void addAttachments(Multipart multipart, List<Attachment> attachments) throws MessagingException {
 		for (Attachment attachment : attachments) {
-			InternetHeaders headers = new InternetHeaders();
-			headers.addHeader("Content-Type", attachment.contentType());
-			headers.addHeader("Content-Transfer-Encoding", "base64");
-
 			SyntheticHttpServletResponse response = render(attachment.view());
 			byte[] base64Encoded = Base64.encodeToByte(response.getResponseContentAsBytes());
+
+			InternetHeaders headers = new InternetHeaders();
+			headers.addHeader("Content-Type", response.getContentType());
+			headers.addHeader("Content-Transfer-Encoding", "base64");
 
 			MimeBodyPart part = new MimeBodyPart(headers, base64Encoded);
 			part.setFileName(attachment.name());

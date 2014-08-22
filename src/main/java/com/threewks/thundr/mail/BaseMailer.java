@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.atomicleopard.expressive.ETransformer;
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.RequestThreadLocal;
@@ -38,7 +37,6 @@ import com.threewks.thundr.view.ViewResolver;
 import com.threewks.thundr.view.ViewResolverRegistry;
 
 public abstract class BaseMailer implements Mailer {
-	protected Map<Class<?>, ETransformer<Attachment, Object>> attachmentTransformers = new HashMap<Class<?>, ETransformer<Attachment, Object>>();
 	protected ViewResolverRegistry viewResolverRegistry;
 
 	public BaseMailer(ViewResolverRegistry viewResolverRegistry) {
@@ -68,12 +66,20 @@ public abstract class BaseMailer implements Mailer {
 			contentType = StringUtils.isBlank(contentType) ? ContentType.TextHtml.value() : contentType;
 			List<Attachment> attachments = mailBuilder.attachments();
 
-			sendInternal(from, replyTo, to, cc, bcc, subject, content, contentType, attachments);
+			if (attachments.size() > 0) {
+				sendInternal(from, replyTo, to, cc, bcc, subject, content, contentType, attachments);
+			} else {
+				sendInternal(from, replyTo, to, cc, bcc, subject, content, contentType);
+			}
 		} catch (MailException e) {
 			throw e;
 		} catch (Exception e) {
 			throw new MailException(e, "Failed to send an email: %s", e.getMessage());
 		}
+	}
+
+	protected SyntheticHttpServletResponse renderContent(MailBuilder mailBuilder) {
+		return render(mailBuilder.body());
 	}
 
 	protected SyntheticHttpServletResponse render(Object view) {
@@ -98,7 +104,12 @@ public abstract class BaseMailer implements Mailer {
 	}
 
 	protected abstract void sendInternal(Entry<String, String> from, Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject,
-			String content, String contentType, List<Attachment> attachments);
+			String content, String contentType);
+
+	protected void sendInternal(Entry<String, String> from, Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject,
+			String content, String contentType, List<Attachment> attachments) {
+		throw new UnsupportedOperationException(String.format("%s does not support attachments.", getClass().getSimpleName()));
+	}
 
 	protected void validateRecipients(Map<String, String> to, Map<String, String> cc, Map<String, String> bcc) {
 		if (Expressive.isEmpty(to) && Expressive.isEmpty(cc) && Expressive.isEmpty(bcc)) {

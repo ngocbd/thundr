@@ -17,11 +17,10 @@
  */
 package com.threewks.thundr.mail;
 
-import org.apache.commons.lang3.StringUtils;
-
-import com.threewks.thundr.view.BaseView;
 import com.threewks.thundr.view.file.Disposition;
 import com.threewks.thundr.view.file.FileView;
+
+import jodd.util.StringUtil;
 
 /**
  * An email attachment.
@@ -29,7 +28,7 @@ import com.threewks.thundr.view.file.FileView;
 public class Attachment {
 
 	private final String name;
-	private final BaseView view;
+	private final Object view;
 	private final Disposition disposition;
 
 	/**
@@ -50,7 +49,7 @@ public class Attachment {
 	 * @param view the attachment view
 	 * @param disposition the attachment disposition (i.e. inline or not)
 	 */
-	public Attachment(String name, BaseView view, Disposition disposition) {
+	public Attachment(String name, Object view, Disposition disposition) {
 		this.name = name;
 		this.view = view;
 		this.disposition = disposition;
@@ -67,37 +66,22 @@ public class Attachment {
 	}
 
 	/**
-	 * Get the content type of the attachment.
-	 *
-	 * @return the content type
-	 */
-	public String contentType() {
-		return view.getContentType();
-	}
-
-	/**
 	 * Get the attachment view.
 	 *
 	 * @return the attachment data
 	 */
-	public BaseView view() {
+	public Object view() {
 		return view;
 	}
 
 	/**
-	 * Get the content ID for inline attachments.
+	 * Get the content ID for inline attachments. This is simply `name`
+	 * surrounded with angle brackets (i.e. <name>) as it required for content IDs.
 	 *
 	 * @return the content ID;
 	 */
 	public String contentId() {
-		StringBuilder builder = new StringBuilder();
-
-		String trimmed = StringUtils.trim(name);
-		if (!trimmed.startsWith("<")) builder.append("<");
-		builder.append(trimmed);
-		if (!trimmed.endsWith(">")) builder.append(">");
-
-		return builder.toString();
+		return StringUtil.surround(name.trim(), "<", ">");
 	}
 
 	/**
