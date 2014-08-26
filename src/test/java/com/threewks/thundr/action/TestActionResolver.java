@@ -22,11 +22,13 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.threewks.thundr.route.RouteType;
+import com.threewks.thundr.route.HttpMethod;
+import com.threewks.thundr.route.RouteResolver;
+import com.threewks.thundr.route.RouteResolverException;
 
-public class TestActionResolver implements ActionResolver<TestAction> {
+public class TestActionResolver implements RouteResolver<TestAction> {
 	@Override
-	public Object resolve(TestAction action, RouteType routeType, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws ActionException {
+	public Object resolve(TestAction action, HttpMethod routeType, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws RouteResolverException {
 		return null;
 	}
 

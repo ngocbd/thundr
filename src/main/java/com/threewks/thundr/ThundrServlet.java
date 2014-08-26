@@ -30,19 +30,20 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.atomicleopard.expressive.Cast;
 import com.atomicleopard.expressive.Expressive;
-import com.threewks.thundr.action.ActionException;
 import com.threewks.thundr.configuration.ConfigurationModule;
-import com.threewks.thundr.http.HttpSupport;
+import com.threewks.thundr.http.Header;
 import com.threewks.thundr.http.RequestThreadLocal;
-import com.threewks.thundr.injection.Module;
 import com.threewks.thundr.injection.InjectionContextImpl;
+import com.threewks.thundr.injection.Module;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.logger.Logger;
-import com.threewks.thundr.module.ModulesModule;
 import com.threewks.thundr.module.Modules;
-import com.threewks.thundr.route.RouteModule;
-import com.threewks.thundr.route.RouteType;
-import com.threewks.thundr.route.Routes;
+import com.threewks.thundr.module.ModulesModule;
+import com.threewks.thundr.route.HttpMethod;
+import com.threewks.thundr.route.RouteResolverException;
+import com.threewks.thundr.route.Router;
+import com.threewks.thundr.route.RouterModule;
+import com.threewks.thundr.transformer.TransformerModule;
 import com.threewks.thundr.view.ViewResolver;
 import com.threewks.thundr.view.ViewResolverNotFoundException;
 import com.threewks.thundr.view.ViewResolverRegistry;
@@ -70,7 +71,7 @@ public class ThundrServlet extends HttpServlet {
 	}
 
 	private void debugRoutes(UpdatableInjectionContext injectionContext) {
-		Routes routes = injectionContext.get(Routes.class);
+		Router routes = injectionContext.get(Router.class);
 		if (routes == null || routes.isEmpty()) {
 			Logger.warn("No routes are configured for this application.");
 		}
@@ -94,7 +95,8 @@ public class ThundrServlet extends HttpServlet {
 		List<Class<? extends Module>> baseModules = new ArrayList<Class<? extends Module>>();
 		baseModules.add(ConfigurationModule.class);
 		baseModules.add(ModulesModule.class);
-		baseModules.add(RouteModule.class);
+		baseModules.add(TransformerModule.class);
+		baseModules.add(RouterModule.class);
 		return baseModules;
 	}
 
@@ -112,21 +114,21 @@ public class ThundrServlet extends HttpServlet {
 		return injectionContext;
 	}
 
-	protected void applyRoute(final RouteType routeType, final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+	protected void applyRoute(final HttpMethod routeType, final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
 		final ViewResolverRegistry viewResolverRegistry = injectionContext.get(ViewResolverRegistry.class);
 		String requestPath = req.getRequestURI();
 		try {
 			Logger.debug("Invoking path %s", requestPath);
 			RequestThreadLocal.set(req, resp);
-			Routes routes = injectionContext.get(Routes.class);
+			Router routes = injectionContext.get(Router.class);
 			final Object viewResult = routes.invoke(requestPath, routeType, req, resp);
 			if (viewResult != null) {
 				resolveView(req, resp, viewResolverRegistry, viewResult);
 			}
 		} catch (Exception e) {
-			if (Cast.is(e, ActionException.class)) {
+			if (Cast.is(e, RouteResolverException.class)) {
 				// unwrap ActionException if it is one
-				e = (Exception) Cast.as(e, ActionException.class).getCause();
+				e = (Exception) Cast.as(e, RouteResolverException.class).getCause();
 			}
 			if (Cast.is(e, ViewResolverNotFoundException.class)) {
 				// if there was an error finding a view resolver, propogate this
@@ -156,7 +158,7 @@ public class ThundrServlet extends HttpServlet {
 		boolean handled = customService(req, resp);
 		if (!handled) {
 			String method = determineMethod(req);
-			RouteType routeType = RouteType.from(method);
+			HttpMethod routeType = HttpMethod.from(method);
 			if (routeType != null) {
 				applyRoute(routeType, req, resp);
 			} else if (HEAD.equals(method)) {
@@ -177,7 +179,7 @@ public class ThundrServlet extends HttpServlet {
 	protected String determineMethod(HttpServletRequest req) {
 		String method = req.getMethod();
 		if (POST.equalsIgnoreCase(method)) {
-			String methodOverride = getHeaderCaseInsensitive(req, HttpSupport.Header.XHttpMethodOverride);
+			String methodOverride = getHeaderCaseInsensitive(req, Header.XHttpMethodOverride);
 			String methodOverride2 = getParameterCaseInsensitive(req, "_method");
 
 			if (methodOverride != null) {
@@ -206,7 +208,7 @@ public class ThundrServlet extends HttpServlet {
 	 */
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		applyRoute(RouteType.GET, req, resp);
+		applyRoute(HttpMethod.GET, req, resp);
 	}
 
 	@SuppressWarnings("unchecked")

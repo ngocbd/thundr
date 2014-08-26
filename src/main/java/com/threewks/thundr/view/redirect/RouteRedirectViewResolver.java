@@ -25,14 +25,14 @@ import javax.servlet.http.HttpServletResponse;
 import com.threewks.thundr.http.URLEncoder;
 import com.threewks.thundr.route.ReverseRouteException;
 import com.threewks.thundr.route.Route;
-import com.threewks.thundr.route.Routes;
+import com.threewks.thundr.route.Router;
 import com.threewks.thundr.view.ViewResolutionException;
 import com.threewks.thundr.view.ViewResolver;
 
 public class RouteRedirectViewResolver implements ViewResolver<RouteRedirectView> {
-	private Routes routes;
+	private Router routes;
 
-	public RouteRedirectViewResolver(Routes routes) {
+	public RouteRedirectViewResolver(Router routes) {
 		this.routes = routes;
 	}
 

@@ -103,27 +103,27 @@ public class FiltersTest {
 		filters.add("/other/**", filter3);
 
 		req.url("/sub/path/request");
-		Object result = filters.before(RouteType.GET, req, resp);
+		Object result = filters.before(HttpMethod.GET, req, resp);
 		assertThat(result, is(nullValue()));
 
 		InOrder inOrder = inOrder(filter1, filter2);
-		inOrder.verify(filter1).before(RouteType.GET, req, resp);
-		inOrder.verify(filter2).before(RouteType.GET, req, resp);
-		verify(filter3, never()).before(RouteType.GET, req, resp);
+		inOrder.verify(filter1).before(HttpMethod.GET, req, resp);
+		inOrder.verify(filter2).before(HttpMethod.GET, req, resp);
+		verify(filter3, never()).before(HttpMethod.GET, req, resp);
 	}
 
 	@Test
 	public void shouldReturnViewAndSkipSubsequentBeforeFiltersWhenFilterReturnsNonNullValue() {
-		when(filter1.before(RouteType.GET, req, resp)).thenReturn("Result");
+		when(filter1.before(HttpMethod.GET, req, resp)).thenReturn("Result");
 		filters.add("/**", filter1);
 		filters.add("/sub/**", filter2);
 
 		req.url("/sub/path/request");
-		Object result = filters.before(RouteType.GET, req, resp);
+		Object result = filters.before(HttpMethod.GET, req, resp);
 		assertThat(result, is((Object) "Result"));
 
-		verify(filter1).before(RouteType.GET, req, resp);
-		verify(filter2, never()).before(RouteType.GET, req, resp);
+		verify(filter1).before(HttpMethod.GET, req, resp);
+		verify(filter2, never()).before(HttpMethod.GET, req, resp);
 	}
 
 	@Test
@@ -133,26 +133,26 @@ public class FiltersTest {
 		filters.add("/other/**", filter3);
 
 		req.url("/sub/path/request");
-		Object result = filters.after(RouteType.GET, "View", req, resp);
+		Object result = filters.after(HttpMethod.GET, "View", req, resp);
 		assertThat(result, is(nullValue()));
 
-		verify(filter1).after(RouteType.GET, "View", req, resp);
-		verify(filter2).after(RouteType.GET, "View", req, resp);
-		verify(filter3, never()).after(RouteType.GET, "View", req, resp);
+		verify(filter1).after(HttpMethod.GET, "View", req, resp);
+		verify(filter2).after(HttpMethod.GET, "View", req, resp);
+		verify(filter3, never()).after(HttpMethod.GET, "View", req, resp);
 	}
 
 	@Test
 	public void shouldReturnViewAndSkipSubsequentAfterFiltersWhenFilterReturnsNonNullValue() {
-		when(filter2.after(RouteType.GET, "View", req, resp)).thenReturn("Result");
+		when(filter2.after(HttpMethod.GET, "View", req, resp)).thenReturn("Result");
 		filters.add("/**", filter1);
 		filters.add("/sub/**", filter2);
 
 		req.url("/sub/path/request");
-		Object result = filters.after(RouteType.GET, "View", req, resp);
+		Object result = filters.after(HttpMethod.GET, "View", req, resp);
 		assertThat(result, is((Object) "Result"));
 
-		verify(filter2).after(RouteType.GET, "View", req, resp);
-		verify(filter1, never()).after(RouteType.GET, "View", req, resp);
+		verify(filter2).after(HttpMethod.GET, "View", req, resp);
+		verify(filter1, never()).after(HttpMethod.GET, "View", req, resp);
 	}
 
 	@Test
@@ -162,26 +162,26 @@ public class FiltersTest {
 		filters.add("/other/**", filter3);
 
 		req.url("/sub/path/request");
-		Object result = filters.exception(RouteType.GET, e, req, resp);
+		Object result = filters.exception(HttpMethod.GET, e, req, resp);
 		assertThat(result, is(nullValue()));
 
-		verify(filter1).exception(RouteType.GET, e, req, resp);
-		verify(filter2).exception(RouteType.GET, e, req, resp);
-		verify(filter3, never()).exception(RouteType.GET, e, req, resp);
+		verify(filter1).exception(HttpMethod.GET, e, req, resp);
+		verify(filter2).exception(HttpMethod.GET, e, req, resp);
+		verify(filter3, never()).exception(HttpMethod.GET, e, req, resp);
 	}
 
 	@Test
 	public void shouldReturnViewAndSkipSubsequentExceptionFiltersWhenFilterReturnsNonNullValue() {
-		when(filter2.exception(RouteType.GET, e, req, resp)).thenReturn("Result");
+		when(filter2.exception(HttpMethod.GET, e, req, resp)).thenReturn("Result");
 		filters.add("/**", filter1);
 		filters.add("/sub/**", filter2);
 
 		req.url("/sub/path/request");
-		Object result = filters.exception(RouteType.GET, e, req, resp);
+		Object result = filters.exception(HttpMethod.GET, e, req, resp);
 		assertThat(result, is((Object) "Result"));
 
-		verify(filter2).exception(RouteType.GET, e, req, resp);
-		verify(filter1, never()).exception(RouteType.GET, e, req, resp);
+		verify(filter2).exception(HttpMethod.GET, e, req, resp);
+		verify(filter1, never()).exception(HttpMethod.GET, e, req, resp);
 	}
 
 	@Test
@@ -190,12 +190,12 @@ public class FiltersTest {
 		filters.add("/sub/**", filter2);
 
 		req.url("/sub/path/request");
-		Object result = filters.after(RouteType.GET, "View", req, resp);
+		Object result = filters.after(HttpMethod.GET, "View", req, resp);
 		assertThat(result, is(nullValue()));
 
 		InOrder inOrder = inOrder(filter1, filter2);
-		inOrder.verify(filter2).after(RouteType.GET, "View", req, resp);
-		inOrder.verify(filter1).after(RouteType.GET, "View", req, resp);
+		inOrder.verify(filter2).after(HttpMethod.GET, "View", req, resp);
+		inOrder.verify(filter1).after(HttpMethod.GET, "View", req, resp);
 
 	}
 
@@ -205,11 +205,11 @@ public class FiltersTest {
 		filters.add("/sub/**", filter2);
 
 		req.url("/sub/path/request");
-		Object result = filters.exception(RouteType.GET, e, req, resp);
+		Object result = filters.exception(HttpMethod.GET, e, req, resp);
 		assertThat(result, is(nullValue()));
 
 		InOrder inOrder = inOrder(filter1, filter2);
-		inOrder.verify(filter2).exception(RouteType.GET, e, req, resp);
-		inOrder.verify(filter1).exception(RouteType.GET, e, req, resp);
+		inOrder.verify(filter2).exception(HttpMethod.GET, e, req, resp);
+		inOrder.verify(filter1).exception(HttpMethod.GET, e, req, resp);
 	}
 }

@@ -29,7 +29,6 @@ public class GsonSupport {
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(DateTime.class, new DateTimeTypeConvertor());
 		gsonBuilder.registerTypeAdapter(DateTimeZone.class, new DateTimeZoneTypeConvertor());
-		gsonBuilder.registerTypeAdapter(Map.class, new JsonToMapDeserializer());
 		return gsonBuilder;
 	}
 }

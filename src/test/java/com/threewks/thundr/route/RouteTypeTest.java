@@ -17,7 +17,7 @@
  */
 package com.threewks.thundr.route;
 
-import static com.threewks.thundr.route.RouteType.*;
+import static com.threewks.thundr.route.HttpMethod.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -27,33 +27,33 @@ public class RouteTypeTest {
 
 	@Test
 	public void shouldReturnAllRouteTypes() {
-		assertThat(RouteType.all(), hasItems(GET, POST, PUT, PATCH, DELETE));
+		assertThat(HttpMethod.all(), hasItems(GET, POST, PUT, PATCH, DELETE));
 	}
 
 	@Test
 	public void shouldReturnRouteTypeFromString() {
-		assertThat(RouteType.from("GET"), is(GET));
-		assertThat(RouteType.from("POST"), is(POST));
-		assertThat(RouteType.from("PUT"), is(PUT));
-		assertThat(RouteType.from("PATCH"), is(PATCH));
-		assertThat(RouteType.from("DELETE"), is(DELETE));
+		assertThat(HttpMethod.from("GET"), is(GET));
+		assertThat(HttpMethod.from("POST"), is(POST));
+		assertThat(HttpMethod.from("PUT"), is(PUT));
+		assertThat(HttpMethod.from("PATCH"), is(PATCH));
+		assertThat(HttpMethod.from("DELETE"), is(DELETE));
 	}
 
 	@Test
 	public void shouldReturnRouteTypeFromStringIgnoringCase() {
-		assertThat(RouteType.from("get"), is(GET));
-		assertThat(RouteType.from("post"), is(POST));
-		assertThat(RouteType.from("put"), is(PUT));
-		assertThat(RouteType.from("patch"), is(PATCH));
-		assertThat(RouteType.from("delete"), is(DELETE));
+		assertThat(HttpMethod.from("get"), is(GET));
+		assertThat(HttpMethod.from("post"), is(POST));
+		assertThat(HttpMethod.from("put"), is(PUT));
+		assertThat(HttpMethod.from("patch"), is(PATCH));
+		assertThat(HttpMethod.from("delete"), is(DELETE));
 	}
 
 	@Test
 	public void shouldReturnRouteTypeFromStringIgnoringWhitespace() {
-		assertThat(RouteType.from(" gEt "), is(GET));
-		assertThat(RouteType.from(" pOSt "), is(POST));
-		assertThat(RouteType.from(" pUt "), is(PUT));
-		assertThat(RouteType.from(" pATCh"), is(PATCH));
-		assertThat(RouteType.from(" deLEte\t"), is(DELETE));
+		assertThat(HttpMethod.from(" gEt "), is(GET));
+		assertThat(HttpMethod.from(" pOSt "), is(POST));
+		assertThat(HttpMethod.from(" pUt "), is(PUT));
+		assertThat(HttpMethod.from(" pATCh"), is(PATCH));
+		assertThat(HttpMethod.from(" deLEte\t"), is(DELETE));
 	}
 }

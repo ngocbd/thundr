@@ -26,13 +26,13 @@ import java.util.regex.Matcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.threewks.thundr.action.method.ActionInterceptor;
+import com.threewks.thundr.route.controller.ControllerInterceptor;
 
 /**
  * This interface allows the definition of a simple interceptor strategy for invocation of controller methods
  * which are being invoked on a certain path.
  * 
- * They are an alternative to an {@link ActionInterceptor}, which allows you to target an interceptor for a particular
+ * They are an alternative to an {@link ControllerInterceptor}, which allows you to target an interceptor for a particular
  * controller method.
  */
 public class Filters {
@@ -99,7 +99,7 @@ public class Filters {
 	 * @param resp
 	 * @return a view to use instead of calling through to the controller method, or null if execution should continue
 	 */
-	public Object before(RouteType routeType, HttpServletRequest req, HttpServletResponse resp) {
+	public Object before(HttpMethod routeType, HttpServletRequest req, HttpServletResponse resp) {
 		List<Filter> matchingFilters = findMatchingFilters(req.getRequestURI());
 		for (Filter filter : matchingFilters) {
 			Object result = filter.before(routeType, req, resp);
@@ -119,7 +119,7 @@ public class Filters {
 	 * @param resp
 	 * @return a view to use instead of the result from the controller method, or null if the given result should be used
 	 */
-	public Object after(RouteType routeType, Object view, HttpServletRequest req, HttpServletResponse resp) {
+	public Object after(HttpMethod routeType, Object view, HttpServletRequest req, HttpServletResponse resp) {
 		List<Filter> matchingFilters = findMatchingFilters(req.getRequestURI());
 		for (int i = matchingFilters.size() - 1; i >= 0; i--) {
 			Filter filter = matchingFilters.get(i);
@@ -140,7 +140,7 @@ public class Filters {
 	 * @param resp
 	 * @return a view to use instead of allowing the exception to propagate up, or null to continue exception flow as normal
 	 */
-	public Object exception(RouteType routeType, Exception e, HttpServletRequest req, HttpServletResponse resp) {
+	public Object exception(HttpMethod routeType, Exception e, HttpServletRequest req, HttpServletResponse resp) {
 		List<Filter> matchingFilters = findMatchingFilters(req.getRequestURI());
 		for (int i = matchingFilters.size() - 1; i >= 0; i--) {
 			Filter filter = matchingFilters.get(i);

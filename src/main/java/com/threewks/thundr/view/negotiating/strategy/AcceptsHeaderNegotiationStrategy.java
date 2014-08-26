@@ -29,8 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 
 import com.atomicleopard.expressive.Expressive;
-import com.threewks.thundr.http.Headers;
-import com.threewks.thundr.http.HttpSupport;
+import com.threewks.thundr.http.Header;
 import com.threewks.thundr.view.negotiating.NegotiatingView;
 import com.threewks.thundr.view.negotiating.Negotiator;
 import com.threewks.thundr.view.negotiating.ViewNegotiatorRegistry;
@@ -45,7 +44,7 @@ public class AcceptsHeaderNegotiationStrategy implements NegotiationStrategy {
 
 	@Override
 	public Negotiator<?> findNegotiator(HttpServletRequest req, NegotiatingView view, ViewNegotiatorRegistry viewNegotiatorRegistry) {
-		String acceptsHeader = Headers.getHeader(HttpSupport.Header.Accept, req);
+		String acceptsHeader = Header.getHeader(Header.Accept, req);
 		if (StringUtils.isNotBlank(acceptsHeader)) {
 			List<AcceptsComponent> orderedAcceptsHeader = cleanAndOrderAcceptHeader(acceptsHeader);
 			for (AcceptsComponent acceptsComponent : orderedAcceptsHeader) {

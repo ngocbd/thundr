@@ -25,9 +25,9 @@ import com.threewks.thundr.exception.BaseException;
 public class SimpleCollectionFactory<T extends Collection> implements CollectionFactory<T> {
 
 	private Class<T> type;
-	private Class<?> instanceType;
+	private Class<? extends T> instanceType;
 
-	public SimpleCollectionFactory(Class<T> type, Class<?> instanceType) {
+	public SimpleCollectionFactory(Class<T> type, Class<? extends T> instanceType) {
 		this.type = type;
 		this.instanceType = instanceType;
 	}
@@ -37,13 +37,12 @@ public class SimpleCollectionFactory<T extends Collection> implements Collection
 		return type;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public T create() {
 		try {
 			return (T) instanceType.newInstance();
 		} catch (Exception e) {
-			throw new BaseException(e, "Failed to instantiate a collection of type %s", type);
+			throw new BaseException(e, "Failed to instantiate a collection of type %s: %s", instanceType.getSimpleName(), e.getMessage());
 		}
 	}
 

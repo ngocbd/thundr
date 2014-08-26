@@ -34,33 +34,33 @@ public class HeadersTest {
 	public void shouldReturnHeaderFromReq() {
 		MockHttpServletRequest req = new MockHttpServletRequest();
 		req.header("header-1", "value1");
-		assertThat(Headers.getHeader("header-1", req), is("value1"));
+		assertThat(Header.getHeader("header-1", req), is("value1"));
 	}
 
 	@Test
 	public void shouldFirstReturnHeaderFromReqWhenMultipleValuesPresent() {
 		MockHttpServletRequest req = new MockHttpServletRequest();
 		req.header("header-1", "value1", "value2");
-		assertThat(Headers.getHeader("header-1", req), is("value1"));
+		assertThat(Header.getHeader("header-1", req), is("value1"));
 	}
 
 	@Test
 	public void shouldReturnNullWhenHeaderNotPresent() {
 		MockHttpServletRequest req = new MockHttpServletRequest();
-		assertThat(Headers.getHeader("header-1", req), is(nullValue()));
+		assertThat(Header.getHeader("header-1", req), is(nullValue()));
 	}
 
 	@Test
 	public void shouldReturnAllHeaderValuesInAList() {
 		MockHttpServletRequest req = new MockHttpServletRequest();
 		req.header("header-1", "value1", "value2");
-		assertThat(Headers.getHeaders("header-1", req), hasItems("value1", "value2"));
+		assertThat(Header.getHeaders("header-1", req), hasItems("value1", "value2"));
 	}
 
 	@Test
 	public void shouldReturnAnEmptyCollectionWhenHeaderIsNotPresent() {
 		MockHttpServletRequest req = new MockHttpServletRequest();
-		assertThat(Headers.getHeaders("header-1", req).isEmpty(), is(true));
+		assertThat(Header.getHeaders("header-1", req).isEmpty(), is(true));
 	}
 
 	@Test
@@ -69,7 +69,7 @@ public class HeadersTest {
 		req.header("header-1", "value1", "value2");
 		req.header("header-2", "value3", "value4");
 		req.header("header-3", "value5");
-		Map<String, List<String>> headerMap = Headers.getHeaderMap(req);
+		Map<String, List<String>> headerMap = Header.getHeaderMap(req);
 		assertThat(headerMap, hasEntry("header-1", Arrays.asList("value1", "value2")));
 		assertThat(headerMap, hasEntry("header-2", Arrays.asList("value3", "value4")));
 		assertThat(headerMap, hasEntry("header-3", Arrays.asList("value5")));
@@ -78,7 +78,7 @@ public class HeadersTest {
 	@Test
 	public void shouldReturnAnEmptyMapWhenNoHeadersPresent() {
 		MockHttpServletRequest req = new MockHttpServletRequest();
-		Map<String, List<String>> headerMap = Headers.getHeaderMap(req);
+		Map<String, List<String>> headerMap = Header.getHeaderMap(req);
 		assertThat(headerMap, is(notNullValue()));
 		assertThat(headerMap.isEmpty(), is(true));
 	}

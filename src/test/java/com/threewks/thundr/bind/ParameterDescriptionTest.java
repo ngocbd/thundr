@@ -26,13 +26,13 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.threewks.thundr.action.method.MethodAction;
 import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.route.controller.Controller;
 
 public class ParameterDescriptionTest {
 	@Test
 	public void shouldReadComplexGenericTypeCorrectly() throws ClassNotFoundException {
-		List<ParameterDescription> parameterDescriptions = new MethodAction(TestBindTo.class, "methodMap").parameters();
+		List<ParameterDescription> parameterDescriptions = new Controller(TestBindTo.class, "methodMap").parameters();
 		ParameterDescription first = parameterDescriptions.get(0);
 		assertThat(first.isGeneric(), is(true));
 		assertThat(first.isA(Map.class), is(true));
@@ -44,7 +44,7 @@ public class ParameterDescriptionTest {
 
 	@Test
 	public void shouldReadSimpleType() throws ClassNotFoundException {
-		List<ParameterDescription> parameterDescriptions = new MethodAction(TestBindTo.class, "methodSingleString").parameters();
+		List<ParameterDescription> parameterDescriptions = new Controller(TestBindTo.class, "methodSingleString").parameters();
 		ParameterDescription first = parameterDescriptions.get(0);
 		assertThat(first.isGeneric(), is(false));
 		assertThat(first.isA(String.class), is(true));

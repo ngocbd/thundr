@@ -21,7 +21,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.threewks.thundr.http.HttpSupport;
+import com.threewks.thundr.http.Header;
 import com.threewks.thundr.util.Streams;
 import com.threewks.thundr.view.BaseView;
 import com.threewks.thundr.view.ViewResolutionException;
@@ -32,7 +32,7 @@ public class FileViewResolver implements ViewResolver<FileView> {
 	public void resolve(HttpServletRequest req, HttpServletResponse resp, FileView viewResult) {
 		try {
 			ServletOutputStream outputStream = resp.getOutputStream();
-			resp.addHeader(HttpSupport.Header.ContentDisposition, String.format("%s; filename=%s", viewResult.getDisposition().getValue(), viewResult.getFileName()));
+			resp.addHeader(Header.ContentDisposition, String.format("%s; filename=%s", viewResult.getDisposition().getValue(), viewResult.getFileName()));
 			BaseView.applyToResponse(viewResult, resp);
 			Streams.copy(viewResult.getData(), outputStream);
 			outputStream.flush();

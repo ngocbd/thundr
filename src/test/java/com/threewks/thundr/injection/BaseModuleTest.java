@@ -17,49 +17,26 @@
  */
 package com.threewks.thundr.injection;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
 import org.junit.Test;
 
-import com.threewks.thundr.action.method.ActionInterceptorRegistry;
+import com.threewks.thundr.route.controller.ControllerInterceptorRegistry;
 import com.threewks.thundr.view.ViewResolverRegistry;
 
 public class BaseModuleTest {
-	private ActionInterceptorRegistry actionInterceptorRegistry = null;
-	private UpdatableInjectionContext updatableInjectionContext = null;
-	private ViewResolverRegistry viewResolverRegistry = null;
-
 	@Test
-	public void shouldProvideAndInvokeStandardExtensionPoints() {
-		BaseModule injectionConfig = new BaseModule() {
-			@Override
-			protected void addActionInterceptors(ActionInterceptorRegistry actionInterceptorRegistry) {
-				BaseModuleTest.this.actionInterceptorRegistry = actionInterceptorRegistry;
-			}
-
-			@Override
-			protected void addServices(UpdatableInjectionContext injectionContext) {
-				BaseModuleTest.this.updatableInjectionContext = injectionContext;
-			}
-
-			@Override
-			protected void addViewResolvers(ViewResolverRegistry viewResolverRegistry, UpdatableInjectionContext injectionContext) {
-				BaseModuleTest.this.viewResolverRegistry = viewResolverRegistry;
-			}
-		};
+	public void shouldProvideStandardExtensionPoints() {
+		BaseModule injectionConfig = new BaseModule();
 		InjectionContextImpl injectionContext = new InjectionContextImpl();
-		ActionInterceptorRegistry mockActionInterceptorRegistry = mock(ActionInterceptorRegistry.class);
+		ControllerInterceptorRegistry mockActionInterceptorRegistry = mock(ControllerInterceptorRegistry.class);
 		ViewResolverRegistry mockViewResolverRegistry = mock(ViewResolverRegistry.class);
-		injectionContext.inject(mockActionInterceptorRegistry).as(ActionInterceptorRegistry.class);
+		injectionContext.inject(mockActionInterceptorRegistry).as(ControllerInterceptorRegistry.class);
 		injectionContext.inject(mockViewResolverRegistry).as(ViewResolverRegistry.class);
 
+		injectionConfig.initialise(injectionContext);
 		injectionConfig.configure(injectionContext);
-
-		assertThat(actionInterceptorRegistry, is(mockActionInterceptorRegistry));
-		assertThat(updatableInjectionContext, is((UpdatableInjectionContext) injectionContext));
-		assertThat(viewResolverRegistry, is(mockViewResolverRegistry));
-
+		injectionConfig.start(injectionContext);
+		injectionConfig.stop(injectionContext);
 	}
 }

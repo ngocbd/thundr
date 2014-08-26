@@ -25,43 +25,43 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.threewks.thundr.action.method.bind.http.HttpPostDataMap;
+import com.threewks.thundr.bind.parameter.RequestDataMap;
 
 public class HttpPostDataMapTest {
 	@Test
 	public void shouldNotSplitWhenSimple() {
 		Map<String, String[]> map = map("key", new String[] { "value" });
-		HttpPostDataMap pathMap = new HttpPostDataMap(map);
+		RequestDataMap pathMap = new RequestDataMap(map);
 		assertThat(pathMap.get(list("key")), is(array("value")));
 	}
 
 	@Test
 	public void shouldSplitForNestedPath() {
 		Map<String, String[]> map = map("one.two.three", new String[] { "value" });
-		HttpPostDataMap pathMap = new HttpPostDataMap(map);
+		RequestDataMap pathMap = new RequestDataMap(map);
 		assertThat(pathMap.get(list("one", "two", "three")), is(array("value")));
 	}
 
 	@Test
 	public void shouldSplitForNestedListPath() {
 		Map<String, String[]> map = map("one[two].three", new String[] { "value" });
-		HttpPostDataMap pathMap = new HttpPostDataMap(map);
+		RequestDataMap pathMap = new RequestDataMap(map);
 		assertThat(pathMap.get(list("one", "[two]", "three")), is(array("value")));
 	}
 
 	@Test
 	public void shouldCreateANewPathMapForNestedPath() {
 		Map<String, String[]> map = map("one[two].three", new String[] { "value" });
-		HttpPostDataMap pathMap = new HttpPostDataMap(map);
-		HttpPostDataMap newPathMap = pathMap.pathMapFor("one");
+		RequestDataMap pathMap = new RequestDataMap(map);
+		RequestDataMap newPathMap = pathMap.pathMapFor("one");
 		assertThat(newPathMap.get(list("[two]", "three")), is(array("value")));
 	}
 
 	@Test
 	public void shouldCreateANewPathMapForNestedPathRemovingUnrelatedPaths() {
 		Map<String, String[]> map = mapKeys("one[two].three", "one[one].two", "other.thing").to(new String[] { "value" }, new String[] { "value2" }, new String[] { "value3" });
-		HttpPostDataMap pathMap = new HttpPostDataMap(map);
-		HttpPostDataMap newPathMap = pathMap.pathMapFor("one");
+		RequestDataMap pathMap = new RequestDataMap(map);
+		RequestDataMap newPathMap = pathMap.pathMapFor("one");
 		assertThat(newPathMap.size(), is(2));
 		assertThat(newPathMap.get(list("[two]", "three")), is(array("value")));
 		assertThat(newPathMap.get(list("[one]", "two")), is(array("value2")));
@@ -70,8 +70,8 @@ public class HttpPostDataMapTest {
 	@Test
 	public void shouldRemoveAllDashesFromPathElementsToEnableBetterBindingBetweenParametersAndJavaVariableNames() {
 		Map<String, String[]> map = mapKeys("one-One[two-Two-].-three-Three", "one-One[one].two").to(new String[] { "value-value" }, new String[] { "value2" });
-		HttpPostDataMap pathMap = new HttpPostDataMap(map);
-		HttpPostDataMap newPathMap = pathMap.pathMapFor("oneOne");
+		RequestDataMap pathMap = new RequestDataMap(map);
+		RequestDataMap newPathMap = pathMap.pathMapFor("oneOne");
 		assertThat(newPathMap.size(), is(2));
 		assertThat(newPathMap.get(list("[twoTwo]", "threeThree")), is(array("value-value")));
 		assertThat(newPathMap.get(list("[one]", "two")), is(array("value2")));

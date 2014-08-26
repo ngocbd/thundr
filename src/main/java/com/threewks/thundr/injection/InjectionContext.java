@@ -19,7 +19,7 @@ package com.threewks.thundr.injection;
 
 public interface InjectionContext {
 	/**
-	 * Get an named instance of the specified type from this {@link InjectionContext}.
+	 * Get a named instance of the specified type from this {@link InjectionContext}.
 	 * A type exists if either an instance or class type was registered previously into this context using the specified name,
 	 * or if an instance or class type was registered without a specific name.
 	 * 

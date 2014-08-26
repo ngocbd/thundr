@@ -192,12 +192,12 @@ public class SyntheticHttpServletResponse implements HttpServletResponse {
 
 	@Override
 	public void sendError(int sc, String msg) throws IOException {
-		throw new BaseException("Writing to %s failed (%d - %s): %s", this.getClass().getSimpleName(), sc, HttpSupport.getReasonForHttpStatus(sc), msg);
+		throw new BaseException("Writing to %s failed (%d - %s): %s", this.getClass().getSimpleName(), sc, getReasonForHttpStatus(sc), msg);
 	}
 
 	@Override
 	public void sendError(int sc) throws IOException {
-		throw new BaseException("Writing to %s failed (%d - %s)", this.getClass().getSimpleName(), sc, HttpSupport.getReasonForHttpStatus(sc));
+		throw new BaseException("Writing to %s failed (%d - %s)", this.getClass().getSimpleName(), sc, getReasonForHttpStatus(sc));
 	}
 
 	@Override
@@ -244,4 +244,10 @@ public class SyntheticHttpServletResponse implements HttpServletResponse {
 	public void setStatus(int sc, String sm) {
 		// noop
 	}
+
+	private String getReasonForHttpStatus(int sc) {
+		StatusCode fromCode = StatusCode.fromCode(sc);
+		return fromCode == null ? null : fromCode.getReason();
+	}
+
 }

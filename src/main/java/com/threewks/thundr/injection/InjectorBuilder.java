@@ -23,19 +23,24 @@ public class InjectorBuilder<T> {
 	private String name;
 	private T instance;
 
-	protected InjectorBuilder(InjectionContextImpl injector, Class<T> type) {
+	private InjectorBuilder(InjectionContextImpl injector, Class<T> type, T instance, String name) {
+		super();
+		this.injector = injector;
 		this.type = type;
-		this.injector = injector;
-	}
-
-	protected InjectorBuilder(InjectionContextImpl injector, T instance) {
-		this.injector = injector;
+		this.name = name;
 		this.instance = instance;
 	}
 
+	protected InjectorBuilder(InjectionContextImpl injector, Class<T> type) {
+		this(injector, type, null, null);
+	}
+
+	protected InjectorBuilder(InjectionContextImpl injector, T instance) {
+		this(injector, null, instance, null);
+	}
+
 	public InjectorBuilder<T> named(String name) {
-		this.name = name;
-		return this;
+		return new InjectorBuilder<T>(injector, type, instance, name);
 	}
 
 	public void as(Class<? super T> interfaceType) {

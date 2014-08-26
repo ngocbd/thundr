@@ -24,11 +24,11 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.atomicleopard.expressive.Cast;
+
 import jodd.paramo.MethodParameter;
 import jodd.paramo.Paramo;
 import jodd.paramo.ParamoException;
-
-import com.atomicleopard.expressive.Cast;
 
 public class MethodIntrospector {
 	public List<ParameterDescription> getParameterDescriptions(AccessibleObject methodOrCtor) {

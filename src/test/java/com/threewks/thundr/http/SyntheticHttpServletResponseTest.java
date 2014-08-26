@@ -35,7 +35,8 @@ import com.threewks.thundr.exception.BaseException;
 public class SyntheticHttpServletResponseTest {
 	private SyntheticHttpServletResponse syntheticHttpServletResponse = new SyntheticHttpServletResponse();
 
-	@Rule public ExpectedException thrown = ExpectedException.none();
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	@Test
 	public void shouldCaptureBasicServletOutputStreamContent() throws IOException {
@@ -79,13 +80,13 @@ public class SyntheticHttpServletResponseTest {
 
 		syntheticHttpServletResponse.setCharacterEncoding("ISO-8859-1");
 		assertThat(syntheticHttpServletResponse.getCharacterEncoding(), is("ISO-8859-1"));
-		
+
 		syntheticHttpServletResponse.setCharacterEncoding("");
 		assertThat(syntheticHttpServletResponse.getCharacterEncoding(), is(nullValue()));
-		
+
 		syntheticHttpServletResponse.setCharacterEncoding("utf-16");
 		assertThat(syntheticHttpServletResponse.getCharacterEncoding(), is("UTF-16"));
-		
+
 		syntheticHttpServletResponse.setCharacterEncoding(null);
 		assertThat(syntheticHttpServletResponse.getCharacterEncoding(), is(nullValue()));
 	}
@@ -102,7 +103,7 @@ public class SyntheticHttpServletResponseTest {
 
 		syntheticHttpServletResponse.setContentType(null);
 		assertThat(syntheticHttpServletResponse.getContentType(), is(nullValue()));
-		
+
 		syntheticHttpServletResponse.setContentType("something ; whatever");
 		assertThat(syntheticHttpServletResponse.getContentType(), is("something"));
 	}
@@ -229,7 +230,7 @@ public class SyntheticHttpServletResponseTest {
 	public void shouldNoopOnAddCookie() {
 		syntheticHttpServletResponse.addCookie(Cookies.build("cookie").withValue("value").build());
 
-		assertThat(syntheticHttpServletResponse.containsHeader(HttpSupport.Header.SetCookie), is(false));
+		assertThat(syntheticHttpServletResponse.containsHeader(Header.SetCookie), is(false));
 		assertThat(syntheticHttpServletResponse.getResponseContent(), is(""));
 	}
 

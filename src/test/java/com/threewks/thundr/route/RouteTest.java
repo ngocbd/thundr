@@ -205,7 +205,7 @@ public class RouteTest {
 
 	@Test
 	public void shouldConvertRouteToString() {
-		Route route = new Route(RouteType.GET, "/route/{var}/location.ext", "Name");
+		Route route = new Route(HttpMethod.GET, "/route/{var}/location.ext", "Name");
 		assertThat(route.toString(), is("GET     /route/{var}/location.ext                                   (Name)"));
 	}
 

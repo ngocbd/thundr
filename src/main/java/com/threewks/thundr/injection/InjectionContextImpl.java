@@ -42,6 +42,7 @@ import com.threewks.thundr.configuration.Environment;
 import com.threewks.thundr.introspection.ClassIntrospector;
 import com.threewks.thundr.introspection.MethodIntrospector;
 import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.introspection.TypeIntrospector;
 
 public class InjectionContextImpl implements UpdatableInjectionContext {
 	private static final String ENVIRONMENT_SEPARATOR = "%";
@@ -56,7 +57,7 @@ public class InjectionContextImpl implements UpdatableInjectionContext {
 	@Override
 	public <T> InjectorBuilder<T> inject(Class<T> type) {
 
-		if (!ClassIntrospector.isABasicType(type) && (type.isInterface() || Modifier.isAbstract(type.getModifiers()))) {
+		if (!TypeIntrospector.isABasicType(type) && (type.isInterface() || Modifier.isAbstract(type.getModifiers()))) {
 			throw new InjectionException("Unable to inject the type '%s' - you cannot inject interfaces or abstract classes", type.getName());
 		}
 

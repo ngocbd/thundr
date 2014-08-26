@@ -17,7 +17,9 @@
  */
 package com.threewks.thundr.action;
 
-public class TestAction implements Action {
+import com.threewks.thundr.route.RouteResult;
+
+public class TestAction implements RouteResult {
 	private String name;
 
 	public TestAction(String actionName) {

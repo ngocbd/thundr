@@ -21,9 +21,9 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import jodd.util.ReflectUtil;
-
 import com.atomicleopard.expressive.Cast;
+
+import jodd.util.ReflectUtil;
 
 public class ParameterDescription {
 	private String name;

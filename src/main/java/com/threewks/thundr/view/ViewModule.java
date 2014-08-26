@@ -24,7 +24,7 @@ import com.threewks.thundr.injection.BaseModule;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.module.DependencyRegistry;
 import com.threewks.thundr.route.RouteNotFoundException;
-import com.threewks.thundr.route.Routes;
+import com.threewks.thundr.route.Router;
 import com.threewks.thundr.view.exception.ExceptionViewResolver;
 import com.threewks.thundr.view.exception.HttpStatusExceptionViewResolver;
 import com.threewks.thundr.view.exception.RouteNotFoundViewResolver;
@@ -65,7 +65,7 @@ public class ViewModule extends BaseModule {
 	@Override
 	public void configure(UpdatableInjectionContext injectionContext) {
 		GlobalModel globalModel = injectionContext.get(GlobalModel.class);
-		globalModel.put("routes", injectionContext.get(Routes.class));
+		globalModel.put("routes", injectionContext.get(Router.class));
 
 		ViewResolverRegistry viewResolverRegistry = injectionContext.get(ViewResolverRegistry.class);
 
@@ -73,7 +73,7 @@ public class ViewModule extends BaseModule {
 	}
 
 	protected void addViewResolvers(ViewResolverRegistry viewResolverRegistry, UpdatableInjectionContext injectionContext, GlobalModel globalModel) {
-		Routes routes = injectionContext.get(Routes.class);
+		Router routes = injectionContext.get(Router.class);
 		ViewNegotiatorRegistry viewNegotiatorRegistry = injectionContext.get(ViewNegotiatorRegistry.class);
 
 		ExceptionViewResolver exceptionViewResolver = new ExceptionViewResolver();

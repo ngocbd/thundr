@@ -25,25 +25,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import org.junit.Test;
 
-import com.threewks.thundr.route.RouteType;
-
 public class ClassIntrospectorTest {
-
-	@Test
-	public void shouldReturnTrueIfClassExistsFalseOtherwise() {
-		assertThat(ClassIntrospector.classExists(null), is(false));
-		assertThat(ClassIntrospector.classExists("doesnt.Exist"), is(false));
-		assertThat(ClassIntrospector.classExists("invalid class name"), is(false));
-		assertThat(ClassIntrospector.classExists("com.threewks.thundr.introspection.ClassIntrospector"), is(true));
-		assertThat(ClassIntrospector.classExists("ClassIntrospector"), is(false));
-	}
 
 	@Test
 	public void shouldListClassContructorsAndOrderByNumberOfParamersFollowedByName() {
@@ -74,32 +62,12 @@ public class ClassIntrospectorTest {
 		assertThat(listInjectionFields.get(1).getName(), is("fieldA"));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void shouldReturnClassesAndInterfacesInPriorityOrder() {
 		List<Class<?>> types = new ClassIntrospector().listImplementedTypes(TestCA.class);
 		assertThat(types, is(Arrays.asList(TestCA.class, TestC.class, Object.class, TestBA.class, TestB.class, TestAA.class, TestA.class)));
 	}
-
-	@Test
-	public void shouldReturnTrueForIsAJavabeanIfIsANormalObjectWithANoArgsCtor() {
-		assertThat(ClassIntrospector.isAJavabean(null), is(false));
-		assertThat(ClassIntrospector.isAJavabean(Object.class), is(false));
-		assertThat(ClassIntrospector.isAJavabean(Void.class), is(false));
-		assertThat(ClassIntrospector.isAJavabean(int.class), is(false));
-		assertThat(ClassIntrospector.isAJavabean(Integer.class), is(false));
-		assertThat(ClassIntrospector.isAJavabean(String[].class), is(false));
-		assertThat(ClassIntrospector.isAJavabean(String.class), is(false));
-		assertThat(ClassIntrospector.isAJavabean(NoDefaultCtor.class), is(false));
-		assertThat(ClassIntrospector.isAJavabean(PrivateCtor.class), is(false));
-		assertThat(ClassIntrospector.isAJavabean(RouteType.class), is(false));
-		assertThat(ClassIntrospector.isAJavabean(NoDefaultCtor.class), is(false));
-
-		assertThat(ClassIntrospector.isAJavabean(Date.class), is(true));
-		assertThat(ClassIntrospector.isAJavabean(TestC.class), is(true));
-		assertThat(ClassIntrospector.isAJavabean(TestCA.class), is(true));
-	}
-
+	
 	static interface TestA {
 
 	}

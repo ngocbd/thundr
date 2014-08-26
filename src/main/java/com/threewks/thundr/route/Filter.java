@@ -39,7 +39,7 @@ public interface Filter {
 	 * @param resp
 	 * @return the view to resolve if this filter wishes to resolve the view and prevent the controller being invoked, null otherwise
 	 */
-	public <T> T before(RouteType routeType, HttpServletRequest req, HttpServletResponse resp);
+	public <T> T before(HttpMethod routeType, HttpServletRequest req, HttpServletResponse resp);
 
 	/**
 	 * Invoked after the controller method is called. Returning null from this method will result in the given view object being resolved as normal, any other
@@ -51,7 +51,7 @@ public interface Filter {
 	 * @param resp
 	 * @return the view to resolve instead of the controllers result, or null to use the result of the controller execution
 	 */
-	public <T> T after(RouteType routeType, Object view, HttpServletRequest req, HttpServletResponse resp);
+	public <T> T after(HttpMethod routeType, Object view, HttpServletRequest req, HttpServletResponse resp);
 
 	/**
 	 * Invoked if the controller method execution throws an exception. This method can return a view which will be resolved instead of the exception, or null
@@ -64,5 +64,5 @@ public interface Filter {
 	 * @param resp
 	 * @return the view to resolve instead of the exception, or null to resolve as normal
 	 */
-	public <T> T exception(RouteType routeType, Exception e, HttpServletRequest req, HttpServletResponse resp);
+	public <T> T exception(HttpMethod routeType, Exception e, HttpServletRequest req, HttpServletResponse resp);
 }

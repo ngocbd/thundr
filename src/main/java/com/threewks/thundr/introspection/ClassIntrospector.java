@@ -24,29 +24,32 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 import javax.inject.Inject;
-
-import jodd.introspector.ClassDescriptor;
-import jodd.util.ReflectUtil;
 
 import org.apache.commons.lang3.ClassUtils;
 
 import com.atomicleopard.expressive.EList;
 import com.atomicleopard.expressive.ETransformer;
 import com.atomicleopard.expressive.Expressive;
+import com.atomicleopard.expressive.transform.CollectionTransformer;
 
+import jodd.introspector.ClassDescriptor;
+import jodd.util.ReflectUtil;
+
+/**
+ * Provides reflective information on a {@link Class}.
+ *
+ * @see TypeIntrospector
+ */
 public class ClassIntrospector {
-	public static final boolean supportsInjection = classExists("javax.inject.Inject");
-	private static final Set<Class<?>> BasicTypes = Expressive.<Class<?>> set(boolean.class, byte.class, char.class, double.class, float.class, int.class, long.class, short.class, void.class);
-	private static Set<Class<?>> NonJavabeanBasicClasses = Expressive.<Class<?>> set(Object.class, String.class, boolean.class, byte.class, char.class, double.class, float.class, int.class,
-			long.class, short.class, void.class, Boolean.class, Byte.class, Character.class, Double.class, Float.class, Integer.class, Long.class, Short.class, Void.class);
+	public static final boolean supportsInjection = TypeIntrospector.classExists("javax.inject.Inject");
 
 	@SuppressWarnings({ "rawtypes" })
 	public <T> List<Constructor<T>> listConstructors(Class<T> type) {
 		ClassDescriptor classDescriptor = new ClassDescriptor(type, true);
-		List<Constructor<T>> ctors = Expressive.Transformers.transformAllUsing(ClassIntrospector.<Constructor, Constructor<T>> castTransformer()).from(classDescriptor.getAllCtors(true));
+		CollectionTransformer<Constructor, Constructor<T>> castAll = Expressive.Transformers.transformAllUsing(ClassIntrospector.<Constructor, Constructor<T>> castTransformer());
+		List<Constructor<T>> ctors = castAll.from(classDescriptor.getAllCtors(true));
 		Collections.sort(ctors, new Comparator<Constructor<T>>() {
 			@Override
 			public int compare(Constructor<T> o1, Constructor<T> o2) {
@@ -97,30 +100,9 @@ public class ClassIntrospector {
 		return types;
 	}
 
-	public static boolean classExists(String name) {
-		try {
-			Class.forName(name, false, ClassIntrospector.class.getClassLoader());
-			return true;
-		} catch (Exception e) {
-			return false;
-		}
-	}
-
-	public static boolean isAJavabean(Class<?> type) {
-		try {
-			return type != null && !NonJavabeanBasicClasses.contains(type) && (type.newInstance() != null);
-		} catch (Exception e) {
-			return false;
-		}
-	}
-
-	public static boolean isABasicType(Class<?> type) {
-		return BasicTypes.contains(type);
-	}
-
-	@SuppressWarnings("unchecked")
 	private static <A, B> ETransformer<A, B> castTransformer() {
 		return new ETransformer<A, B>() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public B from(A from) {
 				return (B) from;

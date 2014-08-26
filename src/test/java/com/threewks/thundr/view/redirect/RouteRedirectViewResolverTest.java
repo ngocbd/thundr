@@ -35,28 +35,28 @@ import org.junit.rules.ExpectedException;
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.action.TestAction;
 import com.threewks.thundr.action.TestActionResolver;
-import com.threewks.thundr.route.RouteType;
-import com.threewks.thundr.route.Routes;
+import com.threewks.thundr.route.HttpMethod;
+import com.threewks.thundr.route.Router;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.view.ViewResolutionException;
 
 public class RouteRedirectViewResolverTest {
 	@Rule public ExpectedException thrown = ExpectedException.none();
 
-	private Routes routes;
+	private Router router;
 	private RouteRedirectViewResolver resolver;
 	private HttpServletRequest req = new MockHttpServletRequest();
 	private HttpServletResponse resp = mock(HttpServletResponse.class);
 
 	@Before
 	public void before() {
-		routes = new Routes();
-		routes.addActionResolver(TestAction.class, new TestActionResolver());
-		routes.addRoute(RouteType.GET, "/route/1", "route1", new TestAction("route1"));
-		routes.addRoute(RouteType.GET, "/route/{var}", "route2", new TestAction("route2"));
-		routes.addRoute(RouteType.GET, "/route/{var}/{var2}", "route3", new TestAction("route3"));
+		router = new Router();
+		router.addResolver(TestAction.class, new TestActionResolver());
+		router.add(HttpMethod.GET, "/route/1", "route1", new TestAction("route1"));
+		router.add(HttpMethod.GET, "/route/{var}", "route2", new TestAction("route2"));
+		router.add(HttpMethod.GET, "/route/{var}/{var2}", "route3", new TestAction("route3"));
 
-		resolver = new RouteRedirectViewResolver(routes);
+		resolver = new RouteRedirectViewResolver(router);
 	}
 
 	@Test

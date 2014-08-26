@@ -48,10 +48,10 @@ public class Route {
 	private String name;
 	private String route;
 	private Pattern routeMatchRegex;
-	private RouteType routeType;
+	private HttpMethod routeType;
 	private EList<String> pathParameters;
 
-	public Route(RouteType routeType, String route, String nameOrNull) {
+	public Route(HttpMethod routeType, String route, String nameOrNull) {
 		super();
 		this.name = nameOrNull;
 		this.route = route;
@@ -72,7 +72,7 @@ public class Route {
 		return routeMatchRegex.pattern();
 	}
 
-	public RouteType getRouteType() {
+	public HttpMethod getRouteType() {
 		return routeType;
 	}
 

@@ -22,11 +22,13 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
+import com.threewks.thundr.route.RouteResolverException;
+
 public class ActionExceptionTest {
 
 	@Test
 	public void shouldRetainMessage() {
-		ActionException actionException = new ActionException("Format %s", "message");
+		RouteResolverException actionException = new RouteResolverException("Format %s", "message");
 		assertThat(actionException.getMessage(), is("Format message"));
 		assertThat(actionException.getCause(), is(nullValue()));
 	}
@@ -34,7 +36,7 @@ public class ActionExceptionTest {
 	@Test
 	public void shouldRetainMessageAndCause() {
 		Throwable cause = new RuntimeException();
-		ActionException actionException = new ActionException(cause, "Format %s", "message");
+		RouteResolverException actionException = new RouteResolverException(cause, "Format %s", "message");
 		assertThat(actionException.getMessage(), is("Format message"));
 		assertThat(actionException.getCause(), is(cause));
 	}

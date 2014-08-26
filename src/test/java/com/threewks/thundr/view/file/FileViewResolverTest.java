@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.threewks.thundr.http.Cookies;
-import com.threewks.thundr.http.HttpSupport;
+import com.threewks.thundr.http.Header;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
 import com.threewks.thundr.view.ViewResolutionException;
@@ -48,8 +48,8 @@ public class FileViewResolverTest {
 		fileViewResolver.resolve(req, resp, fileView);
 
 		assertThat(resp.getContentType(), is("content/type"));
-		assertThat(resp.containsHeader(HttpSupport.Header.ContentDisposition), is(true));
-		assertThat((String) resp.header(HttpSupport.Header.ContentDisposition), is("attachment; filename=filename.ext"));
+		assertThat(resp.containsHeader(Header.ContentDisposition), is(true));
+		assertThat((String) resp.header(Header.ContentDisposition), is("attachment; filename=filename.ext"));
 	}
 
 	@Test
@@ -58,18 +58,18 @@ public class FileViewResolverTest {
 		fileViewResolver.resolve(req, resp, fileView);
 
 		assertThat(resp.getContentType(), is("content/type"));
-		assertThat(resp.containsHeader(HttpSupport.Header.ContentDisposition), is(true));
-		assertThat((String) resp.header(HttpSupport.Header.ContentDisposition), is("inline; filename=filename.ext"));
+		assertThat(resp.containsHeader(Header.ContentDisposition), is(true));
+		assertThat((String) resp.header(Header.ContentDisposition), is("inline; filename=filename.ext"));
 	}
 
 	@Test
 	public void shouldAllowDispositionHeaderToBeOverriddeByExtendedHeaders() {
-		fileView.withHeader(HttpSupport.Header.ContentDisposition, "something-else");
+		fileView.withHeader(Header.ContentDisposition, "something-else");
 		fileViewResolver.resolve(req, resp, fileView);
 
 		assertThat(resp.getContentType(), is("content/type"));
-		assertThat(resp.containsHeader(HttpSupport.Header.ContentDisposition), is(true));
-		assertThat((String) resp.header(HttpSupport.Header.ContentDisposition), is("something-else"));
+		assertThat(resp.containsHeader(Header.ContentDisposition), is(true));
+		assertThat((String) resp.header(Header.ContentDisposition), is("something-else"));
 	}
 
 	@Test
