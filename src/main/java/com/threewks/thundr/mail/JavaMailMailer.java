@@ -40,6 +40,7 @@ import javax.mail.internet.MimeMultipart;
 import org.apache.commons.lang3.StringUtils;
 
 import com.atomicleopard.expressive.Expressive;
+import com.threewks.thundr.http.HttpSupport;
 import com.threewks.thundr.http.SyntheticHttpServletResponse;
 import com.threewks.thundr.view.ViewResolverRegistry;
 
@@ -55,9 +56,9 @@ public class JavaMailMailer extends BaseMailer {
 	}
 
 	@Override
-	protected void sendInternal(Entry<String, String> from, Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject,
-			String content, String contentType) {
-		sendInternal(from, replyTo, to, cc, bcc, subject, content, contentType, Collections.<Attachment>emptyList());
+	protected void sendInternal(Entry<String, String> from, Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject, String content,
+			String contentType) {
+		sendInternal(from, replyTo, to, cc, bcc, subject, content, contentType, Collections.<Attachment> emptyList());
 	}
 
 	@Override
@@ -77,7 +78,7 @@ public class JavaMailMailer extends BaseMailer {
 			if (Expressive.isEmpty(attachments)) {
 				message.setContent(content, contentType);
 			} else {
-				Multipart multipart = new MimeMultipart("mixed");  // subtype must be "mixed" or inline & regular attachments won't play well together
+				Multipart multipart = new MimeMultipart("mixed"); // subtype must be "mixed" or inline & regular attachments won't play well together
 				addBody(multipart, content, contentType);
 				addAttachments(multipart, attachments);
 				message.setContent(multipart);
@@ -117,7 +118,7 @@ public class JavaMailMailer extends BaseMailer {
 			byte[] base64Encoded = Base64.encodeToByte(response.getResponseContentAsBytes());
 
 			InternetHeaders headers = new InternetHeaders();
-			headers.addHeader("Content-Type", response.getContentType());
+			headers.addHeader(HttpSupport.Header.ContentType, response.getContentType());
 			headers.addHeader("Content-Transfer-Encoding", "base64");
 
 			MimeBodyPart part = new MimeBodyPart(headers, base64Encoded);

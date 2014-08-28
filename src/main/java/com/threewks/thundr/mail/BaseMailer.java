@@ -71,15 +71,13 @@ public abstract class BaseMailer implements Mailer {
 			} else {
 				sendInternal(from, replyTo, to, cc, bcc, subject, content, contentType);
 			}
+		} catch (UnsupportedOperationException e) {
+			throw e;
 		} catch (MailException e) {
 			throw e;
 		} catch (Exception e) {
 			throw new MailException(e, "Failed to send an email: %s", e.getMessage());
 		}
-	}
-
-	protected SyntheticHttpServletResponse renderContent(MailBuilder mailBuilder) {
-		return render(mailBuilder.body());
 	}
 
 	protected SyntheticHttpServletResponse render(Object view) {

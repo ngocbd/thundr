@@ -20,7 +20,6 @@ package com.threewks.thundr.mail;
 import java.util.List;
 import java.util.Map;
 
-import com.threewks.thundr.view.BaseView;
 import com.threewks.thundr.view.ViewResolver;
 import com.threewks.thundr.view.ViewResolverRegistry;
 import com.threewks.thundr.view.file.Disposition;
@@ -228,7 +227,7 @@ public interface MailBuilder {
 	 * @param disposition the type of attachment (i.e. inline or not)
 	 * @return
 	 */
-	public MailBuilder attach(String name, BaseView view, Disposition disposition);
+	public MailBuilder attach(String name, Object view, Disposition disposition);
 
 	/**
 	 * Get the attachments of the email.

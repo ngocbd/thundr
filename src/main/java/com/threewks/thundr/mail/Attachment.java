@@ -18,7 +18,6 @@
 package com.threewks.thundr.mail;
 
 import com.threewks.thundr.view.file.Disposition;
-import com.threewks.thundr.view.file.FileView;
 
 import jodd.util.StringUtil;
 
@@ -33,18 +32,7 @@ public class Attachment {
 
 	/**
 	 * Create an Attachment.
-	 *
-	 * @param view the attachment view
-	 */
-	public Attachment(FileView view) {
-		this.name = view.getFileName();
-		this.view = view;
-		this.disposition = view.getDisposition();
-	}
-
-	/**
-	 * Create an Attachment.
-	 *
+	 * 
 	 * @param name the file name of the attachment or content id if disposition is inline
 	 * @param view the attachment view
 	 * @param disposition the attachment disposition (i.e. inline or not)
@@ -58,7 +46,7 @@ public class Attachment {
 	/**
 	 * Get the relative file name of the attachment. This should not include any
 	 * path information.
-	 *
+	 * 
 	 * @return the file name
 	 */
 	public String name() {
@@ -67,7 +55,7 @@ public class Attachment {
 
 	/**
 	 * Get the attachment view.
-	 *
+	 * 
 	 * @return the attachment data
 	 */
 	public Object view() {
@@ -77,7 +65,7 @@ public class Attachment {
 	/**
 	 * Get the content ID for inline attachments. This is simply `name`
 	 * surrounded with angle brackets (i.e. <name>) as it required for content IDs.
-	 *
+	 * 
 	 * @return the content ID;
 	 */
 	public String contentId() {
@@ -86,7 +74,7 @@ public class Attachment {
 
 	/**
 	 * Get the attachment content disposition.
-	 *
+	 * 
 	 * @return the disposition
 	 */
 	public Disposition disposition() {
@@ -95,7 +83,7 @@ public class Attachment {
 
 	/**
 	 * Return true if the attachment is inline.
-	 *
+	 * 
 	 * @return true if attachment is inline, otherwise false
 	 */
 	public boolean isInline() {
