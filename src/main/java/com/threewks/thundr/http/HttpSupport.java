@@ -79,7 +79,5 @@ public class HttpSupport {
 		}
 	}
 
-	public static class Authorizations {
-		public static final String Basic = "Basic";
-	}
+	
 }

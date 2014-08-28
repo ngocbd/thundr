@@ -25,7 +25,8 @@ import com.threewks.thundr.injection.BaseModule;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.module.DependencyRegistry;
 import com.threewks.thundr.route.controller.Controller;
-import com.threewks.thundr.route.controller.ControllerInterceptorRegistry;
+import com.threewks.thundr.route.controller.FilterRegistry;
+import com.threewks.thundr.route.controller.InterceptorRegistry;
 import com.threewks.thundr.route.controller.ControllerRouteResolver;
 import com.threewks.thundr.route.redirect.Redirect;
 import com.threewks.thundr.route.redirect.RedirectRouteResolver;
@@ -46,20 +47,20 @@ public class RouterModule extends BaseModule {
 	public void initialise(UpdatableInjectionContext injectionContext) {
 		super.initialise(injectionContext);
 		injectionContext.inject(new Router()).as(Router.class);
-		injectionContext.inject(new Filters()).as(Filters.class);
+		injectionContext.inject(new FilterRegistry()).as(FilterRegistry.class);
 	}
 
 	@Override
 	public void configure(UpdatableInjectionContext injectionContext) {
 		Router router = injectionContext.get(Router.class);
-		Filters filters = injectionContext.get(Filters.class);
+		FilterRegistry filters = injectionContext.get(FilterRegistry.class);
 		ServletContext servletContext = injectionContext.get(ServletContext.class);
 		BinderRegistry binderRegistry = injectionContext.get(BinderRegistry.class);
 
 		ControllerRouteResolver methodActionResolver = new ControllerRouteResolver(injectionContext, filters, binderRegistry);
 		injectionContext.inject(methodActionResolver).as(ControllerRouteResolver.class);
 		// The MethodActionResolver is special because we use it to perform controller interception
-		injectionContext.inject(methodActionResolver).as(ControllerInterceptorRegistry.class);
+		injectionContext.inject(methodActionResolver).as(InterceptorRegistry.class);
 		injectionContext.inject(methodActionResolver.getMethodBinderRegistry()).as(BinderRegistry.class);
 
 		router.addResolver(Redirect.class, new RedirectRouteResolver());

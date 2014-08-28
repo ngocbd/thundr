@@ -40,11 +40,9 @@ import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.injection.InjectorBuilder;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
-import com.threewks.thundr.route.Filter;
-import com.threewks.thundr.route.Filters;
 import com.threewks.thundr.route.HttpMethod;
 import com.threewks.thundr.route.controller.Controller;
-import com.threewks.thundr.route.controller.ControllerInterceptor;
+import com.threewks.thundr.route.controller.Interceptor;
 import com.threewks.thundr.route.controller.ControllerRouteResolver;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.transformer.TransformerManager;
@@ -56,7 +54,7 @@ public class ControllerRouteResolverTest {
 	private HttpServletResponse resp = mock(HttpServletResponse.class);
 	private Map<String, String> pathVars = map();
 	
-	private Filters filters = new Filters();
+	private FilterRegistry filters = new FilterRegistry();
 	private BinderRegistry binderRegistry;
 	private TransformerManager transformerManager;
 
@@ -82,7 +80,7 @@ public class ControllerRouteResolverTest {
 	public void shouldAllowRegistrationOfActionInterceptors() {
 		TestActionInterceptor registeredInterceptor = new TestActionInterceptor(null, null, null);
 		resolver.registerInterceptor(TestAnnotation.class, registeredInterceptor);
-		ControllerInterceptor<?> interceptor = resolver.interceptor(TestAnnotation.class);
+		Interceptor<?> interceptor = resolver.interceptor(TestAnnotation.class);
 		assertThat(interceptor, is(notNullValue()));
 		assertThat(interceptor == registeredInterceptor, is(true));
 	}
@@ -93,7 +91,7 @@ public class ControllerRouteResolverTest {
 		TestActionInterceptor registeredInterceptor2 = new TestActionInterceptor(null, null, null);
 		resolver.registerInterceptor(TestAnnotation.class, registeredInterceptor1);
 		resolver.registerInterceptor(TestAnnotation.class, registeredInterceptor2);
-		ControllerInterceptor<?> interceptor = resolver.interceptor(TestAnnotation.class);
+		Interceptor<?> interceptor = resolver.interceptor(TestAnnotation.class);
 		assertThat(interceptor, is(notNullValue()));
 		assertThat(interceptor == registeredInterceptor1, is(false));
 		assertThat(interceptor == registeredInterceptor2, is(true));
@@ -104,7 +102,7 @@ public class ControllerRouteResolverTest {
 		Method method = ControllerRouteResolverTest.class.getMethod("intercept");
 		TestAnnotation annotation = method.getAnnotation(TestAnnotation.class);
 
-		Map<Annotation, ControllerInterceptor<Annotation>> interceptors = resolver.findInterceptors(method);
+		Map<Annotation, Interceptor<Annotation>> interceptors = resolver.findInterceptors(method);
 		assertThat(interceptors.isEmpty(), is(true));
 
 		TestActionInterceptor registeredInterceptor = new TestActionInterceptor(null, null, null);
@@ -173,7 +171,7 @@ public class ControllerRouteResolverTest {
 	@Test
 	public void shouldBindArgumentsAfterInvokingBeforeInterceptorAllowingBindingsToUseValuesModifiedByInterceptor() {
 		@SuppressWarnings("unchecked")
-		ControllerInterceptor<TestAnnotation> registeredInterceptor = new ControllerInterceptor<TestAnnotation>() {
+		Interceptor<TestAnnotation> registeredInterceptor = new Interceptor<TestAnnotation>() {
 			@Override
 			public String before(TestAnnotation annotation, HttpServletRequest req, HttpServletResponse resp) {
 				req.setAttribute("name", "value");
@@ -360,7 +358,7 @@ public class ControllerRouteResolverTest {
 		verify(resolver).createController(Mockito.any(Controller.class));
 	}
 
-	private Controller prepareActionMethod(String method, ControllerInterceptor<TestAnnotation> registeredInterceptor) {
+	private Controller prepareActionMethod(String method, Interceptor<TestAnnotation> registeredInterceptor) {
 		when(injectionContext.get(ControllerRouteResolverTest.class)).thenReturn(this);
 		resolver.registerInterceptor(TestAnnotation.class, registeredInterceptor);
 		Controller action = resolver.createActionIfPossible(ControllerRouteResolverTest.class.getName() + "." + method);
@@ -384,7 +382,7 @@ public class ControllerRouteResolverTest {
 	}
 
 	@SuppressWarnings("unchecked")
-	private class TestActionInterceptor implements ControllerInterceptor<TestAnnotation> {
+	private class TestActionInterceptor implements Interceptor<TestAnnotation> {
 		private String onBefore = null;
 		private String onAfter = null;
 		private String onException = null;

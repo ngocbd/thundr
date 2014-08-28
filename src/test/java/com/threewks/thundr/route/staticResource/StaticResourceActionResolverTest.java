@@ -44,7 +44,7 @@ public class StaticResourceActionResolverTest {
 	private StaticResourceRouteResolver resolver = new StaticResourceRouteResolver(servletContext);
 
 	private StaticResource action = new StaticResource();
-	private HttpMethod routeType = HttpMethod.GET;
+	private HttpMethod method = HttpMethod.GET;
 	private MockHttpServletRequest req = new MockHttpServletRequest();
 	private MockHttpServletResponse resp = new MockHttpServletResponse();
 	private Map<String, String> pathVars = Expressive.<String, String> map();
@@ -64,7 +64,7 @@ public class StaticResourceActionResolverTest {
 		resolver = spy(resolver);
 		doNothing().when(resolver).serve(action, req, resp);
 
-		Object result = resolver.resolve(action, routeType, req, resp, pathVars);
+		Object result = resolver.resolve(action, method, req, resp, pathVars);
 		assertThat(result, is(nullValue()));
 
 		verify(resolver).serve(action, req, resp);
@@ -77,7 +77,7 @@ public class StaticResourceActionResolverTest {
 		doThrow(cause).when(resolver).serve(action, req, resp);
 
 		try {
-			resolver.resolve(action, routeType, req, resp, pathVars);
+			resolver.resolve(action, method, req, resp, pathVars);
 			fail("Expected a BaseException");
 		} catch (BaseException e) {
 			assertThat(e.getCause(), is((Throwable) cause));
@@ -92,7 +92,7 @@ public class StaticResourceActionResolverTest {
 		doThrow(exception).when(resolver).serve(action, req, resp);
 
 		try {
-			resolver.resolve(action, routeType, req, resp, pathVars);
+			resolver.resolve(action, method, req, resp, pathVars);
 			fail("Expected a BaseException");
 		} catch (BaseException e) {
 			assertThat(e.getCause(), is((Throwable) cause));

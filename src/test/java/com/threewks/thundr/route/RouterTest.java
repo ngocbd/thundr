@@ -62,7 +62,7 @@ public class RouterTest {
 	public void shouldHaveRouteAfterAddingRoutes() {
 		Router router = new Router();
 		router.addResolver(TestResolve.class, new TestRouteResolver());
-		router.add(HttpMethod.GET, "/path/*.jpg", null, new TestResolve(null));
+		router.add(HttpMethod.GET, "/path/*.jpg", new TestResolve(null), null);
 
 		assertThat(router.findMatchingRoute("/path/image.jpg", HttpMethod.GET), is(notNullValue()));
 		assertThat(router.findMatchingRoute("/path/image.jpg", HttpMethod.POST), is(nullValue()));
@@ -74,7 +74,7 @@ public class RouterTest {
 		Router router = new Router();
 		router.addResolver(TestResolve.class, new TestRouteResolver());
 		assertThat(router.isEmpty(), is(true));
-		router.add(HttpMethod.GET, "/", null, (TestResolve) null);
+		router.add(HttpMethod.GET, "/", (TestResolve) null, null);
 		assertThat(router.isEmpty(), is(false));
 	}
 
@@ -82,21 +82,21 @@ public class RouterTest {
 	public void shouldThrowRouteExceptionWhenAddingRouteWithNameThatIsAlreadyTaken() {
 		thrown.expect(RouteException.class);
 		thrown.expectMessage("Unable to add the route 'GET /route2/' with the name 'name' - the route 'GET /route/' has already been registered with this name");
-		router.add(HttpMethod.GET, "/route/", "name", new TestResolve("action"));
-		router.add(HttpMethod.GET, "/route2/", "name", new TestResolve("action"));
+		router.add(HttpMethod.GET, "/route/", new TestResolve("action"), "name");
+		router.add(HttpMethod.GET, "/route2/", new TestResolve("action"), "name");
 	}
 
 	@Test
 	public void shouldThrowRouteExceptionWhenAddingRouteWithSamePattern() {
 		thrown.expect(RouteException.class);
 		thrown.expectMessage("Unable to add the route 'GET /route/{var2}' - the route 'GET /route/{var}' already exists which matches the same pattern");
-		router.add(HttpMethod.GET, "/route/{var}", null, new TestResolve("action"));
-		router.add(HttpMethod.GET, "/route/{var2}", null, new TestResolve("action"));
+		router.add(HttpMethod.GET, "/route/{var}", new TestResolve("action"), null);
+		router.add(HttpMethod.GET, "/route/{var2}", new TestResolve("action"), null);
 	}
 
 	@Test
 	public void shouldInvokeRouteByReturningTheResultOfTheAction() {
-		router.add(HttpMethod.GET, "/route", null, new TestResolve("actionName"));
+		router.add(HttpMethod.GET, "/route", new TestResolve("actionName"), null);
 		Object result = router.invoke("/route", HttpMethod.GET, req, resp);
 		assertThat(result, is(notNullValue()));
 		assertThat(result instanceof TestResolve, is(true));
@@ -111,20 +111,148 @@ public class RouterTest {
 
 	@Test
 	public void shouldReturnNamedRouteOrNull() {
-		router.add(HttpMethod.GET, "/route", "name", new TestResolve("actionName"));
+		router.add(HttpMethod.GET, "/route", new TestResolve("actionName"), "name");
 
-		assertThat(router.getRoute("name").getRoute(), is("/route"));
-		assertThat(router.getRoute("otherName"), is(nullValue()));
-		assertThat(router.getRoute(null), is(nullValue()));
-		assertThat(router.getRoute(""), is(nullValue()));
+		assertThat(router.getNamedRoute("name").getRoute(), is("/route"));
+		assertThat(router.getNamedRoute("otherName"), is(nullValue()));
+		assertThat(router.getNamedRoute(null), is(nullValue()));
+		assertThat(router.getNamedRoute(""), is(nullValue()));
+	}
+
+	@Test
+	public void shouldAddGetRoutes() {
+		router.get("/path/1", TestController.class, "controllerMethod1");
+		router.get("/path/2", TestController.class, "controllerMethod2");
+		router.get("/path/3", TestController.class, "controllerMethod3", "name3");
+		router.get("/path/4", new Redirect("redirectTo"));
+		router.get("/path/5", new Redirect("redirectTo"), "name5");
+		router.add(HttpMethod.GET, "/path/6", new Redirect("redirectTo"), "name6");
+
+		assertThat(router.has(HttpMethod.GET, "/path/1"), is(true));
+		assertThat(router.has(HttpMethod.GET, "/path/2"), is(true));
+		assertThat(router.has(HttpMethod.GET, "/path/3"), is(true));
+		assertThat(router.has(HttpMethod.GET, "/path/4"), is(true));
+		assertThat(router.has(HttpMethod.GET, "/path/5"), is(true));
+		assertThat(router.has(HttpMethod.GET, "/path/6"), is(true));
+		assertThat(router.has("name3"), is(true));
+		assertThat(router.has("name5"), is(true));
+		assertThat(router.has("name6"), is(true));
+	}
+
+	@Test
+	public void shouldAddPostRoutes() {
+		router.post("/path/1", TestController.class, "controllerMethod1");
+		router.post("/path/2", TestController.class, "controllerMethod2");
+		router.post("/path/3", TestController.class, "controllerMethod3", "name3");
+		router.post("/path/4", new Redirect("redirectTo"));
+		router.post("/path/5", new Redirect("redirectTo"), "name5");
+		router.add(HttpMethod.POST, "/path/6", new Redirect("redirectTo"), "name6");
+
+		assertThat(router.has(HttpMethod.POST, "/path/1"), is(true));
+		assertThat(router.has(HttpMethod.POST, "/path/2"), is(true));
+		assertThat(router.has(HttpMethod.POST, "/path/3"), is(true));
+		assertThat(router.has(HttpMethod.POST, "/path/4"), is(true));
+		assertThat(router.has(HttpMethod.POST, "/path/5"), is(true));
+		assertThat(router.has(HttpMethod.POST, "/path/6"), is(true));
+		assertThat(router.has("name3"), is(true));
+		assertThat(router.has("name5"), is(true));
+		assertThat(router.has("name6"), is(true));
+	}
+
+	@Test
+	public void shouldAddPutRoutes() {
+		router.put("/path/1", TestController.class, "controllerMethod1");
+		router.put("/path/2", TestController.class, "controllerMethod2");
+		router.put("/path/3", TestController.class, "controllerMethod3", "name3");
+		router.put("/path/4", new Redirect("redirectTo"));
+		router.put("/path/5", new Redirect("redirectTo"), "name5");
+		router.add(HttpMethod.PUT, "/path/6", new Redirect("redirectTo"), "name6");
+
+		assertThat(router.has(HttpMethod.PUT, "/path/1"), is(true));
+		assertThat(router.has(HttpMethod.PUT, "/path/2"), is(true));
+		assertThat(router.has(HttpMethod.PUT, "/path/3"), is(true));
+		assertThat(router.has(HttpMethod.PUT, "/path/4"), is(true));
+		assertThat(router.has(HttpMethod.PUT, "/path/5"), is(true));
+		assertThat(router.has(HttpMethod.PUT, "/path/6"), is(true));
+		assertThat(router.has("name3"), is(true));
+		assertThat(router.has("name5"), is(true));
+		assertThat(router.has("name6"), is(true));
+	}
+
+	@Test
+	public void shouldAddDeleteRoutes() {
+		router.delete("/path/1", TestController.class, "controllerMethod1");
+		router.delete("/path/2", TestController.class, "controllerMethod2");
+		router.delete("/path/3", TestController.class, "controllerMethod3", "name3");
+		router.delete("/path/4", new Redirect("redirectTo"));
+		router.delete("/path/5", new Redirect("redirectTo"), "name5");
+		router.add(HttpMethod.DELETE, "/path/6", new Redirect("redirectTo"), "name6");
+
+		assertThat(router.has(HttpMethod.DELETE, "/path/1"), is(true));
+		assertThat(router.has(HttpMethod.DELETE, "/path/2"), is(true));
+		assertThat(router.has(HttpMethod.DELETE, "/path/3"), is(true));
+		assertThat(router.has(HttpMethod.DELETE, "/path/4"), is(true));
+		assertThat(router.has(HttpMethod.DELETE, "/path/5"), is(true));
+		assertThat(router.has(HttpMethod.DELETE, "/path/6"), is(true));
+		assertThat(router.has("name3"), is(true));
+		assertThat(router.has("name5"), is(true));
+		assertThat(router.has("name6"), is(true));
+	}
+
+	@Test
+	public void shouldAllowRemovalOfRoutesByMethodAndPath() {
+		assertThat(router.has(HttpMethod.GET, "/route"), is(false));
+		assertThat(router.has("name"), is(false));
+
+		router.get("/route", new Redirect("/redirect"), "name");
+
+		assertThat(router.has(HttpMethod.GET, "/route"), is(true));
+		assertThat(router.has("name"), is(true));
+
+		router.remove(HttpMethod.GET, "/route");
+
+		assertThat(router.has(HttpMethod.GET, "/route"), is(false));
+		assertThat(router.has("name"), is(false));
+	}
+
+	@Test
+	public void shouldAllowRemovalOfRoutesByName() {
+		assertThat(router.has(HttpMethod.GET, "/route"), is(false));
+		assertThat(router.has("name"), is(false));
+
+		router.get("/route", new Redirect("/redirect"), "name");
+
+		assertThat(router.has(HttpMethod.GET, "/route"), is(true));
+		assertThat(router.has("name"), is(true));
+
+		router.remove("name");
+
+		assertThat(router.has(HttpMethod.GET, "/route"), is(false));
+		assertThat(router.has("name"), is(false));
+	}
+
+	@Test
+	public void shouldDoNothingWhenRemoveRouteThatDoesntExist() {
+		router.get("/route", new Redirect("/redirect"), "name");
+
+		assertThat(router.has(HttpMethod.GET, "/route"), is(true));
+		assertThat(router.has("name"), is(true));
+
+		router.remove("non-existant");
+		router.remove(HttpMethod.GET, "/nope");
+		router.remove(null, null);
+		router.remove(null);
+
+		assertThat(router.has(HttpMethod.GET, "/route"), is(true));
+		assertThat(router.has("name"), is(true));
 	}
 
 	@Test
 	public void shouldListRoutes() {
 		Router router = new Router();
 		router.addResolver(TestResolve.class, new TestRouteResolver());
-		router.add(HttpMethod.GET, "/path/*.jpg", null, new TestResolve("action1"));
-		router.add(HttpMethod.PUT, "/path/*.jpg", "PUT", new TestResolve("action2"));
+		router.add(HttpMethod.GET, "/path/*.jpg", new TestResolve("action1"), null);
+		router.add(HttpMethod.PUT, "/path/*.jpg", new TestResolve("action2"), "PUT");
 
 		// @formatter:off
 		String expected = 
@@ -132,7 +260,21 @@ public class RouterTest {
 			"PUT     /path/*.jpg                                                  (PUT): action2\n";
 		// @formatter:on
 		assertThat(router.listRoutes(), is(expected));
+	}
 
+	@SuppressWarnings("unused")
+	private static class TestController {
+		public String controllerMethod1() {
+			return null;
+		}
+
+		public String controllerMethod2() {
+			return null;
+		}
+
+		public String controllerMethod3() {
+			return null;
+		}
 	}
 
 	private static class TestResolve implements RouteResult {
@@ -152,7 +294,7 @@ public class RouterTest {
 
 	private static class TestRouteResolver implements RouteResolver<TestResolve> {
 		@Override
-		public TestResolve resolve(TestResolve action, HttpMethod routeType, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws RouteResolverException {
+		public TestResolve resolve(TestResolve action, HttpMethod method, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws RouteResolverException {
 			return action;
 		}
 

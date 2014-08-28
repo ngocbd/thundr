@@ -41,7 +41,7 @@ public class RedirectRouteResolver implements RouteResolver<Redirect> {
 	}
 
 	@Override
-	public Object resolve(Redirect action, HttpMethod routeType, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws RouteResolverException {
+	public Object resolve(Redirect action, HttpMethod method, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws RouteResolverException {
 		String redirectTo = action.getRedirectTo(pathVars);
 		try {
 			resp.sendRedirect(redirectTo);

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.route;
+package com.threewks.thundr.route.controller;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -24,11 +24,14 @@ import static org.mockito.Mockito.*;
 import org.junit.Test;
 import org.mockito.InOrder;
 
+import com.threewks.thundr.route.HttpMethod;
+import com.threewks.thundr.route.controller.Filter;
+import com.threewks.thundr.route.controller.FilterRegistry;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
 
 public class FiltersTest {
-	private Filters filters = new Filters();
+	private FilterRegistry filters = new FilterRegistry();
 	private Filter filter1 = mock(Filter.class);
 	private Filter filter2 = mock(Filter.class);
 	private Filter filter3 = mock(Filter.class);

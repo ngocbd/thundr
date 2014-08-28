@@ -22,7 +22,7 @@
 
 <%@ tag import="java.util.Enumeration"%>
 <%@ tag import="java.util.Map"%>
-<%@ tag import="com.threewks.thundr.route.Routes"%>
+<%@ tag import="com.threewks.thundr.route.Router"%>
 <%@ tag import="com.threewks.thundr.route.Route"%>
 <%@ tag import="org.apache.commons.lang3.StringUtils"%>
 <%@ tag dynamic-attributes="pathVars" trimDirectiveWhitespaces="true" body-content="empty"%>
@@ -30,8 +30,8 @@
 <%@ attribute name="var" required="false" type="java.lang.String"%>
 <%
 	Map<String, Object> pathVars = (Map<String, Object>) getJspContext().getAttribute("pathVars", PageContext.PAGE_SCOPE);
-	Routes routes = (Routes) request.getAttribute("routes");
-	Route route = routes.getRoute(name);
+	Router router = (Router) request.getAttribute("router");
+	Route route = router.getNamedRoute(name);
 	if (route == null) {
 		throw new RouteNotFoundException("No route named %s exists", name);
 	}

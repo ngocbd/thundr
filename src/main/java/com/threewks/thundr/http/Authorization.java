@@ -15,10 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.route.controller;
+package com.threewks.thundr.http;
 
-import java.lang.annotation.Annotation;
+import com.threewks.thundr.util.Encoder;
 
-public interface ControllerInterceptorRegistry {
-	public <A extends Annotation> void registerInterceptor(Class<A> annotation, ControllerInterceptor<A> interceptor);
+public class Authorization {
+	public static final String Basic = "Basic";
+
+	public static String createBasicHeader(String username, String password) {
+		return Basic + " " + new Encoder(username + ":" + password).base64().string();
+	}
 }

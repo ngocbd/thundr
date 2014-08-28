@@ -42,6 +42,10 @@ public class BinderRegistry {
 		methodBinders.put(binder.getClass(), binder);
 	}
 
+	public boolean hasBinder(Class<? extends Binder> type) {
+		return methodBinders.containsKey(type);
+	}
+
 	public void deregisterBinder(Class<? extends Binder> type) {
 		methodBinders.remove(type);
 	}

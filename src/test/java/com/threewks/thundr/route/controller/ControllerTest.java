@@ -24,17 +24,17 @@ import static org.junit.Assert.assertThat;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import jodd.util.ReflectUtil;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.threewks.thundr.introspection.ParameterDescription;
-import com.threewks.thundr.route.controller.Controller;
+
+import jodd.util.ReflectUtil;
 
 public class ControllerTest {
-	@Rule public ExpectedException thrown = ExpectedException.none();
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	@Test
 	public void shouldFindClassAndMethod() {
@@ -55,19 +55,15 @@ public class ControllerTest {
 		assertThat(controller.invocationCount, is(1));
 	}
 
-	/*
-	 * @Test
-	 * public void shouldThrowActionExceptionWhenInvokingControllerMethodFailsBecauseOfWrongArgumentNumber() throws Exception {
-	 * thrown.expect(ActionException.class);
-	 * thrown.expectMessage("Failed in class com.threewks.thundr.routes.FakeController.methodOne: wrong number of arguments");
-	 * 
-	 * MethodAction methodAction = new MethodAction(FakeController.class, ReflectUtil.findMethod(FakeController.class, "methodOne"), Collections.<Annotation, ActionInterceptor<Annotation>>
-	 * emptyMap());
-	 * 
-	 * FakeController controller = new FakeController();
-	 * methodAction.invoke(controller, list());
-	 * }
-	 */
+	@Test
+	public void shouldThrowActionExceptionWhenInvokingControllerMethodFailsBecauseOfWrongArgumentNumber() throws Exception {
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage("wrong number of arguments");
+
+		Controller methodAction = new Controller(FakeController.class, "methodOne");
+		FakeController controller = new FakeController();
+		methodAction.invoke(controller, list());
+	}
 
 	@Test
 	public void shouldFindMethodParameters() {

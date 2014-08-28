@@ -28,7 +28,7 @@ import com.threewks.thundr.route.RouteResolverException;
 
 public class TestActionResolver implements RouteResolver<TestAction> {
 	@Override
-	public Object resolve(TestAction action, HttpMethod routeType, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws RouteResolverException {
+	public Object resolve(TestAction action, HttpMethod method, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws RouteResolverException {
 		return null;
 	}
 

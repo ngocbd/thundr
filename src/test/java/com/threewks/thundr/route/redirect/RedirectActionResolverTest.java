@@ -67,11 +67,11 @@ public class RedirectActionResolverTest {
 	@Test
 	public void shouldSendRedirectToClient() throws IOException {
 		Redirect action = new Redirect("/redirect/{to}");
-		HttpMethod routeType = HttpMethod.POST;
+		HttpMethod method = HttpMethod.POST;
 		HttpServletRequest req = mock(HttpServletRequest.class);
 		HttpServletResponse resp = mock(HttpServletResponse.class);
 		Map<String, String> pathVars = map("to", "new");
-		resolver.resolve(action, routeType, req, resp, pathVars);
+		resolver.resolve(action, method, req, resp, pathVars);
 
 		verify(resp).sendRedirect("/redirect/new");
 	}
@@ -82,13 +82,13 @@ public class RedirectActionResolverTest {
 		thrown.expectMessage("Failed to redirect /requested/path to /redirect/new");
 
 		Redirect action = new Redirect("/redirect/{to}");
-		HttpMethod routeType = HttpMethod.POST;
+		HttpMethod method = HttpMethod.POST;
 		HttpServletRequest req = mock(HttpServletRequest.class);
 		when(req.getRequestURI()).thenReturn("/requested/path");
 		HttpServletResponse resp = mock(HttpServletResponse.class);
 		Map<String, String> pathVars = map("to", "new");
 
 		doThrow(new IOException("expected")).when(resp).sendRedirect(anyString());
-		resolver.resolve(action, routeType, req, resp, pathVars);
+		resolver.resolve(action, method, req, resp, pathVars);
 	}
 }

@@ -78,8 +78,11 @@ public class BinderRegistryTest {
 		BinderRegistry binderRegistry = new BinderRegistry();
 		Iterator<Binder> iterator = binderRegistry.getRegisteredBinders().iterator();
 		assertThat(iterator.hasNext(), is(false));
+		assertThat(binderRegistry.hasBinder(HttpBinder.class), is(false));
 
 		binderRegistry.registerBinder(new HttpBinder(parameterBinderRegistry));
+
+		assertThat(binderRegistry.hasBinder(HttpBinder.class), is(true));
 
 		iterator = binderRegistry.getRegisteredBinders().iterator();
 		assertThat(iterator.hasNext(), is(true));
@@ -95,8 +98,11 @@ public class BinderRegistryTest {
 		Iterator<Binder> iterator = binderRegistry.getRegisteredBinders().iterator();
 		assertThat(iterator.next() instanceof HttpBinder, is(true));
 
+		assertThat(binderRegistry.hasBinder(HttpBinder.class), is(true));
+
 		binderRegistry.deregisterBinder(HttpBinder.class);
 
+		assertThat(binderRegistry.hasBinder(HttpBinder.class), is(false));
 		iterator = binderRegistry.getRegisteredBinders().iterator();
 		assertThat(iterator.hasNext(), is(false));
 	}

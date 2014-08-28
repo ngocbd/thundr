@@ -34,8 +34,8 @@ public class Route {
 	public static final String PathParameterToken = "\\{(.*?)\\}";
 	public static final Pattern PathParameterPattern = Pattern.compile(PathParameterToken);
 	// from -> http://www.ietf.org/rfc/rfc1738.txt: "Thus, only alphanumerics, the special characters "$-_.+!*'()," ... may be used unencoded within a URL."
-	static final String AcceptablePathCharacters = "\\w%:@&=+$,!~*'()\\.\\-";
-	static final String AcceptableMultiPathCharacters = AcceptablePathCharacters + "/";
+	public static final String AcceptablePathCharacters = "\\w%:@&=+$,!~*'()\\.\\-";
+	public static final String AcceptableMultiPathCharacters = AcceptablePathCharacters + "/";
 
 	// TODO - Binding path segment request parameters
 	// The spec allows for request parameters to be encoded in the format /url/url2/url3;key=value;key2=value2
@@ -43,19 +43,19 @@ public class Route {
 	// hasn't confirmed that the client supports cookies. i.e. redirect -> /go/here;jsessionid=12345678
 	// This is a hack implementation which satisfies most current web development needs, further reading on a fuller implementation here:
 	// http://www.skorks.com/2010/05/what-every-developer-should-know-about-urls/
-	static final String SemiColonDelimitedRequestParameters = "(?:;.*?)*";
+	public static final String SemiColonDelimitedRequestParameters = "(?:;.*?)*";
 
 	private String name;
 	private String route;
 	private Pattern routeMatchRegex;
-	private HttpMethod routeType;
+	private HttpMethod method;
 	private EList<String> pathParameters;
 
-	public Route(HttpMethod routeType, String route, String nameOrNull) {
+	public Route(HttpMethod method, String route, String nameOrNull) {
 		super();
 		this.name = nameOrNull;
 		this.route = route;
-		this.routeType = routeType;
+		this.method = method;
 		this.pathParameters = extractPathParametersFromRoute(route);
 		this.routeMatchRegex = Pattern.compile(convertPathStringToRegex(route));
 	}
@@ -72,8 +72,8 @@ public class Route {
 		return routeMatchRegex.pattern();
 	}
 
-	public HttpMethod getRouteType() {
-		return routeType;
+	public HttpMethod getMethod() {
+		return method;
 	}
 
 	public boolean matches(String routePath) {
@@ -111,7 +111,7 @@ public class Route {
 	@Override
 	public String toString() {
 		String nameString = StringUtils.isBlank(name) ? "" : " (" + name + ")";
-		return String.format("%-8s%-50s%16s", routeType, route, nameString);
+		return String.format("%-8s%-50s%16s", method, route, nameString);
 	}
 
 	static String convertPathStringToRegex(String route) {

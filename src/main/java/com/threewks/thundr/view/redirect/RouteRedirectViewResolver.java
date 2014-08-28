@@ -30,16 +30,16 @@ import com.threewks.thundr.view.ViewResolutionException;
 import com.threewks.thundr.view.ViewResolver;
 
 public class RouteRedirectViewResolver implements ViewResolver<RouteRedirectView> {
-	private Router routes;
+	private Router router;
 
-	public RouteRedirectViewResolver(Router routes) {
-		this.routes = routes;
+	public RouteRedirectViewResolver(Router router) {
+		this.router = router;
 	}
 
 	@Override
 	public void resolve(HttpServletRequest req, HttpServletResponse resp, RouteRedirectView viewResult) {
 		String routeName = viewResult.getRoute();
-		Route route = this.routes.getRoute(routeName);
+		Route route = this.router.getNamedRoute(routeName);
 		if (route == null) {
 			throw new ViewResolutionException("Cannot redirect to the route named '%s': no route with this name exists", routeName);
 		}

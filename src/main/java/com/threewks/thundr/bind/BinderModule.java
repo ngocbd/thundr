@@ -23,14 +23,20 @@ import com.threewks.thundr.injection.BaseModule;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.module.DependencyRegistry;
 import com.threewks.thundr.transformer.TransformerManager;
+import com.threewks.thundr.transformer.TransformerModule;
 
 public class BinderModule extends BaseModule {
 	@Override
 	public void requires(DependencyRegistry dependencyRegistry) {
 		super.requires(dependencyRegistry);
 		dependencyRegistry.addDependency(ParameterBindingModule.class);
+		dependencyRegistry.addDependency(TransformerModule.class);
 	}
 
+	@Override
+	public void initialise(UpdatableInjectionContext injectionContext) {
+		super.initialise(injectionContext);
+	}
 	@Override
 	public void configure(UpdatableInjectionContext injectionContext) {
 		super.configure(injectionContext);

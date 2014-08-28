@@ -32,10 +32,10 @@ import com.threewks.thundr.route.Router;
 public class RewriteRouteResolver implements RouteResolver<Rewrite> {
 	private static final Pattern ActionNamePattern = Pattern.compile("^(?i)rewrite:(.+)");
 
-	private Router routes;
+	private Router router;
 
-	public RewriteRouteResolver(Router routes) {
-		this.routes = routes;
+	public RewriteRouteResolver(Router router) {
+		this.router = router;
 	}
 
 	@Override
@@ -48,9 +48,9 @@ public class RewriteRouteResolver implements RouteResolver<Rewrite> {
 	}
 
 	@Override
-	public Object resolve(Rewrite action, HttpMethod routeType, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws RouteResolverException {
+	public Object resolve(Rewrite action, HttpMethod method, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws RouteResolverException {
 		String rewriteTo = action.getRewriteTo(pathVars);
-		return routes.invoke(rewriteTo, routeType, req, resp);
+		return router.invoke(rewriteTo, method, req, resp);
 	}
 
 	@Override

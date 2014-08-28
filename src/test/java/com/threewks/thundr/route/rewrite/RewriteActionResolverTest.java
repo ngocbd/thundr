@@ -37,12 +37,12 @@ import com.threewks.thundr.route.rewrite.RewriteRouteResolver;
 
 public class RewriteActionResolverTest {
 	private RewriteRouteResolver resolver;
-	private Router routes;
+	private Router router;
 
 	@Before
 	public void before() {
-		routes = mock(Router.class);
-		resolver = new RewriteRouteResolver(routes);
+		router = mock(Router.class);
+		resolver = new RewriteRouteResolver(router);
 	}
 
 	@Test
@@ -70,12 +70,12 @@ public class RewriteActionResolverTest {
 	@Test
 	public void shouldInvokeRoutesToPerformRewriteAction() {
 		Rewrite action = new Rewrite("/rewrite/{to}");
-		HttpMethod routeType = HttpMethod.POST;
+		HttpMethod method = HttpMethod.POST;
 		HttpServletRequest req = mock(HttpServletRequest.class);
 		HttpServletResponse resp = mock(HttpServletResponse.class);
 		Map<String, String> pathVars = map("to", "new");
-		resolver.resolve(action, routeType, req, resp, pathVars);
+		resolver.resolve(action, method, req, resp, pathVars);
 
-		verify(routes).invoke("/rewrite/new", routeType, req, resp);
+		verify(router).invoke("/rewrite/new", method, req, resp);
 	}
 }

@@ -17,12 +17,9 @@
  */
 package com.threewks.thundr.view;
 
-import jodd.util.MimeTypes;
-
 import com.threewks.thundr.http.exception.HttpStatusException;
 import com.threewks.thundr.injection.BaseModule;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
-import com.threewks.thundr.module.DependencyRegistry;
 import com.threewks.thundr.route.RouteNotFoundException;
 import com.threewks.thundr.route.Router;
 import com.threewks.thundr.view.exception.ExceptionViewResolver;
@@ -49,12 +46,9 @@ import com.threewks.thundr.view.redirect.RouteRedirectViewResolver;
 import com.threewks.thundr.view.string.StringView;
 import com.threewks.thundr.view.string.StringViewResolver;
 
-public class ViewModule extends BaseModule {
-	@Override
-	public void requires(DependencyRegistry dependencyRegistry) {
-		super.requires(dependencyRegistry);
-	}
+import jodd.util.MimeTypes;
 
+public class ViewModule extends BaseModule {
 	@Override
 	public void initialise(UpdatableInjectionContext injectionContext) {
 		injectionContext.inject(ViewResolverRegistry.class).as(ViewResolverRegistry.class);
@@ -65,7 +59,7 @@ public class ViewModule extends BaseModule {
 	@Override
 	public void configure(UpdatableInjectionContext injectionContext) {
 		GlobalModel globalModel = injectionContext.get(GlobalModel.class);
-		globalModel.put("routes", injectionContext.get(Router.class));
+		globalModel.put("router", injectionContext.get(Router.class));
 
 		ViewResolverRegistry viewResolverRegistry = injectionContext.get(ViewResolverRegistry.class);
 
@@ -73,7 +67,7 @@ public class ViewModule extends BaseModule {
 	}
 
 	protected void addViewResolvers(ViewResolverRegistry viewResolverRegistry, UpdatableInjectionContext injectionContext, GlobalModel globalModel) {
-		Router routes = injectionContext.get(Router.class);
+		Router router = injectionContext.get(Router.class);
 		ViewNegotiatorRegistry viewNegotiatorRegistry = injectionContext.get(ViewNegotiatorRegistry.class);
 
 		ExceptionViewResolver exceptionViewResolver = new ExceptionViewResolver();
@@ -93,7 +87,7 @@ public class ViewModule extends BaseModule {
 		viewResolverRegistry.addResolver(Throwable.class, exceptionViewResolver);
 		viewResolverRegistry.addResolver(HttpStatusException.class, statusViewResolver);
 		viewResolverRegistry.addResolver(RouteNotFoundException.class, new RouteNotFoundViewResolver());
-		viewResolverRegistry.addResolver(RouteRedirectView.class, new RouteRedirectViewResolver(routes));
+		viewResolverRegistry.addResolver(RouteRedirectView.class, new RouteRedirectViewResolver(router));
 		viewResolverRegistry.addResolver(RedirectView.class, new RedirectViewResolver());
 		viewResolverRegistry.addResolver(JsonView.class, new JsonViewResolver());
 		viewResolverRegistry.addResolver(JsonpView.class, new JsonpViewResolver());

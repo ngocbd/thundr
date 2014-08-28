@@ -39,21 +39,20 @@ import com.threewks.thundr.exception.BaseException;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.logger.Logger;
-import com.threewks.thundr.route.Filters;
 import com.threewks.thundr.route.RouteResolver;
 import com.threewks.thundr.route.RouteResolverException;
 
-public class ControllerRouteResolver implements RouteResolver<Controller>, ControllerInterceptorRegistry {
+public class ControllerRouteResolver implements RouteResolver<Controller>, InterceptorRegistry {
 
 	private Map<Class<?>, Object> controllerInstances = new HashMap<Class<?>, Object>();
-	private Map<Class<? extends Annotation>, ControllerInterceptor<? extends Annotation>> actionInterceptors = new HashMap<Class<? extends Annotation>, ControllerInterceptor<? extends Annotation>>();
-	private Map<Method, Map<Annotation, ControllerInterceptor<Annotation>>> interceptorCache = new WeakHashMap<Method, Map<Annotation, ControllerInterceptor<Annotation>>>();
+	private Map<Class<? extends Annotation>, Interceptor<? extends Annotation>> actionInterceptors = new HashMap<Class<? extends Annotation>, Interceptor<? extends Annotation>>();
+	private Map<Method, Map<Annotation, Interceptor<Annotation>>> interceptorCache = new WeakHashMap<Method, Map<Annotation, Interceptor<Annotation>>>();
 	
 	private UpdatableInjectionContext injectionContext;
 	private BinderRegistry binderRegistry;
-	private Filters filters;
+	private FilterRegistry filters;
 
-	public ControllerRouteResolver(UpdatableInjectionContext injectionContext, Filters filters, BinderRegistry binderRegistry) {
+	public ControllerRouteResolver(UpdatableInjectionContext injectionContext, FilterRegistry filters, BinderRegistry binderRegistry) {
 		this.injectionContext = injectionContext;
 		this.binderRegistry = binderRegistry;
 		this.filters = filters;
@@ -94,7 +93,7 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Contr
 	@Override
 	public Object resolve(Controller action, com.threewks.thundr.route.HttpMethod method, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws RouteResolverException {
 		Object controller = getOrCreateController(action);
-		Map<Annotation, ControllerInterceptor<Annotation>> interceptors = getInterceptors(action);
+		Map<Annotation, Interceptor<Annotation>> interceptors = getInterceptors(action);
 		Object result = beforeFilters(method, req, resp);
 		try {
 			result = beforeInterceptors(interceptors, req, resp, result);
@@ -150,9 +149,9 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Contr
 		return existingResult;
 	}
 
-	private Map<Annotation, ControllerInterceptor<Annotation>> getInterceptors(Controller action) {
+	private Map<Annotation, Interceptor<Annotation>> getInterceptors(Controller action) {
 		Method method = action.method();
-		Map<Annotation, ControllerInterceptor<Annotation>> results = interceptorCache.get(method);
+		Map<Annotation, Interceptor<Annotation>> results = interceptorCache.get(method);
 		if (results == null) {
 			results = findInterceptors(method);
 			interceptorCache.put(method, results);
@@ -173,8 +172,8 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Contr
 		return new ArrayList<Object>(boundParameters.values());
 	}
 
-	private Object afterInterceptors(Object result, Map<Annotation, ControllerInterceptor<Annotation>> interceptors, HttpServletRequest req, HttpServletResponse resp) {
-		for (Map.Entry<Annotation, ControllerInterceptor<Annotation>> interceptorEntry : interceptors.entrySet()) {
+	private Object afterInterceptors(Object result, Map<Annotation, Interceptor<Annotation>> interceptors, HttpServletRequest req, HttpServletResponse resp) {
+		for (Map.Entry<Annotation, Interceptor<Annotation>> interceptorEntry : interceptors.entrySet()) {
 			Object interceptorResult = interceptorEntry.getValue().after(interceptorEntry.getKey(), result, req, resp);
 			if (interceptorResult != null) {
 				return interceptorResult;
@@ -184,8 +183,8 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Contr
 		return result;
 	}
 
-	private Object exceptionInterceptors(Map<Annotation, ControllerInterceptor<Annotation>> interceptors, HttpServletRequest req, HttpServletResponse resp, Exception e) {
-		for (Map.Entry<Annotation, ControllerInterceptor<Annotation>> interceptorEntry : interceptors.entrySet()) {
+	private Object exceptionInterceptors(Map<Annotation, Interceptor<Annotation>> interceptors, HttpServletRequest req, HttpServletResponse resp, Exception e) {
+		for (Map.Entry<Annotation, Interceptor<Annotation>> interceptorEntry : interceptors.entrySet()) {
 			Object interceptorResult = interceptorEntry.getValue().exception(interceptorEntry.getKey(), e, req, resp);
 			if (interceptorResult != null) {
 				return interceptorResult;
@@ -194,11 +193,11 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Contr
 		return null;
 	}
 
-	private Object beforeInterceptors(Map<Annotation, ControllerInterceptor<Annotation>> interceptors, HttpServletRequest req, HttpServletResponse resp, Object existingResult) {
+	private Object beforeInterceptors(Map<Annotation, Interceptor<Annotation>> interceptors, HttpServletRequest req, HttpServletResponse resp, Object existingResult) {
 		if (existingResult != null) {
 			return existingResult;
 		}
-		for (Map.Entry<Annotation, ControllerInterceptor<Annotation>> interceptorEntry : interceptors.entrySet()) {
+		for (Map.Entry<Annotation, Interceptor<Annotation>> interceptorEntry : interceptors.entrySet()) {
 			Object interceptorResult = interceptorEntry.getValue().before(interceptorEntry.getKey(), req, resp);
 			if (interceptorResult != null) {
 				return interceptorResult;
@@ -233,11 +232,11 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Contr
 		}
 	}
 
-	Map<Annotation, ControllerInterceptor<Annotation>> findInterceptors(Method method) {
-		Map<Annotation, ControllerInterceptor<Annotation>> interceptors = new LinkedHashMap<Annotation, ControllerInterceptor<Annotation>>();
+	Map<Annotation, Interceptor<Annotation>> findInterceptors(Method method) {
+		Map<Annotation, Interceptor<Annotation>> interceptors = new LinkedHashMap<Annotation, Interceptor<Annotation>>();
 		for (Annotation annotation : method.getDeclaredAnnotations()) {
 			Class<? extends Annotation> annotationType = annotation.annotationType();
-			ControllerInterceptor<Annotation> actionInterceptor = interceptor(annotationType);
+			Interceptor<Annotation> actionInterceptor = interceptor(annotationType);
 			if (actionInterceptor != null) {
 				interceptors.put(annotation, actionInterceptor);
 			}
@@ -247,14 +246,14 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Contr
 	}
 
 	@Override
-	public <A extends Annotation> void registerInterceptor(Class<A> annotation, ControllerInterceptor<A> interceptor) {
+	public <A extends Annotation> void registerInterceptor(Class<A> annotation, Interceptor<A> interceptor) {
 		actionInterceptors.put(annotation, interceptor);
 		Logger.info("Added ActionInterceptor %s for methods annotated with %s", interceptor, annotation);
 	}
 
 	@SuppressWarnings("unchecked")
-	public ControllerInterceptor<Annotation> interceptor(Class<? extends Annotation> annotationType) {
-		return (ControllerInterceptor<Annotation>) actionInterceptors.get(annotationType);
+	public Interceptor<Annotation> interceptor(Class<? extends Annotation> annotationType) {
+		return (Interceptor<Annotation>) actionInterceptors.get(annotationType);
 	}
 
 	public BinderRegistry getMethodBinderRegistry() {

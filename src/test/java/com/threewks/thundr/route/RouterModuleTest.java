@@ -28,7 +28,7 @@ import com.threewks.thundr.injection.InjectionContextImpl;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.module.DependencyRegistry;
 import com.threewks.thundr.route.controller.Controller;
-import com.threewks.thundr.route.controller.ControllerInterceptorRegistry;
+import com.threewks.thundr.route.controller.InterceptorRegistry;
 import com.threewks.thundr.route.controller.ControllerRouteResolver;
 import com.threewks.thundr.route.redirect.Redirect;
 import com.threewks.thundr.route.redirect.RedirectRouteResolver;
@@ -63,7 +63,7 @@ public class RouterModuleTest {
 		routeModule.initialise(injectionContext);
 		routeModule.configure(injectionContext);
 		assertThat(injectionContext.get(ControllerRouteResolver.class), is(notNullValue()));
-		assertThat(injectionContext.get(ControllerInterceptorRegistry.class), is(notNullValue()));
+		assertThat(injectionContext.get(InterceptorRegistry.class), is(notNullValue()));
 	}
 
 	@Test

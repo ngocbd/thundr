@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.route;
+package com.threewks.thundr.route.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,16 +26,19 @@ import java.util.regex.Matcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.threewks.thundr.route.controller.ControllerInterceptor;
+import com.threewks.thundr.route.HttpMethod;
+import com.threewks.thundr.route.Route;
 
 /**
- * This interface allows the definition of a simple interceptor strategy for invocation of controller methods
+ * {@link Filter} allows the definition of a simple interceptor strategy for invocation of controller methods
  * which are being invoked on a certain path.
  * 
- * They are an alternative to an {@link ControllerInterceptor}, which allows you to target an interceptor for a particular
+ * They are an alternative to an {@link Interceptor}, which allows you to target an interceptor for a particular
  * controller method.
+ * 
+ * Filters are registered with this class at startup.
  */
-public class Filters {
+public class FilterRegistry {
 	private Map<String, List<Filter>> filters = new HashMap<String, List<Filter>>();
 
 	/**
@@ -94,15 +97,15 @@ public class Filters {
 	/**
 	 * Used by the framework at runtime, you should not need to invoke this method directly.
 	 * 
-	 * @param routeType
+	 * @param method
 	 * @param req
 	 * @param resp
 	 * @return a view to use instead of calling through to the controller method, or null if execution should continue
 	 */
-	public Object before(HttpMethod routeType, HttpServletRequest req, HttpServletResponse resp) {
+	public Object before(HttpMethod method, HttpServletRequest req, HttpServletResponse resp) {
 		List<Filter> matchingFilters = findMatchingFilters(req.getRequestURI());
 		for (Filter filter : matchingFilters) {
-			Object result = filter.before(routeType, req, resp);
+			Object result = filter.before(method, req, resp);
 			if (result != null) {
 				return result;
 			}
@@ -113,17 +116,17 @@ public class Filters {
 	/**
 	 * Used by the framework at runtime, you should not need to invoke this method directly.
 	 * 
-	 * @param routeType
+	 * @param method
 	 * @param view
 	 * @param req
 	 * @param resp
 	 * @return a view to use instead of the result from the controller method, or null if the given result should be used
 	 */
-	public Object after(HttpMethod routeType, Object view, HttpServletRequest req, HttpServletResponse resp) {
+	public Object after(HttpMethod method, Object view, HttpServletRequest req, HttpServletResponse resp) {
 		List<Filter> matchingFilters = findMatchingFilters(req.getRequestURI());
 		for (int i = matchingFilters.size() - 1; i >= 0; i--) {
 			Filter filter = matchingFilters.get(i);
-			Object result = filter.after(routeType, view, req, resp);
+			Object result = filter.after(method, view, req, resp);
 			if (result != null) {
 				return result;
 			}
@@ -134,17 +137,17 @@ public class Filters {
 	/**
 	 * Used by the framework at runtime, you should not need to invoke this method directly.
 	 * 
-	 * @param routeType
+	 * @param method
 	 * @param e
 	 * @param req
 	 * @param resp
 	 * @return a view to use instead of allowing the exception to propagate up, or null to continue exception flow as normal
 	 */
-	public Object exception(HttpMethod routeType, Exception e, HttpServletRequest req, HttpServletResponse resp) {
+	public Object exception(HttpMethod method, Exception e, HttpServletRequest req, HttpServletResponse resp) {
 		List<Filter> matchingFilters = findMatchingFilters(req.getRequestURI());
 		for (int i = matchingFilters.size() - 1; i >= 0; i--) {
 			Filter filter = matchingFilters.get(i);
-			Object result = filter.exception(routeType, e, req, resp);
+			Object result = filter.exception(method, e, req, resp);
 			if (result != null) {
 				return result;
 			}

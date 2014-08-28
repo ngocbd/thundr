@@ -62,7 +62,7 @@ public class ThundrServlet extends HttpServlet {
 			long start = System.currentTimeMillis();
 			ServletContext servletContext = config.getServletContext();
 			injectionContext = initInjectionContext(servletContext);
-			modules = initModules(injectionContext);
+			modules = initModules(injectionContext, new Modules());
 			debugRoutes(injectionContext);
 			Logger.info("Started up in %dms", System.currentTimeMillis() - start);
 		} catch (RuntimeException e) {
@@ -71,17 +71,16 @@ public class ThundrServlet extends HttpServlet {
 	}
 
 	private void debugRoutes(UpdatableInjectionContext injectionContext) {
-		Router routes = injectionContext.get(Router.class);
-		if (routes == null || routes.isEmpty()) {
+		Router router = injectionContext.get(Router.class);
+		if (router == null || router.isEmpty()) {
 			Logger.warn("No routes are configured for this application.");
 		}
 		if (Logger.willDebug()) {
-			Logger.debug("Loaded routes: \n%s", routes.listRoutes());
+			Logger.debug("Loaded routes: \n%s", router.listRoutes());
 		}
 	}
 
-	protected Modules initModules(UpdatableInjectionContext injectionContext) {
-		Modules modules = new Modules();
+	protected Modules initModules(UpdatableInjectionContext injectionContext, Modules modules) {
 		injectionContext.inject(modules).as(Modules.class);
 
 		for (Class<? extends Module> module : getBaseModules()) {
@@ -114,14 +113,14 @@ public class ThundrServlet extends HttpServlet {
 		return injectionContext;
 	}
 
-	protected void applyRoute(final HttpMethod routeType, final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+	protected void applyRoute(final HttpMethod method, final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
 		final ViewResolverRegistry viewResolverRegistry = injectionContext.get(ViewResolverRegistry.class);
 		String requestPath = req.getRequestURI();
 		try {
 			Logger.debug("Invoking path %s", requestPath);
 			RequestThreadLocal.set(req, resp);
-			Router routes = injectionContext.get(Router.class);
-			final Object viewResult = routes.invoke(requestPath, routeType, req, resp);
+			Router router = injectionContext.get(Router.class);
+			final Object viewResult = router.invoke(requestPath, method, req, resp);
 			if (viewResult != null) {
 				resolveView(req, resp, viewResolverRegistry, viewResult);
 			}
@@ -157,11 +156,11 @@ public class ThundrServlet extends HttpServlet {
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		boolean handled = customService(req, resp);
 		if (!handled) {
-			String method = determineMethod(req);
-			HttpMethod routeType = HttpMethod.from(method);
-			if (routeType != null) {
-				applyRoute(routeType, req, resp);
-			} else if (HEAD.equals(method)) {
+			String httpMethod = determineMethod(req);
+			HttpMethod method = HttpMethod.from(httpMethod);
+			if (method != null) {
+				applyRoute(method, req, resp);
+			} else if (HEAD.equals(httpMethod)) {
 				doHead(req, resp);
 			} else {
 				// thundr doesnt deal with these

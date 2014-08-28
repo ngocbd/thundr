@@ -52,9 +52,9 @@ public class RouteRedirectViewResolverTest {
 	public void before() {
 		router = new Router();
 		router.addResolver(TestAction.class, new TestActionResolver());
-		router.add(HttpMethod.GET, "/route/1", "route1", new TestAction("route1"));
-		router.add(HttpMethod.GET, "/route/{var}", "route2", new TestAction("route2"));
-		router.add(HttpMethod.GET, "/route/{var}/{var2}", "route3", new TestAction("route3"));
+		router.add(HttpMethod.GET, "/route/1", new TestAction("route1"), "route1");
+		router.add(HttpMethod.GET, "/route/{var}", new TestAction("route2"), "route2");
+		router.add(HttpMethod.GET, "/route/{var}/{var2}", new TestAction("route3"), "route3");
 
 		resolver = new RouteRedirectViewResolver(router);
 	}

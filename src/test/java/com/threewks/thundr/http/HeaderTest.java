@@ -28,7 +28,7 @@ import org.junit.Test;
 
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 
-public class HeadersTest {
+public class HeaderTest {
 
 	@Test
 	public void shouldReturnHeaderFromReq() {

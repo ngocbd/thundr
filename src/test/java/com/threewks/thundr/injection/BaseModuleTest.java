@@ -21,7 +21,7 @@ import static org.mockito.Mockito.mock;
 
 import org.junit.Test;
 
-import com.threewks.thundr.route.controller.ControllerInterceptorRegistry;
+import com.threewks.thundr.route.controller.InterceptorRegistry;
 import com.threewks.thundr.view.ViewResolverRegistry;
 
 public class BaseModuleTest {
@@ -29,9 +29,9 @@ public class BaseModuleTest {
 	public void shouldProvideStandardExtensionPoints() {
 		BaseModule injectionConfig = new BaseModule();
 		InjectionContextImpl injectionContext = new InjectionContextImpl();
-		ControllerInterceptorRegistry mockActionInterceptorRegistry = mock(ControllerInterceptorRegistry.class);
+		InterceptorRegistry mockActionInterceptorRegistry = mock(InterceptorRegistry.class);
 		ViewResolverRegistry mockViewResolverRegistry = mock(ViewResolverRegistry.class);
-		injectionContext.inject(mockActionInterceptorRegistry).as(ControllerInterceptorRegistry.class);
+		injectionContext.inject(mockActionInterceptorRegistry).as(InterceptorRegistry.class);
 		injectionContext.inject(mockViewResolverRegistry).as(ViewResolverRegistry.class);
 
 		injectionConfig.initialise(injectionContext);

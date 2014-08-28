@@ -46,84 +46,137 @@ public class Router {
 	private boolean debug = true;
 
 	public Router get(String route, Class<?> controller, String controllerMethod) {
-		return this.get(route, null, controller, controllerMethod);
+		return this.get(route, controller, controllerMethod, null);
 	}
 
-	public Router get(String route, String name, Class<?> controller, String controllerMethod) {
-		return this.get(route, name, new Controller(controller, controllerMethod));
+	public Router get(String route, Class<?> controller, String controllerMethod, String name) {
+		return this.add(HttpMethod.GET, route, controller, controllerMethod, name);
 	}
 
-	public <T extends RouteResult> Router get(String route, String name, T action) {
-		return this.add(HttpMethod.GET, route, name, action);
+	public <T extends RouteResult> Router get(String route, T action, String name) {
+		return this.add(HttpMethod.GET, route, action, name);
+	}
+
+	public <T extends RouteResult> Router get(String route, T action) {
+		return this.get(route, action, null);
 	}
 
 	public Router put(String route, Class<?> controller, String controllerMethod) {
-		return this.put(route, null, controller, controllerMethod);
+		return this.put(route, controller, controllerMethod, null);
 	}
 
-	public Router put(String route, String name, Class<?> controller, String controllerMethod) {
-		return this.put(route, name, new Controller(controller, controllerMethod));
+	public Router put(String route, Class<?> controller, String controllerMethod, String name) {
+		return this.add(HttpMethod.PUT, route, controller, controllerMethod, name);
 	}
 
-	public <T extends RouteResult> Router put(String route, String name, T action) {
-		return this.add(HttpMethod.PUT, route, name, action);
+	public <T extends RouteResult> Router put(String route, T action) {
+		return this.put(route, action, null);
+	}
+
+	public <T extends RouteResult> Router put(String route, T action, String name) {
+		return this.add(HttpMethod.PUT, route, action, name);
 	}
 
 	public Router post(String route, Class<?> controller, String controllerMethod) {
-		return this.post(route, null, controller, controllerMethod);
+		return this.post(route, controller, controllerMethod, null);
 	}
 
-	public Router post(String route, String name, Class<?> controller, String controllerMethod) {
-		return this.post(route, name, new Controller(controller, controllerMethod));
+	public Router post(String route, Class<?> controller, String controllerMethod, String name) {
+		return this.add(HttpMethod.POST, route, controller, controllerMethod, name);
 	}
 
-	public <T extends RouteResult> Router post(String route, String name, T action) {
-		return this.add(HttpMethod.POST, route, name, action);
+	public <T extends RouteResult> Router post(String route, T action) {
+		return this.post(route, action, null);
+	}
+
+	public <T extends RouteResult> Router post(String route, T action, String name) {
+		return this.add(HttpMethod.POST, route, action, name);
 	}
 
 	public Router delete(String route, Class<?> controller, String method) {
-		return this.delete(route, null, controller, method);
+		return this.delete(route, controller, method, null);
 	}
 
-	public Router delete(String route, String name, Class<?> controller, String controllerMethod) {
-		return this.delete(route, name, new Controller(controller, controllerMethod));
+	public Router delete(String route, Class<?> controller, String controllerMethod, String name) {
+		return this.add(HttpMethod.DELETE, route, controller, controllerMethod, name);
 	}
 
-	public <T extends RouteResult> Router delete(String route, String name, T action) {
-		return this.add(HttpMethod.PUT, route, name, action);
+	public <T extends RouteResult> Router delete(String route, T action) {
+		return this.delete(route, action, null);
 	}
 
-	public Router add(HttpMethod method, String route, Class<?> controller, String controllerMethod) {
-		return this.add(method, route, null, controller, controllerMethod);
+	public <T extends RouteResult> Router delete(String route, T action, String name) {
+		return this.add(HttpMethod.DELETE, route, action, name);
 	}
 
-	public Router add(HttpMethod method, String route, String name, Class<?> controller, String controllerMethod) {
-		return this.add(method, route, name, new Controller(controller, controllerMethod));
+	public Router add(HttpMethod method, String route, Class<?> controller, String controllerMethod, String name) {
+		return this.add(method, route, new Controller(controller, controllerMethod), name);
 	}
 
-	public <T extends RouteResult> Router add(HttpMethod httpMethod, String routePath, String name, T action) {
+	/**
+	 * Removes any previously registered route of the given method which matches the given route exactly.
+	 * The route is matched as a string, so any path variables must be exact.
+	 * 
+	 * @param method
+	 * @param route
+	 * @return
+	 */
+	public Router remove(HttpMethod method, String route) {
+		remove(getRoute(method, route));
+		return this;
+	}
+
+	/**
+	 * Removes any previously registered route with the given name
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public Router remove(String name) {
+		remove(namedRoutes.get(name));
+		return this;
+	}
+
+	/**
+	 * Returns true is a route has been registered for the given method and the given route exactly.
+	 * The route is matched as a string, so any path variables must be exact.
+	 * 
+	 * @param method
+	 * @param route
+	 * @return
+	 */
+	public boolean has(HttpMethod method, String route) {
+		return getRoute(method, route) != null;
+	}
+
+	public boolean has(String name) {
+		return getNamedRoute(name) != null;
+	}
+
+	public <T extends RouteResult> Router add(HttpMethod httpMethod, String routePath, T action, String name) {
 		Route route = new Route(httpMethod, routePath, name);
 		String path = route.getRouteMatchRegex();
-		Map<String, Route> routesForRouteType = this.routes.get(httpMethod);
-		if (routesForRouteType.containsKey(path)) {
-			Route existingRoute = routesForRouteType.get(path);
-			throw new RouteException("Unable to add the route '%s %s' - the route '%s %s' already exists which matches the same pattern", route.getRouteType(), route.getRoute(),
-					existingRoute.getRouteType(), existingRoute.getRoute());
+		Map<String, Route> routesForMethod = this.routes.get(httpMethod);
+		if (routesForMethod.containsKey(path)) {
+			Route existingRoute = routesForMethod.get(path);
+			throw new RouteException("Unable to add the route '%s %s' - the route '%s %s' already exists which matches the same pattern. To override, you can remove the existing route first.",
+					route.getMethod(), route.getRoute(), existingRoute.getMethod(), existingRoute.getRoute());
 		}
 		if (StringUtils.isNotBlank(name)) {
 			if (namedRoutes.containsKey(name)) {
 				Route existingRoute = namedRoutes.get(name);
-				throw new RouteException("Unable to add the route '%s %s' with the name '%s' - the route '%s %s' has already been registered with this name", route.getRouteType(), route.getRoute(),
-						name, existingRoute.getRouteType(), existingRoute.getRoute());
+				throw new RouteException(
+						"Unable to add the route '%s %s' with the name '%s' - the route '%s %s' has already been registered with this name. To override, you can remove the named route first.",
+						route.getMethod(), route.getRoute(), name, existingRoute.getMethod(), existingRoute.getRoute());
 			}
 			this.namedRoutes.put(name, route);
 		}
-		routesForRouteType.put(path, route);
+		routesForMethod.put(path, route);
 		this.actionsForRoutes.put(route, action);
 		return this;
 	}
 
-	public Route getRoute(String name) {
+	public Route getNamedRoute(String name) {
 		return namedRoutes.get(name);
 	}
 
@@ -140,8 +193,8 @@ public class Router {
 	}
 
 	public Route findMatchingRoute(String routePath, HttpMethod method) {
-		Map<String, Route> routesForRouteType = routes.get(method);
-		for (Route route : routesForRouteType.values()) {
+		Map<String, Route> routesForMethod = routes.get(method);
+		for (Route route : routesForMethod.values()) {
 			if (route.matches(routePath)) {
 				return route;
 			}
@@ -202,6 +255,29 @@ public class Router {
 			routesMap.put(type, new LinkedHashMap<String, Route>());
 		}
 		return routesMap;
+	}
+
+	private void remove(Route route) {
+		if (route != null) {
+			Map<String, Route> routesForMethod = this.routes.get(route.getMethod());
+			routesForMethod.remove(route.getRouteMatchRegex());
+			actionsForRoutes.remove(route);
+			if (route.getName() != null) {
+				namedRoutes.remove(route.getName());
+			}
+		}
+	}
+
+	private Route getRoute(HttpMethod method, String route) {
+		Map<String, Route> routesForMethod = this.routes.get(method);
+		if (routesForMethod != null) {
+			for (Route potentialRoute : routesForMethod.values()) {
+				if (potentialRoute.getRoute().equals(route)) {
+					return potentialRoute;
+				}
+			}
+		}
+		return null;
 	}
 
 }

@@ -41,14 +41,14 @@ public enum HttpMethod {
 
 	private static Map<String, HttpMethod> createLookup() {
 		Map<String, HttpMethod> map = new HashMap<String, HttpMethod>();
-		for (HttpMethod routeType : all) {
-			map.put(routeType.name(), routeType);
+		for (HttpMethod method : all) {
+			map.put(method.name(), method);
 		}
 
 		return map;
 	}
 
-	public static HttpMethod from(String routeType) {
-		return lookup.get(StringUtils.trimToEmpty(StringUtils.upperCase(routeType)));
+	public static HttpMethod from(String method) {
+		return lookup.get(StringUtils.trimToEmpty(StringUtils.upperCase(method)));
 	}
 }
