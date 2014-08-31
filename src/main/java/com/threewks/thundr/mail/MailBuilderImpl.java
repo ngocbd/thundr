@@ -17,9 +17,14 @@
  */
 package com.threewks.thundr.mail;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import com.threewks.thundr.view.file.Disposition;
+import com.threewks.thundr.view.file.FileView;
 
 public class MailBuilderImpl implements MailBuilder {
 	private Mailer mailer;
@@ -30,6 +35,7 @@ public class MailBuilderImpl implements MailBuilder {
 	private Map<String, String> cc = new HashMap<String, String>();
 	private Map<String, String> bcc = new HashMap<String, String>();
 	private Object body;
+	private List<Attachment> attachments = new ArrayList<Attachment>();
 
 	public MailBuilderImpl(Mailer mailer) {
 		this.mailer = mailer;
@@ -156,5 +162,21 @@ public class MailBuilderImpl implements MailBuilder {
 	@Override
 	public Map.Entry<String, String> replyTo() {
 		return replyTo.isEmpty() ? null : replyTo.entrySet().iterator().next();
+	}
+
+	@Override
+	public MailBuilder attach(FileView view) {
+		return this.attach(view.getFileName(), view, view.getDisposition());
+	}
+
+	@Override
+	public MailBuilder attach(String name, Object view, Disposition disposition) {
+		attachments.add(new Attachment(name, view, disposition));
+		return this;
+	}
+
+	@Override
+	public List<Attachment> attachments() {
+		return Collections.unmodifiableList(attachments);
 	}
 }

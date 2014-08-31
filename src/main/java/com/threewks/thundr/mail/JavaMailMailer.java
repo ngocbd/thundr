@@ -17,23 +17,34 @@
  */
 package com.threewks.thundr.mail;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.mail.Address;
+import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.InternetHeaders;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.atomicleopard.expressive.Expressive;
+import com.threewks.thundr.http.Header;
+import com.threewks.thundr.http.SyntheticHttpServletResponse;
 import com.threewks.thundr.view.ViewResolverRegistry;
+
+import jodd.util.Base64;
 
 /**
  * An implementation of {@link Mailer} which uses javax.mail.
@@ -45,8 +56,14 @@ public class JavaMailMailer extends BaseMailer {
 	}
 
 	@Override
+	protected void sendInternal(Entry<String, String> from, Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject, String content,
+			String contentType) {
+		sendInternal(from, replyTo, to, cc, bcc, subject, content, contentType, Collections.<Attachment> emptyList());
+	}
+
+	@Override
 	protected void sendInternal(Map.Entry<String, String> from, Map.Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject,
-			String content, String contentType) {
+			String content, String contentType, List<Attachment> attachments) {
 		try {
 			Session emailSession = Session.getDefaultInstance(new Properties());
 
@@ -57,7 +74,16 @@ public class JavaMailMailer extends BaseMailer {
 			}
 
 			message.setSubject(subject);
-			message.setContent(content, contentType);
+
+			if (Expressive.isEmpty(attachments)) {
+				message.setContent(content, contentType);
+			} else {
+				Multipart multipart = new MimeMultipart("mixed"); // subtype must be "mixed" or inline & regular attachments won't play well together
+				addBody(multipart, content, contentType);
+				addAttachments(multipart, attachments);
+				message.setContent(multipart);
+			}
+
 			addRecipients(to, message, RecipientType.TO);
 			addRecipients(cc, message, RecipientType.CC);
 			addRecipients(bcc, message, RecipientType.BCC);
@@ -72,11 +98,38 @@ public class JavaMailMailer extends BaseMailer {
 		Transport.send(message);
 	}
 
+	private void addBody(Multipart multipart, String content, String contentType) throws MessagingException {
+		BodyPart messageBodyPart = new MimeBodyPart();
+		messageBodyPart.setContent(content, contentType);
+		multipart.addBodyPart(messageBodyPart);
+	}
+
 	private void addRecipients(Map<String, String> to, Message message, RecipientType recipientType) throws MessagingException {
 		if (Expressive.isNotEmpty(to)) {
 			for (Entry<String, String> recipient : to.entrySet()) {
 				message.setRecipient(recipientType, emailAddress(recipient));
 			}
+		}
+	}
+
+	private void addAttachments(Multipart multipart, List<Attachment> attachments) throws MessagingException {
+		for (Attachment attachment : attachments) {
+			SyntheticHttpServletResponse response = render(attachment.view());
+			byte[] base64Encoded = Base64.encodeToByte(response.getRawOutput());
+
+			InternetHeaders headers = new InternetHeaders();
+			headers.addHeader(Header.ContentType, response.getContentType());
+			headers.addHeader(Header.ContentTransferEncoding, "base64");
+
+			MimeBodyPart part = new MimeBodyPart(headers, base64Encoded);
+			part.setFileName(attachment.name());
+			part.setDisposition(attachment.disposition().getValue());
+
+			if (attachment.isInline()) {
+				part.setContentID(attachment.contentId());
+			}
+
+			multipart.addBodyPart(part);
 		}
 	}
 

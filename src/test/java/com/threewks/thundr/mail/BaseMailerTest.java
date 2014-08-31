@@ -17,6 +17,7 @@
  */
 package com.threewks.thundr.mail;
 
+import static com.atomicleopard.expressive.Expressive.list;
 import static com.threewks.thundr.mail.MailBuilderImplTest.entry;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -44,12 +45,14 @@ import com.threewks.thundr.http.RequestThreadLocal;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.view.ViewResolver;
 import com.threewks.thundr.view.ViewResolverRegistry;
+import com.threewks.thundr.view.file.Disposition;
 import com.threewks.thundr.view.string.StringView;
 import com.threewks.thundr.view.string.StringViewResolver;
 
 public class BaseMailerTest {
 
-	@Rule public ExpectedException thrown = ExpectedException.none();
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 	private ViewResolverRegistry viewResolverRegistry = new ViewResolverRegistry();
 	private BaseMailer mailer = spy(new BaseMailer(viewResolverRegistry) {
 		@Override
@@ -232,6 +235,19 @@ public class BaseMailerTest {
 		assertThat(req.getAttribute("initial"), is((Object) "value"));
 		assertThat(req.getAttribute("updated"), is((Object) 1));
 
+	}
+
+	@Test
+	public void shouldThrowUnsupportedOperationExceptionWhenAttachementsIncluded() {
+		thrown.expect(UnsupportedOperationException.class);
+
+		MailBuilder builder = mock(MailBuilder.class);
+		when(builder.from()).thenReturn(entry("sender@email.com"));
+		when(builder.to()).thenReturn(email("recipient@email.com"));
+		when(builder.body()).thenReturn(new StringView("Email body").withContentType(null));
+		when(builder.subject()).thenReturn("Subject line");
+		when(builder.attachments()).thenReturn(list(new Attachment("name", "view", Disposition.Inline)));
+		mailer.send(builder);
 	}
 
 	public static final Map<String, String> email(String email) {

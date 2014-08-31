@@ -59,13 +59,20 @@ public abstract class BaseMailer implements Mailer {
 		validateRecipients(to, cc, bcc);
 
 		try {
-			SyntheticHttpServletResponse syntheticResponse = renderContent(mailBuilder);
-			String content = syntheticResponse.getResponseContent();
+			SyntheticHttpServletResponse syntheticResponse = render(mailBuilder.body());
+			String content = syntheticResponse.getOutput();
 			String contentType = syntheticResponse.getContentType();
 			contentType = ContentType.cleanContentType(contentType);
 			contentType = StringUtils.isBlank(contentType) ? ContentType.TextHtml.value() : contentType;
+			List<Attachment> attachments = mailBuilder.attachments();
 
-			sendInternal(from, replyTo, to, cc, bcc, subject, content, contentType);
+			if (attachments.size() > 0) {
+				sendInternal(from, replyTo, to, cc, bcc, subject, content, contentType, attachments);
+			} else {
+				sendInternal(from, replyTo, to, cc, bcc, subject, content, contentType);
+			}
+		} catch (UnsupportedOperationException e) {
+			throw e;
 		} catch (MailException e) {
 			throw e;
 		} catch (Exception e) {
@@ -73,20 +80,19 @@ public abstract class BaseMailer implements Mailer {
 		}
 	}
 
-	protected SyntheticHttpServletResponse renderContent(MailBuilder mailBuilder) {
+	protected SyntheticHttpServletResponse render(Object view) {
 		/*
 		 * Wrapping the request is highly sensitive to the container implementation.
 		 * For example, while the Servlet include interface specifies we can pass in a {@link ServletRequestWrapper},
 		 * Jetty is having none of it. To avoid ramifications across different application servers, we just reuse the
 		 * originating request. To help avoid issues, we restore all attributes after the response is rendered.
 		 */
-		Object body = mailBuilder.body();
 		SyntheticHttpServletResponse resp = new SyntheticHttpServletResponse();
 		HttpServletRequest req = RequestThreadLocal.getRequest();
 		Map<String, Object> attributes = getAttributes(req); // save the current set of request attributes
 		try {
-			ViewResolver<Object> viewResolver = viewResolverRegistry.findViewResolver(body);
-			viewResolver.resolve(req, resp, body);
+			ViewResolver<Object> viewResolver = viewResolverRegistry.findViewResolver(view);
+			viewResolver.resolve(req, resp, view);
 		} catch (Exception e) {
 			throw new MailException(e, "Failed to render email body: %s", e.getMessage());
 		} finally {
@@ -97,6 +103,11 @@ public abstract class BaseMailer implements Mailer {
 
 	protected abstract void sendInternal(Entry<String, String> from, Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject,
 			String content, String contentType);
+
+	protected void sendInternal(Entry<String, String> from, Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject,
+			String content, String contentType, List<Attachment> attachments) {
+		throw new UnsupportedOperationException(String.format("%s does not support attachments.", getClass().getSimpleName()));
+	}
 
 	protected void validateRecipients(Map<String, String> to, Map<String, String> cc, Map<String, String> bcc) {
 		if (Expressive.isEmpty(to) && Expressive.isEmpty(cc) && Expressive.isEmpty(bcc)) {

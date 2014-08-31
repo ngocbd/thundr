@@ -43,7 +43,7 @@ public class SyntheticHttpServletResponseTest {
 		ServletOutputStream outputStream = syntheticHttpServletResponse.getOutputStream();
 		outputStream.write("This is my test string".getBytes("UTF-8"));
 
-		assertThat(syntheticHttpServletResponse.getResponseContent(), is("This is my test string"));
+		assertThat(syntheticHttpServletResponse.getOutput(), is("This is my test string"));
 	}
 
 	@Test
@@ -51,7 +51,7 @@ public class SyntheticHttpServletResponseTest {
 		PrintWriter writer = syntheticHttpServletResponse.getWriter();
 		writer.print("This is my test string");
 
-		assertThat(syntheticHttpServletResponse.getResponseContent(), is("This is my test string"));
+		assertThat(syntheticHttpServletResponse.getOutput(), is("This is my test string"));
 	}
 
 	@Test
@@ -61,7 +61,7 @@ public class SyntheticHttpServletResponseTest {
 		ServletOutputStream outputStream = syntheticHttpServletResponse.getOutputStream();
 		outputStream.write("This is my test string".getBytes("ISO-8859-1"));
 
-		assertThat(syntheticHttpServletResponse.getResponseContent(), is("This is my test string"));
+		assertThat(syntheticHttpServletResponse.getOutput(), is("This is my test string"));
 	}
 
 	@Test
@@ -71,7 +71,7 @@ public class SyntheticHttpServletResponseTest {
 		PrintWriter writer = syntheticHttpServletResponse.getWriter();
 		writer.print("This is my test string");
 
-		assertThat(syntheticHttpServletResponse.getResponseContent(), is("This is my test string"));
+		assertThat(syntheticHttpServletResponse.getOutput(), is("This is my test string"));
 	}
 
 	@Test
@@ -141,7 +141,7 @@ public class SyntheticHttpServletResponseTest {
 		outputStream.print(123);
 		outputStream.print(true);
 
-		assertThat(syntheticHttpServletResponse.getResponseContent(), is("This is my test string and other ways 123true"));
+		assertThat(syntheticHttpServletResponse.getOutput(), is("This is my test string and other ways 123true"));
 	}
 
 	@Test
@@ -152,7 +152,7 @@ public class SyntheticHttpServletResponseTest {
 		ServletOutputStream outputStream = syntheticHttpServletResponse.getOutputStream();
 		outputStream.write("This is my test string".getBytes("UTF-8"));
 		syntheticHttpServletResponse.setCharacterEncoding("UTF-7");
-		syntheticHttpServletResponse.getResponseContent();
+		syntheticHttpServletResponse.getOutput();
 	}
 
 	@Test
@@ -216,14 +216,14 @@ public class SyntheticHttpServletResponseTest {
 		assertThat(syntheticHttpServletResponse.containsHeader("date"), is(false));
 		assertThat(syntheticHttpServletResponse.containsHeader("int"), is(false));
 
-		assertThat(syntheticHttpServletResponse.getResponseContent(), is(""));
+		assertThat(syntheticHttpServletResponse.getOutput(), is(""));
 	}
 
 	@Test
 	public void shouldNoopOnSettingStatus() {
 		syntheticHttpServletResponse.setStatus(123);
 		syntheticHttpServletResponse.setStatus(456, "message");
-		assertThat(syntheticHttpServletResponse.getResponseContent(), is(""));
+		assertThat(syntheticHttpServletResponse.getOutput(), is(""));
 	}
 
 	@Test
@@ -231,7 +231,7 @@ public class SyntheticHttpServletResponseTest {
 		syntheticHttpServletResponse.addCookie(Cookies.build("cookie").withValue("value").build());
 
 		assertThat(syntheticHttpServletResponse.containsHeader(Header.SetCookie), is(false));
-		assertThat(syntheticHttpServletResponse.getResponseContent(), is(""));
+		assertThat(syntheticHttpServletResponse.getOutput(), is(""));
 	}
 
 	@Test
@@ -244,7 +244,7 @@ public class SyntheticHttpServletResponseTest {
 		syntheticHttpServletResponse.flushBuffer();
 		syntheticHttpServletResponse.setContentLength(1);
 
-		assertThat(syntheticHttpServletResponse.getResponseContent(), is("Output content"));
+		assertThat(syntheticHttpServletResponse.getOutput(), is("Output content"));
 	}
 
 	@Test

@@ -19,6 +19,7 @@ package com.threewks.thundr.http;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -28,12 +29,12 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
-import jodd.util.StringPool;
-import jodd.util.URLCoder;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.threewks.thundr.exception.BaseException;
+
+import jodd.util.StringPool;
+import jodd.util.URLCoder;
 
 public class SyntheticHttpServletResponse implements HttpServletResponse {
 	private String contentType = ContentType.TextHtml.value();
@@ -61,19 +62,21 @@ public class SyntheticHttpServletResponse implements HttpServletResponse {
 	 * 
 	 * @return
 	 */
-	public String getResponseContent() {
+	public String getOutput() {
 		try {
-			if (writer != null) {
-				writer.flush();
-				writer.close();
-			}
-			os.flush();
-			return baos.toString(characterEncoding);
+			return getResponseContentInternal().toString(characterEncoding);
 		} catch (UnsupportedEncodingException e) {
 			throw new BaseException(e, "Failed to get output, this platform does not support the specified character encoding '%s': %s", characterEncoding, e.getMessage());
-		} catch (IOException e) {
-			throw new BaseException(e, "Failed to get output, could not flush a ByteArrayOutputStream!: ", e.getMessage());
 		}
+	}
+
+	/**
+	 * Returns the raw output in this synthetic response.
+	 * 
+	 * @return
+	 */
+	public byte[] getRawOutput() {
+		return getResponseContentInternal().toByteArray();
 	}
 
 	@Override
@@ -250,4 +253,16 @@ public class SyntheticHttpServletResponse implements HttpServletResponse {
 		return fromCode == null ? null : fromCode.getReason();
 	}
 
+	private ByteArrayOutputStream getResponseContentInternal() {
+		try {
+			if (writer != null) {
+				writer.flush();
+				writer.close();
+			}
+			os.flush();
+			return baos;
+		} catch (IOException e) {
+			throw new BaseException(e, "Failed to get output, could not flush a ByteArrayOutputStream!: %s", e.getMessage());
+		}
+	}
 }

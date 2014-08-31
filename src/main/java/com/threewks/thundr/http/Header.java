@@ -33,10 +33,11 @@ public class Header {
 	public static final String AcceptEncoding = "Accept-Encoding";
 	public static final String Authorization = "Authorization";
 	public static final String CacheControl = "Cache-Control";
-	public static final String ContentLength = "Content-Length";
-	public static final String ContentType = "Content-Type";
 	public static final String ContentDisposition = "Content-Disposition";
 	public static final String ContentEncoding = "Content-Encoding";
+	public static final String ContentLength = "Content-Length";
+	public static final String ContentTransferEncoding = "Content-Transfer-Encoding";
+	public static final String ContentType = "Content-Type";
 	public static final String Expires = "Expires";
 	public static final String IfModifiedSince = "If-Modified-Since";
 	public static final String LastModified = "Last-Modified";
@@ -46,6 +47,7 @@ public class Header {
 	public static final String SetCookie2 = "Set-Cookie2";
 	public static final String UserAgent = "User-Agent";
 	public static final String XHttpMethodOverride = "X-HTTP-Method-Override";
+	
 	
 	@SuppressWarnings("unchecked")
 	public static Map<String, List<String>> getHeaderMap(HttpServletRequest req) {

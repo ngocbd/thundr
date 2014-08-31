@@ -29,8 +29,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.RequestThreadLocal;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
+import com.threewks.thundr.view.file.FileView;
 
 public class MailBuilderImplTest {
 
@@ -138,6 +140,16 @@ public class MailBuilderImplTest {
 		builder.body("String");
 
 		assertThat(builder.<String> body(), is("String"));
+	}
+
+	@Test
+	public void shouldAddAttachments() throws Exception {
+		builder.attach(new FileView("test.txt", new byte[] {}, ContentType.TextPlain.value()));
+		builder.attach(new FileView("nyan.png", new byte[] {}, ContentType.ImagePng.value()));
+
+		assertThat(builder.attachments().size(), is(2));
+		assertThat(builder.attachments().get(0).name(), is("test.txt"));
+		assertThat(builder.attachments().get(1).name(), is("nyan.png"));
 	}
 
 	@Test
