@@ -17,18 +17,18 @@
  */
 package com.threewks.thundr.bind.http;
 
-import com.threewks.thundr.bind.parameter.InputStreamBinaryParameterBinder;
-import com.threewks.thundr.http.MultipartFile;
-import com.threewks.thundr.introspection.ParameterDescription;
-import org.junit.Test;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import org.junit.Test;
+
+import com.threewks.thundr.bind.parameter.InputStreamBinaryParameterBinder;
+import com.threewks.thundr.http.MultipartFile;
+import com.threewks.thundr.introspection.ParameterDescription;
 
 public class InputStreamBinaryParameterBinderTest {
 

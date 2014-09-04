@@ -17,6 +17,7 @@
  */
 package com.threewks.thundr.http;
 
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,6 +40,7 @@ public enum ContentType {
 	ApplicationXmlDtd("application/xml-dtd"),
 	ApplicationSoapXml("application/soap+xml"),
 	MultipartFormData("multipart/form-data"),
+	MultipartMixed("multipart/mixed"),
 	ImageJpeg("image/jpeg"),
 	ImageGif("image/gif"),
 	ImagePng("image/png"),
@@ -94,7 +96,11 @@ public enum ContentType {
 		return null;
 	}
 
-	public static boolean anyMatch(Iterable<ContentType> types, String contentType) {
+	public static boolean matchesAny(String contentType, ContentType... types) {
+		return matchesAny(contentType, Arrays.asList(types));
+	}
+
+	public static boolean matchesAny(String contentType, Iterable<ContentType> types) {
 		contentType = cleanContentType(contentType);
 		for (ContentType supported : types) {
 			if (StringUtils.equalsIgnoreCase(supported.value, contentType)) {

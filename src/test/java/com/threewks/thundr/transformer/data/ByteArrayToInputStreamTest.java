@@ -15,27 +15,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.bind;
+package com.threewks.thundr.transformer.data;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
+import java.io.InputStream;
+
 import org.junit.Test;
 
-public class BindExceptionTest {
+import com.threewks.thundr.util.Streams;
+
+public class ByteArrayToInputStreamTest {
+	private ByteArrayToInputStream transformer = new ByteArrayToInputStream();
 
 	@Test
-	public void shouldHaveAMessageCtor() {
-		BindException e = new BindException("Message: %s", "expected");
-		assertThat(e.getCause(), is(nullValue()));
-		assertThat(e.getMessage(), is("Message: expected"));
+	public void shouldTransformByteArrayToInputStream() {
+		assertThat(transformer.from(null), is(nullValue()));
+		validateInputStreamContents(transformer.from(new byte[0]), new byte[0]);
+		validateInputStreamContents(transformer.from(new byte[] { 1, 2, 3 }), new byte[] { 1, 2, 3 });
 	}
 
-	@Test
-	public void shouldHaveCauseAndMessageCtor() {
-		Exception cause = new RuntimeException();
-		BindException e = new BindException(cause, "Message: %s", "expected");
-		assertThat(e.getCause(), is((Throwable) cause));
-		assertThat(e.getMessage(), is("Message: expected"));
+	private void validateInputStreamContents(InputStream is, byte[] expected) {
+		byte[] readBytes = Streams.readBytes(is);
+		assertThat(readBytes, is(expected));
 	}
 }

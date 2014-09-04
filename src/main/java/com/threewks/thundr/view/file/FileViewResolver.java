@@ -32,7 +32,7 @@ public class FileViewResolver implements ViewResolver<FileView> {
 	public void resolve(HttpServletRequest req, HttpServletResponse resp, FileView viewResult) {
 		try {
 			ServletOutputStream outputStream = resp.getOutputStream();
-			resp.addHeader(Header.ContentDisposition, String.format("%s; filename=%s", viewResult.getDisposition().getValue(), viewResult.getFileName()));
+			resp.addHeader(Header.ContentDisposition, String.format("%s; filename=%s", viewResult.getDisposition().value(), viewResult.getFileName()));
 			BaseView.applyToResponse(viewResult, resp);
 			Streams.copy(viewResult.getData(), outputStream);
 			outputStream.flush();

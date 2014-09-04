@@ -17,23 +17,12 @@
  */
 package com.threewks.thundr.mail;
 
-import static com.atomicleopard.expressive.Expressive.*;
-
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.atomicleopard.expressive.Expressive;
-import com.threewks.thundr.http.ContentType;
-import com.threewks.thundr.http.RequestThreadLocal;
-import com.threewks.thundr.http.SyntheticHttpServletResponse;
-import com.threewks.thundr.view.ViewResolver;
+import com.threewks.thundr.view.BasicViewRenderer;
 import com.threewks.thundr.view.ViewResolverRegistry;
 
 public abstract class BaseMailer implements Mailer {
@@ -59,20 +48,7 @@ public abstract class BaseMailer implements Mailer {
 		validateRecipients(to, cc, bcc);
 
 		try {
-			SyntheticHttpServletResponse syntheticResponse = render(mailBuilder.body());
-			String content = syntheticResponse.getOutput();
-			String contentType = syntheticResponse.getContentType();
-			contentType = ContentType.cleanContentType(contentType);
-			contentType = StringUtils.isBlank(contentType) ? ContentType.TextHtml.value() : contentType;
-			List<Attachment> attachments = mailBuilder.attachments();
-
-			if (attachments.size() > 0) {
-				sendInternal(from, replyTo, to, cc, bcc, subject, content, contentType, attachments);
-			} else {
-				sendInternal(from, replyTo, to, cc, bcc, subject, content, contentType);
-			}
-		} catch (UnsupportedOperationException e) {
-			throw e;
+			sendInternal(from, replyTo, to, cc, bcc, subject, mailBuilder.body(), mailBuilder.attachments());
 		} catch (MailException e) {
 			throw e;
 		} catch (Exception e) {
@@ -80,34 +56,18 @@ public abstract class BaseMailer implements Mailer {
 		}
 	}
 
-	protected SyntheticHttpServletResponse render(Object view) {
-		/*
-		 * Wrapping the request is highly sensitive to the container implementation.
-		 * For example, while the Servlet include interface specifies we can pass in a {@link ServletRequestWrapper},
-		 * Jetty is having none of it. To avoid ramifications across different application servers, we just reuse the
-		 * originating request. To help avoid issues, we restore all attributes after the response is rendered.
-		 */
-		SyntheticHttpServletResponse resp = new SyntheticHttpServletResponse();
-		HttpServletRequest req = RequestThreadLocal.getRequest();
-		Map<String, Object> attributes = getAttributes(req); // save the current set of request attributes
+	protected BasicViewRenderer render(Object view) {
 		try {
-			ViewResolver<Object> viewResolver = viewResolverRegistry.findViewResolver(view);
-			viewResolver.resolve(req, resp, view);
+			BasicViewRenderer basicViewRenderer = new BasicViewRenderer(viewResolverRegistry);
+			basicViewRenderer.render(view);
+			return basicViewRenderer;
 		} catch (Exception e) {
-			throw new MailException(e, "Failed to render email body: %s", e.getMessage());
-		} finally {
-			setAttributes(req, attributes); // reapply the attributes, removing any new ones
+			throw new MailException(e, "Failed to render email part: %s", e.getMessage());
 		}
-		return resp;
 	}
 
 	protected abstract void sendInternal(Entry<String, String> from, Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject,
-			String content, String contentType);
-
-	protected void sendInternal(Entry<String, String> from, Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject,
-			String content, String contentType, List<Attachment> attachments) {
-		throw new UnsupportedOperationException(String.format("%s does not support attachments.", getClass().getSimpleName()));
-	}
+			Object body, List<Attachment> attachments);
 
 	protected void validateRecipients(Map<String, String> to, Map<String, String> cc, Map<String, String> bcc) {
 		if (Expressive.isEmpty(to) && Expressive.isEmpty(cc) && Expressive.isEmpty(bcc)) {
@@ -118,27 +78,6 @@ public abstract class BaseMailer implements Mailer {
 	protected void validateFrom(Entry<String, String> from) {
 		if (from == null || from.getKey() == null) {
 			throw new MailException("No sender has been set for this email");
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private Map<String, Object> getAttributes(HttpServletRequest request) {
-		Map<String, Object> attributes = new HashMap<String, Object>();
-		if (request != null) {
-			for (String name : iterable((Enumeration<String>) request.getAttributeNames())) {
-				attributes.put(name, request.getAttribute(name));
-			}
-		}
-		return attributes;
-	}
-
-	@SuppressWarnings("unchecked")
-	private void setAttributes(HttpServletRequest request, Map<String, Object> attributes) {
-		if (request != null) {
-			List<String> allNames = list(iterable(request.getAttributeNames())).addItems(attributes.keySet());
-			for (String name : allNames) {
-				request.setAttribute(name, attributes.get(name));
-			}
 		}
 	}
 }

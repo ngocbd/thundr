@@ -45,9 +45,7 @@ public class RouteRedirectViewResolver implements ViewResolver<RouteRedirectView
 		}
 		String reverseRoute = getReverseRoute(viewResult, route);
 		String queryString = URLEncoder.encodeQueryString(viewResult.getQueryParameters());
-		if (queryString.length() > 1) {
-			reverseRoute += queryString;
-		}
+		reverseRoute += queryString;
 		try {
 			resp.sendRedirect(reverseRoute);
 		} catch (IOException e) {

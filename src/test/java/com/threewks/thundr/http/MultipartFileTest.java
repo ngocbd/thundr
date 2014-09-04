@@ -15,27 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.bind;
+package com.threewks.thundr.http;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-public class BindExceptionTest {
-
+public class MultipartFileTest {
 	@Test
-	public void shouldHaveAMessageCtor() {
-		BindException e = new BindException("Message: %s", "expected");
-		assertThat(e.getCause(), is(nullValue()));
-		assertThat(e.getMessage(), is("Message: expected"));
-	}
-
-	@Test
-	public void shouldHaveCauseAndMessageCtor() {
-		Exception cause = new RuntimeException();
-		BindException e = new BindException(cause, "Message: %s", "expected");
-		assertThat(e.getCause(), is((Throwable) cause));
-		assertThat(e.getMessage(), is("Message: expected"));
+	public void shouldRetainValuesOnConstruction() {
+		MultipartFile file = new MultipartFile("name", new byte[] { 1, 2, 3 }, "content-type");
+		assertThat(file.getName(), is("name"));
+		assertThat(file.getData(), is(new byte[] { 1, 2, 3 }));
+		assertThat(file.getContentType(), is("content-type"));
 	}
 }

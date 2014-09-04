@@ -54,4 +54,24 @@ public class AttachmentTest {
 		assertThat(new Attachment("<name", "view", Disposition.Inline).contentId(), is("<name>"));
 		assertThat(new Attachment("name and more", "view", Disposition.Inline).contentId(), is("<name and more>"));
 	}
+
+	@Test
+	public void shouldHaveEqualityAndHashcodeOnAllPropertues() {
+		Attachment attachment1 = new Attachment("name", "view", Disposition.Inline);
+		Attachment attachment2 = new Attachment("name", "view", Disposition.Inline);
+		Attachment attachment3 = new Attachment("name2", "view", Disposition.Inline);
+		Attachment attachment4 = new Attachment("name", "view2", Disposition.Inline);
+		Attachment attachment5 = new Attachment("name", "view", Disposition.Attachment);
+
+		assertThat(attachment1.equals(attachment2), is(true));
+		assertThat(attachment2.equals(attachment1), is(true));
+		assertThat(attachment1.equals(attachment3), is(false));
+		assertThat(attachment1.equals(attachment4), is(false));
+		assertThat(attachment1.equals(attachment5), is(false));
+
+		assertThat(attachment1.hashCode() == attachment2.hashCode(), is(true));
+		assertThat(attachment1.hashCode() == attachment3.hashCode(), is(false));
+		assertThat(attachment1.hashCode() == attachment4.hashCode(), is(false));
+		assertThat(attachment1.hashCode() == attachment5.hashCode(), is(false));
+	}
 }

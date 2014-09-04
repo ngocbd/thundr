@@ -15,27 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.bind;
+package com.threewks.thundr.transformer.data;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import java.io.InputStream;
 
-import org.junit.Test;
+import com.atomicleopard.expressive.ETransformer;
+import com.threewks.thundr.util.Streams;
 
-public class BindExceptionTest {
+public class InputStreamToByteArray implements ETransformer<InputStream, byte[]> {
 
-	@Test
-	public void shouldHaveAMessageCtor() {
-		BindException e = new BindException("Message: %s", "expected");
-		assertThat(e.getCause(), is(nullValue()));
-		assertThat(e.getMessage(), is("Message: expected"));
+	@Override
+	public byte[] from(InputStream from) {
+		return from == null ? null : Streams.readBytes(from);
 	}
 
-	@Test
-	public void shouldHaveCauseAndMessageCtor() {
-		Exception cause = new RuntimeException();
-		BindException e = new BindException(cause, "Message: %s", "expected");
-		assertThat(e.getCause(), is((Throwable) cause));
-		assertThat(e.getMessage(), is("Message: expected"));
-	}
 }

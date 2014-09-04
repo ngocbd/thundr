@@ -17,6 +17,9 @@
  */
 package com.threewks.thundr.mail;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import com.threewks.thundr.view.file.Disposition;
 
 import jodd.util.StringUtil;
@@ -88,5 +91,15 @@ public class Attachment {
 	 */
 	public boolean isInline() {
 		return disposition == Disposition.Inline;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return EqualsBuilder.reflectionEquals(this, obj, false);
+	}
+
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this, false);
 	}
 }

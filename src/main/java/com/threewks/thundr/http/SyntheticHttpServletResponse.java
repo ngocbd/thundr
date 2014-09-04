@@ -19,11 +19,12 @@ package com.threewks.thundr.http;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
@@ -39,6 +40,7 @@ import jodd.util.URLCoder;
 public class SyntheticHttpServletResponse implements HttpServletResponse {
 	private String contentType = ContentType.TextHtml.value();
 	private String characterEncoding = StringPool.UTF_8;
+	private Map<String, String> headers = new LinkedHashMap<>();
 	private ByteArrayOutputStream baos = new ByteArrayOutputStream();
 	private ServletOutputStream os = new ServletOutputStream() {
 		@Override
@@ -170,7 +172,7 @@ public class SyntheticHttpServletResponse implements HttpServletResponse {
 
 	@Override
 	public boolean containsHeader(String name) {
-		return false;
+		return headers.containsKey(name);
 	}
 
 	@Override
@@ -210,32 +212,32 @@ public class SyntheticHttpServletResponse implements HttpServletResponse {
 
 	@Override
 	public void setDateHeader(String name, long date) {
-		// noop
+		headers.put(name, date + "");
 	}
 
 	@Override
 	public void addDateHeader(String name, long date) {
-		// noop
+		headers.put(name, date + "");
 	}
 
 	@Override
 	public void setHeader(String name, String value) {
-		// noop
+		headers.put(name, value);
 	}
 
 	@Override
 	public void addHeader(String name, String value) {
-		// noop
+		headers.put(name, value);
 	}
 
 	@Override
 	public void setIntHeader(String name, int value) {
-		// noop
+		headers.put(name, value + "");
 	}
 
 	@Override
 	public void addIntHeader(String name, int value) {
-		// noop
+		headers.put(name, value + "");
 	}
 
 	@Override
@@ -264,5 +266,14 @@ public class SyntheticHttpServletResponse implements HttpServletResponse {
 		} catch (IOException e) {
 			throw new BaseException(e, "Failed to get output, could not flush a ByteArrayOutputStream!: %s", e.getMessage());
 		}
+	}
+
+	public String getHeader(String header) {
+		for (String head : headers.keySet()) {
+			if (head.equalsIgnoreCase(header)) {
+				return headers.get(head);
+			}
+		}
+		return null;
 	}
 }

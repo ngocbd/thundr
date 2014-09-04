@@ -17,20 +17,25 @@
  */
 package com.threewks.thundr.http;
 
+import static com.atomicleopard.expressive.Expressive.list;
 import static com.threewks.thundr.http.URLEncoder.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
-;
-public class URLEncoderTest {
+import com.atomicleopard.expressive.ETransformer;
+import com.atomicleopard.expressive.Expressive;
+import com.threewks.thundr.transformer.TransformerManager;
 
+public class URLEncoderTest {
 	@Test
 	public void shouldEncodeQueryComponent() {
 		// basic whitespace and empty values
@@ -140,9 +145,54 @@ public class URLEncoderTest {
 		assertThat(encodeQueryString(paramMap("param1", "value1", "param2", new DateTime(2014, 1, 30, 12, 0, 0, 0).withZoneRetainFields(DateTimeZone.UTC))),
 				is("?param1=value1&param2=2014-01-30T12%3A00%3A00.000Z"));
 
+		// basic null and empty values
+		assertThat(encodeQueryString(null), is(""));
+		assertThat(encodeQueryString(paramMap()), is(""));
+	}
+
+	@Test
+	public void shouldEncodeQueryParametersUsingGivenTransformerManager() {
+		TransformerManager transformerManager = TransformerManager.createEmpty();
+		transformerManager.register(Integer.class, String.class, new ETransformer<Integer, String>() {
+			@Override
+			public String from(Integer from) {
+				return "map+ped";
+			}
+		});
+
+		assertThat(encodeQueryString(paramMap("param", 2), transformerManager), is("?param=map%2Bped"));
+		assertThat(encodeQueryString(paramMap("param", 2, "param2", 5), transformerManager), is("?param=map%2Bped&param2=map%2Bped"));
+
+		// basic null and empty values
+		assertThat(encodeQueryString(null, transformerManager), is(""));
+		assertThat(encodeQueryString(paramMap(), transformerManager), is(""));
+	}
+
+	@Test
+	public void shouldDeccodeQueryParameters() {
+		assertThat(decodeQueryString("?param1=value1&param2=2"), is(queryParamMap("param1", list("value1"), "param2", list("2"))));
+		assertThat(decodeQueryString("?par%20am1=val%20ue1&param2=2"), is(queryParamMap("par am1", list("val ue1"), "param2", list("2"))));
+		assertThat(decodeQueryString("?par%3Dam1=val%3Due1&param2=2"), is(queryParamMap("par=am1", list("val=ue1"), "param2", list("2"))));
+		assertThat(decodeQueryString("?par%26am1=val%26ue1&param2=2"), is(queryParamMap("par&am1", list("val&ue1"), "param2", list("2"))));
+		assertThat(decodeQueryString("?param1=value1&param2="), is(queryParamMap("param1", list("value1"), "param2", Collections.singletonList(null))));
+		assertThat(decodeQueryString("?param1=value1&param2=2014-01-30T12%3A00%3A00.000Z"), is(queryParamMap("param1", list("value1"), "param2", list("2014-01-30T12:00:00.000Z"))));
+		assertThat(decodeQueryString("param1=value1&param2=2"), is(queryParamMap("param1", list("value1"), "param2", list("2"))));
+		assertThat(decodeQueryString("par%20am1=val%20ue1&param2=2"), is(queryParamMap("par am1", list("val ue1"), "param2", list("2"))));
+		assertThat(decodeQueryString("par%3Dam1=val%3Due1&param2=2"), is(queryParamMap("par=am1", list("val=ue1"), "param2", list("2"))));
+		assertThat(decodeQueryString("par%26am1=val%26ue1&param2=2"), is(queryParamMap("par&am1", list("val&ue1"), "param2", list("2"))));
+		assertThat(decodeQueryString("param1=value1&param2="), is(queryParamMap("param1", list("value1"), "param2", Collections.singletonList(null))));
+		assertThat(decodeQueryString("param1=value1&param2=2014-01-30T12%3A00%3A00.000Z"), is(queryParamMap("param1", list("value1"), "param2", list("2014-01-30T12:00:00.000Z"))));
+
+		assertThat(decodeQueryString("param1=value1&param1=value2&param1="), is(queryParamMap("param1", list("value1", "value2", null))));
+
 		// basic whitespace and empty values
-		assertThat(encodeQueryString(null), is("?"));
-		assertThat(encodeQueryString(paramMap()), is("?"));
+		assertThat(decodeQueryString(null), is(queryParamMap()));
+		assertThat(decodeQueryString(""), is(queryParamMap()));
+		assertThat(decodeQueryString("?"), is(queryParamMap()));
+	}
+
+	private Map<String, List<String>> queryParamMap(Object... values) {
+		return Expressive.map(values);
 	}
 
 	private Map<String, Object> paramMap(Object... values) {

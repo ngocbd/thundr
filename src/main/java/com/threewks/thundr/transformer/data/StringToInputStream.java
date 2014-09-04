@@ -15,27 +15,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.bind;
+package com.threewks.thundr.transformer.data;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
-import org.junit.Test;
+import com.atomicleopard.expressive.ETransformer;
+import com.threewks.thundr.exception.BaseException;
 
-public class BindExceptionTest {
+public class StringToInputStream implements ETransformer<String, InputStream> {
+	private String encoding = "UTF-8";
 
-	@Test
-	public void shouldHaveAMessageCtor() {
-		BindException e = new BindException("Message: %s", "expected");
-		assertThat(e.getCause(), is(nullValue()));
-		assertThat(e.getMessage(), is("Message: expected"));
+	@Override
+	public InputStream from(String from) {
+		if (from == null) {
+			return null;
+		}
+		try {
+			byte[] bytes = from.getBytes(encoding);
+			return new ByteArrayInputStream(bytes);
+		} catch (UnsupportedEncodingException e) {
+			throw new BaseException(e, "Failed to get byte data from string: %s", e.getMessage());
+		}
 	}
 
-	@Test
-	public void shouldHaveCauseAndMessageCtor() {
-		Exception cause = new RuntimeException();
-		BindException e = new BindException(cause, "Message: %s", "expected");
-		assertThat(e.getCause(), is((Throwable) cause));
-		assertThat(e.getMessage(), is("Message: expected"));
-	}
 }

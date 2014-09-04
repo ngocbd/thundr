@@ -47,6 +47,14 @@ public class SyntheticHttpServletResponseTest {
 	}
 
 	@Test
+	public void shouldCaptureOutputAsBytes() throws IOException {
+		ServletOutputStream outputStream = syntheticHttpServletResponse.getOutputStream();
+		outputStream.write("This is my test string".getBytes("UTF-8"));
+
+		assertThat(syntheticHttpServletResponse.getRawOutput(), is("This is my test string".getBytes("UTF-8")));
+	}
+
+	@Test
 	public void shouldCaptureBasicPrintWriterContent() throws IOException {
 		PrintWriter writer = syntheticHttpServletResponse.getWriter();
 		writer.print("This is my test string");
@@ -201,21 +209,36 @@ public class SyntheticHttpServletResponseTest {
 	}
 
 	@Test
-	public void shouldNoopOnSettingOfHeaders() {
+	public void shouldSetHeaders() {
+		assertThat(syntheticHttpServletResponse.getHeader("not there"), is(nullValue()));
+		
 		syntheticHttpServletResponse.setHeader("name", "value");
 		syntheticHttpServletResponse.setDateHeader("date", 123L);
 		syntheticHttpServletResponse.setIntHeader("int", 123);
-		assertThat(syntheticHttpServletResponse.containsHeader("name"), is(false));
-		assertThat(syntheticHttpServletResponse.containsHeader("date"), is(false));
-		assertThat(syntheticHttpServletResponse.containsHeader("int"), is(false));
+		assertThat(syntheticHttpServletResponse.containsHeader("name"), is(true));
+		assertThat(syntheticHttpServletResponse.getHeader("name"), is("value"));
+		assertThat(syntheticHttpServletResponse.getHeader("NAME"), is("value"));
+		assertThat(syntheticHttpServletResponse.containsHeader("date"), is(true));
+		assertThat(syntheticHttpServletResponse.getHeader("date"), is("123"));
+		assertThat(syntheticHttpServletResponse.getHeader("DATE"), is("123"));
+		assertThat(syntheticHttpServletResponse.containsHeader("int"), is(true));
+		assertThat(syntheticHttpServletResponse.getHeader("int"), is("123"));
+		assertThat(syntheticHttpServletResponse.getHeader("INT"), is("123"));
 
-		syntheticHttpServletResponse.addDateHeader("date", 123L);
-		syntheticHttpServletResponse.addHeader("name", "value");
-		syntheticHttpServletResponse.addIntHeader("int", 123);
-		assertThat(syntheticHttpServletResponse.containsHeader("name"), is(false));
-		assertThat(syntheticHttpServletResponse.containsHeader("date"), is(false));
-		assertThat(syntheticHttpServletResponse.containsHeader("int"), is(false));
-
+		syntheticHttpServletResponse.addHeader("name", "value2");
+		syntheticHttpServletResponse.addDateHeader("date", 321L);
+		syntheticHttpServletResponse.addIntHeader("int", 321);
+		
+		assertThat(syntheticHttpServletResponse.containsHeader("name"), is(true));
+		assertThat(syntheticHttpServletResponse.getHeader("name"), is("value2"));
+		assertThat(syntheticHttpServletResponse.getHeader("NAME"), is("value2"));
+		assertThat(syntheticHttpServletResponse.containsHeader("date"), is(true));
+		assertThat(syntheticHttpServletResponse.getHeader("date"), is("321"));
+		assertThat(syntheticHttpServletResponse.getHeader("DATE"), is("321"));
+		assertThat(syntheticHttpServletResponse.containsHeader("int"), is(true));
+		assertThat(syntheticHttpServletResponse.getHeader("int"), is("321"));
+		assertThat(syntheticHttpServletResponse.getHeader("INT"), is("321"));
+		
 		assertThat(syntheticHttpServletResponse.getOutput(), is(""));
 	}
 

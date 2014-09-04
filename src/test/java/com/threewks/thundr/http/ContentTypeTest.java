@@ -81,16 +81,30 @@ public class ContentTypeTest {
 
 	@Test
 	public void shouldReturnTrueIfAnyMatch() {
-		assertThat(ContentType.anyMatch(list(ContentType.TextHtml, ContentType.TextCsv), "text/html"), is(true));
-		assertThat(ContentType.anyMatch(list(ContentType.TextHtml, ContentType.TextCsv), "text/csv"), is(true));
-		assertThat(ContentType.anyMatch(list(ContentType.TextHtml, ContentType.TextCsv), "text/plain"), is(false));
-		assertThat(ContentType.anyMatch(list(ContentType.TextHtml, ContentType.TextCsv), ""), is(false));
-		assertThat(ContentType.anyMatch(list(ContentType.TextHtml, ContentType.TextCsv), null), is(false));
-		assertThat(ContentType.anyMatch(list(ContentType.TextHtml, ContentType.TextCsv), "text/html; charset=UTF-8"), is(true));
-		assertThat(ContentType.anyMatch(list(ContentType.TextHtml, ContentType.TextCsv), "text/csv; charset=UTF-8"), is(true));
-		assertThat(ContentType.anyMatch(list(ContentType.TextHtml, ContentType.TextCsv), "text/plain; charset=UTF-8"), is(false));
-		assertThat(ContentType.anyMatch(list(ContentType.TextHtml, ContentType.TextCsv), ""), is(false));
-		assertThat(ContentType.anyMatch(list(ContentType.TextHtml, ContentType.TextCsv), null), is(false));
+		assertThat(ContentType.matchesAny("text/html", list(ContentType.TextHtml, ContentType.TextCsv)), is(true));
+		assertThat(ContentType.matchesAny("text/csv", list(ContentType.TextHtml, ContentType.TextCsv)), is(true));
+		assertThat(ContentType.matchesAny("text/plain", list(ContentType.TextHtml, ContentType.TextCsv)), is(false));
+		assertThat(ContentType.matchesAny("", list(ContentType.TextHtml, ContentType.TextCsv)), is(false));
+		assertThat(ContentType.matchesAny(null, list(ContentType.TextHtml, ContentType.TextCsv)), is(false));
+		assertThat(ContentType.matchesAny("text/html; charset=UTF-8", list(ContentType.TextHtml, ContentType.TextCsv)), is(true));
+		assertThat(ContentType.matchesAny("text/csv; charset=UTF-8", list(ContentType.TextHtml, ContentType.TextCsv)), is(true));
+		assertThat(ContentType.matchesAny("text/plain; charset=UTF-8", list(ContentType.TextHtml, ContentType.TextCsv)), is(false));
+		assertThat(ContentType.matchesAny("", list(ContentType.TextHtml, ContentType.TextCsv)), is(false));
+		assertThat(ContentType.matchesAny(null, list(ContentType.TextHtml, ContentType.TextCsv)), is(false));
+	}
+
+	@Test
+	public void shouldReturnTrueIfAnyMatchVarArgs() {
+		assertThat(ContentType.matchesAny("text/html", ContentType.TextHtml, ContentType.TextCsv), is(true));
+		assertThat(ContentType.matchesAny("text/csv", ContentType.TextHtml, ContentType.TextCsv), is(true));
+		assertThat(ContentType.matchesAny("text/plain", ContentType.TextHtml, ContentType.TextCsv), is(false));
+		assertThat(ContentType.matchesAny("", ContentType.TextHtml, ContentType.TextCsv), is(false));
+		assertThat(ContentType.matchesAny(null, ContentType.TextHtml, ContentType.TextCsv), is(false));
+		assertThat(ContentType.matchesAny("text/html; charset=UTF-8", ContentType.TextHtml, ContentType.TextCsv), is(true));
+		assertThat(ContentType.matchesAny("text/csv; charset=UTF-8", ContentType.TextHtml, ContentType.TextCsv), is(true));
+		assertThat(ContentType.matchesAny("text/plain; charset=UTF-8", ContentType.TextHtml, ContentType.TextCsv), is(false));
+		assertThat(ContentType.matchesAny("", ContentType.TextHtml, ContentType.TextCsv), is(false));
+		assertThat(ContentType.matchesAny(null, ContentType.TextHtml, ContentType.TextCsv), is(false));
 	}
 
 	@Test

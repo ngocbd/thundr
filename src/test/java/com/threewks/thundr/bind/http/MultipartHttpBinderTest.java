@@ -223,7 +223,7 @@ public class MultipartHttpBinderTest {
 
 	@Test
 	public void shouldFindRequestAsMultipart() {
-		assertThat(ContentType.anyMatch(list(ContentType.MultipartFormData), "multipart/form-data; boundary=127.0.0.1.1002.16893.1359095066.582.122048"), is(true));
+		assertThat(ContentType.matchesAny("multipart/form-data; boundary=127.0.0.1.1002.16893.1359095066.582.122048", list(ContentType.MultipartFormData)), is(true));
 	}
 
 	@Test

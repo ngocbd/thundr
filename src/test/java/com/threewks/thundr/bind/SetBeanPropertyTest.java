@@ -25,9 +25,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import jodd.bean.BeanLoaderManager;
-
 import org.junit.Test;
+
+import jodd.bean.BeanLoaderManager;
 
 public class SetBeanPropertyTest {
 

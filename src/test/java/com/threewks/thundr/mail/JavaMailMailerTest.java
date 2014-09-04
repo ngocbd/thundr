@@ -65,48 +65,52 @@ public class JavaMailMailerTest {
 
 	@Test
 	public void shouldSendEmailusingJavaMailWithEmailFields() throws MessagingException {
+		StringView body = new StringView("Email body");
 		MailBuilder builder = mailer.mail();
 		builder.from("test@email.com").replyTo("reply@email.com").to("recipient@email.com").cc("cc@email.com").bcc("bcc@email.com");
-		builder.body(new StringView("Email body").withContentType("text/plain"));
+		builder.body(body);
 		builder.subject("Subject");
 		builder.send();
 
 		verify(mailer).send(builder);
-		verify(mailer).sendInternal(entry("test@email.com"), entry("reply@email.com"), email("recipient@email.com"), email("cc@email.com"), email("bcc@email.com"), "Subject", "Email body",
-				"text/plain", NoAttachments);
+		verify(mailer).sendInternal(entry("test@email.com"), entry("reply@email.com"), email("recipient@email.com"), email("cc@email.com"), email("bcc@email.com"), "Subject", body,
+				NoAttachments);
 		verify(mailer).sendMessage(Mockito.any(Message.class));
 	}
 
 	@Test
 	public void shouldSendBasicEmailUsingNames() throws MessagingException {
+		StringView body = new StringView("Email body");
 		MailBuilder builder = mailer.mail();
 		Map<String, String> to = Expressive.map("steve@place.com", "Steve", "john@place.com", "John");
 		builder.from("sender@email.com", "System Name");
 		builder.to(to);
-		builder.body(new StringView("Email body").withContentType("text/plain"));
+		builder.body(body);
 		builder.subject("Subject line");
 		builder.send();
 
 		verify(mailer).send(builder);
-		verify(mailer).sendInternal(entry("sender@email.com", "System Name"), null, to, empty(), empty(), "Subject line", "Email body", "text/plain", NoAttachments);
+		verify(mailer).sendInternal(entry("sender@email.com", "System Name"), null, to, empty(), empty(), "Subject line", body, NoAttachments);
 		verify(mailer).sendMessage(Mockito.any(Message.class));
 	}
 
 	@Test
 	public void shouldSendEmailWithAttachment() throws Exception {
+		StringView body = new StringView("Email body");
+		
 		MailBuilder builder = mailer.mail();
 
 		Map<String, String> to = Expressive.map("foo@example.org", "Foo");
 
 		builder.from("sender@example.org", "Sender");
 		builder.to(to);
-		builder.body(new StringView("Email body").withContentType("text/plain"));
+		builder.body(body);
 		builder.subject("Subject line");
 		builder.attach("test.txt", new StringView("Blah"), Disposition.Attachment);
 		builder.send();
 
 		verify(mailer).send(builder);
-		verify(mailer).sendInternal(entry("sender@example.org", "Sender"), null, to, empty(), empty(), "Subject line", "Email body", "text/plain", builder.attachments());
+		verify(mailer).sendInternal(entry("sender@example.org", "Sender"), null, to, empty(), empty(), "Subject line", body, builder.attachments());
 		verify(mailer).sendMessage(Mockito.any(Message.class));
 	}
 
@@ -116,15 +120,16 @@ public class JavaMailMailerTest {
 		thrown.expectMessage("Failed to send an email: expected message");
 
 		doThrow(new MessagingException("expected message")).when(mailer).sendMessage(Mockito.any(Message.class));
+		StringView body = new StringView("Email body");
 
 		MailBuilder builder = mailer.mail();
 		builder.from("sender@email.com", "System Name");
 		builder.to("steve@place.com", "Steve");
-		builder.body(new StringView("Email body").withContentType("text/plain"));
+		builder.body(body);
 		builder.subject("Subject line");
 		builder.send();
 
-		verify(mailer).sendInternal(entry("sender@email.com", "System Name"), null, email("steve@place.com", "Steve"), empty(), empty(), "Subject line", "Email body", "text/plain", NoAttachments);
+		verify(mailer).sendInternal(entry("sender@email.com", "System Name"), null, email("steve@place.com", "Steve"), empty(), empty(), "Subject line", body, NoAttachments);
 	}
 
 	@Test
@@ -167,14 +172,9 @@ public class JavaMailMailerTest {
 	@Test
 	public void shouldThrowMailExceptionIfViewResolutionFails() {
 		thrown.expect(MailException.class);
-		thrown.expectMessage("Failed to render email body: null");
+		thrown.expectMessage("Failed to render email part: No ViewResolver is registered for the view result String");
 
-		MailBuilder builder = mailer.mail();
-		builder.from("junk");
-		builder.to("steve", "Steve");
-		builder.body("No resolver registered for strings");
-		builder.subject("Subject line");
-		builder.send();
+		mailer.render("No resolver registered for strings");
 	}
 
 	public static final Map<String, String> email(String email) {

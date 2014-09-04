@@ -21,6 +21,7 @@ import static com.atomicleopard.expressive.Expressive.list;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -41,6 +42,9 @@ import com.atomicleopard.expressive.ETransformer;
 import com.atomicleopard.expressive.Expressive;
 import com.atomicleopard.expressive.collection.Triplets;
 import com.threewks.thundr.test.TestSupport;
+import com.threewks.thundr.transformer.data.ByteArrayToInputStream;
+import com.threewks.thundr.transformer.data.InputStreamToByteArray;
+import com.threewks.thundr.transformer.data.StringToInputStream;
 import com.threewks.thundr.transformer.date.BigDecimalToDateTime;
 import com.threewks.thundr.transformer.date.DateTimeToBigDecimal;
 import com.threewks.thundr.transformer.date.DateTimeToDate;
@@ -417,8 +421,13 @@ public class TransformerManagerTest {
 		assertThat(transformerManager.getTransformer(UUID.class, String.class) instanceof UUIDToString, is(true));
 		assertThat(transformerManager.getTransformer(String.class, UUID.class) instanceof StringToUUID, is(true));
 
+		// data
+		assertThat(transformerManager.getTransformer(byte[].class, InputStream.class), instanceOf(ByteArrayToInputStream.class));
+		assertThat(transformerManager.getTransformer(InputStream.class, byte[].class), instanceOf(InputStreamToByteArray.class));
+		assertThat(transformerManager.getTransformer(String.class, InputStream.class), instanceOf(StringToInputStream.class));
+
 		// This is just a simple check to remind this test to update when more defaults are added
 		Triplets<Class<?>, Class<?>, ETransformer<?, ?>> transformers = TestSupport.getField(transformerManager, "transformers");
-		assertThat(transformers.size(), is(89));
+		assertThat(transformers.size(), is(92));
 	}
 }

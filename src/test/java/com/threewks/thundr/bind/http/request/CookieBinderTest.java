@@ -19,9 +19,7 @@ package com.threewks.thundr.bind.http.request;
 
 import static com.atomicleopard.expressive.Expressive.map;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -33,7 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.threewks.thundr.bind.http.request.CookieBinder;
 import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;

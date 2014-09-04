@@ -21,13 +21,16 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.atomicleopard.expressive.ETransformer;
 import com.threewks.thundr.exception.BaseException;
+import com.threewks.thundr.transformer.TransformerManager;
 
 /**
  * Encodes URL elements as needed.
@@ -65,7 +68,10 @@ public class URLEncoder {
 	}
 
 	/**
-	 * Encodes the given query parameters into the query string such that it returns <code>?param1=value1&param2=value2&....</code>
+	 * Encodes the given query parameters into the query string such that it returns <code>?param1=value1&param2=value2&....</code>.
+	 * 
+	 * Uses toString on parameters to determine their string representation.
+	 * Returns an empty string if no parameters are provided.
 	 * 
 	 * @param parameters
 	 * @return
@@ -80,7 +86,63 @@ public class URLEncoder {
 			String value = entry.getValue() == null ? "" : entry.getValue().toString();
 			fragments.add(encodeQueryComponent(key) + "=" + encodeQueryComponent(value));
 		}
-		return "?" + StringUtils.join(fragments, "&");
+		return fragments.isEmpty() ? "" : "?" + StringUtils.join(fragments, "&");
+	}
+
+	/**
+	 * Encodes the given query parameters into the query string such that it returns <code>?param1=value1&param2=value2&....</code>.
+	 * 
+	 * Uses the given {@link TransformerManager} on parameters to determine their string representation.
+	 * Returns an empty string if no parameters are provided.
+	 * 
+	 * @param parameters
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static final String encodeQueryString(Map<String, Object> parameters, TransformerManager transformerManager) {
+		if (parameters == null) {
+			parameters = Collections.emptyMap();
+		}
+		Map<String, Object> delegate = new LinkedHashMap<>();
+		for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+			Object valueObj = entry.getValue();
+			String value = "";
+			if (valueObj != null) {
+				Class<Object> type = (Class<Object>) entry.getValue().getClass();
+				ETransformer<Object, String> transformer = transformerManager.getTransformerSafe(type, String.class);
+				value = transformer.from(entry.getValue());
+			}
+			delegate.put(entry.getKey(), value);
+		}
+		return encodeQueryString(delegate);
+	}
+
+	/**
+	 * Decodes the given query parameter string into key value pairs.
+	 * 
+	 * If the given string begins with '?', it will be stripped off. Pairs are decoded before being returned.
+	 * 
+	 * @param query
+	 * @return
+	 */
+	public static Map<String, List<String>> decodeQueryString(String query) {
+		query = StringUtils.trimToEmpty(query);
+		query = StringUtils.removeStart(query, "?");
+		Map<String, List<String>> results = new LinkedHashMap<>();
+		if (StringUtils.isNotBlank(query)) {
+			for (String pair : query.split("&")) {
+				String[] parts = StringUtils.split(pair, "=", 2);
+				String key = unescape(parts[0]);
+				String value = parts.length > 1 ? unescape(parts[1]) : null;
+				List<String> existing = results.get(key);
+				if (existing == null) {
+					existing = new ArrayList<>();
+					results.put(key, existing);
+				}
+				existing.add(value);
+			}
+		}
+		return results;
 	}
 
 	public static final String decodePathComponent(String value) {

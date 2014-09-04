@@ -23,7 +23,7 @@ public class MultipartFile {
     private String name;
     private String contentType;
 
-    public MultipartFile(String name, byte[] data, String contentType) {
+	public MultipartFile(String name, byte[] data, String contentType) {
         this.data = data;
         this.name = name;
         this.contentType = contentType;

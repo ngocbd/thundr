@@ -33,7 +33,6 @@ import javax.servlet.http.HttpSession;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.threewks.thundr.bind.http.request.RequestClassBinder;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;

@@ -17,7 +17,6 @@
  */
 package com.threewks.thundr.mail;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -40,8 +39,9 @@ import javax.mail.internet.MimeMultipart;
 import org.apache.commons.lang3.StringUtils;
 
 import com.atomicleopard.expressive.Expressive;
+import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.Header;
-import com.threewks.thundr.http.SyntheticHttpServletResponse;
+import com.threewks.thundr.view.BasicViewRenderer;
 import com.threewks.thundr.view.ViewResolverRegistry;
 
 import jodd.util.Base64;
@@ -56,14 +56,8 @@ public class JavaMailMailer extends BaseMailer {
 	}
 
 	@Override
-	protected void sendInternal(Entry<String, String> from, Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject, String content,
-			String contentType) {
-		sendInternal(from, replyTo, to, cc, bcc, subject, content, contentType, Collections.<Attachment> emptyList());
-	}
-
-	@Override
 	protected void sendInternal(Map.Entry<String, String> from, Map.Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject,
-			String content, String contentType, List<Attachment> attachments) {
+			Object body, List<Attachment> attachments) {
 		try {
 			Session emailSession = Session.getDefaultInstance(new Properties());
 
@@ -74,6 +68,11 @@ public class JavaMailMailer extends BaseMailer {
 			}
 
 			message.setSubject(subject);
+
+			BasicViewRenderer viewRenderer = render(body);
+			String content = viewRenderer.getOutputAsString();
+			String contentType = ContentType.cleanContentType(viewRenderer.getContentType());
+			contentType = StringUtils.isBlank(contentType) ? ContentType.TextHtml.value() : contentType;
 
 			if (Expressive.isEmpty(attachments)) {
 				message.setContent(content, contentType);
@@ -114,8 +113,8 @@ public class JavaMailMailer extends BaseMailer {
 
 	private void addAttachments(Multipart multipart, List<Attachment> attachments) throws MessagingException {
 		for (Attachment attachment : attachments) {
-			SyntheticHttpServletResponse response = render(attachment.view());
-			byte[] base64Encoded = Base64.encodeToByte(response.getRawOutput());
+			BasicViewRenderer response = render(attachment.view());
+			byte[] base64Encoded = Base64.encodeToByte(response.getOutputAsBytes());
 
 			InternetHeaders headers = new InternetHeaders();
 			headers.addHeader(Header.ContentType, response.getContentType());
@@ -123,7 +122,7 @@ public class JavaMailMailer extends BaseMailer {
 
 			MimeBodyPart part = new MimeBodyPart(headers, base64Encoded);
 			part.setFileName(attachment.name());
-			part.setDisposition(attachment.disposition().getValue());
+			part.setDisposition(attachment.disposition().value());
 
 			if (attachment.isInline()) {
 				part.setContentID(attachment.contentId());

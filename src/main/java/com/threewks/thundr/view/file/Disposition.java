@@ -19,7 +19,8 @@ package com.threewks.thundr.view.file;
 
 public enum Disposition {
 	Attachment("attachment"),
-	Inline("inline");
+	Inline("inline"),
+	FormData("form-data");
 
 	private String value;
 
@@ -27,7 +28,7 @@ public enum Disposition {
 		this.value = value;
 	}
 
-	public String getValue() {
+	public String value() {
 		return value;
 	}
 }

@@ -31,13 +31,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.Cookies;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
 import com.threewks.thundr.view.ViewResolutionException;
 
 public class StringViewResolverTest {
-	@Rule public ExpectedException thrown = ExpectedException.none();
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 	private StringViewResolver stringViewResolver = new StringViewResolver();
 	private HttpServletRequest req = new MockHttpServletRequest();
 	private MockHttpServletResponse resp = new MockHttpServletResponse();
@@ -53,7 +55,7 @@ public class StringViewResolverTest {
 
 	@Test
 	public void shouldWriteNoContentTypeIfNotSet() {
-		stringViewResolver.resolve(req, resp, new StringView("My view result").withContentType(null));
+		stringViewResolver.resolve(req, resp, new StringView("My view result").withContentType((ContentType) null));
 		assertThat(resp.content(), is("My view result"));
 		assertThat(resp.isCommitted(), is(true));
 		assertThat(resp.getCharacterEncoding(), is("UTF-8"));
@@ -97,7 +99,6 @@ public class StringViewResolverTest {
 		StringView view = new StringView("view content");
 		Cookie cookie = Cookies.build("cookie").withValue("value2").build();
 		view.withContentType("content/type").withCharacterEncoding("UTF-16").withHeader("header", "value1").withCookie(cookie);
-
 
 		stringViewResolver.resolve(req, resp, view);
 		assertThat(resp.getContentType(), is("content/type"));

@@ -17,6 +17,7 @@
  */
 package com.threewks.thundr.transformer;
 
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -38,6 +39,9 @@ import com.atomicleopard.expressive.collection.Pair;
 import com.atomicleopard.expressive.collection.Triplets;
 import com.threewks.thundr.introspection.ClassIntrospector;
 import com.threewks.thundr.introspection.TypeIntrospector;
+import com.threewks.thundr.transformer.data.ByteArrayToInputStream;
+import com.threewks.thundr.transformer.data.InputStreamToByteArray;
+import com.threewks.thundr.transformer.data.StringToInputStream;
 import com.threewks.thundr.transformer.date.BigDecimalToDateTime;
 import com.threewks.thundr.transformer.date.DateTimeToBigDecimal;
 import com.threewks.thundr.transformer.date.DateTimeToDate;
@@ -297,6 +301,11 @@ public class TransformerManager {
 		// uuids
 		transformerManager.register(UUID.class, String.class, new UUIDToString());
 		transformerManager.register(String.class, UUID.class, new StringToUUID());
+		
+		// data types
+		transformerManager.register(byte[].class, InputStream.class, new ByteArrayToInputStream());
+		transformerManager.register(String.class, InputStream.class, new StringToInputStream());
+		transformerManager.register(InputStream.class, byte[].class, new InputStreamToByteArray());
 
 		return transformerManager;
 	}

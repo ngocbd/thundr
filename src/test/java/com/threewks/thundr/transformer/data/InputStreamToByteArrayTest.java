@@ -15,27 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.bind;
+package com.threewks.thundr.transformer.data;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
+import java.io.ByteArrayInputStream;
+
 import org.junit.Test;
 
-public class BindExceptionTest {
+public class InputStreamToByteArrayTest {
+
+	private InputStreamToByteArray transformer = new InputStreamToByteArray();
 
 	@Test
-	public void shouldHaveAMessageCtor() {
-		BindException e = new BindException("Message: %s", "expected");
-		assertThat(e.getCause(), is(nullValue()));
-		assertThat(e.getMessage(), is("Message: expected"));
-	}
-
-	@Test
-	public void shouldHaveCauseAndMessageCtor() {
-		Exception cause = new RuntimeException();
-		BindException e = new BindException(cause, "Message: %s", "expected");
-		assertThat(e.getCause(), is((Throwable) cause));
-		assertThat(e.getMessage(), is("Message: expected"));
+	public void shouldTransform() {
+		assertThat(transformer.from(null), is(nullValue()));
+		assertThat(transformer.from(new ByteArrayInputStream(new byte[0])), is(new byte[0]));
+		assertThat(transformer.from(new ByteArrayInputStream(new byte[] { 1, 2, 3 })), is(new byte[] { 1, 2, 3 }));
 	}
 }

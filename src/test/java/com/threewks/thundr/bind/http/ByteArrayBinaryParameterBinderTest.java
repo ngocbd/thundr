@@ -17,13 +17,14 @@
  */
 package com.threewks.thundr.bind.http;
 
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
+import org.junit.Test;
+
 import com.threewks.thundr.bind.parameter.ByteArrayBinaryParameterBinder;
 import com.threewks.thundr.http.MultipartFile;
 import com.threewks.thundr.introspection.ParameterDescription;
-import org.junit.Test;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 public class ByteArrayBinaryParameterBinderTest {
 	private ByteArrayBinaryParameterBinder binder = new ByteArrayBinaryParameterBinder();

@@ -24,6 +24,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.Cookies;
 import com.threewks.thundr.http.StatusCode;
 import com.threewks.thundr.http.exception.HttpStatusException;
@@ -182,6 +183,16 @@ public abstract class BaseView<Self extends BaseView<Self>> implements View {
 	public Self withContentType(String contentType) {
 		this.contentType = contentType;
 		return self;
+	}
+
+	/**
+	 * Sets the content type into the response
+	 * 
+	 * @param contentType
+	 * @return this view
+	 */
+	public Self withContentType(ContentType contentType) {
+		return this.withContentType(contentType == null ? null : contentType.value());
 	}
 
 	/**

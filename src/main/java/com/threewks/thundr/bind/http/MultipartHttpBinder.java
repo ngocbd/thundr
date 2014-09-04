@@ -52,7 +52,7 @@ public class MultipartHttpBinder implements Binder {
 
 	@Override
 	public void bindAll(Map<ParameterDescription, Object> bindings, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVariables) {
-		if (ContentType.anyMatch(supportedContentTypes, req.getContentType()) && shouldTryToBind(bindings)) {
+		if (ContentType.matchesAny(req.getContentType(), supportedContentTypes) && shouldTryToBind(bindings)) {
 			Map<String, List<String>> formFields = new HashMap<String, List<String>>();
 			Map<String, MultipartFile> fileFields = new HashMap<String, MultipartFile>();
 			extractParameters(req, formFields, fileFields);

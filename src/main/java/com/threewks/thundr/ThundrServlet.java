@@ -44,7 +44,7 @@ import com.threewks.thundr.route.RouteResolverException;
 import com.threewks.thundr.route.Router;
 import com.threewks.thundr.route.RouterModule;
 import com.threewks.thundr.transformer.TransformerModule;
-import com.threewks.thundr.view.ViewResolver;
+import com.threewks.thundr.view.ServletViewRenderer;
 import com.threewks.thundr.view.ViewResolverNotFoundException;
 import com.threewks.thundr.view.ViewResolverRegistry;
 
@@ -122,7 +122,7 @@ public class ThundrServlet extends HttpServlet {
 			Router router = injectionContext.get(Router.class);
 			final Object viewResult = router.invoke(requestPath, method, req, resp);
 			if (viewResult != null) {
-				resolveView(req, resp, viewResolverRegistry, viewResult);
+				resolveView(viewResolverRegistry, viewResult, true);
 			}
 		} catch (Exception e) {
 			if (Cast.is(e, RouteResolverException.class)) {
@@ -134,22 +134,15 @@ public class ThundrServlet extends HttpServlet {
 				throw (ViewResolverNotFoundException) e;
 			}
 			if (!resp.isCommitted()) {
-				ViewResolver<Exception> viewResolver = viewResolverRegistry.findViewResolver(e);
-				if (viewResolver != null) {
-					viewResolver.resolve(req, resp, e);
-				}
+				resolveView(viewResolverRegistry, e, false);
 			}
 		} finally {
 			RequestThreadLocal.clear();
 		}
 	}
 
-	private void resolveView(final HttpServletRequest req, final HttpServletResponse resp, final ViewResolverRegistry viewResolverRegistry, final Object viewResult) {
-		ViewResolver<Object> viewResolver = viewResolverRegistry.findViewResolver(viewResult);
-		if (viewResolver == null) {
-			throw new ViewResolverNotFoundException("No %s is registered for the view result %s - %s", ViewResolver.class.getSimpleName(), viewResult.getClass().getSimpleName(), viewResult);
-		}
-		viewResolver.resolve(req, resp, viewResult);
+	protected void resolveView(final ViewResolverRegistry viewResolverRegistry, final Object viewResult, boolean failIfNoViewResolver) {
+		new ServletViewRenderer(viewResolverRegistry, failIfNoViewResolver).render(viewResult);
 	}
 
 	@Override

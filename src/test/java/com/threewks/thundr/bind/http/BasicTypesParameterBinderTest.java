@@ -18,9 +18,7 @@
 package com.threewks.thundr.bind.http;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -79,6 +77,7 @@ public class BasicTypesParameterBinderTest {
 		assertThat(binder.willBind(description("name", URL.class), transformerManager), is(true));
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void shouldBindTypes() throws MalformedURLException, URISyntaxException {
 		assertThat(binder.bind(binders, description("name", byte.class), data("name", "1"), transformerManager), is((Object) (byte) 1));

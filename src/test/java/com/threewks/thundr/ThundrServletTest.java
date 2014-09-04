@@ -410,6 +410,15 @@ public class ThundrServletTest {
 		assertThat(RequestThreadLocal.getResponse(), is(nullValue()));
 	}
 
+	@Test
+	public void shouldStopModulesOnDestroy() {
+		Modules modules = mock(Modules.class);
+		TestSupport.setField(servlet, "modules", modules);
+		servlet.destroy();
+
+		verify(modules).runStopLifecycle(injectionContext);
+	}
+
 	private void setInjectionContextIntoServlet(UpdatableInjectionContext injectionContext) {
 		TestSupport.setField(servlet, "injectionContext", injectionContext);
 	}
