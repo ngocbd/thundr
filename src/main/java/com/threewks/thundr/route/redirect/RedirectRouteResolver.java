@@ -28,8 +28,6 @@ import com.threewks.thundr.route.RouteResolver;
 import com.threewks.thundr.route.RouteResolverException;
 
 public class RedirectRouteResolver implements RouteResolver<Redirect> {
-	private static final Pattern ActionNamePattern = Pattern.compile("^(?i)redirect:(.+)");
-
 	@Override
 	public Object resolve(Redirect action, HttpMethod method, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws RouteResolverException {
 		String redirectTo = action.getRedirectTo(pathVars);

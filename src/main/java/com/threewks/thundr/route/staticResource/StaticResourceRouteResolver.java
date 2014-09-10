@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -49,10 +48,6 @@ import jodd.util.Wildcard;
 // TODO - Better caching control:
 // TODO - Vary: Accept-Encoding
 public class StaticResourceRouteResolver implements RouteResolver<StaticResource> {
-
-	private static final String ActionName = "static";
-	private static final Pattern ActionNamePattern = Pattern.compile("^static:(.+)");
-
 	private final String protectedPath = "/?WEB-INF/.*";
 
 	private boolean gzipEnabled = true;

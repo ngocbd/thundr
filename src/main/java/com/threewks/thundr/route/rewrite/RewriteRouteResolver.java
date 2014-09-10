@@ -18,7 +18,6 @@
 package com.threewks.thundr.route.rewrite;
 
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,8 +28,6 @@ import com.threewks.thundr.route.RouteResolverException;
 import com.threewks.thundr.route.Router;
 
 public class RewriteRouteResolver implements RouteResolver<Rewrite> {
-	private static final Pattern ActionNamePattern = Pattern.compile("^(?i)rewrite:(.+)");
-
 	private Router router;
 
 	public RewriteRouteResolver(Router router) {

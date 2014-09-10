@@ -67,7 +67,7 @@ public class ClassIntrospectorTest {
 		List<Class<?>> types = new ClassIntrospector().listImplementedTypes(TestCA.class);
 		assertThat(types, is(Arrays.asList(TestCA.class, TestC.class, Object.class, TestBA.class, TestB.class, TestAA.class, TestA.class)));
 	}
-	
+
 	static interface TestA {
 
 	}
@@ -85,8 +85,11 @@ public class ClassIntrospectorTest {
 	}
 
 	static class TestC implements TestAA {
-		@Inject private String fieldA;
-		@SuppressWarnings("unused") private String fieldB;
+		@SuppressWarnings("unused")
+		@Inject
+		private String fieldA;
+		@SuppressWarnings("unused")
+		private String fieldB;
 
 		public TestC() {
 		}
@@ -105,8 +108,11 @@ public class ClassIntrospectorTest {
 	}
 
 	static class TestCA extends TestC implements TestBA {
-		@Inject private String fieldC;
-		@SuppressWarnings("unused") private String fieldD;
+		@SuppressWarnings("unused")
+		@Inject
+		private String fieldC;
+		@SuppressWarnings("unused")
+		private String fieldD;
 
 		public void setA(String a) {
 

@@ -1,4 +1,5 @@
-# thundr
+thundr [![Build Status](https://travis-ci.org/3wks/thundr-pegdown.svg)](https://travis-ci.org/3wks/thundr-pegdown)
+======
 
 *thundr* is a light-weight Web MVC for java, designed to run in cloud environments.
 
@@ -33,9 +34,9 @@ You can read more about [thundr here](http://3wks.github.io/thundr/).
 
 ## Getting it
 
-To get started, pull in the latest version of thundr using maven, ivy or another build tool and follow these basic [configuration instructions](http://3wks.github.io/thundr/modules/thundr/basics.html#applicationConfiguration).
+To get started, pull in the latest version of thundr using maven, ivy or another build tool and follow these basic [configuration instructions](http://3wks.github.io/thundr/1.1/thundr/basics.html#applicationConfiguration).
 
 Alternatively, you can [clone one of the sample apps](https://github.com/3wks/thundr-sample) and hack on it to get moving straight away.
 
 --------------    
-thundr - Copyright (C) 2013 3wks
+thundr - Copyright (C) 2014 3wks
