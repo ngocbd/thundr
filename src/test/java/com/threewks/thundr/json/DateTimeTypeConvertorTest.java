@@ -48,6 +48,6 @@ public class DateTimeTypeConvertorTest {
 		DateTime result = gson.fromJson("\"2010-01-01T12:00:00.000+11:00\"", DateTime.class);
 
 		DateTime srcInSydney = new DateTime(2010, 1, 1, 12, 0, 0, 0).withZoneRetainFields(DateTimeZone.forID("Australia/Sydney"));
-		assertThat(result, is(srcInSydney));
+		assertThat(result.compareTo(srcInSydney), is(0));
 	}
 }
