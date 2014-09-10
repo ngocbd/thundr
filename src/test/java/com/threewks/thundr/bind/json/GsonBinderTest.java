@@ -23,6 +23,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,6 +49,7 @@ import org.junit.rules.ExpectedException;
 import com.google.gson.GsonBuilder;
 import com.threewks.thundr.bind.BindException;
 import com.threewks.thundr.http.ContentType;
+import com.threewks.thundr.introspection.MethodIntrospector;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.test.TestSupport;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
@@ -240,6 +242,38 @@ public class GsonBinderTest {
 	}
 
 	@Test
+	public void shouldBindJsonToCollectionParameter() throws NoSuchMethodException, SecurityException {
+		assertBindToCollection("collectionMethod", Collection.class);
+		assertBindToCollection("listMethod", List.class);
+		assertBindToCollection("linkedListMethod", LinkedList.class);
+		assertBindToCollection("arrayListMethod", ArrayList.class);
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T extends Collection<?>> void assertBindToCollection(String methodName, Class<T> parameterType) throws NoSuchMethodException, SecurityException {
+		Method method = this.getClass().getDeclaredMethod(methodName, parameterType);
+		MethodIntrospector methodIntrospector = new MethodIntrospector();
+		List<ParameterDescription> parameterDescriptions = methodIntrospector.getParameterDescriptions(method);
+
+		Map<ParameterDescription, Object> bindings = new LinkedHashMap<ParameterDescription, Object>();
+		ParameterDescription parameterDescription = parameterDescriptions.get(0);
+		bindings.put(parameterDescription, null);
+
+		req.content("[{\"name\": \"pojo name\", \"value\": 5 }]");
+
+		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+
+		Object value = bindings.get(parameterDescription);
+		assertThat(value, is(notNullValue()));
+		assertThat(value, instanceOf(parameterType));
+		T list = (T) value;
+		assertThat(list.size(), is(1));
+		TestPojo testPojo = (TestPojo) list.iterator().next();
+		assertThat(testPojo.name, is("pojo name"));
+		assertThat(testPojo.value, is(5));
+	}
+
+	@Test
 	public void shouldThrowBindExceptionIfBindingFailsForSinglePojo() {
 		thrown.expect(BindException.class);
 		thrown.expectMessage("Failed to bind parameter 'pojo' as class com.threewks.thundr.bind.json.TestPojo using JSON: java.io.EOFException: End of input at");
@@ -383,6 +417,22 @@ public class GsonBinderTest {
 		I map = (I) boundValue;
 		assertThat(map.get("name"), is((Object) "pojo name"));
 		assertThat(map.get("value"), is((Object) 5d));
+	}
+
+	@SuppressWarnings("unused")
+	private void listMethod(List<TestPojo> pojos) {
+	}
+
+	@SuppressWarnings("unused")
+	private void arrayListMethod(ArrayList<TestPojo> pojos) {
+	}
+
+	@SuppressWarnings("unused")
+	private void linkedListMethod(LinkedList<TestPojo> pojos) {
+	}
+
+	@SuppressWarnings("unused")
+	private void collectionMethod(Collection<TestPojo> pojos) {
 	}
 
 }
