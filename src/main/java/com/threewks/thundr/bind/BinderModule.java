@@ -34,10 +34,6 @@ public class BinderModule extends BaseModule {
 	}
 
 	@Override
-	public void initialise(UpdatableInjectionContext injectionContext) {
-		super.initialise(injectionContext);
-	}
-	@Override
 	public void configure(UpdatableInjectionContext injectionContext) {
 		super.configure(injectionContext);
 

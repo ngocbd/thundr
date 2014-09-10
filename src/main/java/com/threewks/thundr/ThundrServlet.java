@@ -157,7 +157,7 @@ public class ThundrServlet extends HttpServlet {
 				doHead(req, resp);
 			} else {
 				// thundr doesnt deal with these
-				resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, "Request method '" + method + "' not implemented.");
+				resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, "Request method '" + httpMethod + "' not implemented.");
 			}
 		}
 	}

@@ -18,8 +18,6 @@
 package com.threewks.thundr.route.rewrite;
 
 import static com.atomicleopard.expressive.Expressive.map;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 import java.util.Map;
@@ -32,8 +30,6 @@ import org.junit.Test;
 
 import com.threewks.thundr.route.HttpMethod;
 import com.threewks.thundr.route.Router;
-import com.threewks.thundr.route.rewrite.Rewrite;
-import com.threewks.thundr.route.rewrite.RewriteRouteResolver;
 
 public class RewriteActionResolverTest {
 	private RewriteRouteResolver resolver;
@@ -43,28 +39,6 @@ public class RewriteActionResolverTest {
 	public void before() {
 		router = mock(Router.class);
 		resolver = new RewriteRouteResolver(router);
-	}
-
-	@Test
-	public void shouldResolveRewriteAction() {
-		Map<String, String> pathVars = map("to", "to", "else", "else");
-		Rewrite action = resolver.createActionIfPossible("rewrite:/something/{to}/something/{else}/");
-		assertThat(action, is(notNullValue()));
-		assertThat(action.getRewriteTo(pathVars), is("/something/to/something/else/"));
-	}
-	
-	@Test
-	public void shouldResolveRewriteActionRegardlessOfCase() {
-		Map<String, String> pathVars = map("to", "to", "else", "else");
-		Rewrite action = resolver.createActionIfPossible("reWRIte:/something/{to}/something/{else}/");
-		assertThat(action, is(notNullValue()));
-		assertThat(action.getRewriteTo(pathVars), is("/something/to/something/else/"));
-	}
-
-	@Test
-	public void shouldNotResolveRewriteAction() {
-		Rewrite action = resolver.createActionIfPossible("somethingelse:/something/{to}/something/{else}/");
-		assertThat(action, is(nullValue()));
 	}
 
 	@Test

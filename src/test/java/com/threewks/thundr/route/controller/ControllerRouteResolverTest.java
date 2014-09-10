@@ -35,15 +35,11 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.threewks.thundr.bind.BinderRegistry;
-import com.threewks.thundr.bind.http.HttpBinder;
 import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.injection.InjectorBuilder;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.route.HttpMethod;
-import com.threewks.thundr.route.controller.Controller;
-import com.threewks.thundr.route.controller.Interceptor;
-import com.threewks.thundr.route.controller.ControllerRouteResolver;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.transformer.TransformerManager;
 
@@ -53,7 +49,7 @@ public class ControllerRouteResolverTest {
 	private HttpServletRequest req = mock(HttpServletRequest.class);
 	private HttpServletResponse resp = mock(HttpServletResponse.class);
 	private Map<String, String> pathVars = map();
-	
+
 	private FilterRegistry filters = new FilterRegistry();
 	private BinderRegistry binderRegistry;
 	private TransformerManager transformerManager;
@@ -67,11 +63,11 @@ public class ControllerRouteResolverTest {
 
 		binderRegistry = new BinderRegistry();
 		BinderRegistry.registerDefaultBinders(binderRegistry, parameterBinderRegistry, transformerManager);
-		
+
 		injectionContext = mock(UpdatableInjectionContext.class);
 		InjectorBuilder<Class> injectionBuilder = mock(InjectorBuilder.class);
 		when(injectionContext.inject(Mockito.any(Class.class))).thenReturn(injectionBuilder);
-		
+
 		resolver = new ControllerRouteResolver(injectionContext, filters, binderRegistry);
 		when(req.getContentType()).thenReturn(ContentType.ApplicationFormUrlEncoded.value());
 	}
@@ -340,28 +336,10 @@ public class ControllerRouteResolverTest {
 		assertThat(registeredInterceptor.exceptionInvoked, is(true));
 	}
 
-	@Test
-	public void shouldReturnNullIfCannotCreateAction() {
-		assertThat(resolver.createActionIfPossible(null), is(nullValue()));
-		assertThat(resolver.createActionIfPossible(""), is(nullValue()));
-		assertThat(resolver.createActionIfPossible("Junk"), is(nullValue()));
-		assertThat(resolver.createActionIfPossible(".method"), is(nullValue()));
-		assertThat(resolver.createActionIfPossible(ControllerRouteResolverTest.class.getName()), is(nullValue()));
-		assertThat(resolver.createActionIfPossible(ControllerRouteResolverTest.class.getName() + ".aintNoSuchMethod"), is(nullValue()));
-	}
-
-	@Test
-	public void shouldCreateActionMethodClassAtInitialise() {
-		resolver = spy(resolver);
-		Controller methodAction = new Controller(ControllerRouteResolverTest.class, "intercept");
-		resolver.initialise(methodAction);
-		verify(resolver).createController(Mockito.any(Controller.class));
-	}
-
 	private Controller prepareActionMethod(String method, Interceptor<TestAnnotation> registeredInterceptor) {
 		when(injectionContext.get(ControllerRouteResolverTest.class)).thenReturn(this);
 		resolver.registerInterceptor(TestAnnotation.class, registeredInterceptor);
-		Controller action = resolver.createActionIfPossible(ControllerRouteResolverTest.class.getName() + "." + method);
+		Controller action = new Controller(ControllerRouteResolverTest.class, method);
 		assertThat(action, is(notNullValue()));
 		return action;
 	}

@@ -30,8 +30,6 @@ import java.util.WeakHashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.atomicleopard.expressive.Cast;
 import com.threewks.thundr.bind.Binder;
 import com.threewks.thundr.bind.BinderRegistry;
@@ -47,7 +45,7 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Inter
 	private Map<Class<?>, Object> controllerInstances = new HashMap<Class<?>, Object>();
 	private Map<Class<? extends Annotation>, Interceptor<? extends Annotation>> actionInterceptors = new HashMap<Class<? extends Annotation>, Interceptor<? extends Annotation>>();
 	private Map<Method, Map<Annotation, Interceptor<Annotation>>> interceptorCache = new WeakHashMap<Method, Map<Annotation, Interceptor<Annotation>>>();
-	
+
 	private UpdatableInjectionContext injectionContext;
 	private BinderRegistry binderRegistry;
 	private FilterRegistry filters;
@@ -56,38 +54,6 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Inter
 		this.injectionContext = injectionContext;
 		this.binderRegistry = binderRegistry;
 		this.filters = filters;
-	}
-
-	@Override
-	public void initialise(Controller methodAction) {
-		// force instantiation of controller - this allows controllers to be injected into eachother
-		// and also flushes out instantiation issues at startup
-		Object controller = createController(methodAction);
-		Class<Object> key = methodAction.type();
-		if (!controllerInstances.containsKey(key)) {
-			controllerInstances.put(key, controller);
-		}
-	}
-
-	@Override
-	public Controller createActionIfPossible(String actionName) {
-		// will resolve if both a class and method name can be parsed, and a valid class with that method name can be loaded
-		String methodName = Controller.methodNameForAction(actionName);
-		String className = Controller.classNameForAction(actionName);
-		if (StringUtils.isEmpty(methodName) || StringUtils.isEmpty(className)) {
-			return null;
-		}
-		try {
-			Class<?> clazz = Class.forName(className); // TODO - Restricted in GAE - why is this better? ClassLoaderUtil.loadClass(className);
-			Controller methodAction = new Controller(clazz, methodName);
-			return methodAction;
-		} catch (RouteResolverException e) {
-			return null;
-		} catch (BaseException e) {
-			throw e;
-		} catch (Exception e) {
-			return null;
-		}
 	}
 
 	@Override

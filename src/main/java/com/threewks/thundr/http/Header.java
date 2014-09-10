@@ -30,6 +30,12 @@ import com.atomicleopard.expressive.Expressive;
 public class Header {
 	public static final String Accept = "Accept";
 	public static final String AcceptCharset = "Accept-Charset";
+	public static final String AccessControlAllowCredentials = "Access-Control-Allow-Credentials";
+	public static final String AccessControlAllowHeaders = "Access-Control-Allow-Headers";
+	public static final String AccessControlAllowMethods = "Access-Control-Allow-Methods";
+	public static final String AccessControlAllowOrigin = "Access-Control-Allow-Origin";
+	public static final String AccessControlRequestMethod = "Access-Control-Request-Method";
+	public static final String AccessControlRequestHeaders = "Access-Control-Request-Headers";
 	public static final String AcceptEncoding = "Accept-Encoding";
 	public static final String Authorization = "Authorization";
 	public static final String CacheControl = "Cache-Control";
@@ -46,7 +52,9 @@ public class Header {
 	public static final String SetCookie = "Set-Cookie";
 	public static final String SetCookie2 = "Set-Cookie2";
 	public static final String UserAgent = "User-Agent";
+	public static final String Vary = "Vary";
 	public static final String XHttpMethodOverride = "X-HTTP-Method-Override";
+	
 	
 	
 	@SuppressWarnings("unchecked")

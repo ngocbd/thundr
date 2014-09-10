@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.route.RouteResolverException;
 
 import jodd.util.ReflectUtil;
 
@@ -63,6 +64,14 @@ public class ControllerTest {
 		Controller methodAction = new Controller(FakeController.class, "methodOne");
 		FakeController controller = new FakeController();
 		methodAction.invoke(controller, list());
+	}
+
+	@Test
+	public void shouldThrowRoutResolverExceptionIfCreatedWithInvalidMethod() {
+		thrown.equals(RouteResolverException.class);
+		thrown.expectMessage("Unable to create Controller - the method com.threewks.thundr.route.controller.FakeController.nonExistant does not exist");
+
+		new Controller(FakeController.class, "nonExistant");
 	}
 
 	@Test

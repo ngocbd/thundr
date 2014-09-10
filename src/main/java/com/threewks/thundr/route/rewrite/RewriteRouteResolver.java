@@ -18,7 +18,6 @@
 package com.threewks.thundr.route.rewrite;
 
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,23 +38,9 @@ public class RewriteRouteResolver implements RouteResolver<Rewrite> {
 	}
 
 	@Override
-	public Rewrite createActionIfPossible(String actionName) {
-		Matcher matcher = ActionNamePattern.matcher(actionName);
-		if (matcher.matches()) {
-			return new Rewrite(matcher.group(1));
-		}
-		return null;
-	}
-
-	@Override
 	public Object resolve(Rewrite action, HttpMethod method, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws RouteResolverException {
 		String rewriteTo = action.getRewriteTo(pathVars);
 		return router.invoke(rewriteTo, method, req, resp);
-	}
-
-	@Override
-	public void initialise(Rewrite action) {
-
 	}
 
 }

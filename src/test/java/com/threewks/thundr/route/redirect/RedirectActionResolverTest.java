@@ -18,8 +18,6 @@
 package com.threewks.thundr.route.redirect;
 
 import static com.atomicleopard.expressive.Expressive.map;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -35,34 +33,12 @@ import org.junit.rules.ExpectedException;
 
 import com.threewks.thundr.route.HttpMethod;
 import com.threewks.thundr.route.RouteResolverException;
-import com.threewks.thundr.route.redirect.Redirect;
-import com.threewks.thundr.route.redirect.RedirectRouteResolver;
 
 public class RedirectActionResolverTest {
-	@Rule public ExpectedException thrown = ExpectedException.none();
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	private RedirectRouteResolver resolver = new RedirectRouteResolver();
-	private Map<String, String> emptyMap = map();
-
-	@Test
-	public void shouldCreateRedirectAction() {
-		Redirect createActionIfPossible = resolver.createActionIfPossible("redirect:/back/to/you");
-		assertThat(createActionIfPossible, is(notNullValue()));
-		assertThat(createActionIfPossible.getRedirectTo(emptyMap), is("/back/to/you"));
-	}
-
-	@Test
-	public void shouldCreateRedirectActionRegardlessOfCase() {
-		Redirect createActionIfPossible = resolver.createActionIfPossible("RedirecT:/back/to/you");
-		assertThat(createActionIfPossible, is(notNullValue()));
-		assertThat(createActionIfPossible.getRedirectTo(emptyMap), is("/back/to/you"));
-	}
-
-	@Test
-	public void shouldNotResolveRedirectAction() {
-		Redirect createActionIfPossible = resolver.createActionIfPossible("other:/back/to/you");
-		assertThat(createActionIfPossible, is(nullValue()));
-	}
 
 	@Test
 	public void shouldSendRedirectToClient() throws IOException {

@@ -31,13 +31,4 @@ public class TestActionResolver implements RouteResolver<TestAction> {
 	public Object resolve(TestAction action, HttpMethod method, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws RouteResolverException {
 		return null;
 	}
-
-	@Override
-	public TestAction createActionIfPossible(String actionName) {
-		return actionName.startsWith("test:") ? new TestAction(actionName.replaceAll("test:", "")) : null;
-	}
-
-	@Override
-	public void initialise(TestAction action) {
-	}
 }

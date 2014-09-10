@@ -30,7 +30,8 @@ public enum HttpMethod {
 	POST,
 	PUT,
 	PATCH,
-	DELETE;
+	DELETE, 
+	OPTIONS;
 
 	private static final List<HttpMethod> all = list(HttpMethod.values());
 	private static final Map<String, HttpMethod> lookup = createLookup();

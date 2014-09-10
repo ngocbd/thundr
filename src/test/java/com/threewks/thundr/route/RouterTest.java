@@ -297,14 +297,5 @@ public class RouterTest {
 		public TestResolve resolve(TestResolve action, HttpMethod method, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws RouteResolverException {
 			return action;
 		}
-
-		@Override
-		public TestResolve createActionIfPossible(String actionName) {
-			return new TestResolve(actionName);
-		}
-
-		@Override
-		public void initialise(TestResolve action) {
-		}
 	}
 }

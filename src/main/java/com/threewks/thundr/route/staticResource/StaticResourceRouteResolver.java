@@ -84,14 +84,6 @@ public class StaticResourceRouteResolver implements RouteResolver<StaticResource
 	}
 
 	@Override
-	public StaticResource createActionIfPossible(String actionName) {
-		if (ActionName.equalsIgnoreCase(actionName) || ActionNamePattern.matcher(actionName).matches()) {
-			return new StaticResource();
-		}
-		return null;
-	}
-
-	@Override
 	public Object resolve(StaticResource action, HttpMethod method, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws RouteResolverException {
 		try {
 			serve(action, req, resp);
@@ -102,12 +94,7 @@ public class StaticResourceRouteResolver implements RouteResolver<StaticResource
 		}
 	}
 
-	@Override
-	public void initialise(StaticResource action) {
-	}
-
 	protected void serve(StaticResource action, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
 		String resource = request.getRequestURI();
 		URL resourceUrl = servletContext.getResource(resource);
 		boolean allowed = isAllowed(resource);

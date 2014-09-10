@@ -33,8 +33,6 @@ import org.junit.Test;
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.exception.BaseException;
 import com.threewks.thundr.route.HttpMethod;
-import com.threewks.thundr.route.staticResource.StaticResource;
-import com.threewks.thundr.route.staticResource.StaticResourceRouteResolver;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
 import com.threewks.thundr.test.mock.servlet.MockServletContext;
@@ -48,16 +46,6 @@ public class StaticResourceActionResolverTest {
 	private MockHttpServletRequest req = new MockHttpServletRequest();
 	private MockHttpServletResponse resp = new MockHttpServletResponse();
 	private Map<String, String> pathVars = Expressive.<String, String> map();
-
-	@Test
-	public void shouldMatchActionNameOfStatic() {
-		assertThat(resolver.createActionIfPossible("static"), is(notNullValue()));
-		assertThat(resolver.createActionIfPossible("STATIC"), is(notNullValue()));
-		assertThat(resolver.createActionIfPossible("static:/something"), is(notNullValue()));
-		assertThat(resolver.createActionIfPossible(""), is(nullValue()));
-		assertThat(resolver.createActionIfPossible("   "), is(nullValue()));
-		assertThat(resolver.createActionIfPossible("something.else"), is(nullValue()));
-	}
 
 	@Test
 	public void shouldResolveByInvokingServeAndReturningNull() throws ServletException, IOException {

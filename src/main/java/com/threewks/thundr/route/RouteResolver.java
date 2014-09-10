@@ -22,17 +22,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 public interface RouteResolver<T extends RouteResult> {
-	/**
-	 * Initialise/cache/validate that an action is valid at startup before first use.
-	 * 
-	 * @param action
-	 */
-	public void initialise(T action);
-
 	public Object resolve(T action, HttpMethod method, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws RouteResolverException;
-
-	public T createActionIfPossible(String actionName);
-
 }
