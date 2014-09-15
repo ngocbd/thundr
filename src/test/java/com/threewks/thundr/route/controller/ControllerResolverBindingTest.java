@@ -57,7 +57,7 @@ public class ControllerResolverBindingTest {
 
 		binderRegistry = new BinderRegistry();
 		BinderRegistry.registerDefaultBinders(binderRegistry, parameterBinderRegistry, transformerManager);
-		
+
 		resolver = new ControllerRouteResolver(null, null, binderRegistry);
 		request = mock(HttpServletRequest.class);
 		when(request.getParameterMap()).thenReturn(Collections.<String, String[]> emptyMap());
@@ -65,19 +65,18 @@ public class ControllerResolverBindingTest {
 
 	@Test
 	public void shouldInvokeNone() throws Exception {
-		Controller method = method("methodNone");
+		Controller method = controller("methodNone");
 		assertThat(resolver.bindArguments(method, request, null, emptyMap).size(), is(0));
 		assertThat(resolver.bindArguments(method, request("argument1", "value1"), null, null).size(), is(0));
 	}
 
-	private Controller method(String method) throws ClassNotFoundException {
-		Controller actionMethod = new Controller(TestBindTo.class, method);
-		return actionMethod;
+	private Controller controller(String method) throws ClassNotFoundException {
+		return new Controller(TestBindTo.class, method);
 	}
 
 	@Test
 	public void shouldInvokeSingleString() throws Exception {
-		Controller method = method("methodSingleString");
+		Controller method = controller("methodSingleString");
 		assertThat(resolver.bindArguments(method, request, null, emptyMap), is(asList(nullObject)));
 		assertThat(resolver.bindArguments(method, request("argument1", "value1"), null, emptyMap), is(Arrays.<Object> asList("value1")));
 	}
@@ -90,7 +89,7 @@ public class ControllerResolverBindingTest {
 	@Test
 	public void shouldInvokeDoubleString() throws Exception {
 
-		Controller method = method("methodDoubleString");
+		Controller method = controller("methodDoubleString");
 		assertThat(resolver.bindArguments(method, request, null, emptyMap), is(asList(nullObject, nullObject)));
 		assertThat(resolver.bindArguments(method, request("argument1", "value1", "argument2", "value2"), null, emptyMap), is(Arrays.<Object> asList("value1", "value2")));
 		assertThat(resolver.bindArguments(method, request("argument1", "value1"), null, emptyMap), is(Arrays.<Object> asList("value1", null)));
@@ -99,7 +98,7 @@ public class ControllerResolverBindingTest {
 
 	@Test
 	public void shouldInvokeStringList() throws Exception {
-		Controller method = method("methodStringList");
+		Controller method = controller("methodStringList");
 		assertThat(resolver.bindArguments(method, request, null, emptyMap).size(), is(1));
 		assertThat(resolver.bindArguments(method, request, null, emptyMap), is(asList(nullObject)));
 		assertThat(resolver.bindArguments(method, request("argument1[0]", "value1"), null, emptyMap), is(Arrays.<Object> asList(list("value1"))));
@@ -114,7 +113,7 @@ public class ControllerResolverBindingTest {
 
 	@Test
 	public void shouldInvokeStringMap() throws Exception {
-		Controller method = method("methodMap");
+		Controller method = controller("methodMap");
 		assertThat(resolver.bindArguments(method, request, null, emptyMap).size(), is(1));
 		assertThat(resolver.bindArguments(method, request, null, emptyMap), is(asList(nullObject)));
 		assertThat(resolver.bindArguments(method, request("argument1[0]", "value1"), null, emptyMap), is(Arrays.<Object> asList(map("0", list("value1")))));
@@ -128,31 +127,35 @@ public class ControllerResolverBindingTest {
 
 	@Test
 	public void shouldInvokeArray() throws ClassNotFoundException {
-		Controller method = method("methodStringArray");
+		Controller method = controller("methodStringArray");
 		assertThat(resolver.bindArguments(method, request, null, emptyMap).size(), is(1));
 		assertThat(resolver.bindArguments(method, request, null, emptyMap), is(asList(nullObject)));
 		assertThat((String[]) resolver.bindArguments(method, request("argument1[0]", ""), null, emptyMap).get(0), is(array("")));
 		assertThat((String[]) resolver.bindArguments(method, request("argument1[0]", "value1"), null, emptyMap).get(0), is(array("value1")));
-		assertThat((String[]) resolver.bindArguments(method, request("argument1[0]", "value1", "argument1[1]", "value2", "argument1[3]", "value3"), null, emptyMap).get(0), is(array("value1", "value2", null, "value3")));
-		assertThat((String[]) resolver.bindArguments(method, request("argument1[0]", "", "argument1[1]", "value2", "argument1[3]", "value3"), null, emptyMap).get(0), is(array("", "value2", null, "value3")));
+		assertThat((String[]) resolver.bindArguments(method, request("argument1[0]", "value1", "argument1[1]", "value2", "argument1[3]", "value3"), null, emptyMap).get(0),
+				is(array("value1", "value2", null, "value3")));
+		assertThat((String[]) resolver.bindArguments(method, request("argument1[0]", "", "argument1[1]", "value2", "argument1[3]", "value3"), null, emptyMap).get(0),
+				is(array("", "value2", null, "value3")));
 		assertThat((String[]) resolver.bindArguments(method, request("argument1", new String[] { "value1", "value2" }), null, emptyMap).get(0), is(array("value1", "value2")));
-		
+
 		assertThat(resolver.bindArguments(method, request(), null, emptyMap).get(0), is(nullValue()));
-		assertThat(resolver.bindArguments(method, request("argument1", null), null, emptyMap), is(asList(nullObject))); 
+		assertThat(resolver.bindArguments(method, request("argument1", null), null, emptyMap), is(asList(nullObject)));
 		assertThat(resolver.bindArguments(method, request("argument1", ""), null, emptyMap), is(asList(nullObject)));
-		
+
 	}
 
 	@Test
 	public void shouldInvokeGenericArray() throws ClassNotFoundException {
-		Controller method = method("methodGenericArray");
+		Controller method = controller("methodGenericArray");
 		assertThat(resolver.bindArguments(method, request, null, emptyMap).size(), is(1));
 		assertThat(resolver.bindArguments(method, request, null, emptyMap), is(asList(nullObject)));
 		assertThat((String[]) resolver.bindArguments(method, request("argument1[0]", "value1"), null, emptyMap).get(0), is(array("value1")));
-		assertThat((String[]) resolver.bindArguments(method, request("argument1[0]", "value1", "argument1[1]", "value2", "argument1[3]", "value3"), null, emptyMap).get(0), is(array("value1", "value2", null, "value3")));
-		assertThat((String[]) resolver.bindArguments(method, request("argument1[0]", "", "argument1[1]", "value2", "argument1[3]", "value3"), null, emptyMap).get(0), is(array("", "value2", null, "value3")));
+		assertThat((String[]) resolver.bindArguments(method, request("argument1[0]", "value1", "argument1[1]", "value2", "argument1[3]", "value3"), null, emptyMap).get(0),
+				is(array("value1", "value2", null, "value3")));
+		assertThat((String[]) resolver.bindArguments(method, request("argument1[0]", "", "argument1[1]", "value2", "argument1[3]", "value3"), null, emptyMap).get(0),
+				is(array("", "value2", null, "value3")));
 		assertThat((String[]) resolver.bindArguments(method, request("argument1", new String[] { "value1", "value2" }), null, emptyMap).get(0), is(array("value1", "value2")));
-		
+
 		assertThat(resolver.bindArguments(method, request(), null, emptyMap), is(asList(nullObject)));
 		assertThat(resolver.bindArguments(method, request("argument1", null), null, emptyMap), is(asList(nullObject)));
 		assertThat(resolver.bindArguments(method, request("argument1", ""), null, emptyMap), is(asList(nullObject)));
@@ -160,23 +163,23 @@ public class ControllerResolverBindingTest {
 
 	@Test
 	public void shouldInvokeJavaBean() throws ClassNotFoundException {
-		Controller method = method("methodJavaBean");
+		Controller method = controller("methodJavaBean");
 		assertThat(resolver.bindArguments(method, request, null, emptyMap).size(), is(1));
 		assertThat(resolver.bindArguments(method, request, null, emptyMap), is(asList(nullObject)));
 		assertThat(resolver.bindArguments(method, request("argument1.name", "myname"), null, emptyMap), is(Arrays.<Object> asList(new JavaBean("myname", null))));
 		assertThat(resolver.bindArguments(method, request("argument1.name", "myname", "argument1.value", "my value"), null, emptyMap), is(Arrays.<Object> asList(new JavaBean("myname", "my value"))));
 		assertThat(resolver.bindArguments(method, request("argument1.value", "my value"), null, emptyMap), is(Arrays.<Object> asList(new JavaBean(null, "my value"))));
-		assertThat(resolver.bindArguments(method, request("argument1.name", new String[] { "value1", "value2" }), null, emptyMap), is(Arrays.<Object> asList(new JavaBean("value1,value2", null))));
 		assertThat(resolver.bindArguments(method, request("argument1.name", null), null, emptyMap), is(Arrays.<Object> asList(new JavaBean(null, null))));
 		assertThat(resolver.bindArguments(method, request("argument1.name", ""), null, emptyMap), is(Arrays.<Object> asList(new JavaBean("", null))));
 		assertThat(resolver.bindArguments(method, request("argument1.name", "multiline\ncontent"), null, emptyMap), is(Arrays.<Object> asList(new JavaBean("multiline\ncontent", null))));
 		assertThat(resolver.bindArguments(method, request("argument1", null), null, emptyMap), is(asList(nullObject)));
 		assertThat(resolver.bindArguments(method, request("argument1", ""), null, emptyMap), is(asList(nullObject)));
+		assertThat(resolver.bindArguments(method, request("argument1.name", new String[] { "value1", "value2" }), null, emptyMap), is(Arrays.<Object> asList(new JavaBean(null, null))));
 	}
 
 	@Test
 	public void shouldInvokeDeepJavaBean() throws ClassNotFoundException {
-		Controller method = method("methodDeepJavaBean");
+		Controller method = controller("methodDeepJavaBean");
 		assertThat(resolver.bindArguments(method, request, null, emptyMap).size(), is(1));
 		assertThat(resolver.bindArguments(method, request, null, emptyMap), is(asList(nullObject)));
 		assertThat(resolver.bindArguments(method, request("argument1.name", "myname"), null, emptyMap), is(Arrays.<Object> asList(new DeepJavaBean("myname", null))));

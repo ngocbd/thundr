@@ -22,8 +22,6 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-import com.threewks.thundr.view.negotiating.NegotiatingView;
-
 public class NegotiatingViewTest {
 
 	@Test

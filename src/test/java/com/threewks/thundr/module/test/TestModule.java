@@ -17,8 +17,8 @@
  */
 package com.threewks.thundr.module.test;
 
-import com.threewks.thundr.injection.Module;
 import com.threewks.thundr.injection.InjectionContext;
+import com.threewks.thundr.injection.Module;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.module.DependencyRegistry;
 

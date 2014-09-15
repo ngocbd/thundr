@@ -17,6 +17,7 @@
  */
 package com.threewks.thundr.view.exception;
 
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;

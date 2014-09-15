@@ -47,6 +47,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.internal.LinkedTreeMap;
 import com.threewks.thundr.bind.BindException;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.introspection.MethodIntrospector;
@@ -303,7 +304,7 @@ public class GsonBinderTest {
 	@Test
 	public void shouldThrowBindExceptionIfBindingFailsForMultipleValues() {
 		thrown.expect(BindException.class);
-		thrown.expectMessage("Failed to bind JSON: Not a JSON Object: null");
+		thrown.expectMessage("Failed to bind JSON: java.io.EOFException: End of input at line 1 column 38");
 
 		ParameterDescription stringParameterDescription = new ParameterDescription("name", String.class);
 		ParameterDescription intParameterDescription = new ParameterDescription("value", int.class);
@@ -365,7 +366,7 @@ public class GsonBinderTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void shouldBindToMap() {
-		assertCanBindToMap(Map.class, LinkedHashMap.class);
+		assertCanBindToMap(Map.class, LinkedTreeMap.class);
 		assertCanBindToMap(LinkedHashMap.class, LinkedHashMap.class);
 		assertCanBindToMap(TreeMap.class, TreeMap.class);
 		assertCanBindToMap(HashMap.class, HashMap.class);
@@ -413,7 +414,7 @@ public class GsonBinderTest {
 
 		Object boundValue = bindings.get(parameterDescription);
 		assertThat(boundValue, is(notNullValue()));
-		assertThat(boundValue.getClass() == concreteType, is(true));
+		assertThat(boundValue, instanceOf(concreteType));
 		I map = (I) boundValue;
 		assertThat(map.get("name"), is((Object) "pojo name"));
 		assertThat(map.get("value"), is((Object) 5d));

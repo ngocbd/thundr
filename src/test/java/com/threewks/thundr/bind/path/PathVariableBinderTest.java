@@ -36,7 +36,6 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.threewks.thundr.bind.path.PathVariableBinder;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.route.HttpMethod;
 import com.threewks.thundr.route.controller.TestAnnotation;
@@ -130,7 +129,8 @@ public class PathVariableBinderTest {
 		assertThat(parameterDescriptions.get(param12), is((Object) new BigDecimal("12.00")));
 		assertThat(parameterDescriptions.get(param13), is((Object) BigInteger.valueOf(13)));
 		assertThat(parameterDescriptions.get(param14), is((Object) UUID.fromString(uuidString)));
-		assertThat(parameterDescriptions.get(param15), is((Object) dateTime));
+		// Timezones will differ as parsing maintains the timezone exactly (i.e. Australia/Sydney becomes +10:00)
+		assertThat(((DateTime)parameterDescriptions.get(param15)).compareTo(dateTime), is(0));
 		assertThat(parameterDescriptions.get(param16), is((Object) HttpMethod.POST));
 	}
 
@@ -155,7 +155,7 @@ public class PathVariableBinderTest {
 
 		assertThat(parameterDescriptions.get(param1), is((Object) "string-value"));
 		assertThat(parameterDescriptions.get(param2), is(nullValue()));
-		assertThat(parameterDescriptions.get(param3), is(nullValue()));
+		assertThat(parameterDescriptions.get(param3), is((Object)"3"));
 		assertThat(parameterDescriptions.get(param4), is(nullValue()));
 	}
 }

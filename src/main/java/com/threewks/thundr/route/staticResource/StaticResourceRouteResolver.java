@@ -42,7 +42,6 @@ import com.threewks.thundr.route.RouteResolver;
 import com.threewks.thundr.route.RouteResolverException;
 
 import jodd.io.StreamUtil;
-import jodd.servlet.filter.GzipResponseWrapper;
 import jodd.util.Wildcard;
 
 // TODO - Better caching control:

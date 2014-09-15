@@ -21,10 +21,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.threewks.thundr.view.DataView;
+
 import jodd.util.MimeTypes;
 import jodd.util.StringPool;
-
-import com.threewks.thundr.view.DataView;
 
 public class JsonView extends DataView<JsonView> {
 

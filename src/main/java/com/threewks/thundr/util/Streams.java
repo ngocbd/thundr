@@ -23,9 +23,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
-import jodd.io.FastByteArrayOutputStream;
-
 import com.threewks.thundr.exception.BaseException;
+
+import jodd.io.FastByteArrayOutputStream;
 
 public class Streams {
 	private static final String DefaultEncoding = "UTF-8";

@@ -148,16 +148,15 @@ public class ParameterBinderRegistry {
 		registry.addBinder(new ArrayParameterBinder());
 		registry.addBinder(new CollectionParameterBinder<ArrayList<Object>>(new SimpleCollectionFactory(ArrayList.class, ArrayList.class)));
 		registry.addBinder(new CollectionParameterBinder<LinkedList<Object>>(new SimpleCollectionFactory(LinkedList.class, LinkedList.class)));
-		registry.addBinder(new CollectionParameterBinder<EList<Object>>(new SimpleCollectionFactory(EList.class, EListImpl.class)));
 		registry.addBinder(new CollectionParameterBinder<EListImpl<Object>>(new SimpleCollectionFactory(EListImpl.class, EListImpl.class)));
-		registry.addBinder(new CollectionParameterBinder<TreeSet<Object>>(new SimpleCollectionFactory(TreeSet.class, TreeSet.class)));
+		registry.addBinder(new CollectionParameterBinder<EList<Object>>(new SimpleCollectionFactory(EList.class, EListImpl.class)));
 		registry.addBinder(new CollectionParameterBinder<HashSet<Object>>(new SimpleCollectionFactory(HashSet.class, HashSet.class)));
 		registry.addBinder(new CollectionParameterBinder<TreeSet<Object>>(new SimpleCollectionFactory(TreeSet.class, TreeSet.class)));
 		registry.addBinder(new CollectionParameterBinder<SortedSet<Object>>(new SimpleCollectionFactory(SortedSet.class, TreeSet.class)));
 		registry.addBinder(new CollectionParameterBinder<Set<Object>>(new SimpleCollectionFactory(Set.class, HashSet.class)));
 		registry.addBinder(new CollectionParameterBinder<List<Object>>(new SimpleCollectionFactory(List.class, ArrayList.class)));
 		registry.addBinder(new MapParameterBinder<Map<Object, Object>>(new SimpleMapFactory(HashMap.class, HashMap.class)));
-		registry.addBinder(new MapParameterBinder<Map<Object, Object>>(new SimpleMapFactory(LinkedHashMap.class, HashMap.class)));
+		registry.addBinder(new MapParameterBinder<Map<Object, Object>>(new SimpleMapFactory(LinkedHashMap.class, LinkedHashMap.class)));
 		registry.addBinder(new MapParameterBinder<Map<Object, Object>>(new SimpleMapFactory(TreeMap.class, TreeMap.class)));
 		registry.addBinder(new MapParameterBinder<Map<Object, Object>>(new SimpleMapFactory(SortedMap.class, TreeMap.class)));
 		registry.addBinder(new MapParameterBinder<Map<Object, Object>>(new SimpleMapFactory(Map.class, HashMap.class)));

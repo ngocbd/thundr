@@ -21,11 +21,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 
-import jodd.util.MimeTypes;
-
 import com.threewks.thundr.view.negotiating.NegotiatingView;
 import com.threewks.thundr.view.negotiating.Negotiator;
 import com.threewks.thundr.view.negotiating.ViewNegotiatorRegistry;
+
+import jodd.util.MimeTypes;
 
 /**
  * Finds a {@link Negotiator} using the file extension on the request.

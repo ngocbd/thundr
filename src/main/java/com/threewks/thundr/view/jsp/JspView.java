@@ -20,13 +20,13 @@ package com.threewks.thundr.view.jsp;
 import java.util.HashMap;
 import java.util.Map;
 
-import jodd.util.StringPool;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.view.TemplateView;
 import com.threewks.thundr.view.View;
+
+import jodd.util.StringPool;
 
 public class JspView extends TemplateView<JspView> implements View {
 	public JspView(String view) {

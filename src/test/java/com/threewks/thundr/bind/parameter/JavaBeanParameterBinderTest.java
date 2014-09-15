@@ -1,0 +1,206 @@
+package com.threewks.thundr.bind.parameter;
+
+import static com.atomicleopard.expressive.Expressive.*;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import com.threewks.thundr.bind.BindException;
+import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.transformer.TransformerManager;
+
+public class JavaBeanParameterBinderTest {
+
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
+
+	private JavaBeanParameterBinder binder = new JavaBeanParameterBinder();
+	private TransformerManager transformerManager = TransformerManager.createWithDefaults();
+	private ParameterBinderRegistry binders = new ParameterBinderRegistry(transformerManager);
+
+	@Test
+	public void shouldBindABasicJavabean() {
+		ParameterDescription parameterDescription = new ParameterDescription("bean", BasicTestBean.class);
+		Map<String, String[]> map = mapKeys("bean.name", "bean.id").to(array("string"), array("1"));
+
+		Object result = binder.bind(binders, parameterDescription, new RequestDataMap(map), transformerManager);
+		assertThat(result, is(notNullValue()));
+		assertThat(result, instanceOf(BasicTestBean.class));
+		BasicTestBean bean = (BasicTestBean) result;
+		assertThat(bean.getName(), is("string"));
+		assertThat(bean.getId(), is(1l));
+	}
+
+	@Test
+	public void shouldBindABasicJavabeanWithExtendedTypes() {
+		ParameterDescription parameterDescription = new ParameterDescription("bean", BasicTestBean.class);
+		Map<String, String[]> map = mapKeys("bean.name", "bean.id", "bean.dateTime").to(array("string"), array("1"), array("2014-06-02T12:01:01.001Z"));
+
+		Object result = binder.bind(binders, parameterDescription, new RequestDataMap(map), transformerManager);
+		assertThat(result, is(notNullValue()));
+		assertThat(result, instanceOf(BasicTestBean.class));
+		BasicTestBean bean = (BasicTestBean) result;
+		assertThat(bean.getName(), is("string"));
+		assertThat(bean.getId(), is(1l));
+		assertThat(bean.getDateTime(), is(new DateTime(2014, 6, 2, 12, 1, 1, 1).withZoneRetainFields(DateTimeZone.UTC)));
+	}
+
+	@Test
+	public void shouldBindANestedJavabean() {
+		ParameterDescription parameterDescription = new ParameterDescription("bean", NestedTestBean.class);
+		Map<String, String[]> map = mapKeys("bean.name", "bean.nested.name", "bean.nested.id").to(array("outer"), array("inner"), array("1"));
+
+		Object result = binder.bind(binders, parameterDescription, new RequestDataMap(map), transformerManager);
+		assertThat(result, is(notNullValue()));
+		assertThat(result, instanceOf(NestedTestBean.class));
+		NestedTestBean bean = (NestedTestBean) result;
+		assertThat(bean.getName(), is("outer"));
+		assertThat(bean.getNested(), is(notNullValue()));
+		assertThat(bean.getNested(), instanceOf(BasicTestBean.class));
+		assertThat(bean.getNested().getName(), is("inner"));
+		assertThat(bean.getNested().getId(), is(1l));
+	}
+
+	@Test
+	public void shouldBindAMultidimensonalJavabean() {
+		ParameterDescription parameterDescription = new ParameterDescription("bean", MultidimensionalTestBean.class);
+		Map<String, String[]> map = mapKeys("bean.name", "bean.nested[0].name", "bean.nested[0].id", "bean.nested[1].name", "bean.nested[1].id").to(array("outer"), array("inner1"), array("1"),
+				array("inner2"), array("2"));
+
+		Object result = binder.bind(binders, parameterDescription, new RequestDataMap(map), transformerManager);
+		assertThat(result, is(notNullValue()));
+		assertThat(result, instanceOf(MultidimensionalTestBean.class));
+		MultidimensionalTestBean bean = (MultidimensionalTestBean) result;
+		assertThat(bean.getName(), is("outer"));
+		List<BasicTestBean> nested = bean.getNested();
+		assertThat(nested, is(notNullValue()));
+		assertThat(nested.size(), is(2));
+		assertThat(nested.get(0).getName(), is("inner1"));
+		assertThat(nested.get(0).getId(), is(1l));
+		assertThat(nested.get(1).getName(), is("inner2"));
+		assertThat(nested.get(1).getId(), is(2l));
+	}
+
+	@Test
+	public void shouldThrowBindExceptionWhenCannotBind() {
+		thrown.expect(BindException.class);
+		thrown.expectMessage("Failed to bind onto class com.threewks.thundr.bind.parameter.JavaBeanParameterBinderTest$UnbindableTestBean: Intentional");
+
+		ParameterDescription parameterDescription = new ParameterDescription("bean", UnbindableTestBean.class);
+		Map<String, String[]> map = map("bean.value", array("value"));
+
+		binder.bind(binders, parameterDescription, new RequestDataMap(map), transformerManager);
+	}
+
+	@Test
+	public void shouldReturnNullIfNoDataInRequestMap() {
+		ParameterDescription parameterDescription = new ParameterDescription("bean", UnbindableTestBean.class);
+		Map<String, String[]> map = map("other.data", array("value"));
+
+		Object result = binder.bind(binders, parameterDescription, new RequestDataMap(map), transformerManager);
+		assertThat(result, is(nullValue()));
+	}
+
+	@Test
+	public void shouldOnlyBindToJavabeans() {
+		assertThat(binder.willBind(new ParameterDescription(null, DateTime.class), transformerManager), is(true));
+		assertThat(binder.willBind(new ParameterDescription(null, BasicTestBean.class), transformerManager), is(true));
+		assertThat(binder.willBind(new ParameterDescription(null, NestedTestBean.class), transformerManager), is(true));
+
+		assertThat(binder.willBind(new ParameterDescription(null, String.class), transformerManager), is(false));
+		assertThat(binder.willBind(new ParameterDescription(null, Long.class), transformerManager), is(false));
+		assertThat(binder.willBind(new ParameterDescription(null, byte.class), transformerManager), is(false));
+		assertThat(binder.willBind(new ParameterDescription(null, List.class), transformerManager), is(false));
+		assertThat(binder.willBind(new ParameterDescription(null, Collection.class), transformerManager), is(false));
+		assertThat(binder.willBind(new ParameterDescription(null, Map.class), transformerManager), is(false));
+		assertThat(binder.willBind(new ParameterDescription(null, Set.class), transformerManager), is(false));
+	}
+
+	public static class MultidimensionalTestBean {
+		private String name;
+		private List<BasicTestBean> nested;
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public List<BasicTestBean> getNested() {
+			return nested;
+		}
+
+		public void setNested(List<BasicTestBean> nested) {
+			this.nested = nested;
+		}
+	}
+
+	public static class NestedTestBean {
+		private String name;
+		private BasicTestBean nested;
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public BasicTestBean getNested() {
+			return nested;
+		}
+
+		public void setNested(BasicTestBean nested) {
+			this.nested = nested;
+		}
+	}
+
+	public static class BasicTestBean {
+		private String name;
+		private Long id;
+		private DateTime dateTime;
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public Long getId() {
+			return id;
+		}
+
+		public void setId(Long id) {
+			this.id = id;
+		}
+
+		public DateTime getDateTime() {
+			return dateTime;
+		}
+
+		public void setDateTime(DateTime dateTime) {
+			this.dateTime = dateTime;
+		}
+	}
+
+	static class UnbindableTestBean {
+		public UnbindableTestBean() {
+			throw new RuntimeException("Intentional");
+		}
+	}
+}

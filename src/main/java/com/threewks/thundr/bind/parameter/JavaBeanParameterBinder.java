@@ -19,20 +19,24 @@ package com.threewks.thundr.bind.parameter;
 
 import java.util.Map;
 
+import com.atomicleopard.expressive.ETransformer;
 import com.threewks.thundr.bind.BindException;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.introspection.TypeIntrospector;
 import com.threewks.thundr.transformer.TransformerManager;
 
-import jodd.bean.BeanLoaderManager;
+import jodd.bean.BeanUtilBean;
+import jodd.bean.loader.BeanLoader;
+import jodd.bean.loader.MapBeanLoader;
 
 public class JavaBeanParameterBinder implements ParameterBinder<Object> {
-	public Object bind(ParameterBinderRegistry binders, ParameterDescription parameterDescription, RequestDataMap pathMap, TransformerManager transformerManager) {
+	public Object bind(ParameterBinderRegistry binders, ParameterDescription parameterDescription, RequestDataMap pathMap, final TransformerManager transformerManager) {
 		Map<String, Object> stringMap = pathMap.toStringMap(parameterDescription.name());
 		if (!stringMap.isEmpty()) {
 			try {
 				Object bean = parameterDescription.classType().newInstance();
-				BeanLoaderManager.load(bean, stringMap);
+				BeanLoader beanLoader = beanLoader(transformerManager);
+				beanLoader.load(bean, stringMap);
 				return bean;
 			} catch (Exception e) {
 				throw new BindException(e, "Failed to bind onto %s: %s", parameterDescription.classType(), e.getMessage());
@@ -41,9 +45,36 @@ public class JavaBeanParameterBinder implements ParameterBinder<Object> {
 		return null;
 	}
 
+	public MapBeanLoader beanLoader(final TransformerManager transformerManager) {
+		MapBeanLoader mapBeanLoader = new MapBeanLoader();
+		mapBeanLoader.setBeanUtilBean(new TransformerManagerBeanUtilBean(transformerManager));
+		return mapBeanLoader;
+	}
+
 	@Override
 	public boolean willBind(ParameterDescription parameterDescription, TransformerManager transformerManager) {
 		Class<?> type = parameterDescription.classType();
 		return TypeIntrospector.isAJavabean(type);
 	}
+
+	static class TransformerManagerBeanUtilBean extends BeanUtilBean {
+		private TransformerManager transformerManager;
+
+		public TransformerManagerBeanUtilBean(TransformerManager transformerManager) {
+			super();
+			this.transformerManager = transformerManager;
+		}
+
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		@Override
+		protected Object convertType(Object value, Class type) {
+			Class<?> currentType = value.getClass();
+			ETransformer<Object, Object> bestTransformer = transformerManager.getBestTransformer(currentType, type);
+			if (bestTransformer == null) {
+				throw new BindException("Unable to bind to type %s - no transformer available", type.getName());
+			}
+			return bestTransformer.from(value);
+		}
+	}
+
 }

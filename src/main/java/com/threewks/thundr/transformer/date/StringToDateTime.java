@@ -24,7 +24,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import com.atomicleopard.expressive.ETransformer;
 
 public class StringToDateTime implements ETransformer<String, DateTime> {
-	private static final DateTimeFormatter LenientIsoParser = ISODateTimeFormat.dateOptionalTimeParser();
+	private static final DateTimeFormatter LenientIsoParser = ISODateTimeFormat.dateOptionalTimeParser().withOffsetParsed();
 
 	@Override
 	public DateTime from(String from) {

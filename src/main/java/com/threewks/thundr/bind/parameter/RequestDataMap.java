@@ -17,7 +17,6 @@
  */
 package com.threewks.thundr.bind.parameter;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -58,23 +57,6 @@ public class RequestDataMap {
 				delegate.put(path, entry.getValue());
 			}
 		}
-	}
-
-	/**
-	 * Returns a new path which has a specific entity name prepended to the front of all entries
-	 * 
-	 * @param parent
-	 * @return
-	 */
-	public RequestDataMap pushPath(String name) {
-		RequestDataMap pathMap = new RequestDataMap();
-		for (Map.Entry<List<String>, String[]> entry : delegate.entrySet()) {
-			List<String> path = entry.getKey();
-			List<String> newPath = new ArrayList<String>(path);
-			newPath.add(0, name);
-			pathMap.delegate.put(newPath, entry.getValue());
-		}
-		return pathMap;
 	}
 
 	public RequestDataMap pathMapFor(String key) {

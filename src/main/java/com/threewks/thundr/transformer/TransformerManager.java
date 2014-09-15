@@ -157,6 +157,10 @@ public class TransformerManager {
 			return NoopTransformerInstance;
 		}
 		ETransformer<From, To> convertor = (ETransformer<From, To>) transformers.get(fromType, toType);
+		// We prefer registered converters over a noop transformer for super types
+		if (convertor == null && toType.isAssignableFrom(fromType)) {
+			return NoopTransformerInstance;
+		}
 		return convertor;
 	}
 
@@ -301,7 +305,7 @@ public class TransformerManager {
 		// uuids
 		transformerManager.register(UUID.class, String.class, new UUIDToString());
 		transformerManager.register(String.class, UUID.class, new StringToUUID());
-		
+
 		// data types
 		transformerManager.register(byte[].class, InputStream.class, new ByteArrayToInputStream());
 		transformerManager.register(String.class, InputStream.class, new StringToInputStream());

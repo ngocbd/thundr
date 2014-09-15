@@ -26,8 +26,6 @@ import com.threewks.thundr.view.json.JsonNegotiator;
 import com.threewks.thundr.view.json.JsonView;
 import com.threewks.thundr.view.jsonp.JsonpNegotiator;
 import com.threewks.thundr.view.jsonp.JsonpView;
-import com.threewks.thundr.view.negotiating.Negotiator;
-import com.threewks.thundr.view.negotiating.ViewNegotiatorRegistryImpl;
 
 public class ViewNegotiatorRegistryImplTest {
 	ViewNegotiatorRegistryImpl registry = new ViewNegotiatorRegistryImpl();

@@ -64,6 +64,14 @@ public class StringToDateTimeTest {
 	}
 
 	@Test
+	public void shouldRetainSpecifiedTimezone() {
+		assertThat(transformer.from("2014-06-01T12:34:56.123"), is(new DateTime(2014, 6, 1, 12, 34, 56, 123)));
+		assertThat(transformer.from("2014-06-01T12:34:56.123+08:00"), is(new DateTime(2014, 6, 1, 12, 34, 56, 123).withZoneRetainFields(DateTimeZone.forOffsetHours(8))));
+		assertThat(transformer.from("2014-06-01T12:34:56.123-08:00"), is(new DateTime(2014, 6, 1, 12, 34, 56, 123).withZoneRetainFields(DateTimeZone.forOffsetHours(-8))));
+		assertThat(transformer.from("2014-06-01T12:34:56.123Z"), is(new DateTime(2014, 6, 1, 12, 34, 56, 123).withZoneRetainFields(DateTimeZone.UTC)));
+	}
+
+	@Test
 	public void shouldFailToTransformEmptyString() {
 		thrown.expect(IllegalArgumentException.class);
 		transformer.from("");

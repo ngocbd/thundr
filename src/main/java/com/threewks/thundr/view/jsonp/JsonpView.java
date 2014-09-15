@@ -21,11 +21,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
-import jodd.util.MimeTypes;
-import jodd.util.StringPool;
-
 import com.threewks.thundr.view.DataView;
 import com.threewks.thundr.view.View;
+
+import jodd.util.MimeTypes;
+import jodd.util.StringPool;
 
 public class JsonpView extends DataView<JsonpView> implements View {
 	public JsonpView(Object output) {

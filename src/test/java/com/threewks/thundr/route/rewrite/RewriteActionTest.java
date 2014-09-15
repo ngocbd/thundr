@@ -26,8 +26,6 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.threewks.thundr.route.rewrite.Rewrite;
-
 public class RewriteActionTest {
 	private Map<String, String> emptyPathVars = Collections.emptyMap();
 

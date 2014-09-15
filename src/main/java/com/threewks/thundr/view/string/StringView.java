@@ -19,11 +19,11 @@ package com.threewks.thundr.view.string;
 
 import java.io.UnsupportedEncodingException;
 
-import jodd.util.StringPool;
-
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.view.BaseView;
 import com.threewks.thundr.view.View;
+
+import jodd.util.StringPool;
 
 public class StringView extends BaseView<StringView> implements View {
 	private CharSequence content;

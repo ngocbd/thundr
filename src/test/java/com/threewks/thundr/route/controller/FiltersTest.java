@@ -25,8 +25,6 @@ import org.junit.Test;
 import org.mockito.InOrder;
 
 import com.threewks.thundr.route.HttpMethod;
-import com.threewks.thundr.route.controller.Filter;
-import com.threewks.thundr.route.controller.FilterRegistry;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
 

@@ -26,7 +26,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -136,6 +138,16 @@ public class TransformerManagerTest {
 		ETransformer<String, String> noop = transformerManager.getTransformer(String.class, String.class);
 		assertThat(noop, is(notNullValue()));
 		assertThat(noop.from("input"), is("input"));
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Test
+	public void shouldReturnANoopTransformerForAssignableTypes() {
+		ETransformer<ArrayList, List> noop = transformerManager.getTransformer(ArrayList.class, List.class);
+		assertThat(noop, is(notNullValue()));
+		ArrayList<String> original = new ArrayList<String>();
+		original.add("entry");
+		assertThat(noop.from(original), sameInstance((List) original));
 	}
 
 	@Test
