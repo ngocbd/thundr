@@ -153,6 +153,12 @@ public class TransformerManager {
 
 	@SuppressWarnings("unchecked")
 	public <From, To> ETransformer<From, To> getTransformer(Class<From> fromType, Class<To> toType) {
+		if (TypeIntrospector.isABasicType(fromType)) {
+			fromType = (Class<From>) TypeIntrospector.box(fromType);
+		}
+		if (TypeIntrospector.isABasicType(toType)) {
+			toType = (Class<To>) TypeIntrospector.box(toType);
+		}
 		if (fromType == toType) {
 			return NoopTransformerInstance;
 		}
@@ -166,6 +172,12 @@ public class TransformerManager {
 
 	@SuppressWarnings("unchecked")
 	public <From, To> ETransformer<? super From, ? extends To> getBestTransformer(Class<From> fromType, Class<To> toType) {
+		if (TypeIntrospector.isABasicType(fromType)) {
+			fromType = (Class<From>) TypeIntrospector.box(fromType);
+		}
+		if (TypeIntrospector.isABasicType(toType)) {
+			toType = (Class<To>) TypeIntrospector.box(toType);
+		}
 		ETransformer<? super From, ? extends To> transformer = getTransformer(fromType, toType);
 		if (transformer != null) {
 			return transformer;
