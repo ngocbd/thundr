@@ -26,7 +26,7 @@ import com.threewks.thundr.view.View;
 import jodd.util.StringPool;
 
 public class StringView extends BaseView<StringView> implements View {
-	private CharSequence content;
+	private String content;
 
 	public StringView(String content) {
 		this.content = content;
@@ -38,7 +38,7 @@ public class StringView extends BaseView<StringView> implements View {
 		this(String.format(format, args));
 	}
 
-	public CharSequence content() {
+	public String content() {
 		return content;
 	}
 
