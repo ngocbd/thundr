@@ -78,10 +78,16 @@ public class BaseMailerTest {
 	@Test
 	public void shouldSendEmailUsingWithEmailFields() throws MessagingException {
 		StringView body = new StringView("Email body").withContentType("text/plain");
-		MailBuilder builder = mailer.mail();
-		builder.from("test@email.com").replyTo("reply@email.com").to("recipient@email.com").cc("cc@email.com").bcc("bcc@email.com");
-		builder.body(body);
-		builder.subject("Subject");
+		// @formatter:off
+		MailBuilder builder = mailer.mail()
+				.from("test@email.com")
+				.replyTo("reply@email.com")
+				.to("recipient@email.com")
+				.cc("cc@email.com")
+				.bcc("bcc@email.com")
+				.body(body)
+				.subject("Subject");
+		// @formatter:on
 		builder.send();
 
 		verify(mailer).send(builder);
@@ -90,40 +96,41 @@ public class BaseMailerTest {
 	}
 
 	@Test
-	public void shouldSendEmailUsingWithAttachments() throws MessagingException {
+	public void shouldSendEmailWithAttachments() throws MessagingException {
 		StringView body = new StringView("Email body").withContentType("text/plain");
-		MailBuilder builder = mailer.mail();
-		builder.from("test@email.com").replyTo("reply@email.com").to("recipient@email.com").cc("cc@email.com").bcc("bcc@email.com");
-		builder.body(body);
-		builder.subject("Subject");
-		builder.attach("image1.jpg", "Image view", Disposition.Inline);
-		builder.attach("attachment", "Content", Disposition.Attachment);
-		builder.attach("attachment", "Different content, same name", Disposition.Attachment);
+		// @formatter:off
+		MailBuilder builder = mailer.mail()
+			.from("test@email.com")
+			.replyTo("reply@email.com")
+			.to("recipient@email.com")
+			.cc("cc@email.com")
+			.bcc("bcc@email.com")
+			.body(body)
+			.subject("Subject")
+			.attach("image1.jpg", "Image view", Disposition.Inline)
+			.attach("attachment", "Content", Disposition.Attachment)
+			.attach("attachment", "Different content, same name", Disposition.Attachment);
+		// @formatter:on
 		builder.send();
 
-		List<Attachment> expectedAttachments = Arrays.asList(new Attachment("image1.jpg", "Image view", Disposition.Inline), new Attachment("attachment", "Content", Disposition.Attachment), new Attachment("attachment", "Different content, same name", Disposition.Attachment));
-		
+		List<Attachment> expectedAttachments = Arrays.asList(new Attachment("image1.jpg", "Image view", Disposition.Inline), new Attachment("attachment", "Content", Disposition.Attachment),
+				new Attachment("attachment", "Different content, same name", Disposition.Attachment));
+
 		verify(mailer).send(builder);
-		verify(mailer).sendInternal(
-				entry("test@email.com"),
-				entry("reply@email.com"),
-				email("recipient@email.com"),
-				email("cc@email.com"),
-				email("bcc@email.com"),
-				"Subject",
-				body,
-				expectedAttachments);
+		verify(mailer).sendInternal(entry("test@email.com"), entry("reply@email.com"), email("recipient@email.com"), email("cc@email.com"), email("bcc@email.com"), "Subject", body, expectedAttachments);
 	}
 
 	@Test
 	public void shouldSendBasicEmailUsingNames() throws MessagingException {
 		StringView body = new StringView("Email body").withContentType("text/plain");
-		MailBuilder builder = mailer.mail();
 		Map<String, String> to = Expressive.map("steve@place.com", "Steve", "john@place.com", "John");
-		builder.from("sender@email.com", "System Name");
-		builder.to(to);
-		builder.body(body);
-		builder.subject("Subject line");
+		// @formatter:off
+		MailBuilder builder = mailer.mail()
+				.from("sender@email.com", "System Name")
+				.to(to)
+				.body(body)
+				.subject("Subject line");
+		// @formatter:on
 		builder.send();
 
 		verify(mailer).send(builder);
@@ -139,11 +146,13 @@ public class BaseMailerTest {
 
 		StringView body = new StringView("Email body").withContentType("text/plain");
 
-		MailBuilder builder = mailer.mail();
-		builder.from("sender@email.com", "System Name");
-		builder.to("steve@place.com", "Steve");
-		builder.body(body);
-		builder.subject("Subject line");
+		// @formatter:off
+		MailBuilder builder = mailer.mail()
+			.from("sender@email.com", "System Name")
+			.to("steve@place.com", "Steve")
+			.body(body)
+			.subject("Subject line");
+		// @formatter:on
 		builder.send();
 
 		verify(mailer).sendInternal(entry("sender@email.com", "System Name"), null, email("steve@place.com", "Steve"), empty(), empty(), "Subject line", body, Collections.<Attachment> emptyList());
@@ -175,11 +184,13 @@ public class BaseMailerTest {
 		thrown.expect(MailException.class);
 		thrown.expectMessage("No recipient (to, cc or bcc) has been set for this email");
 
-		MailBuilder builder = mailer.mail();
-		builder.from("sender@place.com", "Steve");
-		builder.body(new StringView("Email body").withContentType("text/plain"));
-		builder.subject("Subject line");
-		builder.send();
+		// @formatter:off
+		mailer.mail()
+			.from("sender@place.com", "Steve")
+			.body(new StringView("Email body").withContentType("text/plain"))
+			.subject("Subject line")
+			.send();
+		// @formatter:on
 	}
 
 	@Test
@@ -194,18 +205,20 @@ public class BaseMailerTest {
 	public void shouldNotFailToRenderBodyIfNoHttpServletRequestSupplied() {
 		RequestThreadLocal.clear();
 		StringView body = new StringView("Email body").withContentType((String) null);
-		MailBuilder builder = mailer.mail();
-		builder.from("sender@email.com");
-		builder.to("recipient@email.com");
-		builder.body(body);
-		builder.subject("Subject line");
+		// @formatter:off
+		MailBuilder builder = mailer.mail()
+				.from("sender@email.com")
+				.to("recipient@email.com")
+				.body(body)
+				.subject("Subject line");
+		// @formatter:on
 		builder.send();
 
 		verify(mailer).sendInternal(entry("sender@email.com"), null, email("recipient@email.com"), empty(), empty(), "Subject line", body, Collections.<Attachment> emptyList());
 	}
 
 	@Test
-	public void shouldNotFailToTheMailBuilderIsNotAMailBuilderImpl() {
+	public void shouldNotFailIfTheMailBuilderIsNotAMailBuilderImpl() {
 		StringView body = new StringView("Email body");
 		MailBuilder builder = mock(MailBuilder.class);
 		when(builder.from()).thenReturn(entry("sender@email.com"));
@@ -240,12 +253,12 @@ public class BaseMailerTest {
 		assertThat(req.getAttribute("initial"), is((Object) "value"));
 		assertThat(req.getAttribute("updated"), is((Object) 1));
 
-		MailBuilder builder = mailer.mail();
-		builder.from("sender@email.com");
-		builder.to("recipient@email.com");
-		builder.body("Email body");
-		builder.subject("Subject line");
-		builder.send();
+		mailer.mail()
+			.from("sender@email.com")
+			.to("recipient@email.com")
+			.body("Email body")
+			.subject("Subject line")
+			.send();
 
 		verify(mailer).sendInternal(entry("sender@email.com"), null, email("recipient@email.com"), empty(), empty(), "Subject line", "Email body", Collections.<Attachment> emptyList());
 

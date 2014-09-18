@@ -19,7 +19,7 @@ package com.threewks.thundr.mail;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,16 +29,30 @@ import com.threewks.thundr.view.file.FileView;
 public class MailBuilderImpl implements MailBuilder {
 	private Mailer mailer;
 	private String subject;
-	private Map<String, String> from = new HashMap<String, String>();
-	private Map<String, String> replyTo = new HashMap<String, String>();
-	private Map<String, String> to = new HashMap<String, String>();
-	private Map<String, String> cc = new HashMap<String, String>();
-	private Map<String, String> bcc = new HashMap<String, String>();
+	private Map<String, String> from = map();
+	private Map<String, String> replyTo = map();
+	private Map<String, String> to = map();
+	private Map<String, String> cc = map();
+	private Map<String, String> bcc = map();
 	private Object body;
 	private List<Attachment> attachments = new ArrayList<Attachment>();
 
 	public MailBuilderImpl(Mailer mailer) {
 		this.mailer = mailer;
+	}
+
+	protected MailBuilderImpl(Mailer mailer, Map<String, String> from, Map<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject,
+			Object body, List<Attachment> attachments) {
+		super();
+		this.mailer = mailer;
+		this.from = from;
+		this.replyTo = replyTo;
+		this.to = to;
+		this.cc = cc;
+		this.bcc = bcc;
+		this.subject = subject;
+		this.body = body;
+		this.attachments = attachments;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -48,9 +62,8 @@ public class MailBuilderImpl implements MailBuilder {
 	}
 
 	@Override
-	public <T> MailBuilder body(T view) {
-		this.body = view;
-		return this;
+	public <T> MailBuilderImpl body(T body) {
+		return create(mailer, from, replyTo, to, cc, bcc, subject, body, attachments);
 	}
 
 	@Override
@@ -59,79 +72,78 @@ public class MailBuilderImpl implements MailBuilder {
 	}
 
 	@Override
-	public MailBuilder subject(String subject) {
-		this.subject = subject;
-		return this;
+	public MailBuilderImpl subject(String subject) {
+		return create(mailer, from, replyTo, to, cc, bcc, subject, body, attachments);
 	}
 
 	@Override
-	public MailBuilder from(String emailAddress) {
+	public MailBuilderImpl from(String emailAddress) {
 		return from(emailAddress, null);
 	}
 
 	@Override
-	public MailBuilder from(String emailAddress, String name) {
-		this.from = Collections.singletonMap(emailAddress, name);
-		return this;
+	public MailBuilderImpl from(String emailAddress, String name) {
+		Map<String, String> from = Collections.singletonMap(emailAddress, name);
+		return create(mailer, from, replyTo, to, cc, bcc, subject, body, attachments);
 	}
 
 	@Override
-	public MailBuilder to(String emailAddress) {
+	public MailBuilderImpl to(String emailAddress) {
 		return to(emailAddress, null);
 	}
 
 	@Override
-	public MailBuilder to(String emailAddress, String name) {
+	public MailBuilderImpl to(String emailAddress, String name) {
 		return to(Collections.singletonMap(emailAddress, name));
 	}
 
 	@Override
-	public MailBuilder to(Map<String, String> to) {
-		this.to.putAll(to);
-		return this;
+	public MailBuilderImpl to(Map<String, String> to) {
+		to = merge(this.to, to);
+		return create(mailer, from, replyTo, to, cc, bcc, subject, body, attachments);
 	}
 
 	@Override
-	public MailBuilder cc(String emailAddress) {
+	public MailBuilderImpl cc(String emailAddress) {
 		return cc(emailAddress, null);
 	}
 
 	@Override
-	public MailBuilder cc(String emailAddress, String name) {
+	public MailBuilderImpl cc(String emailAddress, String name) {
 		return cc(Collections.singletonMap(emailAddress, name));
 	}
 
 	@Override
-	public MailBuilder cc(Map<String, String> cc) {
-		this.cc.putAll(cc);
-		return this;
+	public MailBuilderImpl cc(Map<String, String> cc) {
+		cc = merge(this.cc, cc);
+		return create(mailer, from, replyTo, to, cc, bcc, subject, body, attachments);
 	}
 
 	@Override
-	public MailBuilder bcc(String emailAddress) {
+	public MailBuilderImpl bcc(String emailAddress) {
 		return bcc(emailAddress, null);
 	}
 
 	@Override
-	public MailBuilder bcc(String emailAddress, String name) {
+	public MailBuilderImpl bcc(String emailAddress, String name) {
 		return bcc(Collections.singletonMap(emailAddress, name));
 	}
 
 	@Override
-	public MailBuilder bcc(Map<String, String> bcc) {
-		this.bcc.putAll(bcc);
-		return this;
+	public MailBuilderImpl bcc(Map<String, String> bcc) {
+		bcc = merge(this.bcc, bcc);
+		return create(mailer, from, replyTo, to, cc, bcc, subject, body, attachments);
 	}
 
 	@Override
-	public MailBuilder replyTo(String email) {
+	public MailBuilderImpl replyTo(String email) {
 		return replyTo(email, null);
 	}
 
 	@Override
-	public MailBuilder replyTo(String email, String name) {
-		this.replyTo = Collections.singletonMap(email, name);
-		return this;
+	public MailBuilderImpl replyTo(String email, String name) {
+		Map<String, String> replyTo = Collections.singletonMap(email, name);
+		return create(mailer, from, replyTo, to, cc, bcc, subject, body, attachments);
 	}
 
 	@Override
@@ -141,17 +153,17 @@ public class MailBuilderImpl implements MailBuilder {
 
 	@Override
 	public Map<String, String> to() {
-		return new HashMap<String, String>(this.to);
+		return map(this.to);
 	}
 
 	@Override
 	public Map<String, String> cc() {
-		return new HashMap<String, String>(this.cc);
+		return map(this.cc);
 	}
 
 	@Override
 	public Map<String, String> bcc() {
-		return new HashMap<String, String>(bcc);
+		return map(bcc);
 	}
 
 	@Override
@@ -165,18 +177,63 @@ public class MailBuilderImpl implements MailBuilder {
 	}
 
 	@Override
-	public MailBuilder attach(FileView view) {
+	public MailBuilderImpl attach(FileView view) {
 		return this.attach(view.getFileName(), view, view.getDisposition());
 	}
 
 	@Override
-	public MailBuilder attach(String name, Object view, Disposition disposition) {
+	public MailBuilderImpl attach(String name, Object view, Disposition disposition) {
+		List<Attachment> attachments = new ArrayList<Attachment>(this.attachments);
 		attachments.add(new Attachment(name, view, disposition));
-		return this;
+		return create(mailer, from, replyTo, to, cc, bcc, subject, body, attachments);
 	}
 
 	@Override
 	public List<Attachment> attachments() {
-		return Collections.unmodifiableList(attachments);
+		return new ArrayList<Attachment>(attachments);
+	}
+
+	/**
+	 * Factory for creating maps for internal use
+	 * 
+	 * @return
+	 */
+	protected Map<String, String> map() {
+		return new LinkedHashMap<String, String>();
+	}
+
+	/**
+	 * Factory for creating maps with the given content for internal use
+	 * 
+	 * @return
+	 */
+	protected Map<String, String> map(Map<String, String> content) {
+		return new LinkedHashMap<String, String>(content);
+	}
+
+	private Map<String, String> merge(Map<String, String> a, Map<String, String> b) {
+		Map<String, String> map = map();
+		map.putAll(a);
+		map.putAll(b);
+		return map;
+	}
+
+	/**
+	 * Factory method for creating a new instance with the given content
+	 * 
+	 * @param mailer
+	 * @param from
+	 * @param replyTo
+	 * @param to
+	 * @param cc
+	 * @param bcc
+	 * @param subject
+	 * @param body
+	 * @param attachments
+	 * @return
+	 */
+	protected MailBuilderImpl create(Mailer mailer, Map<String, String> from, Map<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject,
+			Object body, List<Attachment> attachments) {
+		return new MailBuilderImpl(mailer, from, replyTo, to, cc, bcc, subject, body, attachments);
 	}
 }

@@ -19,28 +19,44 @@ package com.threewks.thundr.test.mock.mailer;
 
 import static com.atomicleopard.expressive.Expressive.list;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import com.atomicleopard.expressive.EList;
+import com.threewks.thundr.mail.Attachment;
+import com.threewks.thundr.mail.BaseMailer;
 import com.threewks.thundr.mail.MailBuilder;
 import com.threewks.thundr.mail.MailException;
 import com.threewks.thundr.mail.Mailer;
 
-public class MockMailer implements Mailer {
+public class MockMailer extends BaseMailer implements Mailer {
 	private EList<MailBuilder> sent = list();
 
 	public MockMailer() {
-	}
-
-	@Override
-	public MailBuilder mail() {
-		return new MockMailBuilder(this);
+		super(null);
 	}
 
 	@Override
 	public void send(MailBuilder mailBuilder) throws MailException {
+		Map.Entry<String, String> from = mailBuilder.from();
+		Map<String, String> to = mailBuilder.to();
+		Map<String, String> cc = mailBuilder.cc();
+		Map<String, String> bcc = mailBuilder.bcc();
+
+		validateFrom(from);
+		validateRecipients(to, cc, bcc);
+
 		sent.add(mailBuilder);
 	}
 
 	public EList<MailBuilder> getSent() {
 		return sent;
+	}
+
+	@Override
+	protected void sendInternal(Entry<String, String> from, Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject, Object body,
+			List<Attachment> attachments) {
+		// noop
 	}
 }
