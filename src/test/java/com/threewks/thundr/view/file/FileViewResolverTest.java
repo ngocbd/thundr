@@ -19,13 +19,18 @@ package com.threewks.thundr.view.file;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.*;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 import javax.servlet.http.Cookie;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import com.threewks.thundr.http.Cookies;
 import com.threewks.thundr.http.Header;
@@ -99,5 +104,35 @@ public class FileViewResolverTest {
 	@Test
 	public void shouldReturnClassNameForToString() {
 		assertThat(new FileViewResolver().toString(), is("FileViewResolver"));
+	}
+
+	@Test
+	public void shouldCloseInputStream() throws IOException {
+		InputStream is = mockInputStream();
+		
+		fileView = new FileView("filename.ext", is, "content/type");
+		fileViewResolver.resolve(req, resp, fileView);
+
+		verify(is).close();
+	}
+
+	@Test
+	public void shouldNotThrowExceptionIfClosingInputStreamFails() throws IOException {
+		InputStream is = mockInputStream();
+		
+		doThrow(new IOException("intentional")).when(is).close();
+
+		fileView = new FileView("filename.ext", is, "content/type");
+		fileViewResolver.resolve(req, resp, fileView);
+		
+		verify(is).close();
+	}
+
+	public InputStream mockInputStream() throws IOException {
+		InputStream is = mock(InputStream.class);
+		when(is.read()).thenReturn(-1);
+		when(is.read(Mockito.any(byte[].class))).thenReturn(-1);
+		when(is.read(Mockito.any(byte[].class), anyInt(), anyInt())).thenReturn(-1);
+		return is;
 	}
 }

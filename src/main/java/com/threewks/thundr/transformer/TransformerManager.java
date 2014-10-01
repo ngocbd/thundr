@@ -61,6 +61,7 @@ import com.threewks.thundr.transformer.date.StringToDateTime;
 import com.threewks.thundr.transformer.date.StringToReadableInstant;
 import com.threewks.thundr.transformer.discrete.BooleanToString;
 import com.threewks.thundr.transformer.discrete.EnumToString;
+import com.threewks.thundr.transformer.discrete.ObjectToEnum;
 import com.threewks.thundr.transformer.discrete.StringToBoolean;
 import com.threewks.thundr.transformer.numeric.BigDecimalToString;
 import com.threewks.thundr.transformer.numeric.BigIntegerToString;
@@ -162,10 +163,14 @@ public class TransformerManager {
 		if (fromType == toType) {
 			return NoopTransformerInstance;
 		}
+
 		ETransformer<From, To> convertor = (ETransformer<From, To>) transformers.get(fromType, toType);
 		// We prefer registered converters over a noop transformer for super types
 		if (convertor == null && toType.isAssignableFrom(fromType)) {
 			return NoopTransformerInstance;
+		}
+		if (convertor == null && toType.isEnum()) {
+			convertor = createEnumTransformer(toType);
 		}
 		return convertor;
 	}
@@ -324,6 +329,15 @@ public class TransformerManager {
 		transformerManager.register(InputStream.class, byte[].class, new InputStreamToByteArray());
 
 		return transformerManager;
+	}
+
+	/**
+	 * We handle enums as a special case transformation, a more flexible strategy using TransformerFactories might be a better
+	 * idea
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private <From, To> ETransformer<From, To> createEnumTransformer(Class<To> toType) {
+		return new ObjectToEnum(toType);
 	}
 
 	@SuppressWarnings("rawtypes")

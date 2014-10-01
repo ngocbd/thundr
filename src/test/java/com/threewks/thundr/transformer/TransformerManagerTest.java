@@ -43,6 +43,7 @@ import org.junit.rules.ExpectedException;
 import com.atomicleopard.expressive.ETransformer;
 import com.atomicleopard.expressive.Expressive;
 import com.atomicleopard.expressive.collection.Triplets;
+import com.threewks.thundr.route.HttpMethod;
 import com.threewks.thundr.test.TestSupport;
 import com.threewks.thundr.transformer.data.ByteArrayToInputStream;
 import com.threewks.thundr.transformer.data.InputStreamToByteArray;
@@ -249,6 +250,26 @@ public class TransformerManagerTest {
 
 		ETransformer<? super String, ? extends ReadableInstant> found2 = transformerManager.getBestTransformer(String.class, ReadableInstant.class);
 		assertThat(found2, sameInstance((Object) newInstance));
+	}
+
+	@Test
+	public void shouldTransformEnumFromStringUsingBestTransformer() {
+		ETransformer<? super String, ? extends HttpMethod> transformer = transformerManager.getBestTransformer(String.class, HttpMethod.class);
+		assertThat(transformer, is(notNullValue()));
+
+		assertThat(transformer.from("GET"), is(HttpMethod.GET));
+		assertThat(transformer.from("get"), is(HttpMethod.GET));
+		assertThat(transformer.from("Get"), is(HttpMethod.GET));
+	}
+
+	@Test
+	public void shouldTransformObjectToEnum() {
+		ETransformer<? super Object, ? extends HttpMethod> transformer = transformerManager.getTransformer(Object.class, HttpMethod.class);
+		assertThat(transformer, is(notNullValue()));
+
+		assertThat(transformer.from("GET"), is(HttpMethod.GET));
+		assertThat(transformer.from("get"), is(HttpMethod.GET));
+		assertThat(transformer.from("Get"), is(HttpMethod.GET));
 	}
 
 	@Test

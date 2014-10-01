@@ -29,9 +29,9 @@ import com.threewks.thundr.injection.UpdatableInjectionContext;
 public class TransformerModuleTest {
 
 	@Test
-	public void shouldProvideTransformerManagerToInjectionContextAtConfigure() {
+	public void shouldProvideTransformerManagerToInjectionContextAtInitialise() {
 		UpdatableInjectionContext injectionContext = new InjectionContextImpl();
-		new TransformerModule().configure(injectionContext);
+		new TransformerModule().initialise(injectionContext);
 
 		TransformerManager transformerManager = injectionContext.get(TransformerManager.class);
 		assertThat(transformerManager, is(notNullValue()));
@@ -42,11 +42,11 @@ public class TransformerModuleTest {
 	}
 
 	@Test
-	public void shouldNoopForRequiresInitialiseStartAndStop() {
+	public void shouldNoopForRequiresConfigureStartAndStop() {
 		TransformerModule module = new TransformerModule();
 
 		module.requires(null);
-		module.initialise(null);
+		module.configure(null);
 		module.start(null);
 		module.stop(null);
 	}

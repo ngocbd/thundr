@@ -21,9 +21,10 @@ import com.threewks.thundr.injection.BaseModule;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 
 public class TransformerModule extends BaseModule {
+
 	@Override
-	public void configure(UpdatableInjectionContext injectionContext) {
-		super.configure(injectionContext);
+	public void initialise(UpdatableInjectionContext injectionContext) {
+		super.initialise(injectionContext);
 		TransformerManager transformerManager = TransformerManager.createWithDefaults();
 		injectionContext.inject(transformerManager).as(TransformerManager.class);
 	}
