@@ -18,12 +18,16 @@
 package com.threewks.thundr.mail;
 
 import static com.threewks.thundr.mail.MailBuilderImplTest.entry;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.Map;
 
+import javax.mail.Address;
 import javax.mail.Message;
+import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
 
 import org.junit.After;
@@ -31,6 +35,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import com.atomicleopard.expressive.Expressive;
@@ -115,10 +120,11 @@ public class JavaMailMailerTest {
 		verify(mailer).sendInternal(entry("sender@example.org", "Sender"), null, to, empty(), empty(), "Subject line", body, builder.attachments());
 		verify(mailer).sendMessage(Mockito.any(Message.class));
 	}
+
 	@Test
 	public void shouldSendEmailWithInlineAttachment() throws Exception {
 		StringView body = new StringView("Email body");
-		
+
 		Map<String, String> to = Expressive.map("foo@example.org", "Foo");
 		// @formatter:off
 		MailBuilder builder = mailer.mail()
@@ -129,7 +135,7 @@ public class JavaMailMailerTest {
 				.attach("test.txt", new StringView("Blah"), Disposition.Inline);
 		// @formatter:on
 		builder.send();
-		
+
 		verify(mailer).send(builder);
 		verify(mailer).sendInternal(entry("sender@example.org", "Sender"), null, to, empty(), empty(), "Subject line", body, builder.attachments());
 		verify(mailer).sendMessage(Mockito.any(Message.class));
@@ -195,6 +201,31 @@ public class JavaMailMailerTest {
 		thrown.expectMessage("Failed to render email part: No ViewResolver is registered for the view result String");
 
 		mailer.render("No resolver registered for strings");
+	}
+
+	@Test
+	public void shouldSendEmailWithMultipleToRecipients() throws MessagingException {
+		ArgumentCaptor<Message> argument = ArgumentCaptor.forClass(Message.class);
+
+		//@formatter:off
+		MailBuilder builder = mailer.mail()
+				.from("test@email.com")
+				.replyTo("reply@email.com")
+				.to("recipient1@email.com", "Email")
+				.to("recipient2@email.com")
+				.to("recipient3@email.com")
+				.body(new StringView("Body"))
+				.subject("Subject");
+		// @formatter:on
+		builder.send();
+
+		verify(mailer).sendMessage(argument.capture());
+		Message value = argument.getValue();
+		Address[] recipients = value.getRecipients(RecipientType.TO);
+		assertThat(recipients.length, is(3));
+		assertThat(recipients[0].toString(), is("Email <recipient1@email.com>"));
+		assertThat(recipients[1].toString(), is("recipient2@email.com"));
+		assertThat(recipients[2].toString(), is("recipient3@email.com"));
 	}
 
 	public static final Map<String, String> email(String email) {

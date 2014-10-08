@@ -17,6 +17,7 @@
  */
 package com.threewks.thundr.mail;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -105,9 +106,11 @@ public class JavaMailMailer extends BaseMailer {
 
 	private void addRecipients(Map<String, String> to, Message message, RecipientType recipientType) throws MessagingException {
 		if (Expressive.isNotEmpty(to)) {
+			List<Address> addresses = new ArrayList<>();
 			for (Entry<String, String> recipient : to.entrySet()) {
-				message.setRecipient(recipientType, emailAddress(recipient));
+				addresses.add(emailAddress(recipient));
 			}
+			message.addRecipients(recipientType, addresses.toArray(new Address[0]));
 		}
 	}
 
