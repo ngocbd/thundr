@@ -17,13 +17,19 @@
  */
 package com.threewks.thundr.mail;
 
+import static com.atomicleopard.expressive.Expressive.list;
 import static com.threewks.thundr.mail.MailBuilderImplTest.entry;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import javax.mail.Address;
 import javax.mail.Message;
+import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
 
 import org.junit.After;
@@ -31,6 +37,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import com.atomicleopard.expressive.Expressive;
@@ -43,7 +50,8 @@ import com.threewks.thundr.view.string.StringViewResolver;
 
 public class JavaMailMailerTest {
 
-	@Rule public ExpectedException thrown = ExpectedException.none();
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 	private ViewResolverRegistry viewResolverRegistry = new ViewResolverRegistry();
 	private JavaMailMailer mailer = new JavaMailMailer(viewResolverRegistry);
 	private MockHttpServletRequest req = new MockHttpServletRequest();
@@ -175,6 +183,32 @@ public class JavaMailMailerTest {
 		builder.body("No resolver registered for strings");
 		builder.subject("Subject line");
 		builder.send();
+	}
+
+	@Test
+	public void shouldSendEmailWithMultipleToRecipients() throws MessagingException {
+		ArgumentCaptor<Message> argument = ArgumentCaptor.forClass(Message.class);
+
+		//@formatter:off
+		MailBuilder builder = mailer.mail()
+				.from("test@email.com")
+				.replyTo("reply@email.com")
+				.to("recipient1@email.com", "Email")
+				.to("recipient2@email.com")
+				.to("recipient3@email.com")
+				.body(new StringView("Body"))
+				.subject("Subject");
+		// @formatter:on
+		builder.send();
+
+		verify(mailer).sendMessage(argument.capture());
+		Message value = argument.getValue();
+		Address[] recipients = value.getRecipients(RecipientType.TO);
+		assertThat(recipients.length, is(3));
+		List<String> emailAddresses = list(recipients[0].toString(), recipients[1].toString(), recipients[2].toString());
+		assertThat(emailAddresses, hasItem("Email <recipient1@email.com>"));
+		assertThat(emailAddresses, hasItem("recipient2@email.com"));
+		assertThat(emailAddresses, hasItem("recipient3@email.com"));
 	}
 
 	public static final Map<String, String> email(String email) {
