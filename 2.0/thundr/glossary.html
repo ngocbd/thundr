@@ -1,0 +1,177 @@
+---
+layout: 2.0/base
+title: Glossary
+description: Glossary of thundr terms
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/basics.html">
+						Basics
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/controllers.html">
+						Controllers
+					</a>
+				</li>
+
+				<li class="nav-header">
+					<a href="{{ site.url }}/2.0/thundr/views.html">
+						Views
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/routes.html">
+						Routes
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/modules.html">
+						Modules
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/jsp.html">						
+						Jsp						
+					</a>
+				</li>
+	
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/email.html">
+						Email
+					</a>
+				</li>
+				
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/utilities.html">
+						Utilities
+					</a>
+				</li>
+								
+				<li class="nav-header active">
+					<a href="{{ site.url }}/2.0/thundr/glossary.html">
+						Glossary
+					</a>
+				</li>				
+			</ul>
+		</div>
+	</aside>
+
+	<article id="views" class="col-md-9">
+		<div class="page-header">
+			<h1>thundr <small>glossary</small></h1>
+		</div>
+
+		<section id="glossary">
+			<h3 id="applicationModule">ApplicationModule</h3>
+			<p>
+				The <code>ApplicationModule</code> is the <em>module</em> for your application.
+				It is where you configure your module dependencies and provide your classes and
+				instances into the <em>injection context</em>. 
+				<br/>
+				<a href="basics.html#applicationModule">More</a>
+			</p>
+			<h3 id="binding">Binding</h3>
+			<p>
+				See <a href="#dataBinding">Data Binding</a>
+			</p>
+			<h3 id="controller">Controller</h3>
+			<p>
+				A <em>controller</em> is a method on a class which processes a request by executing some logic and returning a view (or otherwise populating the response).
+				Controller interchangeably refers to the class itself, and the method in the class.
+				<br/>
+				<a href="controllers.html">More</a>
+			</p>
+			<h3 id="dataBinding">Data Binding</h3>
+			<p>
+				<em>Data binding</em> usually refers to populating <em>controller method</em> arguments with data from the request.
+				In particular, binding refers to type transformation from request content to specific object types, from collections and lists, 
+				to dates, to javabean object graphs.
+				<br/>
+				<a href="controllers.html#dataBindingSources">More</a>
+			</p>
+			<h3 id="globalModel">Global Model</h3>
+			<p>
+				The <code>GlobalModel</code> is a map of reference data which is automatically available when rendering all views.
+				<br/>  
+				<a href="views.html#globalModel">More</a>
+			</p>
+			<h3 id="injectionContext">Injection Context</h3>
+			<p>
+				The <em>injection context</em> holds all the configuration for dependency injection.
+				You inject instances and classes into it, and it can be used to get instances later, instantiating new ones if necessary.
+				It knows how to invoke constructors and satisfy dependencies.
+				<br/>  
+				<a href="modules.html#injectionContext">More</a>
+			</p>
+			<h3 id="interceptor">Interceptor</h3>
+			<p>
+				An <code>Interceptor</code> allows custom code to be invoked before, after and after an exception of a <em>controller method</em>.
+				<br/>  
+				<a href="controllers.html#interceptors">More</a>
+			</p>
+			<h3 id="javaMailMailer">JavaMailMailer</h3>
+			<p>
+				<code>JavaMailMailer</code> is an implementation of the <em>Mailer</em> interface that uses <code>javax.mail</code> 
+				<br/>
+				<a href="email.html#settingUp">More</a>  
+			</p>	
+			<h3 id="mailer">Mailer</h3>
+			<p>
+				<code>Mailer</code> defines an interface for sending emails. See <a href="#javaMailMailer">JavaMailMailer</a> 
+				<br/>
+				<a href="email.html">More</a>  
+			</p>	
+			<h3 id="module">Module</h3>
+			<p>
+				A <em>module</em> is a self contained component which provides behaviour to an application.
+				The are defined by a <code>Module</code> implementation which injects the module's services into 
+				the <em>injection context</em>.
+				<br/>
+				<a href="modules.html">More</a>  
+			</p>	
+			<h3 id="route">Route</h3>
+			<p>
+				A route is a url pattern used to map a request onto an <em>route result</em>, usually a <em>controller</em>. 
+				<br/>
+				<a href="basics.html#routes">More</a>  
+			</p>	
+			<h3 id="action">RouteResult</h3>
+			<p>
+				An <em>route result</em> defines what happens when an individual <em>route</em> is called by a request.
+				Generally, this invokes a <em>controller</em> method, or serves a static resource.
+				<br/>  
+				<a href="routes.html#routeResults">More</a>
+			</p>
+			<h3 id="view">View</h3>
+			<p>
+				A view refers to the object returned from a controller. 
+				Views are processed by a view resolver to populate the response.
+				<br/>
+				<a href="views.html">More</a>
+			</p>		
+			<h3 id="viewResolver">ViewResolver</h3>
+			<p>
+				A <em>ViewResolver</em> writes the response to the <code>HttpServletRequest</code>.
+				The data controlling what to write to the response is held in the <code>View</code> returned from a <em>controller method</em>.
+				<br/>
+				<a href="views.html#viewResolver">More</a>
+			</p>		
+			<h3 id="viewResolverRegistry">ViewResolverRegistry</h3>
+			<p>
+				The <em>ViewResolverRegistry</em> is used to register the <em>ViewResolver</em> which handles a specific type of <em>View</em>
+				<br/>
+				<a href="views.html#viewResolver">More</a>
+			</p>		
+		</section>
+	</article>
+</div>
+		

@@ -1,0 +1,373 @@
+---
+layout: 2.0/base
+title: Modules and Dependency Injection
+description: Modules and Dependency Injection in thundr
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/basics.html">
+						Basics
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/controllers.html">
+						Controllers
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/views.html">
+						Views
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/routes.html">
+						Routes
+					</a>
+				</li>
+
+				<li class="nav-header active">
+					<a href="{{ site.url }}/2.0/thundr/modules.html">
+						Modules
+					</a>
+				</li>
+
+				<li>
+					<a href="{{ site.url }}/2.0/thundr/modules.html#page-overview" data-target="#page-overview">
+						Overview
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}/2.0/thundr/modules.html#modules" data-target="#modules">
+						Modules
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}/2.0/thundr/modules.html#module-lifecycle" data-target="#module-lifecycle">
+						Module Lifecycle
+					</a>
+				</li>
+
+				<li class="divider"></li>
+
+				<li>
+					<a href="{{ site.url }}/2.0/thundr/modules.html#injectionContext" data-target="#injectionContext">
+						InjectionContext
+					</a>
+				</li>
+
+				<li>
+					<a href="{{ site.url }}/2.0/thundr/modules.html#injectionTypes" data-target="#injectionTypes">
+						Injection by type
+					</a>
+				</li>
+
+				<li>
+					<a href="{{ site.url }}/2.0/thundr/modules.html#namedTypes" data-target="#namedTypes">
+						Injection by named type
+					</a>
+				</li>
+
+				<li>
+					<a href="{{ site.url }}/2.0/thundr/modules.html#instantiation" data-target="#instantiation">
+						Instantiation
+					</a>
+				</li>
+
+				<li>
+					<a href="{{ site.url }}/2.0/thundr/modules.html#properties" data-target="#properties">
+						Properties
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/jsp.html">						
+						Jsp						
+					</a>
+				</li>
+	
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/email.html">
+						Email
+					</a>
+				</li>
+				
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/utilities.html">
+						Utilities
+					</a>
+				</li>
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/glossary.html">
+						Glossary
+					</a>
+				</li>
+			</ul>
+		</div>
+	</aside>
+
+	<article id="modules-overview" class="col-md-9">
+		<div class="page-header">
+			<h1>thundr <small>Modules</small></h1>
+		</div>
+
+		<section id="page-overview" class="overview">
+			<h2>Overview</h2>
+
+			<p>thundr utilises the <a href="http://en.wikipedia.org/wiki/Dependency_injection">dependency injection</a>
+				pattern to help configure your code at runtime. In particular, any classes you wish to use as <a
+						href="{{ site.url }}/2.0/thundr/controllers.html">controllers</a> are created by thundr using its dependency
+				injection framework.<br>If your controller requires dependencies, they need to be configured so that thundr
+				can provide them.
+			</p>
+
+			<p>
+				Unlike many frameworks, dependencies are configured using basic java in thundr. The classes that configure dependencies are called 
+				modules, and they must implement the <code>Module</code> interface. Modules are included from two places - the basic thundr modules
+				are bootstrapped automatically, and the rest are included by you for your specific application. The second group are brought in by
+				the module that defines your application, which is your <code>ApplicationModule</code> class. 
+			</p>
+
+			<p>
+				Your application uses your ApplicationModule to make available all the instances and classes you wish to
+				inject into your controllers and each-other. It is up to you how much you wish to rely on this, but in
+				general utilising dependency injection increases the testability of controllers and other code resources,
+				and reduces code coupling. 
+			</p>
+		</section>
+		<section id="modules">
+			<h4>Modules</h4>
+			<p>
+				thundr itself is composed of sets of <strong>modules</strong>. A module is defined as a group of classes that are collectively configured
+				together through an implementation of the <code>com.threewks.thundr.injection.Module</code> interface. 
+			</p>
+			<p>
+				Modules express dependencies between each other so that they can be run in the correct order.
+			</p>
+			<p>
+				Your <code>ApplicationModule</code> is just a normal module with the added restriction that it needs a specific name and to be located in the default (i.e. no) package.
+				This allows thundr to locate your ApplicationModule without any configuration or classpath scanning. 
+			</p>
+			
+			<blockquote>
+			<p>If you want your ApplicationModule to have a different name or package, you can specify its full name in the application property 'applicationModule'.</p>
+{% highlight properties %}
+applicationModule=com.company.project.ProjectModule
+{% endhighlight %}
+			<p>Generally, sticking to the convention makes your code more accessible</p>
+			</blockquote>
+		</section>
+		<section id="module-lifecycle">
+			<h4>Module Lifecycle</h4>
+			<p>
+				To allow modules to interact by providing instances to each other, they have a set lifecycle.
+				On startup, for every lifecycle phase, each module in your application will be called in the order defined by their dependency graph.
+			</p>
+			<p>
+				That is, each module will have <strong>initialise</strong> called, then each module will have <strong>configure</strong> called, then <strong>start</strong>.
+			</p>
+			<p>  
+				When you implement <code>Module</code> you must implement each of the following in lifecycle methods:
+			</p>
+			<ul>
+				<li>
+					<strong>requires(DependencyRegistry dependencyRegistry)</strong> - here you register any modules that your module is dependent on. thundr will figure out
+					the correct order to run each of the module's lifecycle methods in
+				</li>
+				<li>
+					<strong>initialise(UpdatableInjectionContext injectionContext)</strong> - this method is for providing instances and classes into the injection context that the module provides that have no dependencies. 
+				</li>
+				<li>
+					<strong>configure(UpdatableInjectionContext injectionContext)</strong> - this method is for injecting instances and classes into the injection context. At this point, all dependencies for the module you're implementing should have been specified, so generally you can put all your configuration here. 
+				</li>
+				<li>
+					<strong>start(UpdatableInjectionContext injectionContext)</strong> - this method is for starting any tasks or bootstrapping anything with a startup phase. At this point all modules have been configured. This is also the lifecycle in which you should add your routes. 
+				</li>
+				<li>
+					<strong>stop(InjectionContext injectionContext)</strong> - when your application is closing down, this method is called. You can use it to stop and dispose of any resources. 
+				</li>
+			</ul>
+			<blockquote>
+			<p>
+				If you only need some these methods, you can extend <code>com.threewks.thundr.injection.BaseModule</code>, which performs a noop for each
+				lifecycle method.
+			</p>
+			</blockquote>
+		</section> 
+		<section id="injectionContext">
+			<h3>Injection Context</h3>
+
+			<p>Dependency injection is managed by the <code>InjectionContext</code>.</p>
+
+			<p>The injection context acts like a bucket for instances.<br>It can both provide existing instances and create
+				new instances of required types. When the injection context creates new instances, it will try to satisfy
+				dependencies using other instances it contains or can create.</p>
+		</section>
+
+		<section id="injectionTypes">
+			<h4>Injection by type</h4>
+
+			<p>For the injection context to be able to create and provide instances, it needs to know about the types. This
+				is achieved by registering them. Types can only be registered through the interface <code>UpdatableInjectionContext</code>.
+				This interface is provided to <code>InjectionConfiguration</code> implementations.</p>
+
+			<p>You can register either an instance, or more commonly, the concrete type you wish instantiated. Registration
+				requires the interface type that the desired type or instance is returned for to be specified.</p>
+
+			<p>For example:</p>
+
+{% highlight java %}
+...
+public void configure(UpdatableInjectionContext injectionContext) {
+    injectionContext.inject(MyServiceImpl.class).as(MyServiceInterface.class);
+    MyRepositoryImpl repository = new MyRepositoryImpl();
+    injectionContext.inject(repository).as(MyRepositoryInterface.class);
+}
+...
+{% endhighlight %}
+
+			<p>In the above example, we register the type <code>MyServiceImpl</code> to be returned when a <code>MyServiceInterface</code>
+				is requested, and a specific instance of <code>MyRepositoryImpl</code> to be returned when a <code>MyRepositoryInterface</code>
+				is requested.</p>
+
+			<p>After this, the following is possible:</p>
+
+{% highlight java %}
+...
+MyServiceInterface myService = injectionContext.get(MyServiceInterface.class);
+MyRepositoryInterface myRepository = injectionContext.get(MyRepositoryInterface.class);
+...
+{% endhighlight %}
+		</section>
+
+
+		<section id="namedTypes">
+			<h4>Injection by named type</h4>
+
+			<p>As well as specifying types, you can also specified <em>named types</em>.Named types are types or instances
+				registered as above, but also with specific names. For example: </p>
+
+{% highlight java %}
+...
+public void configure(UpdatableInjectionContext injectionContext) {
+    injectionContext.inject(MyServiceImpl.class).named("myService").as(MyServiceInterface.class);
+    injectionContext.inject(new MyServiceImpl("debugMode")).named("alternativeService").as(MyServiceInterface.class);
+}
+...
+{% endhighlight %}
+
+			<p>In the above example, we register two different different <code>MyServiceInterface</code>s, with two
+				different names.<br>When an instance is requested from the injection context, a different instance is
+				returned depending on the name specified.</p>
+
+{% highlight java %}
+...
+    MyServiceInterface myService1 = injectionContext.get(MyServiceInterface.class, "myService");
+    MyServiceInterface myService2 = injectionContext.get(MyServiceInterface.class, "alternativeService");
+...
+{% endhighlight %}
+			<p>
+				If a type is requested but more than one instance could be returned, thundr will throw an <code>InjectionException</code>. To
+				resolve this, you must request a named instance so that a specific instance is identified. This prevents errors where
+				the wrong instance is accidentally injected.
+			</p>
+			<p>
+				In addition, basic types (int, long, Integer, Long etc), collection types (List, Set, Collection, Map) and BigInteger and BigDEcimal must always be specified by name.
+				This is also to prevent accidentally injecting the wrong instance. 
+			</p>
+		</section>
+
+		<section id="instantiation">
+			<h4>Instantiation</h4>
+
+			<p>When an instance is requested from the InjectionContext it will return an existing instance if possible, and
+				if not, it will instantiate a new one.</p>
+
+			<p>To create a new instance, the injection context will invoke the constructor with the most number of arguments
+				it can satisfy. If no constructor can be satisfied, an <code>InjectionException</code> will be thrown.<br>A
+				constructor can only be satisfied if the injection context can find at least a matching type for each
+				argument.</p>
+
+			<p>As well as matching type, the injection context will attempt to match the name. If a named type or instance
+				was registered with the injection context, and the parameter name of the argument match it will be supplied
+				to constructor over a type or instance registered without a name.</p>
+
+			<p>For example:</p>
+
+{% highlight java %}
+... 
+public void configure(UpdatableInjectionContext injectionContext) {
+    injectionContext.inject(MyServiceImpl.class).named("myService").as(MyServiceInterface.class);
+    injectionContext.inject(new MyServiceImpl("debugMode")).named("debugService").as(MyServiceInterface.class);
+    injectionContext.inject(MyProcess.class).as(MyProcess.class);
+
+    MyProcess myProcess = injectionContext.get(MyProcess.class);
+}
+...
+
+public class MyProcess {
+    public MyProcess(MyServiceInterface myService, MyServiceInterface debugService){
+    ...
+    }
+}
+...
+{% endhighlight %}
+
+			<p>In the above example, we inject two different <code>MyServiceInterface</code>s into our context, and when we
+				get an instance of <code>MyProcess</code>, the constructor is invoked with each parameter being satisfied by
+				the corresponding named type.</p>
+		</section>
+
+		<section id="properties">
+			<h4>Properties</h4>
+
+			<p>After instantiation, the injection context will attempt to set any javabean properties it can. It does this
+				using standard setter style methods.</p>
+
+			<p>As with instantiation, named instances and named types take preference over just instances and types.</p>
+
+			<p>The injection context also supports a subset of JSR 330. This allows you to put the <code>@Inject</code>
+				annotation directly on a member variable, rather than using a javabean property.<br>Note that the
+				InjectionContext does not currently support the full JSR 330 specification, just the basic @Inject
+				annotation.</p>
+
+			<p>Where thundr interprets constructor arguments as <em>mandatory</em>, properties specified using setters or
+				<code>@Inject</code>are considered <em>optional</em>. That is, no <code>InjectionException</code> will be
+				thrown if the injection configuration cannot satisfy the desired parameters.</p>
+
+			<p>In general, this division between mandatory and optional properties should give you guidance as to whether a
+				given property should be a constructor argument, or a simple property on your types.</p>
+
+			<p>The following is an example of the three basic ways of injecting required dependencies:</p>
+
+{% highlight java %}
+...
+public class Controller {
+    private DocumentService documentService;
+    private CounterRepository counterRepository;
+    @Inject
+    private CategoryService categoryService;
+
+    public Controller(DocumentService documentService){
+        this.documentService = documentService;
+    }
+    public void setCounterRepository(CounterRepository counterRepository){
+        this.counterRepository = counterRepository;
+    }
+...
+{% endhighlight %}
+		</section>
+		<hr/>
+		<section>
+			thundr provides out of the box for some <a href="jsp.html">nifty jsp features</a>
+		</section>
+	</article>
+</div>
+
+		

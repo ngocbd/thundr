@@ -1,0 +1,68 @@
+---
+layout: 2.0/base
+title: thundr-contrib
+description: Contribute modules to thundr 
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header active">
+					<a href="{{ site.url }}/2.0/thundr-contrib/index.html">
+						thundr-contrib
+					</a>
+				</li>
+
+				<li><a href="{{ site.url }}/2.0/thundr-contrib/index.html#page-overview" data-target="#page-overview">Overview</a></li>
+				<li><a href="{{ site.url }}/2.0/thundr-contrib/index.html#contributing" data-target="#contributing">Contributing</a></li>
+				
+				<li class="divider"></li>
+				
+				<li><a href="{{ site.url }}/2.0/thundr-contrib/thundr-contrib-csv.html" data-target="">thundr-contrib-csv</a></li>
+			</ul>			
+		</div>
+	</aside>
+
+	<article id="index" class="col-md-9">
+		<div class="page-header">
+			<h1>thundr <small>contributions</small></h1>
+		</div>
+
+		<section id="page-overview" class="overview">
+			<h2>Overview</h2>
+
+			<p>
+				thundr is designed to be modular, which means that additional functionality can be be provided by external parties.
+			</p>
+			<p>
+				Contrib libraries are libraries contributed to the community by the community.
+			</p>
+		</section>
+				
+		<section id="contributing">
+			<h4>Contributing</h4>
+			<p>
+				You are free to write and release whatever you want, but we ask that you adhere to the following guidelines to help broadcast to other people
+				the reliability and quality of your modules.
+			</p>
+			<ul>
+				<li>
+					To help delineate core thundr libraries from community contributions, non-core libraries should be named <code>thundr-contrib-*</code>. This makes it
+					easier to search for them in <a href="http://search.maven.org/#search%7Cga%7C1%7Cthundr-contrib">maven central</a>, and also makes it clear that 
+					versions may trail behind core thundr releases. 
+				</li>
+				<li>
+					Contrib modules should be synced to maven central (you can use <a href="http://central.sonatype.org/pages/ossrh-guide.html">oss sonatype</a> to do this)
+				</li>
+				<li>
+					Minimally your should have a README available where you host your code (probably github or bitbucket). You can also issue a pull request on the thundr gh-pages branch to integrate into this listing.
+				</li>
+				<li>
+					Version your module using <a href="http://semver.org/">semver</a> (semantic versioning).
+					This is particularly important because modules can have transitive dependencies.
+				</li>
+			</ul>
+		</section>
+	</article>
+</div>

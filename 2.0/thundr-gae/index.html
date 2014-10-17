@@ -1,0 +1,661 @@
+---
+layout: 2.0/base
+title: App Engine
+description: Using the Google App Engine module
+---
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">			
+			<ul class="nav nav-pills nav-stacked" role="navigation">			 					
+				<li class="nav-header active">
+					<a href="{{ site.url }}/2.0/thundr-gae/index.html">
+						thundr-gae
+					</a>
+				</li>
+
+				<li>
+					<a href="{{ site.url }}/2.0/thundr-gae/index.html#page-overview" data-target="#page-overview">
+						Overview
+					</a>
+				</li>
+				
+				<li>
+					<a href="{{ site.url }}/2.0/thundr-gae/index.html#settingUp" data-target="#settingUp">
+						Setting Up
+					</a>
+				</li>
+				
+				<li class="divider"></li>
+							
+				<li>
+					<a href="{{ site.url }}/2.0/thundr-gae/index.html#platform" data-target="#platform">
+						Platform				
+					</a>
+				</li>
+				
+				<li>
+					<a href="{{ site.url }}/2.0/thundr-gae/index.html#objectify" data-target="#objectify">
+						Objectify				
+					</a>
+				</li>
+				
+				<li>
+					<a href="{{ site.url }}/2.0/thundr-gae/index.html#repository" data-target="#repository">
+						Repository				
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}/2.0/thundr-gae/index.html#textSearchService" data-target="#textSearchService">
+						TextSearchService				
+					</a>
+				</li>
+				  
+				<li>
+					<a href="{{ site.url }}/2.0/thundr-gae/index.html#httpService" data-target="#httpService">
+						HttpService				
+					</a>
+				</li>  
+				
+				
+				
+				
+				<li>
+					<a href="{{ site.url }}/2.0/thundr-gae/index.html#testing" data-target="#testing">
+						Testing				
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}/2.0/thundr-gae/index.html#sample" data-target="#sample">
+						Sample				
+					</a>
+				</li>
+			</ul>
+		</div>
+	</aside>
+	<article id="appengine" class="col-md-9">
+		<div class="page-header">
+			<h1>thundr <small>on Google Appengine</small> <img src="https://travis-ci.org/3wks/thundr-gae.svg?branch=thundr-gae-2.0.0"></h1>
+		</div>
+
+		<section id="page-overview" class="overview">
+			<h2>Overview</h2>
+
+			<p>
+				Google Appengine (GAE) is a PaaS provided and run by Google. You can read more about it 
+				<a href="https://developers.google.com/appengine/docs/">here</a>
+			</p>
+
+			<p>
+				<em>thundr-gae</em> is a platform module for thundr which enables thundr to run in this environment 
+				adding abstractions around some common functions.
+			</p>
+			<p>
+				<a href="https://github.com/3wks/thundr-gae">Source on github</a> <i class="fa fa-large fa-github"></i>
+			</p>
+		</section>
+
+		<section id="settingUp">
+			<h2>Setting Up</h2>
+
+			<p>
+				Beyond <a href="{{ site.url }}/2.0/thundr/basics.html#applicationConfiguration">normal thundr setup</a> 
+				(i.e. <code>web.xml</code>, <code>application.properties</code>, and an <code>ApplicationModule</code>), you will need to pull in the <em>thundr-gae</em> module 
+				and configure it.
+			</p>
+
+			<p>
+				This is accomplished by adding the <em>thundr-gae</em> library to your project (or adding the 
+				dependency to your maven or similar config). You then need to add a dependency on the module.
+			</p>
+			<p><code>pom.xml</code> - <a target="_blank" href="http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.threewks.thundr%22%20AND%20a%3A%22thundr-gae%22">Click here to find the latest version</a></p>
+{% highlight xml %}
+...
+<dependency>
+    <groupId>com.threewks.thundr</groupId>
+    <artifactId>thundr-gae</artifactId>
+    <version>2.0.0</version>
+    <scope>compile</scope>
+</dependency>
+...
+{% endhighlight %}
+
+
+			<p>Your <code>ApplicationModule</code></p>
+
+{% highlight java %}
+...
+	@Override
+	public void requires(DependencyRegistry dependencyRegistry) {
+		super.requires(dependencyRegistry);
+		dependencyRegistry.addDependency(GaeModule.class);
+	}
+...
+{% endhighlight %}
+			<p>
+				You also need to specify an <a href="https://developers.google.com/appengine/docs/java/config/appconfig">appengine-web.xml</a>, which is 
+				basic appengine configuration (i.e. not thundr specific)
+			</p>
+		</section>
+		<section id="platform">
+			<h2>Platform</h2>
+			<p>
+				<em>thundr-gae</em> acts as a <a href="{{ site.url }}/2.0/thundr/basics.html#platforms">platform module</a> for thundr. As such, 
+				it controls what environment thundr considers itself to be running in.
+			</p>
+			<p>
+				<code>GaeModule</code> specifies the current application id as the environment. That is, in your <code>appengine-web.xml</code>,
+				 the value in the <code>&lt;application/&gt;</code> element. 
+			</p>
+			<p>
+				If running the local devserver, the environment will be set to 'dev'.
+			</p>
+			<p>
+				This value is automatically included into the <a href="{{ site.url }}/2.0/thundr/views.html#globalModel">Global Model</a>,
+				along with the application version (<code>&lt;version/&gt;</code>)
+			</p>
+			<p>
+				You can access this meta-information directly yourself using <code>GaeEnvironment</code> if you need to.
+			</p>
+		</section>
+		
+		<section id="objectify">
+			<h3>Objectify</h3>
+			
+			<p>
+				We recommend using <a href="https://code.google.com/p/objectify-appengine/">Objectify</a> as best practice for interacting with the low-level datastore.
+			</p>
+			<p>
+				It provides a more useful and usable api than JDO or JPA, and more correctly aligns with how the datastore fundamentally works.
+			</p>
+			<p>
+				It is also gives a significant productivity boost over the raw low level api.
+			</p>
+			<p>
+				<em>thundr-gae</em> includes a dependency on <strong>version 5</strong> of objectify.
+			</p>
+{% highlight java %}
+...
+	@Override
+	public void requires(DependencyRegistry dependencyRegistry) {
+		super.requires(dependencyRegistry);
+		dependencyRegistry.addDependency(GaeModule.class);
+		dependencyRegistry.addDependency(ObjectifyModule.class);
+	}
+...
+{% endhighlight %}			
+			<p>
+				The <code>ObjectifyModule</code> is not automatically included as a dependency, doing so will configure
+				objectify for typical use.<br/>
+				This includes:
+			</p>
+			<ul>
+				<li>
+					It registers all the joda DateTime translators for Objectify.
+				</li>
+				<li>
+					Adding to the <code>TransformerManager</code> basic objectify and datastore type transformers (such as  
+					<code>com.googlecode.objectify.Key</code> and <code>com.google.appengine.api.datastore.Key</code> to and from strings).
+				</li>
+				<li>
+					Configuring default <code>IndexType</code> values for <code>com.google.appengine.api.datastore.GeoPt</code>, 
+					<code>com.googlecode.objectify.Key</code> and <code>com.google.appengine.api.datastore.Key</code>.
+				</li>
+				<li>
+					Enables the use of the <code>Repository</code> implementations. 
+				</li>
+			</ul>
+			<h4>Configuring the Objectify filter</h4>
+			<p>
+				For Objectify to work, you <strong>must</strong> add the filter to your web.xml.
+{% highlight xml %}
+...
+	<!-- Clean up transactions, transaction contexts and async operations at the end of a request -->	
+	<filter>
+		<filter-name>ObjectifyFilter</filter-name>
+		<filter-class>com.googlecode.objectify.ObjectifyFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>ObjectifyFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+...
+{% endhighlight %}
+			</p>
+			<blockquote>
+				<p>
+					Static access or instance injection?
+				</p>
+				<p>
+					Objectify, like the low level appengine API, is based on static access.
+				</p>
+				<p> 
+					Generally we would consider this bad practice, it results in tighter code coupling
+					and makes testing harder.
+				</p>
+				<p>	 
+					In the case of Objectify, it is very important that you access an Objectify instance
+					through the static accessor <code>ObjectifyService.ofy()</code> - this is because 
+					the Objectify instance returned is scoped to a transaction.
+				</p>
+				<p>
+					You can read more <a href="https://code.google.com/p/objectify-appengine/wiki/FrequentlyAskedQuestions#Can_I_use_Dependency_Injection_(Spring,_Guice,_Weld)_with_Object">here</a>
+				</p>					  
+			</blockquote>
+		</section>
+
+		
+		<section id="repository">
+			<h2>Repository</h2>
+			<p>
+				<em>thundr-gae</em> provides a <code>Repository</code> interface which defines an API for a basic data persistence service. 
+				The repository abstraction is built on top of objectify (version 5), optionally integrating 
+				the <a href="https://cloud.google.com/appengine/docs/java/search/">Search</a> service for richer querying capability.				
+			</p>
+			<p>
+				The type of repository you need depends on how your objectify entity is keyed. There are three basic implementations,
+				<code>LongRepository</code>, <code>StringRepository</code> and <code>KeyRepository</code>. 
+			</p>
+			<h3>LongRepository</h3>
+			<p>
+				The <code>LongRepository</code> is suitable for entities which are defined to have an @Id of Long or long, and no @Parent.
+				In this situation, an entity can be loaded by just a long.
+			</p>
+			<h3>StringRepository</h3>
+			<p>
+				The <code>StringRepository</code> is suitable for entities which are defined to have an @Id of String, and no @Parent.
+				In this situation, an entity can be loaded by just a string.
+			</p>
+			<h3>KeyRepository</h3>
+			<p>
+				If your entity has a @Parent, then it can only be loaded by providing the ancestor key and a long or string id.
+				In this case, you should use the <code>KeyRepository</code>.
+			</p>
+			<blockquote>
+				You must use a <code>KeyRepository</code> if you have a <code>@Parent</code> annotation, this is always true if you want to make
+				ancestor queries (i.e. strongly consistent queries)
+			</blockquote>
+			<p>
+				You can also create your own repository by extending <code>AbstractRepository</code> - you just need to provide a transformer
+				which can convert between your preferred key type (for example a <code>UUID</code>) and an Objectify <code>Key</code>.
+			</p>
+			<p>
+				In general, the easiest way to create a repository is to extend the chosen repository type for your specific entity.
+			</p>
+{% highlight java %}
+@Entity
+public class MyEntity {
+	@Id private Long id;
+	...
+	// All you entity data, @Indexed as appropriate
+	@Index 
+	private String field1;
+	private Long field2;
+	...
+	public Long getId() {
+		return id;
+	}
+	...			
+{% endhighlight %}	
+			<p>
+				You can then create a repository like this:
+			</p>
+{% highlight java %}
+public class MyEntityRepository extends LongRepository<MyEntity> {
+	public MyEntityRepository(SearchConfig searchConfig){
+		super(MyEntity.class, searchConfig);
+	}
+}
+{% endhighlight %}	
+			<p>
+				Beyond basic repository methods, like <code>load</code>, <code>save</code>, <code>delete</code>, <code>deleteByKey</code>,
+				the repositories are able to perform searches using an integrated <code>TextSearchService</code>.
+			</p>
+			<p>
+				To do this, you annotate searchable fields, as <a href="#textSearchService">documented here</a>.
+				You can then perform a search using the fluent api returned from <code>Repository.search()</code>.
+			</p>
+			<p>
+				Using the search method, you can avoid needing to define many <a href="https://cloud.google.com/appengine/docs/java/datastore/indexes#Java_Index_limits">multi property indexes</a>.
+				This is because the repository will index fields marked with <code>@SearchIndex</code> into the full text
+				search service. When you search, the query is run against the search service, then the results are loaded
+				by key from the datastore.
+			</p>
+			<p>
+				In this way, the results are strongly consistent using the datastore as the 'source of truth', but you
+				have much more flexibility than requiring predefined indexes and ordering in the datastore. 								  
+			</p>
+{% highlight java %}
+@Entity
+public class MyEntity {
+	@Id private Long id;
+	...
+	// All you entity data, @Indexed as appropriate
+	@Index 
+	@SearchIndex
+	private String field1;
+	@SearchIndex
+	private Long field2;
+	...
+	public Long getId() {
+		return id;
+	}
+	...			
+{% endhighlight %}				
+{% highlight java %}
+...
+	List<MyEntity> results = myEntityRepository.search()
+			.field("field1", Is.EqualTo, "some value")
+			.field("field2", Is.GreaterThan, 4l)
+			.search();
+...			
+{% endhighlight %}
+			<p>
+				The <code>Repository</code> exposes an asynchronous interface through <code>AsyncResult</code>
+				- typically any save/put operations need to act on both the datastore and search service, and 
+				will do so concurrently on both.
+			</p>
+			
+			<blockquote>
+				<h4>Using the Repository without the TextSearchService</h4>
+				<p>
+					You can use the Repository implementations without the search service.
+				</p>
+				<p>
+					If your entity doesn't have any indexed fields (i.e. <code>@SearchIndex</code>), it won't be searchable. 
+					Likewise if you do not pass a <code>SearchConfig</code> into the constructor, search will not
+					be enable. 
+				</p>
+				<p>
+					If you do so, attempting to call search will result in an exception.
+				</p>
+			</blockquote>
+		</section>
+		<section id="textSearchService">
+					<h2>TextSearchService</h2>
+
+					<p>
+						The module provides an abstraction on top of the native 
+						<a href="https://developers.google.com/appengine/docs/java/search/">AppEngine search service</a>. 
+						This abstraction allows you to interact with the search service using your
+						java object model (i.e. pojos and javabeans), rather than the low level api.
+					</p>
+					<p>
+						The <code>TextSearchService</code> interface is implemented by the <code>GaeSearchService</code>. The easiest way
+						to use this is to subclass it directly for your object type. 
+					</p>
+{% highlight java %}
+public class MySearchableEntity {
+	@SearchId private Long id;
+	...
+	// All you entity data, @SearchIndex as appropriate
+	@SearchIndex
+	private String field1;
+	@SearchIndex
+	private Long field2;
+	...
+	public Long getId() {
+		return id;
+	}
+	...			
+{% endhighlight %}		
+		
+{% highlight java %}
+public class MySearchableEntitySearchService extends GaeSearchService<MySearchableEntity>{
+	public MySearchableEntitySearchService(SearchConfig searchConfig){
+		super(MySearchableEntity.class, searchConfig);
+	}
+}			
+{% endhighlight %}
+
+{% highlight java %}
+public MyController(MySearchableEntitySearchService searchService){
+	this.searchService = searchService;
+}
+
+public List<MySearchableEntity> search(String query, long offset){
+		List<MySearchableEntity> result = searchService
+				.search()
+				.query(query)
+				.field("field1", Is.EqualTo, "value")
+				.field("field2", Is.LessThan, 4l)
+				.order("field2", true)
+				.accuracy(123)
+				.limit(100)
+				.offset(offset)
+				.run()
+				.getResults();	
+		return result;
+}
+...
+{% endhighlight %}
+
+					<p>
+						As you can see from this simple example, the SearchService provides a fluent api for querying 
+						specific fields.<br>It also provides facilities for limits, orders and offsets.    
+					</p>
+					<p>
+						The search service provides an asynchronous interface on the underlying search service, so you can perform
+						operations such as datastore reads or http requests in parallel.
+					</p>
+					<p>
+						When you <code>run()</code> a search, you can retrieve either the ids of the results, or the result entities themselves.
+						It is important to note that the entity will only contain the fields that have been indexed, and relies on transformations
+						being available to convert from the internal search service types to the target object types.
+					</p>
+					<p>
+						In the situation that your data storage is more complex, you should use the <a href="#repository">repositories</a>
+						to store entities, indexing them into the search service.
+					</p>
+					<p>
+						The search service also does not have well defined consistency
+						semantics, nor can it participate in transactions. 
+						This is another reason why you may prefer to use a repository directly.
+					</p>
+					<h3>Types</h3>
+					<p>
+						The low level search service only supports the following types:
+						<ul>
+							<li>Atom Field - an indivisible character string</li>
+							<li>Text Field - a plain text string that can be searched word by word</li>
+							<li>HTML Field - a string that contains HTML markup tags, only the text outside the markup tags can be searched</li>
+							<li>Number Field - a floating point number</li>
+							<li>Date Field - a date object</li>
+							<li>Geopoint Field - a data object with latitude and longitude coordinates</li>
+						</ul>
+						To store field data from your objects, they must be converted to one of these types. As well as a conversion being available, each
+						low level type has different query and storage constraints applied to it.
+					</p>
+					<p>
+						For example, number fields are stored as floats, but they only have a valid range matching that of
+						an integer. This means to store large numbers, you may need to lose precision (i.e. shift a long or BigDecimal down etc).
+					</p>
+					<p>
+						Another example is Text vs Atom fields, when storing the same data as these different types, the same query will potentially return different results. 
+					</p>
+					<p>
+						You can influence how a field is stored by passing extra information to the @SearchIndex annotation:
+					</p>
+{% highlight java %}
+public class MySearchableEntity {
+	@SearchId
+	private Long id;
+	
+	@SearchIndex(as=IndexType.Identifier)
+	private String field1;
+	
+	@SearchIndex(as=IndexType.BigDecimal)
+	private Long field2;
+
+	public Long getId() {
+		return id;
+	}
+}
+{% endhighlight %}
+				<h3>Index type</h3>
+				<p>
+					<code>IndexType</code> is used to control how a value is indexed into the search service.
+					The index types correlate to a canonical java type, and also to a low level search api type.
+					To store and restore data, the field of your pojo is first converted to the canonical type, 
+					then stored in a low level document. When loaded, the reverse occurs.
+					<ul>
+						<li><code>IndexType.Automatic</code> - the default which is used unless another is specified - determines the index type to use based on the java type of the field.</li>
+						<li><code>IndexType.Identifier</code> - converts to a canonical type of <code>java.lang.String</code>, and stores the data as an <code>atomic</code> field</li>
+						<li><code>IndexType.Text</code> - converts to a canonical type of <code>java.lang.String</code>, and stores the data as a <code>text</code> field</li>
+						<li><code>IndexType.Html</code> - converts to a canonical type of <code>java.lang.String</code>, and stores the data as an <code>html</code> field</li>
+						<li><code>IndexType.BigDecimal</code> - converts to a canonical type of <code>java.math.BigDecimal</code>, and stores the data as a <code>number</code> field (after a scaling transformation)</li>
+						<li><code>IndexType.SmallDecimal</code> - converts to a canonical type of <code>java.math.BigDecimal</code>, and stores the data as a <code>number</code> field</li>
+						<li><code>IndexType.Date</code> - converts to a canonical type of <code>org.joda.DateTime</code>, and stores the data as a <code>date</code> field</li>
+						<li><code>IndexType.GeoPoint</code> - converts to a canonical type of <code>com.google.appengine.api.search.GeoPoint</code>, and stores the data as a <code>geopoint</code> field</li>
+					</ul>
+					
+					<blockquote>
+						<p>
+							You can add mappings between java types and the resulting <code>IndexType</code> using <code>IndexTypeLookup.addMapping(Class&lt;?&gt;, IndexType)</code>. 
+							This will result in a default mapping between an arbitrary type and the low level API (i.e. is used to resolve
+							IndexType.Automatic).
+						</p>
+						<p>
+							For example, <code>indexTypeLookup.addMapping(UUID.class, IndexType.Atomic)</code> will result in all UUIDs being
+							stored as atomic fields, unless another IndexType is explicitly specified.
+						</p> 
+					</blockquote>
+				</p>	
+				<h3>FieldMediators and Type conversion</h3>
+				<p>
+					<!--  TODO - Link the transformer manager docs -->
+					<em>thundr</em> uses the <code>TransformerManager</code> to convert between the type in your object and the canonical type. This happens in a <code>FieldMediator</code>.
+				</p>
+				<p>
+					<code>FieldMediator</code> instances are registered in the <code>FieldMediatorSet</code> for an <code>IndexType</code>. They do both the type conversion, and also
+					any normalisation required to fit data in considering limitations of the low level search service. 
+				</p>
+				<p>
+					For example, the <code>BigDecimalFieldMediator</code> converts the field value to a BigDecimal, then shifts the decimal point so that the
+					value can be stored within the precision of the low level search service. If the default behaviour doesn't suit your needs, you can register
+					your own BigDecimalFieldMediator, which applies a different shift. This might be necessary if you want to store high precision numbers in
+					the range of 0 to 1, for example.
+				</p>
+				<p>
+					The <code>FieldMediator</code> also participates in query generation, converting the canonical type to a query string fragment.
+				</p>
+				<h3>SearchConfig</h3>
+				<p>
+					The <code>SearchConfig</code> groups together a <code>TransformerManager</code>, an <code>IndexTypeLookup</code> and a <code>FieldMediatorSet</code>. 
+					One is automatically included in your <em>InjectionContext</em>, but you can create a new one to customise how a particular TextSearchService works.
+					They are also provided to a <em>Repository</em> if search is to be enabled. 
+				</p>
+				<blockquote>
+					<p>
+						If you need to create a SearchConfig for testing, the below code will work for most use cases.
+					</p>
+{% highlight java %}
+new SearchConfig(TransformerManager.createWithDefaults(), new FieldMediatorSet(), new IndexTypeLookup());
+{% endhighlight %}					
+				</blockquote>
+		</section>
+		<section id="httpService">
+			<h3>HttpService</h3>
+
+					<p>
+						The module provides an implementation of the <code>HttpService</code> defined in the thundr-http jar.
+					</p>
+					<p>
+					 	This is a fluent API which abstracts the <a href="https://developers.google.com/appengine/docs/java/urlfetch/">UrlFetchService</a>. 
+						You can then inject it into your controllers and services and use it as in the following example:
+					</p>
+
+{% highlight java %}
+...
+private HttpService httpService;
+
+public MyController(HttpService httpService){
+   this.httpService = httpService;
+}
+...
+private Pojo loadRemotePojo(String id){
+	HttpResponse httpResponse = httpService
+		.request(remoteUrl)
+		.parameter("id", id)
+		.get();
+	String response = httpResponse.getBody();
+	Gson gson = gsonBuilder.create();
+	Pojo typedResponse = gson.fromJson(response, Pojo.class);
+	return typedResponse;
+}
+...
+{% endhighlight %}
+			<p>
+				The HttpService provides an asynchronous interface for making remote calls.
+				You can run the call in parallel with other asynchronous operations, such as datastore reads.
+			</p>
+		</section>
+
+
+		<section id="testing">
+			<h3>Testing</h3>
+			<p>
+				Testing against appengine APIs can be a little bit of a hassle. The standard access pattern is
+				static, so you have to set up the <code>LocalServiceTestHelper</code> in all your tests.
+			</p>
+			<p>
+				<em>thundr-gae</em> also has a testing jar, which has a couple of helpful JUnit <a href="https://github.com/junit-team/junit/wiki/Rules">@Rules</a>
+			</p>
+			<p>
+				In your pom.xml (or equivalent):
+			</p>
+{% highlight xml %}
+...
+<dependency>
+	<groupId>com.threewks.thundr</groupId>
+	<artifactId>thundr-gae</artifactId>
+	<version>${thundr.version}</version>
+	<scope>test</scope>
+	<type>test-jar</type>
+</dependency>
+<dependency>
+	<groupId>com.google.appengine</groupId>
+	<artifactId>appengine-testing</artifactId>
+	<version>${gae.version}</version>
+	<scope>test</scope>
+</dependency>
+<dependency>
+	<groupId>com.google.appengine</groupId>
+	<artifactId>appengine-api-stubs</artifactId>
+	<version>${gae.version}</version>
+	<scope>test</scope>
+</dependency>
+...
+{% endhighlight %}		
+		<p>
+			In your unit tests:
+		</p>
+{% highlight java %}
+public TestClass {
+...
+  @Rule
+  public SetupAppengine setupAppengine = new SetupAppengine();
+  @Rule
+  public SetupObjectify setupObjectify = new SetupObjectify(Entity1.class, Entity2.class);
+...	
+{% endhighlight %}		
+		<p>
+			This will result in the <code>LocalServiceTestHelper</code> being configured, and 
+			if you need Objectify entities configured, the ones you specified will be registered.
+		</p>
+		<p>
+			You must always add the SetupAppengine rule before the SetupObjectify rule.
+		</p>
+		</section>
+		<section id="sample">
+			<h3>Sample?</h3>
+			<p>
+				All a bit hard? Don't worry - just <a href="https://github.com/3wks/thundr-sample/tree/gae">clone the <em>thundr-sample</em> project</a> and take a look.
+			</p>
+			<p>
+				Feel free to re-initialise it as your own git repository and hack away.
+			</p>
+		</section>
+	</article>
+</div>
+
+		

@@ -1,0 +1,253 @@
+---
+layout: 2.0/base
+title: Utilities
+description: thundr utilities
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/basics.html">
+						Basics
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/controllers.html">
+						Controllers
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/views.html">
+						Views
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/routes.html">
+						Routes
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/modules.html">
+						Modules
+					</a>
+				</li>
+
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/jsp.html">						
+						Jsp						
+					</a>
+				</li>
+
+				<li class="nav-header">
+					<a href="{{ site.url }}/2.0/thundr/email.html">
+						Email
+					</a>
+				</li>
+				
+				<li class="nav-header active">
+					<a href="{{ site.url }}/2.0/thundr/utilities.html">
+						Utilities
+					</a>
+				</li>
+				
+				<li>
+					<a href="{{ site.url }}/2.0/thundr/utilities.html#baseException" data-target="#baseException">
+						BaseException
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}/2.0/thundr/utilities.html#encoder" data-target="#encoder">
+						Encoder
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}/2.0/thundr/utilities.html#environment" data-target="#environment">
+						Environment
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}/2.0/thundr/utilities.html#logger" data-target="#logger">
+						Logger
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}/2.0/thundr/utilities.html#streams" data-target="#streams">
+						Streams
+					</a>
+				</li>
+				<li><hr/></li>
+				<li>
+					<a href="{{ site.url }}/2.0/thundr/utilities.html#authorization" data-target="#authorization">
+						Authorization
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}/2.0/thundr/utilities.html#contentType" data-target="#contentType">
+						ContentType
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}/2.0/thundr/utilities.html#cookies" data-target="#cookies">
+						Cookies
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}/2.0/thundr/utilities.html#header" data-target="#header">
+						Header
+					</a>
+				</li>
+				<li>
+					<a href="{{ site.url }}/2.0/thundr/utilities.html#statusCode" data-target="#statusCode">
+						StatusCode
+					</a>
+				</li>
+				
+				<li>
+					<a href="{{ site.url }}/2.0/thundr/utilities.html#urlEncoder" data-target="#urlEncoder">
+						URLEncoder
+					</a>
+				</li>
+				
+				<li class="nav-header ">
+					<a href="{{ site.url }}/2.0/thundr/glossary.html">
+						Glossary
+					</a>
+				</li>				
+			</ul>
+		</div>
+	</aside>
+
+	<article id="utilities" class="col-md-9">
+		<div class="page-header">
+			<h1>thundr <small>utilities</small></h1>
+		</div>
+
+		<section id="page-overview" class="overview">
+			thundr has a lot of utility code which can help you succinctly and rapidly deliver your application code.
+		</section>
+
+		<section id="baseException">
+			<h4><code>com.threewks.thundr.exception.BaseException</code></h4>
+			<p>
+				A base exception class the allows you to pass a string format and args instead of just a message. Most if not all of the exceptions from thundr extend this - and you can too.
+			</p>
+		</section>
+		
+		<section id="encoder">
+			<h4><code>com.threewks.thundr.util.Encoder</code></h4>
+
+			<p>
+				Encoder provides a fluent api for encoding strings and binary data in various ways.
+			</p>
+			<p>
+				If you need to do something with Hex, Base32, Base64, MD5, SHA1, SHA256 etc, then this is a good place to look.
+			</p>
+{% highlight java %}
+// An example of base64 encoding a username and password			
+String basicAuth = "Basic " + new Encoder(username + ":" + password).base64().string();
+
+// MD5 a byte array
+String hexMd5 = new Encoder(byteArray).md5().hex().string();
+{% endhighlight %}			
+		</section>
+		
+		<section id="environment">
+			<h4><code>com.threewks.thundr.configuration.Environment</code></h4>
+			<p>
+				This class contains the current environment as configured for thundr.
+			</p>
+			<p>
+				 This is useful if you need to switch implementations or behaviour based on the current environment.
+			</p>
+			<p>
+				Generally, this sort of logic only belongs in your ApplicationModule, where you would inject a different implementation based on the environment.
+			</p>
+		</section>
+		
+		<section id="logger">
+			<h4><code>com.threewks.thundr.logger.Logger</code></h4>
+			<p>
+				A statically accessible Logger which sits on top of Java Util Logging (JUL).
+			</p>
+			<p>
+				All of thundr logs through this interface, and you can too.
+			</p>
+			<p>
+				Log methods receive a string format and varargs parameters.
+				The output string will not be processed unless the appropriate level of logging is enabled,
+				this allows you to avoid wrapping logging calls in if conditions testing for
+				the current log level. 
+			</p>
+			<p>
+				The formatting is the same as String.format(), as defined <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html#syntax" target="_blank">here</a>.
+			</p>
+{% highlight java %}
+Logger.info("Some formattable message %d: %s", decimal, string);
+{% endhighlight %}					
+		</section>
+		
+		<section id="streams">
+			<h4><code>com.threewks.thundr.util.Streams</code></h4>
+			<p>
+				This utility class has convenience methods for dealing with Streams.
+			</p>
+{% highlight java %}
+String string = Streams.readString(inputStream, "UTF-8");
+
+byte[] data = Streams.readBytes(inputStream);
+
+InputStream resource = Streams.getResourceAsStream("classpath-resource.file");
+
+{% endhighlight %}					
+		</section>
+		
+		<section id="authorization">
+			<h4><code>com.threewks.thundr.http.Authorization</code></h4>
+			<p>
+				Authorization contains convenience methods for dealing with HTTP authorization policies.
+			</p>
+		</section>
+		<section id="contentType">
+			<h4><code>com.threewks.thundr.http.ContentType</code></h4>
+			<p>
+				An enumeration for common content types, and utility methods for dealing with them.
+			</p>
+		</section>
+		<section id="cookies">
+			<h4><code>com.threewks.thundr.http.Cookies</code></h4>
+			<p>
+				Provides a builder for creating Cookies, and some convenience methods for extracting them from a <code>HttpServletRequest</code>.
+			</p>
+		</section>
+		<section id="header">
+			<h4><code>com.threewks.thundr.http.Header</code></h4>
+			<p>
+				Header contains a range of constants and convenience methods for dealing with HTTP headers.
+			</p>
+		</section>
+		
+		<section id="statusCode">
+			<h4><code>com.threewks.thundr.http.StatusCode</code></h4>
+			<p>
+				An enumeration for Http status codes, and utility methods for dealing with and understanding them.
+			</p>
+		</section>
+		<section id="urlEncoder">
+			<h4><code>com.threewks.thundr.http.URLEncoder</code></h4>
+			<p>
+				Provides convenience methods for dealing with url components that need encoding.
+			</p>
+			<p>
+				For example components in url paths require different encoding to components in query parameters.
+			</p>
+		</section>
+	</article>
+</div>
+
+		
