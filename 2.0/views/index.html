@@ -1,0 +1,213 @@
+---
+layout: 2.0/base
+title: Views in thundr
+description: Controller methods can return a View object, which controls what content is returned to the request client.
+---
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header active">
+					<a href="#">
+						Views
+					</a>
+				</li>
+				
+				<li>
+					<a href="#dataView" data-target="#dataView">
+						DataView
+					</a>
+				</li>
+				
+				<li>
+					<a href="#templateView" data-target="#templateView">
+						TemplateView
+					</a>
+				</li>
+				
+				
+				<li>
+					<a href="#globalModel" data-target="#globalModel">
+						Global Model
+					</a>
+				</li>
+				
+				
+				
+				<li>
+					<a href="#viewResolver" data-target="#viewResolver">
+						ViewResolver 
+					</a>
+				</li>
+				
+				<li>
+					<a href="#baseView" data-target="#baseView">
+						BaseView
+					</a>
+				</li>
+			</ul>
+		</div>
+	</aside>
+
+	<article id="views" class="col-md-9">
+		<div class="page-header">
+			<h1>thundr <small>views</small></h1>
+		</div>
+
+		<section id="page-overview" class="overview">
+		</section>
+
+		<section id="views">
+			<h2>Views</h2>
+
+			<p>
+				<a href="{{ site.url }}/2.0/thundr/controllers.html">Controller</a> methods can return a <code>View</code> object, which
+				controls what content is returned to the request client.
+			</p>
+
+			<p>
+				thundr handles views by passing them to registered a <code>ViewResolver</code>. View resolvers are responsible for rendering the resulting content
+				into output, either as a data format or a template.
+			</p>
+			
+			<p>
+				Views broadly fall into two categories - <a href="#templateView">template views</a> and <a href="#dataView">data views</a>.
+			</p>
+		</section>
+		
+		<section id="dataView">
+			<h3>Data View</h3>
+			<p>
+				Data views are views that transform a data model to a data format. The difference between data views and template views is
+				that the output format is automatic and requires no template. Examples of data views are xml or json representations of java
+				objects.
+			</p>
+			<p>
+				The <code>DataView</code> itself is a base class that can be extended to build a data based view quickly and make it easily work
+				with the <a href="#negotiatingView">content negotiation</a> feature of thudnr.
+			</p>
+		</section>
+		
+		<section id="templateView">
+			<h3>Template View</h3>
+			<p>
+				Template views are views that combine a data model with a templating engine to produce output. Examples of this
+				are jsps and handlebars. The template controls the appearance of the output, and includes dynamic content
+				from the model. Most frequently, this is used to generate html output, but can be used to produce other content as well.
+			</p>
+			<p>
+				The <code>TemplateView</code> is a base class that can be extended to make a template based view quickly and
+				with a conventional interface. 
+			</p>
+		</section>
+		
+		<section id="globalModel">
+			<h3>Global Model</h3>
+
+			<p>The <code>GlobalModel</code> is a data model which allows you to provide data into all <code>TemplateView</code>
+			implementations without needing to add them in every controller. This is very useful for cross cutting needs.
+			</p>
+			<p>
+			The global model is configured at startup in your <a href="{{ site.url }}/2.0/thundr/basics.html#applicationModule">ApplicationModule</a>.
+			</p>
+{% highlight java %}
+public class ApplicationModule implements Module {
+...
+	@Override
+	public void configure(UpdatableInjectionContext injectionContext) {
+		super.configure(injectionContext);
+		GlobalModel globalModel = injectionContext.get(GlobalModel.class);
+		String applicationUrlFromApplicationProperties = injectionContext.get("applicationUrl")
+		globalModel.put("applicationUrl", applicationUrlFromApplicationProperties);
+		...
+{% endhighlight %}
+			<p>
+				In this example, the value configured in the application.properties file will now be available in
+				all template views (e.g. <a href="#jspView">JspView</a>, <a href="{{ site.url }}/2.0/thundr-handlebars/index.html#handlebarsView">HandlebarsView</a> etc). We could then use it as follows:
+			</p>	
+{% highlight jsp %}
+...
+	<a href="${applicationUrl}/path/to/awesome.page">It's awesome!</a>
+...
+{% endhighlight %}
+			<blockquote>
+				The <code>GlobalModel</code> can be very powerful if you put a factory class or lookup implementation in it.
+				For example, you could include a wrapper around a ThreadLocal containing the logged in user, or a factory that
+				looks up request based reference data.  
+			</blockquote>					
+			<div class="alert alert-warning">
+				Remember that the GlobalModel is a <strong>global model</strong> - it is shared by all views, and should only be
+				used in a stateless capacity. If you alter it at runtime, particularly in a request, then you are doing something wrong.
+			</div>
+		</section>
+		<section id="viewResolver">
+			<h4><code>ViewResolver</code> <span class="label label-info">Advanced</span></h4>
+
+			<p>
+			Every type of <code>View</code> is rendered by a <code>ViewResolver</code>. You can create your own views just by implementing 
+			a ViewResolver and registering it with thundr at startup.
+			</p>
+{% highlight java %}
+public class ApplicationModule implements Module {
+...
+  @Override
+  public void configure(UpdatableInjectionContext injectionContext) {
+    super.configure(injectionContext);
+    ViewResolverRegistry viewResolverRegistry = injectionContext.get(ViewResolverRegistry.class);
+    viewResolverRegistry.addResolver(MyView.class, new MyViewResolver());
+    ...
+{% endhighlight %}			
+			<p>
+			You can register <em>any</em> class as a view, it doesn't need to implement the <code>View</code> interface, or extend <code>BaseView</code>.
+			This means you can register any of your application model classes, any exception type or any other class for that matter.
+			That is, while most views do implement the <code>View</code> interface, this is for convenience and not a requirement.
+			</p>		
+			<p>
+				At runtime, thundr will look at the type of the view returned from a controller method and find the appropriate <code>ViewResolver</code> in 
+				the <code>ViewResolverRegistry</code>.
+			</p>
+			<p>
+				The view resolver is then given the view instance, the servlet request and
+				servlet response and is expected to generate some output to the servlet response.
+			</p>
+			<blockquote>
+				If you're implementing a <code>ViewResolver</code> for sharing in a module, use the following guidelines:
+				<ul>
+					<li>
+						Implement the <code>View</code> interface. This allows controllers to return View, rather than Object when they mix return types
+					</li>
+					<li>
+						Extend <code>BaseView</code> and in your view resolver call the <code>BaseView.applyToResponse</code> method. This allows consumers to use a consistent interface. This may not always be appropriate, but usually is.
+					</li>
+					<li>
+						If you're writing a template style view (e.g. Jsp, Handlebars, Mustache, Freemarker etc) make sure you allow consumers to specify a model, and also include the global model.
+					</li>
+					<li>
+						If you're writing a data style view (e.g. Json, Xml etc) consider writing a <a href="{{ site.url }}/2.0/thundr/controllers.html#parameterBinding">ParameterBinder or BinaryParameterBinder</a> so that the same representation can be consumed by controllers.
+					</li>
+				</ul>
+			</blockquote>
+		</section>
+	
+
+		<section id="baseView">
+			<h2>BaseView</h2>
+			<p>
+				The <code>BaseView</code> is a base view class that provides common behaviour to View implementations.
+				Both the <code>TemplateView</code> and <code>DataView</code> extend the base view.
+			</p>
+			<p>
+				This provides a common interface to add additional information to the response.
+			</p>
+{% highlight java %}
+...
+return new StringView("Hello!")
+	.withStatus(StatusCode.BadRequest)
+	.withHeader(Header.ContentType, "text/html")
+	.withCookie("user", userId);
+...
+{% endhighlight %}			
+		</section>
+	</article>
+</div>
+		

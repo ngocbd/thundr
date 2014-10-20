@@ -1,0 +1,95 @@
+---
+layout: 2.0/base
+title: JsonView and JsonpView
+description: JsonView and JsonpView are used to render json output to clients using the JsonViewResolver and JsonpViewResolver
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header active">
+					<a href="#jsonView">
+						JsonView
+					</a>
+				</li>
+				<li class="nav-header">
+					<a href="#jsonpView">
+						JsonpView
+					</a>
+				</li>
+			</ul>
+		</div>
+	</aside>
+
+	<article class="col-md-9">
+		<div class="page-header">
+			<h1>
+				<a href="/modules/thundr" class="module">thundr</a> 
+				<small>JsonView</small>
+			</h1>
+		</div>
+
+		<section id="jsonView" >
+			<h2>JsonView</h2>
+			
+			<p>
+				<code>JsonView</code> is a <a href="index.html#dataView">data view</a> which uses the <code>JsonViewResolver</code> to render the given model object to <a href="http://en.wikipedia.org/wiki/JSON" target="_blank">json</a>.
+			</p>
+			<p>
+				JsonView uses the <a href="http://code.google.com/p/google-gson/">Gson library</a> to
+				serialize the given object to json, and return it to the request client.
+			</p>
+			<p>
+				<code>JsonView</code> is <strong>intrinsic</strong>, built into thundr core.
+			</p>
+{% highlight java %}
+...
+MyDto dto = ... 
+return new JsonView(dto);
+...
+{% endhighlight %}
+			<p>
+				You can override the <code>GsonBuilder</code> used by the JsonViewResolver by creating and registering your
+				own instance at startup.
+			</p>
+{% highlight java %}
+...
+GsonBuilder gsonBuilder = GsonSupport.createBasicGsonBuilder();
+gsonBuilder.registerTypeAdapter(Money.class, new MoneyTypeConverter());
+
+ViewResolverRegistry viewResolverRegistry = injectionContext.get(ViewResolverRegistry.class);
+viewResolverRegistry.addResolver(JsonView.class, new JsonViewResolver(gsonBuilder));
+...
+{% endhighlight %}			
+		</section>
+		<section id="jsonpView" >
+			<h2>JsonpView</h2>
+			
+			<p>
+				<code>JsonpView</code> is a <a href="index.html#dataView">data view</a> which uses the <code>JsonpViewResolver</code> to render the given model object to <a href="http://en.wikipedia.org/wiki/JSONP" target="_blank">jsonp</a>.
+			</p>
+			<p>
+				JsonpView uses the <a href="http://code.google.com/p/google-gson/">Gson library</a> to
+				serialize the given object to jsonp, and return it to the request client.
+			</p>
+			<p>
+				<code>JsonpView</code> is <strong>intrinsic</strong>, built into thundr core.
+			</p>
+			<p>
+				It operates the same way as the <a href="#jsonView">JsonView and JsonViewResolver</a>
+			</p>
+
+{% highlight java %}
+...
+MyDto dto = ... 
+return new JsonpView(dto);
+...
+{% endhighlight %}
+			<p>
+				You can override the <code>GsonBuilder</code> used by the JsonpViewResolver the same way as the <code>JsonViewResolver</code>.
+			</p>
+		</section>
+	</article>
+</div>
+		

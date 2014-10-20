@@ -1,0 +1,61 @@
+---
+layout: 2.0/base
+title: StringView
+description: StringView and StringViewResolver
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header active">
+					<a href="#stringView">
+						StringView
+					</a>
+				</li>
+			</ul>
+		</div>
+	</aside>
+
+	<article id="stringView" class="col-md-9">
+		<div class="page-header">
+			<h1>
+				<a href="/modules/thundr" class="module">thundr</a> 
+				<small>StringView</small>
+			</h1>
+		</div>
+
+		<section>
+			<h2>StringView</h2>
+			
+			<p>
+				<code>StringView</code> is a simple view which returns the given string as the response content, defaulting to 
+				a response code of 200 OK and a content type of text/plain.
+			</p>
+			<p>
+				<code>StringView</code> is <strong>intrinsic</strong>, built into thundr core.
+			</p>
+			
+{% highlight java %}
+...
+return new StringView("Hello!");
+...
+{% endhighlight %}
+
+			<p>
+				StringView is a <a href="index.html#baseView">base view</a> so you can set content type, cookies, status code etc as usual.
+			</p>
+{% highlight java %}
+...
+return new StringView("Hello!")
+	.withStatus(StatusCode.BadRequest)
+	.withHeader("X-App-Specific", "special-value")
+	.withContentType(ContentType.TextPlain)
+	.withCookie("user", userId);
+...
+{% endhighlight %}
+
+		</section>
+	</article>
+</div>
+		

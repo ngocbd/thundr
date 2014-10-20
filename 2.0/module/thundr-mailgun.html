@@ -39,8 +39,10 @@ description: Using the Mailgun module
 
 	<article id="index" class="col-md-9">
 		<div class="page-header">
-			<h1>thundr
-				<small>and Mailgun</small>
+			<h1>
+				thundr-mailgun
+				<small>Mailgun</small>
+				<img src="https://travis-ci.org/3wks/thundr-mailgun.svg?branch=feature%2F2.0"/>
 			</h1>
 		</div>
 
@@ -67,7 +69,7 @@ description: Using the Mailgun module
 				which provides access to Mailgun APIs through the <code>Mailgun</code> interface.
 			</p>
 			<p>
-				<code>Mailgun</code> also implements the standard <a href="{{ site.url }}/2.0/thundr/email.html">thundr Mailer</a>, so you can swap it out
+				<code>Mailgun</code> also implements the standard <a href="{{ site.url }}/2.0/email/index.html">thundr Mailer</a>, so you can swap it out
 				interchangably with the built in <code>JavaMailMailer</code>.
 			</p>
 			<p>
@@ -85,14 +87,14 @@ description: Using the Mailgun module
 <dependency>
     <groupId>com.threewks.thundr</groupId>
     <artifactId>thundr-mailgun</artifactId>
-    <version>1.1.0</version>
+    <version>2.0.0</version>
     <scope>compile</scope>
 </dependency>
-<!-- thundr-http-ning or thundr-gae -->
+<!-- thundr-http or an implementation of thundr-http -->
 <dependency>
     <groupId>com.threewks.thundr</groupId>
-    <artifactId>thundr-http-ning</artifactId>
-    <version>1.1.0</version>
+    <artifactId>thundr-http</artifactId>
+    <version>2.0.0</version>
     <scope>compile</scope>
 </dependency>
 ...
@@ -102,11 +104,12 @@ description: Using the Mailgun module
 ...
 HttpService httpService;
 Mailgun mailgun = new MailgunImpl(httpService, "mydomain.mailgun.org", "key_myApiKey");
-MailBuilder mail = mailgun.mail();
-mail.from("from@email.com", "From");
-mail.to("recipient@email.com", "Recipient");
-mail.subject("subject");
-mail.body(new StringView("body")).send();
+mailgun.mail()
+	.from("from@email.com", "From")
+	.to("recipient@email.com", "Recipient")
+	.subject("subject")
+	.body(new StringView("body"))
+	.send();
 ...
 {% endhighlight %}
 		</section>

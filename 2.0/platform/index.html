@@ -1,0 +1,87 @@
+---
+layout: 2.0/base
+title: Basics
+description: thundr framework basics
+---
+
+<div class="row">
+<aside class="module_nav_container col-md-3">
+	<div class="module_nav">
+		<ul class="nav nav-pills nav-stacked" role="navigation">
+			<li class="nav-header active">
+				<a href="#platforms" data-target="#platforms">
+					Platforms
+				</a>
+			</li>
+			<li>
+				<a href="#defaultPlatformModule" data-target="#defaultPlatformModule">
+					Default Platform
+				</a>
+			</li>
+			<li>
+				<a href="#noPlatform" data-target="#noPlatform">
+					Running without a platform
+				</a>
+			</li>
+		</ul>
+	</div>
+</aside>
+
+<article id="basics" class="col-md-9">
+	<div class="page-header">
+		<h1>thundr
+			<small>platform</small>
+		</h1>
+	</div>
+
+	<section id="platforms">
+		<h2>Platforms</h2>
+
+		<p>
+			To configure the environment for different platforms, you need a platform <a href="modules.html">Module</a>.
+			Minimally, all a platform module does is specify which environment (dev, test, uat, prod etc)
+			the application is currently running in.
+		</p>
+		<p>
+			<em>thundr</em> can run on anywhere you can run a servlet container, however platform modules can add addition capabilities.
+			For example, <a href="{{ site.url }}/2.0/thundr-gae/">thundr-gae</a> exposes abstractions on low level APIs native to that platform.
+		</p>
+	</section>
+	<section id="defaultPlatformModule">
+		<h2>DefaultPlatformModule</h2>
+		<p>
+			thundr comes with a built in platform module <code>com.threewks.thundr.platform.DefaultPlatformModule</code>
+		</p>
+		<p>
+			This configures the thundr environment using the system property <code>thundrEnvironment</code>, or if not present
+			the environment variable with the same name.
+		</p>
+		<p>
+			If you're running in a normal servlet container, just add this dependency in your ApplicationModule.
+		</p>
+		<p>
+			You can then specify the system property either as an environment or container variable.
+		</p>
+	</section>
+	<section id="noPlatform">
+		<h2>Running without a Platform</h2>
+		<p>
+			If you don't want to use a platform module, be sure to set your environment at startup in your <code>ApplicationModule</code> in the
+			initialise phase.
+		</p>
+{% highlight java %}
+import com.threewks.thundr.injection.BaseModule;
+
+public class ApplicationModule extends BaseModule {
+...
+	@Override
+	public void initialise(UpdatableInjectionContext injectionContext) {
+		super.initialise(injectionContext);
+		Environment.set("environmentName");
+	}
+...
+{% endhighlight %}		
+	</section>
+</article>
+</div>
+		

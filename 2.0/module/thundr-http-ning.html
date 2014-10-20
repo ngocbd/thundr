@@ -9,28 +9,28 @@ description: thundr-http-ning is an implementation of thundr-http using Ning's A
 		<div class="module_nav">
 			<ul class="nav nav-pills nav-stacked" role="navigation">
 				<li class="nav-header active">
-					<a href="{{ site.url }}/2.0/thundr-http-ning/index.html">
+					<a href="#">
 						thundr-http-ning
 					</a>
 				</li>
 
-				<li><a href="{{ site.url }}/2.0/thundr-http-ning/index.html#page-overview" data-target="#page-overview">Overview</a></li>
+				<li><a href="#page-overview" data-target="#page-overview">Overview</a></li>
 				
 				<li class="divider"></li>
 
 				<li>
-					<a href="{{ site.url }}/2.0/thundr-http-ning/index.html#settingUp" data-target="#settingUp">
+					<a href="#settingUp" data-target="#settingUp">
 						Setting Up
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}/2.0/thundr-http-ning/index.html#httpService" data-target="#httpService">
+					<a href="#httpService" data-target="#httpService">
 						HttpService
 					</a>
 				</li>
 				<li>
-					<a href="{{ site.url }}/2.0/thundr-http-ning/index.html#customisation" data-target="#customisation">
+					<a href="#customisation" data-target="#customisation">
 						Customisation
 					</a>
 				</li>
@@ -48,7 +48,7 @@ description: thundr-http-ning is an implementation of thundr-http using Ning's A
 
 			<p>
 				Ning provide an <a href="https://github.com/AsyncHttpClient/async-http-client">asynchronous http client</a>, which this thundr module
-				wraps to conform to the API defined in the thundr-http library.
+				wraps to conform to the api defined in the <a href="{{ site.url }}/2.0/module/thundr-http.html">thundr-http</a> module.
 			</p>
 			
 			<p>
@@ -72,7 +72,7 @@ description: thundr-http-ning is an implementation of thundr-http using Ning's A
 <dependency>
     <groupId>com.threewks.thundr</groupId>
     <artifactId>thundr-http-ning</artifactId>
-    <version>1.1.0</version>
+    <version>2.0.0</version>
     <scope>compile</scope>
 </dependency>
 ...
@@ -95,7 +95,7 @@ description: thundr-http-ning is an implementation of thundr-http using Ning's A
 			<h3>HttpService</h3>
 
 					<p>
-						The module provides an implementation of the <code>HttpService</code> defined in the thundr-http jar.
+						The module provides an implementation of the <code>HttpService</code> defined in thundr-http.
 					</p>
 					<p>
 					 	This is a fluent API which abstracts Ning's <code>AsyncHttpClient</code>. 

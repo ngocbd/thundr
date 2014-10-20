@@ -1,55 +1,30 @@
 ---
 layout: 2.0/base
-title: Modules and Dependency Injection
-description: Modules and Dependency Injection in thundr
+title: Modules
+description: Modules are the basic unit of code in thundr, used to group useful functions and apis together
 ---
 
 <div class="row">
 	<aside class="module_nav_container col-md-3">
 		<div class="module_nav">
 			<ul class="nav nav-pills nav-stacked" role="navigation">
-				<li class="nav-header ">
-					<a href="{{ site.url }}/2.0/thundr/basics.html">
-						Basics
-					</a>
-				</li>
-
-				<li class="nav-header ">
-					<a href="{{ site.url }}/2.0/thundr/controllers.html">
-						Controllers
-					</a>
-				</li>
-
-				<li class="nav-header ">
-					<a href="{{ site.url }}/2.0/thundr/views.html">
-						Views
-					</a>
-				</li>
-
-				<li class="nav-header ">
-					<a href="{{ site.url }}/2.0/thundr/routes.html">
-						Routes
-					</a>
-				</li>
-
 				<li class="nav-header active">
-					<a href="{{ site.url }}/2.0/thundr/modules.html">
+					<a href="#modules">
 						Modules
 					</a>
 				</li>
-
 				<li>
-					<a href="{{ site.url }}/2.0/thundr/modules.html#page-overview" data-target="#page-overview">
+					<a href="#page-overview" data-target="#page-overview">
 						Overview
 					</a>
 				</li>
 				<li>
-					<a href="{{ site.url }}/2.0/thundr/modules.html#modules" data-target="#modules">
+					<a href="#modules" data-target="#modules">
 						Modules
 					</a>
 				</li>
 				<li>
-					<a href="{{ site.url }}/2.0/thundr/modules.html#module-lifecycle" data-target="#module-lifecycle">
+					<a href="#module-lifecycle" data-target="#module-lifecycle">
 						Module Lifecycle
 					</a>
 				</li>
@@ -57,62 +32,39 @@ description: Modules and Dependency Injection in thundr
 				<li class="divider"></li>
 
 				<li>
-					<a href="{{ site.url }}/2.0/thundr/modules.html#injectionContext" data-target="#injectionContext">
+					<a href="#injectionContext" data-target="#injectionContext">
 						InjectionContext
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}/2.0/thundr/modules.html#injectionTypes" data-target="#injectionTypes">
+					<a href="#injectionTypes" data-target="#injectionTypes">
 						Injection by type
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}/2.0/thundr/modules.html#namedTypes" data-target="#namedTypes">
+					<a href="#namedTypes" data-target="#namedTypes">
 						Injection by named type
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}/2.0/thundr/modules.html#instantiation" data-target="#instantiation">
+					<a href="#instantiation" data-target="#instantiation">
 						Instantiation
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}/2.0/thundr/modules.html#properties" data-target="#properties">
+					<a href="#properties" data-target="#properties">
 						Properties
-					</a>
-				</li>
-
-				<li class="nav-header ">
-					<a href="{{ site.url }}/2.0/thundr/jsp.html">						
-						Jsp						
-					</a>
-				</li>
-	
-				<li class="nav-header ">
-					<a href="{{ site.url }}/2.0/thundr/email.html">
-						Email
-					</a>
-				</li>
-				
-				<li class="nav-header ">
-					<a href="{{ site.url }}/2.0/thundr/utilities.html">
-						Utilities
-					</a>
-				</li>
-				<li class="nav-header ">
-					<a href="{{ site.url }}/2.0/thundr/glossary.html">
-						Glossary
 					</a>
 				</li>
 			</ul>
 		</div>
 	</aside>
 
-	<article id="modules-overview" class="col-md-9">
+	<article id="modules"  class="col-md-9">
 		<div class="page-header">
 			<h1>thundr <small>Modules</small></h1>
 		</div>
@@ -362,10 +314,6 @@ public class Controller {
     }
 ...
 {% endhighlight %}
-		</section>
-		<hr/>
-		<section>
-			thundr provides out of the box for some <a href="jsp.html">nifty jsp features</a>
 		</section>
 	</article>
 </div>

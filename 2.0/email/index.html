@@ -8,103 +8,52 @@ description: Sending emails with thundr
 	<aside class="module_nav_container col-md-3">
 		<div class="module_nav">
 			<ul class="nav nav-pills nav-stacked" role="navigation">
-				<li class="nav-header ">
-					<a href="{{ site.url }}/2.0/thundr/basics.html">
-						Basics
-					</a>
-				</li>
-
-				<li class="nav-header ">
-					<a href="{{ site.url }}/2.0/thundr/controllers.html">
-						Controllers
-					</a>
-				</li>
-
-				<li class="nav-header ">
-					<a href="{{ site.url }}/2.0/thundr/views.html">
-						Views
-					</a>
-				</li>
-
-				<li class="nav-header ">
-					<a href="{{ site.url }}/2.0/thundr/routes.html">
-						Routes
-					</a>
-				</li>
-
-				<li class="nav-header ">
-					<a href="{{ site.url }}/2.0/thundr/modules.html">
-						Modules
-					</a>
-				</li>
-				
-				<li class="nav-header ">
-					<a href="{{ site.url }}/2.0/thundr/jsp.html">						
-						Jsp						
-					</a>
-				</li>
-
 				<li class="nav-header active">
-					<a href="{{ site.url }}/2.0/thundr/email.html">
+					<a href="#">
+						Overview
+					</a>
+				</li>
+
+				<li>
+					<a href="#email" data-target="#email">
 						Email
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}/2.0/thundr/email.html#email" data-target="#email">
-						Email
-					</a>
-				</li>
-
-				<li>
-					<a href="{{ site.url }}/2.0/thundr/email.html#example" data-target="#example">
+					<a href="#example" data-target="#example">
 						Example
 					</a>
 				</li>
-
-				<li>
-					<a href="{{ site.url }}/2.0/thundr/email.html#settingUp" data-target="#settingUp">
-						Setting Up
-					</a>
-				</li>
 				
 				<li>
-					<a href="{{ site.url }}/2.0/thundr/email.html#attachments" data-target="#attachments">
+					<a href="#attachments" data-target="#attachments">
 						Attachments
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}/2.0/thundr/email.html#limitations" data-target="#limitations">
-						Limitations
+					<a href="#javaMail" data-target="#javaMail">
+						JavaMail
 					</a>
 				</li>
 				
-				<li class="nav-header ">
-					<a href="{{ site.url }}/2.0/thundr/utilities.html">
-						Utilities
+				<li>
+					<a href="#limitations" data-target="#limitations">
+						Limitations
 					</a>
 				</li>
-				<li class="nav-header ">
-					<a href="{{ site.url }}/2.0/thundr/glossary.html">
-						Glossary
-					</a>
-				</li>				
 			</ul>
 		</div>
 	</aside>
 
-	<article id="email" class="col-md-9">
+	<article class="col-md-9">
 		<div class="page-header">
 			<h1>thundr <small>email</small></h1>
 		</div>
 
-		<section id="page-overview" class="overview">
-		</section>
-
-
 		<section id="email">
-			<h4>Email</h4>
+			<h2>Email</h2>
 
 			<p>thundr has framework support for sending of emails. To send an email, you use the fluent api returned from
 				the <code>Mailer.mail()</code> method.</p>
@@ -128,7 +77,7 @@ description: Sending emails with thundr
 
 
 		<section id="example">
-			<h4>Example</h4>
+			<h2>Example</h2>
 
 {% highlight java %}
 public void sendEmail(String recipientEmail, String recipientName){
@@ -147,24 +96,8 @@ public void sendEmail(String recipientEmail, String recipientName){
 {% endhighlight %}
 		</section>
 
-
-		<section id="settingUp">
-			<h4>Setting Up</h4>
-
-			<p>
-				To set up the Mailer, you just need to make it available in the <code>InjectionContext</code> in your 
-				<a href="{{ site.url }}/2.0/thundr/basics.html#applicationModule">ApplicationModule</a>.
-			</p>
-
-{% highlight java %}
-...
-injectionContext.inject(JavaMailMailer.class).as(Mailer.class);
-...
-{% endhighlight %}
-		</section>
-
-		<section id="attachments">
-			<h4>Attachments</h4>
+<section id="attachments">
+			<h2>Attachments</h2>
 			<p>
 				You can include attachments on emails as either inline (which can be referred to in the body content of the email),
 				or as attachments.
@@ -187,16 +120,29 @@ MailBuilder mail = mailer.mail()
 	.send();
 {% endhighlight %}			
 		</section>
-		<section id="limitations">
-			<h4>Limitations</h4>
+
+		<section id="javaMail">
+			<h2>JavaMail</h2>
+
+			<p>
+				The <code>JavaMailMailer</code> is the default implementation which is included with thundr core. 
+			</p>
+			<p>
+				To set it up, you just need to make it available in the <code>InjectionContext</code> in your 
+				<a href="{{ site.url }}/2.0/thundr/basics.html#applicationModule">ApplicationModule</a>.
+			</p>
+
+{% highlight java %}
+...
+injectionContext.inject(JavaMailMailer.class).as(Mailer.class);
+...
+{% endhighlight %}
+
+			<h3>Limitations</h3>
 
 			<p>The JavaMailMailer implementation of Mailer is built on top of the standard <code>javax.mail</code> api. If your target platform cannot send
 				email using this api, or if it requires additional configuration you will need to configure this yourself.
 			</p>
-		</section>
-		<hr/>
-		<section>
-			Next, read about handy <a href="utilities.html">utility code</a> included in thundr
 		</section>
 	</article>
 </div>

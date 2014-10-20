@@ -1,0 +1,98 @@
+---
+layout: 2.0/base
+title: NegotiatingView
+description: Negotiating result content in thundr
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header active">
+					<a href="#">
+						NegotiatingView
+					</a>
+				</li>
+
+				<li>
+					<a href="#viewNegotiatorRegistry" data-target="#viewNegotiatorRegistry">
+						ViewNegotiatorRegistry
+					</a>
+				</li>
+				<li>
+					<a href="#negotiationStrategy" data-target="#negotiationStrategy">
+						NegotiationStrategy
+					</a>
+				</li>
+			</ul>
+		</div>
+	</aside>
+
+	<article id="views" class="col-md-9">
+		<div class="page-header">
+			<h1>thundr <small>Content negotiation</small></h1>
+		</div>
+		
+		<section id="negotiatingView">
+			<h2>NegotiatingView</h2>
+			<p>
+				<code>NegotiatingView</code> is a data view which determines the content type using content negotiation techniques.
+			</p>
+			<p>
+				This is useful when you want to provide an API that serves up content in a format chosen by the consumer.
+			</p>
+			<p>
+				<code>NegotiatingView</code> is <strong>intrinsic</strong>, built into thundr core.
+			</p>
+{% highlight java %}
+...
+return new NegotiatingView(pojo);
+...
+{% endhighlight %}					
+			<p>
+				Negotiation works out of the box for included data views (i.e. JsonView), and any modules which add new data views
+				will typically just work.
+			</p>
+			<p>
+				Content negotiation relies on delegation to another <code>View</code> type which is determined by the http request.
+				The <code>NegotiatingView</code> is converted into another <code>DataView</code> using a <code>Negotiator</code>, which
+				then is resolved as normal.
+			</p>
+			</section>
+			<section id="viewNegotiatorRegistry">
+				<h2>ViewNegotiatorRegistry</h2>
+				<p>
+					Negotiators are registered with the <code>ViewNegotiatorRegistry</code> in the application module at startup. 
+					When you register a negotiator, you specify the content type that it should be used for. When a request is determined
+					to be requesting that content type, the Negotiator will convert the NegotiatingView and resolve using the desired
+					View implementation.
+				</p>
+			</section>
+			<section id="negotiationStrategy">
+				<h2>NegotiationStrategy</h2>
+				<p>
+					The content type that is desired for a particular request is determined by a series of <code>NegotiationStrategy</code> instances.
+					You can add and remove negotiation strategies on the <code>NegotiatingViewResolver</code> directly. In this way you can tweak
+					the factors that are used to detemine the desired output content type.
+				</p>
+					<p>
+						By default, the following strategies are used in order to determine the desired output content type:
+					</p>
+					<ul>
+						<li>
+							<code>ContentTypeNegotiationStrategy</code> - if the NegotiatingView has a content type specified it will be used (e.g. <code>new NegotiatingView(data).withContentType("mime/type")</code>)
+						</li>
+						<li>
+							<code>FileExtensionNegotiationStrategy</code> - looks for a file extension on the request (e.g. http://www.myserver.com/path/file<strong>.html</strong> )
+						</li>
+						<li>
+							<code>AcceptsHeaderNegotiationStrategy</code> - looks at the Accept Header to determine content type (Check out the RFC here: <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html">http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html</a>)
+						 </li>
+						<li>
+							<code>DefaultNegotiatorNegotiationStrategy</code> - relies on the default value set on the <code>ViewNegotiatorRegistry</code>
+						</li>
+					</ul>
+		</section>
+	</article>
+</div>
+		

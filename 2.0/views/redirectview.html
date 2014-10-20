@@ -1,0 +1,82 @@
+---
+layout: 2.0/base
+title: RedirectView and RouteRedirectView
+description: Sending redirects in thundr using RedirectView and RouteRedirectView
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header active">
+					<a href="#redirectView">
+						RedirectView
+					</a>
+				</li>
+				<li class="nav-header">
+					<a href="#routeRedirectView">
+						RouteRedirectView
+					</a>
+				</li>
+			</ul>
+		</div>
+	</aside>
+
+	<article id="views" class="col-md-9">
+		<div class="page-header">
+			<h1>
+				<a href="/modules/thundr" class="module">thundr</a>  
+				<small>RedirectView</small>
+			</h1>
+		</div>
+
+		<section id="redirectView">
+			<h2>RedirectView</h2>
+
+			<p>
+				<code>RedirectView</code> results in a temporary redirect (302) being sent back to the client with
+				the specified location. This will send a browser to the new url.
+			</p>
+			<p>
+				<code>RedirectView</code> is <strong>intrinsic</strong>, built into thundr core.
+			</p>
+{% highlight java %}
+...
+return new RedirectView("http://www.google.com.au/search?q=thundr");
+...
+{% endhighlight %}
+		</section>
+		<section id="routeRedirectView">
+			<h2>RouteRedirectView</h2>
+				<p>
+					<code>RouteRedirectView</code> results in a temporary redirect (302) being sent back to the client. 
+					The location is generated to match whatever the specified route has as a url.
+					This will send a browser to the new url.
+				</p>
+				<p> 
+					If we assume the following route was configured:
+				</p>
+{% highlight java %}
+...
+router.get("/users/{userId}/view", UserController.class, "view", "UserView");
+...
+{% endhighlight %}
+					<p>Then this would result in a redirect to '/user/1234/view'</p>
+{% highlight java %}
+...
+Map<String, Object> pathVariables = map("userId", 1234);
+return new RouteRedirectView("UserView", pathVariables);
+...
+{% endhighlight %}
+					<p>
+					The RouteRedirectView decouples the redirect from the configured route. This makes it easier to change/refactor routes
+					without needing to search/replace in your code base.
+					</p> 
+					<p>
+						<code>RouteRedirectView</code> is <strong>intrinsic</strong>, built into thundr core.
+					</p>
+				
+		</section>
+	</article>
+</div>
+		

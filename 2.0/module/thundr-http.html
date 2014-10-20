@@ -1,0 +1,156 @@
+---
+layout: 2.0/base
+title: Http
+description: Making HTTP requests from thundr applications
+---
+
+<div class="row">
+<aside class="module_nav_container col-md-3">
+	<div class="module_nav">
+		<ul class="nav nav-pills nav-stacked" role="navigation">
+			<li class="nav-header active">
+				<a href="#httpService" data-target="#httpService">
+					HttpService
+				</a>
+			</li>
+			<li>
+				<a href="#httpServiceUrlConnection" data-target="#httpServiceUrlConnection">
+					HttpServiceUrlConnection
+				</a>
+			</li>
+			<li>
+				<a href="#testing" data-target="#testing">
+					Testing
+				</a>
+			</li>
+		</ul>
+	</div>
+</aside>
+
+<article id="basics" class="col-md-9">
+	<div class="page-header">
+		<h1>thundr
+			<small>http</small>
+		</h1>
+	</div>
+
+	<section id="#httpService">
+		<h2>HttpService</h2>
+
+		<p>
+			<em>thundr-http</em> is a module that defines a high level api for making http requests from an thundr application.
+			It offers a normalised and easy to use api on top of standard http operations.
+		</p>
+		<p>
+			The api centres around the <code>HttpService</code> which returns a <code>HttpRequest</code> for a specific url.
+		</p>
+		<p>
+			The <code>HttpRequest</code> is a builder with a fluent api that allows you to build your request component by component.
+		</p>
+		<blockquote>
+			<p>
+				<code>HttpRequest</code> instances are immutable. Each fluent method returns a new HttpRequest instance whose state is decoupled
+				from the creating instance. This helps reduce runtime errors with relation to shared state.
+			</p>
+			<p>
+				If you are not chaining method calls directly, be sure to assign the returned HttpRequest to an interim local variable.
+			</p>
+		</blockquote>
+{% highlight java %}
+String body = gsonBuilder.create().toJson(data);
+HttpResponse response = httpService.request(url)
+		.contentType(ContentType.ApplicationJson)
+		.header(HttpHeaders.AUTHORIZATION, authString)
+		.request.body(body)
+		.get();
+int status = response.getStatus();
+String body = response.getBody();		
+{% endhighlight %}
+		<p>
+			The following request properties can be set or controlled directly using the api of <code>HttpRequest</code>:
+			<ul>
+				<li>Http Method (GET, PUT, POST, DELETE, HEAD)</li>
+				<li>Request and form parameters</li>
+				<li>Request headers</li>
+				<li>Request body</li>
+				<li>Content type</li>
+				<li>Cookies</li>
+				<li>File parameters</li>
+				<li>Authorization</li>
+				<li>Request timeout</li>
+				<li>Whether redirects should be followed automatically</li>
+			</ul>
+		</p>
+	</section>
+	<section id="httpServiceUrlConnection">
+		<h2>HttpServiceUrlConnection</h2>
+		<p>
+			The <code>HttpServiceUrlConnection</code> is an implementation of the <code>HttpService</code> interface that utilises
+			the standard built in java <code>UrlConnection</code>.
+		</p>
+		<p>
+			It is included in <em>thundr-http</em> module.
+		</p>
+		<p>
+			To use it, just inject it in your <code>ApplicationModule</code>
+		</p>
+{% highlight java %}
+@Override
+public void configure(UpdatableInjectionContext injectionContext) {
+	super.configure(injectionContext);
+	injectionContext.inject(HttpServiceUrlConnection.class).as(HttpService.class);
+	...
+{% endhighlight %}		
+	<p>
+		Then later, you can inject it into your controllers, services and repositories:
+	</p>
+{% highlight java %}
+public class MyService {
+	private HttpService httpService;
+	
+	public MyService(HttpService httpService){
+		this.httpService = httpService;
+	}
+	...
+}
+{% endhighlight %}		
+	</section>
+	<section id="testing">
+		<h2>Testing HttpService</h2>
+		<p>
+			<em>thundr-http</em> also provides <code>MockHttpService</code>, which is a <code>HttpService</code> specifically
+			designed to make unit testing classes that rely on <code>HttpService</code> easier.
+		</p>
+		<p>
+			This is necessary because mocking the fluent api of <code>HttpRequest</code> is hard and time consuming. 
+			Mocking it incorrectly (i.e. not enforcing immutability) also may lead to unit tests passing where a real
+			application would behave incorrectly. 
+		</p>
+		<p>
+			When using the MockHttpService, you can specify a <code>HttpResponse</code> to return.
+		</p>
+{% highlight java %}
+@Test
+public void shouldRunMyTest(){
+	HttpResponse response = Mockito.mock(HttpResponse.class); 
+	// alternatively,
+	// HttpResponse response = new MockHttpResponse()
+	MockHttpService mockHttpService = new MockHttpService();
+	mockHttpService.expected(response);
+	MockHttpRequest request = mockHttpService.request("url");
+	assertThat(request.get(), is(response));
+}
+{% endhighlight %}		
+	</section>
+	<!--  TODO - Document test suite 
+	<section id="testSuite">
+		<h2>Test Suite</h2>
+		<p>
+		</p>
+{% highlight java %}
+{% endhighlight %}
+ -->		
+	</section>
+</article>
+</div>
+		

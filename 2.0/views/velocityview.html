@@ -1,0 +1,56 @@
+---
+layout: 2.0/base
+title: VelocityView from thundr-velocity
+description: VelocityView renders Velocity templates using the VelocityViewResolver
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header active">
+					<a href="#velocityView">
+						VelocityView
+					</a>
+				</li>
+			</ul>			
+		</div>
+	</aside>
+
+	<article id="index" class="col-md-9">
+		<div class="page-header">
+			<h1>
+				<a href="{{ site.url }}/2.0/module/thundr-contrib-velocity" class="module">thundr-velocity</a>  
+				<small>VelocityView</small>
+			</h1>
+		</div>
+
+		<section id="page-overview" class="overview">
+			<h2>VelocityView</h2>
+
+			<p>
+				Velocity is a templating language. You can read about Velocity in general <a href="http://velocity.apache.org/">here</a>.
+			</p>
+			<p>
+				<code>VelocityView</code> is provided by the <a href="{{ site.url }}/2.0/module/thundr-contrib-velocity">thundr-contrib-velocity</a> module.
+			</p>
+{% highlight java %}
+...
+public VelocityView view() {
+   Map<String, Object> model = model();
+   populateReferenceData(model);
+   return new VelocityView("view.hbs", model);
+}
+...
+{% endhighlight %}
+			<p>
+				<code>VelocityView</code> is a <a href="index.html#templateView">template view</a>, so
+				you can set headers, cookies, status code etc on it.
+			</p>
+			<p>
+				It also respects the <a href="index.html#globalModel">Global Model</a>.
+			</p>
+		</section>
+	</article>
+</div>
+		
