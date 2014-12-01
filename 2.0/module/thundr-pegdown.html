@@ -9,28 +9,28 @@ description: thundr-pegdown is a thundr module for rendering markdown using the 
 		<div class="module_nav">
 			<ul class="nav nav-pills nav-stacked" role="navigation">
 				<li class="nav-header active">
-					<a href="{{ site.url }}/2.0/thundr-pegdown/index.html">
+					<a href="#">
 						thundr-pegdown
 					</a>
 				</li>
 
-				<li><a href="{{ site.url }}/2.0/thundr-pegdown/index.html#page-overview" data-target="#page-overview">Overview</a></li>
+				<li><a href="#page-overview" data-target="#page-overview">Overview</a></li>
 				
 				<li class="divider"></li>
 
 				<li>
-					<a href="{{ site.url }}/2.0/thundr-pegdown/index.html#settingUp" data-target="#settingUp">
+					<a href="#settingUp" data-target="#settingUp">
 						Setting Up
 					</a>
 				</li>
 
 				<li>
-					<a href="{{ site.url }}/2.0/thundr-pegdown/index.html#pegdownView" data-target="#pegdownView">
+					<a href="#pegdownView" data-target="#pegdownView">
 						PegdownView
 					</a>
 				</li>
 				<li>
-					<a href="{{ site.url }}/2.0/thundr-pegdown/index.html#customisation" data-target="#customisation">
+					<a href="#customisation" data-target="#customisation">
 						Customisation
 					</a>
 				</li>
@@ -107,7 +107,7 @@ description: thundr-pegdown is a thundr module for rendering markdown using the 
 
 			<p>
 				Once you have included the module, you can return a PegdownView from any controller 
-				method (or provide it for <a href="{{ site.url }}/2.0/thundr/email.html">emails</a>) like the following example:
+				method (or provide it for <a href="{{ site.url }}/2.0/email/index.html">emails</a>) like the following example:
 			</p>
 
 {% highlight java %}
@@ -119,7 +119,7 @@ public PegdownView view(String id) {
 ...
 {% endhighlight %}
 			<p>
-				<code>PegdownView</code> extends <a href="{{ site.url }}/2.0/thundr/views.html#baseView">BaseView</a>, so
+				<code>PegdownView</code> extends <a href="{{ site.url }}/2.0/views/index.html#baseView">BaseView</a>, so
 				you can set headers, cookies, status code etc on it.
 			</p>
 			<p>
@@ -133,7 +133,7 @@ public PegdownView view(String id) {
 			<h3>Customisation</h3>
 			<p>
 				If you want to customise the configuration of the <code>PegdownViewResolver</code>, you can create and 
-				<a href="{{ site.url }}/2.0/thundr/views.html#viewResolver">register it yourself</a>,
+				<a href="{{ site.url }}/2.0/views/index.html#viewResolver">register it yourself</a>,
 				and take advantage of the constructor that allows you to provide a <code>PegDownProcessor</code>.
 			</p>
 {% highlight java %}

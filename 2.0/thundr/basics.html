@@ -116,7 +116,7 @@ description: thundr framework basics
 		<p>
 			Additional built in and extension features include:
 			<ul>
-				<li>Rendering and sending emails - <a href="{{ site.url }}/2.0/email/thundr-http.html">more</a></li>
+				<li>Rendering and sending emails - <a href="{{ site.url }}/2.0/email/index.html">more</a></li>
 				<li>JSON support, <a href="{{ site.url }}/2.0/controller/gsonbinder.html">incoming</a> and <a href="{{ site.url }}/2.0/views/jsonview.html">outgoing</a></li>				
 				<li>Http service call abstractions - <a href="{{ site.url }}/2.0/module/thundr-http.html">more</a></li>
 				<li>Common utility code - <a href="{{ site.url }}/2.0/thundr/utilities.html">more</a></li>				
@@ -148,7 +148,7 @@ public class Controller {
 }
 {% endhighlight %}
 
-		<p>Jsp - /WEB-INF/jsp/home.jsp <a href="{{ site.url }}/2.0/thundr/views.html#jspView">more</a></p>
+		<p>Jsp - /WEB-INF/jsp/home.jsp <a href="{{ site.url }}/2.0/views/jspview.html">more</a></p>
 
 {% highlight jsp %}
 <%@ page contentType="text/html" pageEncoding="UTF-8"%>
@@ -173,7 +173,7 @@ public class Controller {
 			<li>Our <a href="{{ site.url }}/2.0/controller/index.html">controller</a> method populates the <strong>model</strong>
 				map with our message,
 			</li>
-			<li>which is then provided to our <a href="{{ site.url }}/2.0/thundr/views.html">view</a>, a JspView.</li>
+			<li>which is then provided to our <a href="{{ site.url }}/2.0/views/index.html">view</a>, a JspView.</li>
 			<li>thundr takes care of the rest, serving up our jsp as html, substituting the el variable ${message} with
 				the text &#39;Hello World!&#39;.
 			</li>
@@ -310,7 +310,7 @@ serverUrl%production=www.production.com
 			the application is currently running in.
 		</p>
 		<p>
-		Some platform modules, like <a href="{{ site.url }}/2.0/thundr-gae/">thundr-gae</a> expose more useful behaviour.
+		Some platform modules, like <a href="{{ site.url }}/2.0/module/thundr-gae.html">thundr-gae</a> expose more useful behaviour.
 		</p>
 		<p>
 			Read more about platforms <a href="{{ site.url }}/2.0/platform/index.html">here</a>
