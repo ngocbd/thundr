@@ -1,0 +1,41 @@
+---
+layout: 2.0/base
+title: Controllers
+description: Using controllers in thundr
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header active">
+					<a href="./requestclassbinder.html">
+						Request Class Binder
+					</a>
+				</li>		
+			</ul>
+		</div>
+	</aside>
+
+	<article id="controllers" class="col-md-9">
+		<div class="page-header">
+			<h1>thundr <small>Binding request classes</small></h1>
+		</div>
+		<p>
+			thundr provides the <code>RequestClassBinder</code> to bind servlet spec request classes onto controller parameters.
+		</p>	
+		<p>
+			These are  <code>HttpServletRequest</code>, <code>HttpServletResponse</code> and <code>HttpSession</code>.
+		</p>
+		<p>
+		 For example:
+		</p>
+
+{% highlight java %}
+public JspView view(HttpServletRequest req, HttpServletResponse resp){ ... }
+{% endhighlight %}		
+		
+
+	</article>
+</div>
+		

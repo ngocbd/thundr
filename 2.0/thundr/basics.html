@@ -29,13 +29,11 @@ description: thundr framework basics
 			</li>
 
 
-			<li>
-				<a href="{{ site.url }}/2.0/thundr/basics.html#applicationConfiguration" data-target="#applicationConfiguration">
+			<li class="nav-header">
+				<a href="{{ site.url }}/2.0/thundr/basics.html#configuration" data-target="#configuration">
 					Configuration
 				</a>
-			</li>
-
-			<li class="divider"></li>
+			</li>			
 
 			<li>
 				<a href="{{ site.url }}/2.0/thundr/basics.html#webXml" data-target="#webXml">
@@ -48,21 +46,22 @@ description: thundr framework basics
 					ApplicationModule
 				</a>
 			</li>
-			<li>
-				<a href="{{ site.url }}/2.0/thundr/basics.html#routes" data-target="#routes">
-					Routes
-				</a>
-			</li>
-
+			
 			<li>
 				<a href="{{ site.url }}/2.0/thundr/basics.html#applicationProperties" data-target="#applicationProperties">
 					application.properties
 				</a>
 			</li>
-
-			<li class="nav-header ">
-				<a href="{{ site.url }}/2.0/thundr/controllers.html">
-					Controllers
+			
+			<li>
+				<a href="{{ site.url }}/2.0/thundr/basics.html#platforms" data-target="#platforms">
+					Platforms
+				</a>
+			</li>
+			
+			<li>
+				<a href="{{ site.url }}/2.0/thundr/basics.html#routes" data-target="#routes">
+					Routes
 				</a>
 			</li>
 
@@ -98,22 +97,31 @@ description: thundr framework basics
 		<h2>Overview</h2>
 
 		<p>
-			thundr, like most other web frameworks, uses the <em>Model-View-Controller</em>, or 
-			<a href="http://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller">MVC</a>, pattern for
-			separation of concerns between data processing and view presentation.
+			thundr is a web framework designed to make building and maintaining java stack web applications simpler.
+		</p>
+		<p>
+			It comprises the following core elements:
+			<ul>
+				<li>View presentation based on the MVC pattern - <a href="{{ site.url }}/2.0/controller/index.html">more</a></li>
+				<li>A request routing mechanism - <a href="{{ site.url }}/2.0/thundr/routes.html">more</a></li>				
+				<li>A modular dependency injection framework - <a href="{{ site.url }}/2.0/module/index.html">more</a></li>
+				<li>Automatic <a href="{{ site.url }}/2.0/views/index.html">serialization</a> and <a href="{{ site.url }}/2.0/controller/index.html#binding">deserialization</a> of data</li>
+			</ul>			
 		</p>
 
 		<p>
-			In this pattern, the model and the view and the relationship between them is mediated by a controller.
+			In addition to these core basics, it includes a wide set of additional common functionality
+			designed to make development and maintenance of web apps simple and robust.
 		</p>
-
 		<p>
-			In thundr, this control is enacted by the method invoked inside your controller class. 
-			<a href="{{ site.url }}/2.0/thundr/controllers.html">more</a><br/>
-			The view is represented by a <code>View</code> object, which is the return type of the controller method. 
-			<a href="{{ site.url }}/2.0/thundr/views.html">more</a><br>
-			The model is provided to the view by the controller method, but the requirements of this depend on the type 
-			of view.
+			Additional built in and extension features include:
+			<ul>
+				<li>Rendering and sending emails - <a href="{{ site.url }}/2.0/email/thundr-http.html">more</a></li>
+				<li>JSON support, <a href="{{ site.url }}/2.0/controller/gsonbinder.html">incoming</a> and <a href="{{ site.url }}/2.0/views/jsonview.html">outgoing</a></li>				
+				<li>Http service call abstractions - <a href="{{ site.url }}/2.0/module/thundr-http.html">more</a></li>
+				<li>Common utility code - <a href="{{ site.url }}/2.0/thundr/utilities.html">more</a></li>				
+								
+			</ul>
 		</p>
 	</section>
 
@@ -122,7 +130,7 @@ description: thundr framework basics
 
 		<p>Given the following Controller and View implementations, we can see the basics of how thundr would render a page</p>
 
-		<p>Controller - Controller.java <a href="{{ site.url }}/2.0/thundr/controllers.html">more</a></p>
+		<p>Controller - Controller.java <a href="{{ site.url }}/2.0/controller/index.html">more</a></p>
 
 {% highlight java %}
 package com.threewks.web;
@@ -162,7 +170,7 @@ public class Controller {
 		<ul>
 			<li>an incoming request is mapped to a controller using a <a
 					href="{{ site.url }}/2.0/thundr/routes.html#routes">route</a></li>
-			<li>Our <a href="{{ site.url }}/2.0/thundr/controllers.html">controller</a> method populates the <strong>model</strong>
+			<li>Our <a href="{{ site.url }}/2.0/controller/index.html">controller</a> method populates the <strong>model</strong>
 				map with our message,
 			</li>
 			<li>which is then provided to our <a href="{{ site.url }}/2.0/thundr/views.html">view</a>, a JspView.</li>
@@ -174,16 +182,16 @@ public class Controller {
 	</section>
 
 
-	<section id="applicationConfiguration">
-		<h4>Application Configuration</h4>
+	<section id="configuration">
+		<h2>Application Configuration</h2>
 
 		<p>Beyond the basics of controller invocation and returning a view, there are several elements of configuration
 			required for a thundr based application.</p>
 		<ul>
 			<li><a href="#webXml">web.xml</a> - configuring the thundr servlet</li>
-			<li><a href="#applicationModule">ApplicationModule</a> - your dependency injection configuration</li>
-			<li><a href="#routes">Routes</a> - configure url mappings to controllers</li>
+			<li><a href="#applicationModule">ApplicationModule</a> - your dependency injection configuration</li>			
 			<li><a href="#applicationProperties">application properties</a> - your environmental properties</li>
+			<li><a href="#routes">Routes</a> - configure url mappings to controllers</li>			
 		</ul>
 	</section>
 
@@ -254,58 +262,12 @@ public class ApplicationModule extends BaseModule {
 		</p>
 		<p>
 			Modules can also be added to contribute extra functionality such as library or service wrappers.
-			You can read more about modules <a href="{{ site.url }}/2.0/thundr/modules.html">here</a>
+			You can read more about modules <a href="{{ site.url }}/2.0/module/index.html">here</a>
 		</p>
 	</section>
 
 
-	<section id="routes">
-		<h4>Routes</h4>
-		
-		<p>
-			Routes control which controller method (or other action) is invoked when a request is served.
-		</p>
-		<p>
-			Routes are added programatically during application startup in your ApplicationModule. By the time your ApplicationModule
-			is invoked, thundr will have put many objects into your InjectionContext. One of these is the <code>com.threewks.thundr.route.Router</code> object.
-		</p>
-		<p>
-			This class is the central registry of where different requests get routed to in your application.
-		</p>
-		<p>
-			You can simply call the <code>Router.add</code> method to add routes, or one of the convenience overloads,
-			such as <code>Route.get</code>, <code>Route.put</code>, <code>Route.post</code> or <code>Route.delete</code>.    
-		</p>
-{% highlight java %}
-import com.threewks.thundr.injection.BaseModule;
-
-public class ApplicationModule extends BaseModule {
-  @Override
-  public void configure(UpdatableInjectionContext injectionContext) {
-    super.configure(injectionContext);
-    // Get the routes out of the injection context
-    Router router = injectionContext.get(Router.class);
-		
-    // add desired routes
-    router.get("/", MyController.class, "home");
-    router.post("/", MyController.class, "update");
-  }
-}
-{% endhighlight %}
-	<p>
-		A route consists of the following basic elements:
-		<ul>
-			<li><strong>RouteType</strong> - GET, PUT, POST, DELETE etc - the http method that this route should match</li>
-			<li><strong>Route</strong> - the <a href="routes.html#patterns">url wilcard pattern</a> that this route should match (e.g. /path/* or /path/**)</li>
-			<li><strong>Name</strong> - routes can be named so that they can be easily referred to - this helps keep your application DRY</li>
-			<li><strong>Action</strong> - if the route type and route match, this action will be executed. Generally this will be a controller invocation,
-			but there are other types of actions that can be used (and you can create your own) for special cases.</li>
-		</ul>
-		
-		Read more about routes and actions <a href="routes.html">here</a>.
-	</p>
-
-	</section>
+	
 	
 	<section id="applicationProperties">
 		<h4><code>application.properties</code></h4>
@@ -343,49 +305,64 @@ serverUrl%production=www.production.com
 			thundr can run on anywhere you can run a servlet container. 
 		</p>
 		<p>
-			To configure the environment for different platforms, you need a platform <a href="modules.html">Module</a>.
+			To configure the environment for different platforms, you need a platform <a href="{{ site.url }}/2.0/module/index.html">module</a>.
 			Minimally, all a platform module does is specify which environment (dev, test, uat, prod etc)
 			the application is currently running in.
 		</p>
 		<p>
 		Some platform modules, like <a href="{{ site.url }}/2.0/thundr-gae/">thundr-gae</a> expose more useful behaviour.
 		</p>
-		<blockquote>
-			<p>
-			thundr comes with a built in platform module <code>com.threewks.thundr.platform.DefaultPlatformModule</code>
-			</p>
-			<p>
-				This configures the thundr environment using the system property <code>thundrEnvironment</code>, or if not present
-				the environment variable with the same name.
-			</p>
-			<p>
-			If you're running in a normal servlet container, just add this dependency in your ApplicationModule.
-			</p>
-			<p>
-			You can then specify the system property either as an environment or container variable.
-			</p>
-		</blockquote>
 		<p>
-			If you don't want to use a platform module, be sure to set your environment at startup in your <code>ApplicationModule</code> in the
-			initialise phase.
+			Read more about platforms <a href="{{ site.url }}/2.0/platform/index.html">here</a>
+		</p>	
+	</section>
+	<section id="routes">
+		<h4>Routes</h4>
+		
+		<p>
+			Routes control which controller method (or other action) is invoked when a request is served.
+		</p>
+		<p>
+			Routes are added programatically during application startup in your ApplicationModule. By the time your ApplicationModule
+			is invoked, thundr will have put many objects into your InjectionContext. One of these is the <code>com.threewks.thundr.route.Router</code> object.
+		</p>
+		<p>
+			This class is the central registry of where different requests get routed to in your application.
+		</p>
+		<p>
+			You can simply call the <code>Router.add</code> method to add routes, or one of the convenience overloads,
+			such as <code>Router.get</code>, <code>Router.put</code>, <code>Router.post</code> or <code>Router.delete</code>.    
 		</p>
 {% highlight java %}
 import com.threewks.thundr.injection.BaseModule;
 
 public class ApplicationModule extends BaseModule {
-...
-	@Override
-	public void initialise(UpdatableInjectionContext injectionContext) {
-		super.initialise(injectionContext);
-		Environment.set("environmentName");
-	}
-...
-{% endhighlight %}		
-	</section>
-	<hr/>
-	<section>
-		Now that you know the basics, read more about <a href="controllers.html">Controllers</a>
-	</section>
+  @Override
+  public void configure(UpdatableInjectionContext injectionContext) {
+    super.configure(injectionContext);
+    // Get the routes out of the injection context
+    Router router = injectionContext.get(Router.class);
+		
+    // add desired routes
+    router.get("/", MyController.class, "home");
+    router.post("/", MyController.class, "update");
+  }
+}
+{% endhighlight %}
+	<p>
+		A route consists of the following basic elements:
+		<ul>
+			<li><strong>RouteType</strong> - GET, PUT, POST, DELETE etc - the http method that this route should match</li>
+			<li><strong>Route</strong> - the <a href="routes.html#patterns">url wilcard pattern</a> that this route should match (e.g. /path/* or /path/**)</li>			
+			<li><strong>Controller class</strong> - the class of the controller the route should invoke</li>			
+			<li><strong>Method name</strong> - the name of the method in the controller to invoke</li>			
+			<li><strong>Name (optional)</strong> - routes can be named so that they can be easily referred to - this helps keep your application DRY</li>
+		</ul>
+		
+		Read more about routes, calling controllers and others actions <a href="routes.html">here</a>.
+	</p>
+
+	</section>	
 </article>
 </div>
 		

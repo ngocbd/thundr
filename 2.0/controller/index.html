@@ -1,0 +1,348 @@
+---
+layout: 2.0/base
+title: Controllers
+description: Using controllers in thundr
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">				
+				<li class="nav-header active">
+					<a href="./index.html">
+						Controllers
+					</a>
+				</li>
+
+				<li>
+					<a href="./index.html#example" data-target="#example">
+						Basic Example
+					</a>
+				</li>
+
+				<li>
+					<a href="./index.html#views" data-target="#views">
+						Views
+					</a>
+				</li>
+				<li class="nav-header">
+					<a href="./index.html#binding" data-target="#binding">
+						Binding
+					</a>
+				</li>
+				<li>
+					<a href="./index.html#binder" data-target="#binder">
+						Binder
+					</a>
+				</li>
+				<li>
+					<a href="./index.html#parameterBinding" data-target="#parameterBinding">
+						Parameter Binder
+					</a>
+				</li>
+				
+				<li class="nav-header">
+					<a href="./index.html#injection" data-target="#injection">
+						Injection
+					</a>
+				</li>			
+			</ul>
+		</div>
+	</aside>
+
+	<article id="controllers" class="col-md-9">
+		<div class="page-header">
+			<h1>thundr <small>controllers</small></h1>
+		</div>
+
+		<section id="page-overview" class="overview">
+		</section>
+
+		<section id="controllers">
+			<p>We refer to the classes invoked when using the typical <a href="{{ site.url }}/2.0/thundr/routes.html#routes">route</a> as
+				<em>controllers</em>.</p>
+
+			<p>When a http client makes a request, the appropriate method inside a controller is invoked. The method can perform
+				processing and gather data for the response, then return a <code>View</code> object. The view controls the
+				content and http response codes that are returned to the client. </p>
+
+			<p>Controller classes are ordinary classes, they don&#39;t require implementing any interfaces or annotations to
+				function. Having one or more routes directing to a method inside a class is enough for thundr to <a
+						href="#injection">create</a> and invoke your controller class when a
+				request is made.</p>
+		</section>
+		<section id="example">
+		
+			<h3>Basic Example</h3>
+
+			<p>In the very basic example below, the controller renders the home.jsp for its view, to which it provides a simple
+				model with the message &#39;Hello World!&#39;</p>
+
+			<p>Controller - Controller.java</p>
+
+{% highlight java %}
+package com.threewks.web;
+
+import java.util.HashMap;
+import java.util.Map;
+import com.threewks.thundr.view.jsp.JspView;
+
+public class Controller {
+    public JspView home() {
+        Map<String, Object> model = new HashMap<String, Object>();
+        model.put("message", "Hello World!");
+        return new JspView("home.jsp", model);
+    }
+}
+{% endhighlight %}
+		</section>
+
+		<section id="views">
+			<h3>Views</h3>
+
+			<p>In the above example, we see the <code>JspView</code> being returned from our controller. This resulted in a Jsp
+				being processed and sent back to the user.<br>thundr supports different views, which control the content and
+				http response returned to the user.
+			</p>
+			<p>
+				You can read more about views <a href="{{ site.url }}/2.0/views/index.html">here</a>.
+			</p>			
+		</section>
+		
+		<section id="binding">
+			<h3>Binding</h3>
+			<p>
+				thundr provides an extensible framework for controlling binding of request data into controller parameters.
+				It supports most typical use cases out of the box. It also provides a way for you to extend this behaviour
+				if you have a special need. 				
+			</p>
+			<p>
+				There are several layers of binding available. Typically you will rely on <code>ParameterBinding</code>, which 
+				binds request data onto controller method parameters. You can read about them <a href="#parameterBinding">here</a>.
+			</p>
+			<p>
+				At a more general level, the <code>Binder</code> interface defines how a request is bound onto a controller method.
+				More <a href="#binder">here</a>. 
+			</p>
+		</section>
+		
+		<section id="binder">
+			<h3>
+				Binder
+			</h3>
+			<p>
+				Where a <code>ParameterBinder</code> allows you to control data binding to an individual parameter of a controller method, a <code>Binder</code>
+				allows you to control how data is acquired from a request and how all of the parameters are bound on the controller method.
+			</p>
+			
+			<p>
+				thundr includes default binders, which will source and bind most commonly used data types and representations. Here is a non-exhaustive list:
+				<ul>
+					<li><code>HttpBinder</code> - binds request query and form post parameters <a href="./httpbinder.html">more</a></li>
+					<li><code>MultipartHttpBinder</code> - binds multipart form post parameters <a href="./multiparthttpbinder.html">more</a></li>
+					<li><code>PathVariableBinder</code> - binds path variables <a href="./pathvariablebinder.html">more</a></li>
+					<li><code>CookieBinder</code> - binds request cookie <a href="./cookiebinder.html">more</a></li>
+					<li><code>RequestHeaderBinder</code> - binds request headers <a href="./requestheaderbinder.html">more</a></li>
+					<li><code>RequestClassBinder</code> - binds the servlet request and response instance  <a href="./requestclassbinder.html">more</a></li>														
+					<li><code>RequestAttributeBinder</code> - binds request attributes <a href="./requestattributebinder.html">more</a></li>									
+					<li><code>SessionAttributeBinder</code> - binds session attributes <a href="./sessionattributebinder.html">more</a></li>
+					<li><code>GsonBinder</code> - binds json requests using the Gson library <a href="./gsonbinder.html">more</a></li>					
+				</ul>
+			</p>
+			<p>
+				If these built in binders cannot bind the data for you, you can create your own binder.
+			</p>
+			<p>
+				For example, if you were to consider an Xml post - the body of the request contains character data which could conceivably bind to all or any of the parameters, depending
+				on the contents of the payload and how it is interpreted.
+			</p>
+			<p>
+				In this scenario, you should write a Binder to marshal out of the data representation and bind onto the parameters.
+			</p>
+			<p>
+				A Binder also receives the request, response and path variables of the request.
+				If any data (such as content type, a header or part of the path) is necessary to conditionally provide a parameter or control the flow of logic
+				then a Binder is appropriate, rather than a ParameterBinder.
+			</p>
+			<p>
+				Binders are registered with the <code>BinderRegistry</code> in your Module.
+			</p>
+{% highlight java %}			
+public class MyModule extends BaseModule {
+  @Override
+  protected void configure(UpdatableInjectionContext injectionContext) {
+    super.configure(injectionContext);
+    BinderRegistry registry = injectionContext.get(BinderRegistry.class);
+    registry.registerBinder(new MyBinder());
+  }
+{% endhighlight %}
+			<p>
+				When implementing a <code>Binder</code>, you should follow the following conventions:
+			</p>		
+			<ul>
+				<li><em>Do not override bindings that already have values</em> - All registered binders run in registration order. If a value has been provided already then it means that another binder has already dealt with it.</li>
+				<li><em>Do not consume the HttpServletRequest input stream unless necessary</em> - once the stream is consumed, it cannot be read again. This prevents other binders or the controller itself reading the stream.</li>
+				<li><em>If the HttpServletRequest/ServletRequest is one of the parameters, do not consume the input stream</em> - this can be interpreted loosely to mean the controller wishes to handle some part of the request directly themself.</li>
+				<li><em>Use a <code>ParameterBinder</code> to bind parameters if you can</em> - doing so allows existing Binders to bind data automatically, and has less chance of causing side effects, such as consuming the input stream</li>
+			</ul>
+		</section>		
+		
+		<section id="parameterBinding">
+			<h3>
+				Parameter Binding
+			</h3>
+			<p>
+				Parameter Binding controls how data from an <strong>http request</strong> is bound onto a parameter to a controller method. For example, you could
+				define how data is bound onto both the user and address parameters in the following controller:
+			</p>
+{% highlight java %}
+...
+	public View updateUserAddressFromPost(User user, Address address) {
+...
+{% endhighlight %}					
+			<p>
+				This is enabled in thundr by registering an implementation of either a <code>ParameterBinder</code> or a <code>BinaryParameterBinder</code>.
+			</p>
+			<p>
+			Parameter binders are registered at startup in your <code>Module</code> (either ApplicationModule or the Module definition for your reusable library).
+			You register a binder by invoking <code>ParameterBinderRegistry.addBinder(binder)</code>.
+			</p>
+{% highlight java %}
+public class MyModule implements Module {
+...
+	@Override
+	public void configure(UpdatableInjectionContext injectionContext) {
+		super.configure(injectionContext);
+		
+		MyUserService userService = new MyUserService();
+		MyGeoService geoService = new MyGeoService();
+		
+		ParameterBinderRegistry parameterBinderRegistry = injectionContent.get(ParameterBinderRegistry.class);
+		parameterBinderRegistry.addBinder(new UserParameterBinder(userService));
+		parameterBinderRegistry.addBinder(new AddressParameterBinder(geoService));
+...
+{% endhighlight %}		
+		<h5><code>ParameterBinder</code></h5>
+		<p>
+			ParameterBinders are used to bind data to controller methods on general requests. They'll be invoked on GET/PUT/POST/PATCH/DELETE for most content types.
+			Some request types may have binary components (such as multipart/form-data). BinaryParameterBinders are used to bind parameters received in binary form.
+			In general, you probably only need to implement a ParameterBinder, not a BinaryParameterBinder. 
+		</p>	
+		<p>
+			To implement a ParameterBinder, you just need to extract the relevant data from the <code>HttpPostDataMap</code> and return the
+			value you'd like to bind. If your binder cannot bind, just return null.
+		</p>
+{% highlight java %}
+public class MyParameterBinder implements ParameterBinder<User> {
+  private MyUserService userService;
+  public MyParameterBinder(MyUserService userService){
+    this.userService = userService;
+  }
+  public boolean willBind(ParameterDescription parameterDescription){
+    return parameterDescription.isA(User.class);
+  }
+  
+  public User bind(ParameterBinderSet binders, ParameterDescription parameterDescription, HttpPostDataMap pathMap){
+    String[] userIds = pathMap.get("userId");
+    if(userIds != null && userIds.length > 0){
+      String userId = userIds[0];
+      return userService.getUser(userID);
+    }
+    return null;
+  }
+}  
+{% endhighlight %}			
+		<h5><code>BinaryParameterBinder</code></h5>
+		<p>
+		A BindaryParameterBinder performs the same role as a ParameterBinder, but receives content in binary form. This is to account
+		for multipart/form-data posts, and other formats which are received in binary format.
+		</p>
+		<p>
+			Implementing a BinaryParameterBinder is largely similar to implementing a ParameterBinder except the data comes from a <code>MultipartFile</code> instead of from a <code>HttpPostDataMap</code>.
+		</p>
+		
+			
+		</section>
+					
+		<section id="injection">
+			<h3>Injection &amp; Controller Instantiation</h3>
+
+			<p>Controller classes are instantiated by the <a href="{{ site.url }}/2.0/thundr/modules.html#injectionContext">InjectionContext</a>.
+				As such each instance can be shared between multiple, concurrent requests, so implementations should be treated
+				as stateless.<br>Also, there is no guarantee that controllers are singletons and implementations should also
+				take this into account.</p>
+
+			<p>When a controller is instantiated, the injection context will attempt to use the constructor with the most
+				arguments that it can satisfy.<br>The injection context will also invoke javabean setters for any objects it can
+				satisfy.<br>Non-javabean properties can also be set by using the JSR 330 annotation <code>@Inject</code> on the
+				property. Note that the InjectionContext does not currently support the full JSR 330 specification, just the
+				basic @Inject annotation.</p>
+
+			<p>You can read more <a href="{{ site.url }}/2.0/thundr/modules.html">here</a> about the InjectionContext,
+				dependency injection in thundr and how to write controller and service classes the &#39;right&#39; way. </p>
+
+			<p>The below example demonstrates the different ways dependencies can be injected into controllers.</p>
+
+			<p>Controller - Controller.java</p>
+
+{% highlight java %}
+...
+public class Controller {
+    private DocumentService documentService;
+    private CounterRepository counterRepository;
+    @Inject
+    private CategoryService categoryService;
+
+    public Controller(DocumentService documentService){
+        this.documentService = documentService;
+    }
+
+    public void setCounterRepository(CounterRepository counterRepository) {
+        this.counterRepository = counterRepository;
+    }
+...
+{% endhighlight %}
+
+		<h4>Separation of concerns</h4>
+
+		<p>The job of a controller is to service a request by performing any behaviour and marshalling response data into
+			the form that is required by the resulting view. </p>
+	
+		<p>In order to write maintainable, testable applications you should be sure to make sure your application leverages
+			the concept of <a href="http://en.wikipedia.org/wiki/Separation_of_concerns">&#39;separation of
+				concerns&#39;</a>.<br>In this case, what we mean by that is that while the controller is designed for
+			invoking behaviour, in general it should not actually contain behavioural logic as much as possible.</p>
+	
+		<p>To help you achieve this aim, controllers can have other instances passed into them at creation time.<br>This
+			allows you to inject dependencies, such as business process, service and repository code.</p>
+	
+		<p>In the example below, two services are injected using the constructor at creation time, and then invoked on page
+			requests:</p>
+	
+		<p>Controller - Controller.java</p>
+
+{% highlight java %}
+...
+public class Controller {
+    private DocumentService documentService;
+    private CounterRepository counterRepository;
+
+    public Controller(DocumentService documentService, CounterRepository counterRepository){
+        this.documentService = documentService;
+        this.counterRepository = counterRepository;
+    }
+    public JspView home() {
+        counterRepository.incrementHomeViews();
+
+        List<Document> recentlyViewed = documentService.getRecentlyViewedDocuments()
+
+        Map<String, Object> model = new HashMap<String, Object>();
+        model.put("recentlyViewed", recentlyViewed);
+        return new JspView("home.jsp", model);
+    }
+}
+{% endhighlight %}
+		</section>		
+	</article>
+</div>
+		

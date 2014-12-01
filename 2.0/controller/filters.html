@@ -1,0 +1,115 @@
+---
+layout: 2.0/base
+title: Controllers
+description: Using controllers in thundr
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header active">
+					<a href="./filters.html">
+						Filters
+					</a>
+				</li>
+			</ul>
+		</div>
+	</aside>
+
+	<article id="filters" class="col-md-9">
+		<div class="page-header">
+			<h1>thundr <small>filters</small></h1>
+		</div>
+		<section>		
+			<p>By implementing the <code>Filter</code> interface, thundr provides a mechanism for adding
+				interceptors which apply to routes, rather than particular controller methods. 
+				They run on all controller methods that match the <a href="TODO">wildcard url</a> specified.
+			</p>
+
+			<p>Quite often there are cross cutting concerns which we want to apply to controller methods before or after they&#39;re
+				invoked based on the request url. Some examples of this are ensuring state (such as a logged in user with a specific role),
+				enforcing requests are secure or changing the response (in case of successful result or failure).</p>
+
+			<p>To create a filter, implement the <em>Filter</em> interface and registered the filter with a wildcard path during <a
+					href="{{ site.url }}/2.0/thundr/basics.html#applicationModule">configuration</a> in the <code>FilterRegistry</code> instance.
+			</p>
+
+			<p><strong> Example </strong></p>
+
+			<p>
+				In this example, we create a filter <em>RequireAdminFilter</em>, which specifies that we need a current user who has the role of 'Admin' for all controller methods
+			 	that match the path <code>/admin/**</code>.
+			 </p>
+
+			<p><strong><em>RequireAdminFilter.java</em></strong> - the filter is invoked before and after any
+				controller method is invoked, and also if it throws an exception.<br>If the before, after or exception methods
+				return a non-null value, they override the controller response. If they return null normal execution occurs.</p>
+
+{% highlight java %}
+...
+public class RequireAdminFilter implements Filter {
+    private UserService userService;
+
+    public RequireAdminFilter(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Override
+    public RedirectView before(RouteType routeType, HttpServletRequest req, HttpServletResponse resp) {
+        User user = userService.getUserFromRequest(req);
+        boolean hasRole = user.hasRole("Admin");
+        if (hasRole) {
+            req.setAttribute("user", user);
+            return null;
+        }
+        return new RedirectView("/login");
+    }
+    
+    @Override
+    public <T> T after(RouteType routeType, Object view, HttpServletRequest req, HttpServletResponse resp) {
+        return null;
+    }
+    
+    @Override
+    public <T> T exception(RouteType routeType, Exception e, HttpServletRequest req, HttpServletResponse resp) {
+        return null;
+    }
+}
+{% endhighlight %}
+
+			<p><strong><em>ApplicationModule.java</em></strong> - we register the filter against the path in our ApplicationModule at startup.</p>
+
+{% highlight java %}
+...
+public class ApplicationModule extends BaseModule {
+...
+
+@Override
+public void start(UpdatableInjectionContext injectionContext) {
+	super.start(injectionContext);
+
+	...
+	UserService userService = injectionContext.get(UserService.class);
+	FilterRegistry filters = injectionContext.get(FilterRegistry.class);
+	filters.add("/admin/**", new RequireAdminFilter(userService));
+}
+...
+{% endhighlight %}
+
+			<p>Subsequently, any controller method invoked which falls under <code>/admin/</code> will be passed through the RequireAdminFilter before being invoked.
+			<p>
+				In this example the Filter also sets the user object into the request as an attribute. This means
+				that this object is now available through standard thundr binding. This allows the following.
+			</p>
+{% highlight java %}
+...
+    public StringView get(User user){
+        return new StringView(user.getName());
+    }
+...
+{% endhighlight %}			
+		</section>				
+	</article>
+</div>
+		

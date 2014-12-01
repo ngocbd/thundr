@@ -1,0 +1,46 @@
+---
+layout: 2.0/base
+title: Controllers
+description: Using controllers in thundr
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header active">
+					<a href="./requestheaderbinder.html">
+						Request Header Binder
+					</a>
+				</li>		
+			</ul>
+		</div>
+	</aside>
+
+	<article id="controllers" class="col-md-9">
+		<div class="page-header">
+			<h1>thundr <small>Binding headers</small></h1>
+		</div>
+		<p>
+			thundr provides the <code>RequestHeaderBinder</code> to bind headers onto controller parameters.
+		</p>
+		<p>
+			For example we could get the referer using the following: 
+		</p>
+
+{% highlight java %}
+public JspView method(String referer){ ... }
+{% endhighlight %}
+
+		<p>
+		<blockquote>Headers are bound using a special transformation - the parameters they bind to must be camel case, split
+			on the dash &#39;-&#39; character.<br>For example, the header X-Http-Something will bind to
+			xHttpSomething. This helps eliminate issues across containers, some of which standarise headers and some
+			of which do not.<br>Some other examples of header names which bind to xHttpSomething are
+			X-HTTP-SOMETHING, x-http-something and X-HTTP-someThing.
+		</blockquote>
+		</p>
+								
+	</article>
+</div>
+		

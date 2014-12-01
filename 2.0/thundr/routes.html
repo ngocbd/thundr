@@ -14,12 +14,6 @@ description: thundr framework routes
 					</a>
 				</li>
 					
-				<li class="nav-header">
-					<a href="{{ site.url }}/2.0/thundr/controllers.html">						
-						Controllers						
-					</a>
-				</li>
-
 				<li class="nav-header active">
 					<a href="{{ site.url }}/2.0/thundr/routes.html">
 						Routes		
@@ -72,7 +66,7 @@ description: thundr framework routes
 
 				<li>
 					<a href="{{ site.url }}/2.0/thundr/routes.html#routeResolver" data-target="#routeResolver">
-						ActionResolver
+						RouteResolver
 					</a>
 				</li>
 					
@@ -127,7 +121,7 @@ public class ApplicationModule implements Module {
 				Routes can map to different types of actions, referred to as a <code>RouteResult</code>.
 				The most common route result is <code>Controller</code>, 
 				which will result in a method being invoked on a 
-				<a href="{{ site.url }}/2.0/thundr/controllers.html">controller</a>. 
+				<a href="{{ site.url }}/2.0/controller/index.html">controller</a>. 
 			</p>
 
 			<p>
@@ -167,7 +161,7 @@ public class ApplicationModule implements Module {
 			</p>
 			<ul>
 				<li><strong>/path/components</strong> - standard path components</li>
-				<li><strong>/path/{variables}/</strong> - path variables are named parameters available when <a href="{{ site.url }}/2.0/thundr/controllers.html#dataBindingSources">binding to controller methods</a></li>
+				<li><strong>/path/{variables}/</strong> - path variables are named parameters available when <a href="{{ site.url }}/2.0/controller/pathvariablebinder.html">binding to controller methods</a></li>
 				<li><strong>/path/*/wildcards</strong> - wildcards with a single asterisk match just one path fragment. i.e. <em>/path/value/wildcards</em> matches and <em>/path/multi/value/wildcards</em> does not</li>
 				<li><strong>/path/**/wildcards</strong> - double wildcards match any number of path fragments.  i.e. both <em>/path/value/wildcards</em> and <em>/path/multi/value/wildcards</em> match</li>
 				<li><strong>/file/*.ext</strong> - extensions can be used in conjuction with other matching rules</li>
@@ -201,7 +195,7 @@ public class ApplicationModule implements Module {
 						This type of action results in a method being invoked on a class. Classes invoked like this 
 						are referred to as <em>controllers</em>, however this is a semantic distinction - any class 
 						can be used as a controller. You can read more about controllers 
-						<a href="{{ site.url }}/2.0/thundr/controllers.html">here</a>.
+						<a href="{{ site.url }}/2.0/controller/index.html">here</a>.
 					</p>
 
 					<p>For example, the route</p>
@@ -354,11 +348,7 @@ public class MyModule implements Module {
 				advantages - the intent is clearer when configuring routes, and you can avoid overheads for controller
 				binding, filter and interceptor processing and view resolution. 
 			</p>
-		</section>
-		<hr/>
-		<section>
-			Next, read about <a href="modules.html">modules</a>
-		</section>
+		</section>	
 	</article>
 </div>
 		

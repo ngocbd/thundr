@@ -1,0 +1,86 @@
+---
+layout: 2.0/base
+title: Controllers
+description: Using controllers in thundr
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header active">
+					<a href="./httpbinder">
+						Http Binder
+					</a>
+				</li>			
+			</ul>
+		</div>
+	</aside>
+
+	<article id="controllers" class="col-md-9">
+		<div class="page-header">
+			<h1>thundr <small>Binding Http requests</small></h1>
+		</div>
+		<p>
+			thundr provides the <code>HttpBinder</code> to bind standard request parameters.
+		</p>
+		<p>	
+			Request parameters include query parameters for 
+			GET/DELETE request and form parameters for POST/PUT requests.
+		</p>
+		<p>
+			thundr uses the <code>ParameterBinder</code> instances registered in the <code>ParameterBinderRegistry</code> to bind each parameter, using 
+			query or form parameters as the data source.			
+		</p>
+
+		<p><code>http://localhost:8080/page?param1=parameter%20value&amp;param2=2</code> will bind to </p>
+
+{% highlight java %}
+public JspView method(String param1, Long param2){ ... }
+{% endhighlight %}
+
+			<p>likewise,</p>
+
+{% highlight html %}
+<form action="/page" method="post">
+   <input type="text" name="param1" value="parameter value"/>
+   <input type="text" name="param2" value="2"/>
+</form>
+{% endhighlight %}
+
+			<p>will bind to</p>
+
+{% highlight java %}
+public JspView method(String param1, Long param2){ ... }
+{% endhighlight %}
+			
+			<p>
+			An example of binding to a javabean:
+			</p>
+{% highlight java %}
+<form action="/page" method="post">
+   <input type="text" name="form.param1" value="parameter value"/>
+   <input type="text" name="form.param2" value="2"/>
+</form>
+{% endhighlight %}
+					<p>binds to</p>
+{% highlight java %}
+public JspView method(FormDTO form){ ... }
+
+public static class FormDTO{
+	private String param1;
+	private Long param2;
+
+	public void setParam1(String param1){ this.param1 = param1; }
+	public void setParam2(Long param2){ this.param2 = param2; }
+	public String getParam1(){ return this.param1; }
+	public Long getParam2(){ return this.param2; }
+}
+{% endhighlight %}
+	<p>
+		To extend the types that can be bound to, you can register custom implementations
+		of <code>ParameterBinder</code> at startup using the <code>ParameterBinderRegistry</code>.		
+	</p>
+	</article>
+</div>
+		

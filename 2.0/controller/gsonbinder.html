@@ -1,0 +1,89 @@
+---
+layout: 2.0/base
+title: Controllers
+description: Using controllers in thundr
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header active">
+					<a href="./gsonbinder.html">
+						Gson Binder
+					</a>
+				</li>				
+			</ul>
+		</div>
+	</aside>
+
+	<article id="controllers" class="col-md-9">
+		<div class="page-header">
+			<h1>thundr <small>Binding JSON using Gson</small></h1>
+		</div>
+		<p>thundr provides the <code>GsonBinder</code> which binds json requests onto the first non-null controller parameter.
+		This will only happen with requests whose content type is <code>application/json</code>
+		</p>
+		<p>
+			This binder uses <a href="http://code.google.com/p/google-gson/">Gson</a> to convert the request content into your java
+			object. 
+		</p>
+
+		<p>
+			For example, if the request posted json like this
+		</p>
+
+{% highlight json %}
+{
+	"id": 123,
+	"names": ["first", "last"]
+}
+{% endhighlight %}
+
+					<p>and we have a class like this:</p>
+
+{% highlight java %}
+package com.mycompany;
+
+public class MyDTO {
+   private int id;
+   private List<String> names;
+
+   public void setId(int id){
+       this.id = id;
+   }
+   public void setNames(List<String> names){
+       this.names = names;
+   }
+   public List<String> getNames(){
+       return names;
+   }
+   public int getId(){
+       return id;
+   }
+}
+{% endhighlight %}
+
+					<p>it can automatically bind onto</p>
+
+{% highlight java %}
+public View method(MyDTO dto){ ... }
+{% endhighlight %}
+					<blockquote>
+					thundr will attempt to bind to the first pojo parameter that has no data already bound to it. 
+					<strong>Best practice is therefore to always put the pojo you want your json to bind to as the first parameter.</strong>
+					</blockquote>
+
+				<p>You can also bind to parameters without a DTO like this:</p>
+{% highlight java %}
+public View method(long id, List<String> names){ ... }
+{% endhighlight %}	
+				<blockquote>
+					thundr will only try to bind json to 'exploded' parameters if there are unbound parameters and neither an HttpServletRequest or ServletRequest parameter are present.
+					The inclusion of these indicates that you wish to process the input yourself, and thundr will not consume the HttpServletRequest input stream.
+				</blockquote>
+				
+				
+	</article>
+</div>
+		

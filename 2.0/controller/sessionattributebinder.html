@@ -1,0 +1,39 @@
+---
+layout: 2.0/base
+title: Controllers
+description: Using controllers in thundr
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header active">
+					<a href="./sessionattributebinder.html">
+						Session Attribute Binder
+					</a>
+				</li>				
+			</ul>
+		</div>
+	</aside>
+
+	<article id="controllers" class="col-md-9">
+		<div class="page-header">
+			<h1>thundr <small>Binding session attributes</small></h1>
+		</div>
+		<p>
+			thundr provides the <code>SessionAttributeBinder</code> to bind session attributes onto controller parameters.
+		</p>
+		<p>
+			<strong>Session attributes</strong> are attributes on the session which can be added through filters or by the container itself
+		</p>
+		<p>
+			For example, if you have a session attribute of type <code>com.company.User</code> named 'user', the following would bind:
+		</p>
+{% highlight java %}
+public View method(User user){ ... }
+{% endhighlight %}
+								
+	</article>
+</div>
+		

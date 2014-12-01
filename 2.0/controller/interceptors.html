@@ -1,0 +1,141 @@
+---
+layout: 2.0/base
+title: Controllers
+description: Using controllers in thundr
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header active">
+					<a href="./interceptors.html">
+						Interceptors
+					</a>
+				</li>		
+			</ul>
+		</div>
+	</aside>
+
+	<article id="interceptors" class="col-md-9">
+		<div class="page-header">
+			<h1>thundr <small>interceptors</small></h1>
+		</div>
+		
+		<section>
+					<p>By implementing the <code>Interceptor</code> interface, thundr provides a basic mechanism for adding
+				interceptors to controller methods to perform common operations on different routes/controller methods.</p>
+
+			<p>Quite often there are cross cutting concerns which we want to apply to controller methods before or after they&#39;re
+				invoked. Some examples of this are ensuring state (such as a logged in user), prepopulating some data (such as
+				adding data to the request) or changing the response (in case of successful result or failure).</p>
+
+			<p><em>Interceptors</em> are implemented by marking a controller method with a custom annotation and
+				implementing the <code>Interceptor</code> interface.</p>
+
+			<p>The two are registered together during <a
+					href="{{ site.url }}/2.0/thundr/basics.html#applicationModule">configuration</a> in the <code>InterceptorRegistry</code>.
+			</p>
+
+			<p><strong> Example </strong></p>
+
+			<p>In this example, we create an annotation <em>RequireRole</em>, which defines the role a user must have to invoke
+				a route. The logic is implemented in the custom class <em>RequireRoleInterceptor</em>.</p>
+
+			<p><strong><em>RequireRole.java</em></strong> - This annotation marks any controller methods we want our interceptor
+				to be invoked on. </p>
+
+{% highlight java %}
+...
+@Retention(RetentionPolicy.RUNTIME)
+public @interface RequireRole {
+    Role value() default Role.User;
+}
+...
+{% endhighlight %}
+
+			<p><strong><em>RequireRoleInterceptor.java</em></strong> - the interceptor is invoked before and after the
+				controller method is invoked, and also if it throws an exception.<br>If the before, after or exception methods
+				return a non-null value, they override the controller response. If they return null normal execution occurs.</p>
+
+{% highlight java %}
+...
+public class RequireRoleInterceptor implements Interceptor<RequireRole> {
+    private UserService userService;
+
+    public RequireRoleInterceptor(UserService userService) {
+        this.userService = userService;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public RedirectView before(RequireRole require, HttpServletRequest req, HttpServletResponse resp) {
+        User user = userService.getUserFromRequest(req);
+        boolean hasRole = user.hasRole(require.value());
+        if (hasRole) {
+            req.setAttribute("user", user);
+            return null;
+        }
+        return new RedirectView("/login");
+    }
+
+    @Override
+    public <T> T after(RequireRole require, Object result, HttpServletRequest req, HttpServletResponse resp) {
+        return null;
+    }
+
+    @Override
+    public <T> T exception(RequireRole require, Exception e, HttpServletRequest req, HttpServletResponse resp) {
+        return null;
+    }
+}
+{% endhighlight %}
+
+			<p><strong><em>ApplicationModule.java</em></strong> - we register the annotation and the interceptor
+				together in our ApplicationModule at startup.</p>
+
+{% highlight java %}
+...
+public class ApplicationModule extends BaseModule {
+...
+
+	@Override
+	public void configure(UpdatableInjectionContext injectionContext) {
+		InterceptorRegistry interceptorRegistry = injectionContext.get(InterceptorRegistry.class);
+        UserService userService = new UserService();
+        RequireRoleInterceptor requireRole = new RequireRoleInterceptor(userService);
+
+        interceptorRegistry.registerInterceptor(RequireRole.class, requireRole);
+    }
+}
+...
+{% endhighlight %}
+
+			<p><strong><em>Controller.java</em></strong> - When this controller method is invoked, the
+				RequireRoleInterceptor executes</p>
+
+{% highlight java %}
+...
+public class Controller {
+    @RequireRole
+    public StringView get(){
+        return new StringView("OK");
+    }
+...
+{% endhighlight %}
+			<p>
+				In this example the Interceptor also sets the user object into the request as an attribute. This means
+				that this object is now available through standard thundr binding. This allows the following.
+			</p>
+{% highlight java %}
+...
+    @RequireRole
+    public StringView get(User user){
+        return new StringView(user.getName());
+    }
+...
+{% endhighlight %}			
+	</section>	
+	</article>
+</div>
+		

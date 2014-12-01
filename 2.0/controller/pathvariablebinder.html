@@ -1,0 +1,46 @@
+---
+layout: 2.0/base
+title: Controllers
+description: Using controllers in thundr
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header active">
+					<a href="./pathvariablebinder.html">
+						Path Variable Binder
+					</a>
+				</li>
+			</ul>
+		</div>
+	</aside>
+
+	<article id="controllers" class="col-md-9">
+		<div class="page-header">
+			<h1>thundr <small>Binding path variables</small></h1>
+		</div>
+		<p>
+			thundr provides the <code>PathVariableBinder</code> to bind path variables onto controller parameters.
+		</p>
+		<p>			
+			<strong>Path variables</strong> are the named variables as portion of the route. e.g.
+		</p>
+
+{% highlight java %}
+routes.add(GET, "/{path}/{variable}", Controller.class, "method");
+{% endhighlight %}
+	
+					<p>will bind to</p>
+
+{% highlight java %}
+public View method(long path, String variable){ ... }
+{% endhighlight %}
+		<p>
+			This binder uses the <code>TransformerManager</code>, and so can bind to any target type which can
+			be converted from a String.
+		</p>
+	</article>
+</div>
+		
