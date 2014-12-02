@@ -1,0 +1,108 @@
+---
+layout: 2.0/base
+title: VelocityView from thundr-velocity
+description: VelocityView renders Velocity templates using the VelocityViewResolver
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header active">
+					<a href="#index">
+						thundr-contrib-velocity
+					</a>
+				</li>
+				<li class="">
+					<a href="#setting-up">
+						Setting Up
+					</a>
+				</li>
+				<li class="">
+					<a href="#velocityview">
+						VelocityView
+					</a>
+				</li>
+			</ul>			
+		</div>
+	</aside>
+
+	<article id="index" class="col-md-9">
+		<div class="page-header">
+			<h1>
+				<a href="{{ site.url }}/2.0/thundr-contrib/thundr-contrib-velocity.html" class="module">thundr-contrib-velocity</a>  
+				<small>Velocity</small>
+				<img src="https://travis-ci.org/3wks/thundr-contrib-velocity.svg#2.0.0">
+			</h1>
+		</div>
+
+
+		<section id="page-overview" class="overview">
+		<p>
+		A thundr module for rendering views using <a href="http://velocity.apache.org/">Apache Velocity</a>.
+		</p>
+		<p>
+		Velocity is a templating language. Once this module has been included and configured, you can return a <code>VelocityView</code>
+		from any <a href="{{ site.url }}/2.0/controller/index.html">controller</a> method to render content to the request client.
+		</p>
+
+		</section>
+		<section id="setting-up">
+			<h2>Setting up</h2>
+			<p>
+				Add the module dependency to your build tool and require the module in your ApplicationModule:
+			</p>
+			<p>
+				pom.xml - <a target="_blank" href="http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.threewks.thundr%22%20AND%20a%3A%22thundr-contrib-velocity%22">Click here to find the latest version</a>
+			</p>
+{% highlight xml %}
+...
+<dependency>
+    <groupId>com.threewks.thundr</groupId>
+    <artifactId>thundr-contrib-velocity</artifactId>
+    <version>2.0.0</version>
+    <scope>compile</scope>
+</dependency>
+...
+{% endhighlight %}
+
+			<p>Your <code>ApplicationModule</code></p>
+
+{% highlight java %}
+...
+	@Override
+	public void requires(DependencyRegistry dependencyRegistry) {
+		super.requires(dependencyRegistry);
+		dependencyRegistry.addDependency(VelocityModule.class);
+	}
+...
+{% endhighlight %}
+
+		</section>			
+
+		<section id="velocityview">
+			<h2>VelocityView</h2>
+			<p>
+				Once <a href="#setting-up">set up</a>, you can return a <code>VelocityView</code> from a controller method to
+				render output to the request client. VelocityView can also be used when <a href="{{ site.url }}/2.0/email/index.html">sending emails</a>.
+			</p>
+{% highlight java %}
+...
+public VelocityView view() {
+   Map<String, Object> model = model();
+   populateReferenceData(model);
+   return new VelocityView("view.hbs", model);
+}
+...
+{% endhighlight %}
+			<p>
+				<code>VelocityView</code> is a <a href="{{ site.url }}/2.0/views/index.html#templateView">template view</a>, so
+				you can set headers, cookies, status code etc on it.
+			</p>
+			<p>
+				It also respects the <a href="{{ site.url }}/2.0/views/index.html#globalModel">Global Model</a>.
+			</p>
+		</section>
+	</article>
+</div>
+		
