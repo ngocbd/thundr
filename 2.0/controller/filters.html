@@ -56,7 +56,7 @@ public class RequireAdminFilter implements Filter {
     }
 
     @Override
-    public RedirectView before(RouteType routeType, HttpServletRequest req, HttpServletResponse resp) {
+    public RedirectView before(HttpMethod httpMethod, HttpServletRequest req, HttpServletResponse resp) {
         User user = userService.getUserFromRequest(req);
         boolean hasRole = user.hasRole("Admin");
         if (hasRole) {
@@ -67,12 +67,12 @@ public class RequireAdminFilter implements Filter {
     }
     
     @Override
-    public <T> T after(RouteType routeType, Object view, HttpServletRequest req, HttpServletResponse resp) {
+    public <T> T after(HttpMethod httpMethod, Object view, HttpServletRequest req, HttpServletResponse resp) {
         return null;
     }
     
     @Override
-    public <T> T exception(RouteType routeType, Exception e, HttpServletRequest req, HttpServletResponse resp) {
+    public <T> T exception(HttpMethod httpMethod, Exception e, HttpServletRequest req, HttpServletResponse resp) {
         return null;
     }
 }

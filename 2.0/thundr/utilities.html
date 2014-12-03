@@ -25,7 +25,12 @@ description: thundr utilities
 						Utilities
 					</a>
 				</li>
-				
+				<li>
+					<a href="{{ site.url }}/2.0/thundr/utilities.html#transformerManager" data-target="#transformerManager">
+						TransformerManager
+					</a>
+				</li>
+				<li><hr/></li>
 				<li>
 					<a href="{{ site.url }}/2.0/thundr/utilities.html#baseException" data-target="#baseException">
 						BaseException
@@ -102,6 +107,34 @@ description: thundr utilities
 			thundr has a lot of utility code which can help you succinctly and rapidly deliver your application code.
 		</section>
 
+		<section id="transformerManager">
+			<h4><code>com.threewks.thundr.transformer.TransformerManager</code></h4>
+			<p>
+				The <code>TransformerManager</code> provides a shared and consistent way of defining formal transformations between different types.
+			</p>
+			<p>
+				thundr creates a TransformerManager by default and injects it into your <a href="{{ site.url }}/2.0/module/index.html#injectionContext">InjectionContext</a> at startup.
+			</p>
+			<p>
+				Whenever thundr needs to convert between types for data binding, transformation or serialization it will use the TransformerManager. You can
+				extend the types that it knows how to transformer by registering customer transformers using <code>TransformerManager.register()</code> method. You can
+				also remove transformations using <code>TransformerManager.unregister()</code> if necessary, however that is unlikely.
+			</p>
+			<p>
+				You can also use the TransformerManager to convert between types yourself, using one of the following methods:
+			</p>
+			<ul>
+				<li><code>.transform()</code> - which will transform the given input between the two types or throw and exception if no transformer is available</li>
+				<li><code>.transformAll()</code> - which will transform all the elements of the given input between the two types or throw and exception if no transformer is available</li>
+				<li><code>.getTransformer()</code> - which will return a transformer between the specified types, returning null if no transformer is found</li>
+				<li><code>.getTransformerSafe()</code> - which will return a transformer between the specified types, or throw an exception</li>
+				<li>
+					<code>.getBestTransformer()</code> - which will return a transformer between the specified types taking into account inheritence hierarchy, or returning null if no transformer is found.
+					That is, this transformer is more likely to return a transformer that can achieve the transformation (depending on type).					
+				</li>				
+												
+			</ul>
+		</section>
 		<section id="baseException">
 			<h4><code>com.threewks.thundr.exception.BaseException</code></h4>
 			<p>

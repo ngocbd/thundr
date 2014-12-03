@@ -111,10 +111,10 @@ public class ApplicationModule implements Module {
   public void start(UpdatableInjectionContext injectionContext) {
     Router router = injectionContext.get(Router.class);
     
-    router.add(RouteType.GET, "/", new Controller(AccountController.class, "dashboard"), "dashboard",);
-    router.add(RouteType.GET, "/signup", new Controller(AccountController.class, "signupGet"), "signup.get");
-    router.add(RouteType.POST, "/signup", new Controller(AccountController.class, "signupPost"), "signup.post");
-    router.add(RouteType.GET, "/view/{id}", new Controller(AccountController.class, "view"), "view");
+    router.add(HttpMethod.GET, "/", new Controller(AccountController.class, "dashboard"), "dashboard",);
+    router.add(HttpMethod.GET, "/signup", new Controller(AccountController.class, "signupGet"), "signup.get");
+    router.add(HttpMethod.POST, "/signup", new Controller(AccountController.class, "signupPost"), "signup.post");
+    router.add(HttpMethod.GET, "/view/{id}", new Controller(AccountController.class, "view"), "view");
   }
 {% endhighlight %}
 			<p>
@@ -137,7 +137,7 @@ public class ApplicationModule implements Module {
 			The following two routes are the same:
 {% highlight java %}
 	...
-    router.add(RouteType.GET, "/signup", new Controller(AccountController.class, "signupGet"));
+    router.add(HttpMethod.GET, "/signup", new Controller(AccountController.class, "signupGet"));
     router.get("/signup", new Controller(AccountController.class, "signupGet"));
 	...
 {% endhighlight %}
