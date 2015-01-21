@@ -60,7 +60,7 @@ public class JavaMailMailer extends BaseMailer {
 	protected void sendInternal(Map.Entry<String, String> from, Map.Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject,
 			Object body, List<Attachment> attachments) {
 		try {
-			Session emailSession = Session.getDefaultInstance(new Properties());
+			Session emailSession = getSession();
 
 			Message message = new MimeMessage(emailSession);
 			message.setFrom(emailAddress(from));
@@ -92,6 +92,10 @@ public class JavaMailMailer extends BaseMailer {
 		} catch (MessagingException e) {
 			throw new MailException(e, "Failed to send an email: %s", e.getMessage());
 		}
+	}
+
+	protected Session getSession() {
+		return Session.getDefaultInstance(new Properties());
 	}
 
 	protected void sendMessage(Message message) throws MessagingException {
