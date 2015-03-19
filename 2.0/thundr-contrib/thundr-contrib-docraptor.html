@@ -1,0 +1,109 @@
+---
+layout: 2.0/base
+title: Docraptor from thundr-contrib-docraptor
+description: Provides integration of Docraptor's Html to Pdf SaaS offering
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header active">
+					<a href="#index">
+						thundr-contrib-docraptor
+					</a>
+				</li>
+				<li class="">
+					<a href="#setting-up">
+						Setting Up
+					</a>
+				</li>
+				<li class="">
+					<a href="#docraptor">
+						Docraptor
+					</a>
+				</li>
+			</ul>			
+		</div>
+	</aside>
+
+	<article id="index" class="col-md-9">
+		<div class="page-header">
+			<h1>
+				<a href="{{ site.url }}/2.0/thundr-contrib/thundr-contrib-docraptor.html" class="module">thundr-contrib-docraptor</a>  
+				<small>Docraptor</small>
+				<img src="https://travis-ci.org/atomicleopard/thundr-contrib-docraptor.svg?branch=thundr-contrib-docraptor-1.0.0">
+			</h1>
+		</div>
+
+
+		<section id="page-overview" class="overview">
+		<p>
+		A thundr module for rendering documents using <a href="http://docraptor.com/">Docraptor</a>.
+		Source on <a href="https://github.com/atomicleopard/thundr-contrib-docraptor">Github</a>
+		</p>
+		</section>
+		<section id="setting-up">
+			<h2>Setting up</h2>
+			<p>
+				Add the module dependency to your build tool and require the module in your ApplicationModule:
+			</p>
+			<p>
+				pom.xml - <a target="_blank" href="http://search.maven.org/#search%7Cga%7C1%7Cthundr-contrib-docraptor">Click here to find the latest version</a>
+			</p>
+{% highlight xml %}
+...
+<dependency>
+    <groupId>com.atomicleopard</groupId>
+    <artifactId>thundr-contrib-docraptor</artifactId>
+    <version>1.0.0</version>
+    <scope>compile</scope>
+</dependency>
+...
+{% endhighlight %}
+
+			<p>Your <code>ApplicationModule</code></p>
+
+{% highlight java %}
+...
+  @Override
+  public void requires(DependencyRegistry dependencyRegistry) {
+    super.requires(dependencyRegistry);
+    dependencyRegistry.addDependency(DocraptorModule.class);
+  }
+...
+{% endhighlight %}
+
+<p>Your <code>application.properties</code></p>
+
+{% highlight properties %}
+...
+docraptorApiKey=YOUR_KEY_HERE
+...
+{% endhighlight %}
+
+		</section>			
+
+		<section id="docraptor">
+			<h2>Docraptor</h2>
+			<p>
+				The Docraptor interface will then be available for injection into services and controllers. Draw a PDF by
+				making a render call passing in a DocraptorRequest with the appropriate fields. 
+			</p>
+{% highlight java %}
+ private Docraptor docraptor;
+...
+DocraptorRequest request = DocraptorRequest.ForUrl("filename.pdf", absoluteUrl)
+										   .withJavascript(true)
+										   .withTestMode(testMode);
+byte[] pdfData = docraptor.render(request);
+...
+{% endhighlight %}
+
+			<p>
+				For more detail, see the <a href="https://docraptor.com/documentation">docraptor API docs</a>
+			</p>
+		</section>
+	</article>
+</div>
+		
