@@ -1,0 +1,140 @@
+---
+layout: 2.0/base
+title: thundr contrib SendGrid
+description: A thundr module integrating SendGrid as a mail provider in thundr
+---
+
+<div class="row">
+	<aside class="module_nav_container col-md-3">
+		<div class="module_nav">
+			<ul class="nav nav-pills nav-stacked" role="navigation">
+				<li class="nav-header active">
+					<a href="#index">
+						thundr-contrib-sendgrid
+					</a>
+				</li>
+
+				<li>
+					<a href="#page-overview" data-target="#page-overview">
+						Overview
+					</a>
+				</li>
+
+				<li class="divider"></li>
+
+				<li>
+					<a href="#settingUp" data-target="#settingUp">
+						Setting Up
+					</a>
+				</li>
+
+				<li>
+					<a href="#moduleFeatures" data-target="#moduleFeatures">
+						Module Features
+					</a>
+				</li>
+			</ul>
+		</div>
+	</aside>
+
+	<article id="index" class="col-md-9">
+		<div class="page-header">
+			<h1>
+				thundr-contrib-sendgrid
+				<small>SendGrid</small>
+				<img src="https://travis-ci.org/atomicleopard/thundr-contrib-sendgrid.svg?branch=master"/>
+			</h1>
+		</div>
+
+		<section id="page-overview" class="overview">
+			<h2>Overview</h2>
+
+			<p>
+				<a href="http://sendgrid.com/">SendGrid</a> is a platform for sending, receiving
+				and tracking email and email campaigns. 
+			</p>
+
+			<p><em>thundr-contrib-sendgrid</em> provides integration of SendGrid using the standard <a href="{{ site.url }}/2.0/email/index.html">thundr Mailer</a> API</p>
+			
+			<p>
+				<a href="https://github.com/atomicleopard/thundr-contrib-sendgrid">Source on github</a> <i class="fa fa-large fa-github"></i>
+			</p>
+		</section>
+
+		<section id="settingUp">
+			<h4>Setting Up</h4>
+
+			<p>
+			To use <em>thundr-contrib-sendgrid</em> add the library to your application, add a dependency on the <code>SendGridModule</code>
+			and configure your SendGrid api key using your application.properties, or in code.
+			</p>
+			<p>
+				Including the <em>thundr-contrib-sendgrid</em> jar in your project will enable you to instantiate a <code>SendGridMailer</code>,
+				which sends email using the standard <a href="{{ site.url }}/2.0/email/index.html">thundr Mailer</a>, so you can swap it out
+				interchangably with the built in <code>JavaMailMailer</code>.
+			</p>
+			<p>
+				pom.xml <a target="_blank" href="http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.atomicleopard%22%20AND%20a%3A%22thundr-contrib-sendgrid%22">Click here to find the latest version</a>
+			</p>
+			
+
+{% highlight xml %}
+...
+<dependency>
+    <groupId>com.atomicleopard</groupId>
+    <artifactId>thundr-contrib-sendgrid</artifactId>
+    <version>2.0.0</version>
+    <scope>compile</scope>
+</dependency>
+...
+{% endhighlight %}
+
+	<p>Your <code>ApplicationModule</code></p>
+
+{% highlight java %}
+...
+	@Override
+	public void requires(DependencyRegistry dependencyRegistry) {
+		super.requires(dependencyRegistry);
+		dependencyRegistry.addDependency(SendGridModule.class);
+	}
+...
+{% endhighlight %}
+
+	<p>Your <code>application.properties</code></p>
+
+{% highlight properties %}
+...
+sendgridApiKey=YOUR_KEY_HERE
+...
+{% endhighlight %}
+		</section>
+
+		<section id="moduleFeatures">
+			<h4>Module Features</h4>
+			
+			Once you've configured the <code>SendGridModule</code> you'll be able to send email using the <code>Mailer</code> API.
+			
+{% highlight java %}
+...
+private Mailer mailer;
+
+public MyService(Mailer mailer){
+    this.mailer = mailer;
+}
+
+public void sendAnEmail(){
+    // This mail will be sent using SendGrid's infrastructure. 
+	mailer.mailer()
+		.from("from@email.com", "From")
+		.to("recipient@email.com", "Recipient")
+		.subject("subject")
+		.body(new StringView("body"))
+		.send();
+}
+...
+{% endhighlight %}			
+		</section>
+	</article>
+</div>
+		
