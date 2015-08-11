@@ -19,11 +19,10 @@ package com.threewks.thundr.bind;
 
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.threewks.thundr.bind.parameter.ParameterBinder;
 import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 
 /**
  * Used to control how one or more parameters have data bound to them on controller methods.
@@ -44,5 +43,6 @@ public interface Binder {
 	 * @param resp
 	 * @param pathVariables
 	 */
-	public void bindAll(Map<ParameterDescription, Object> bindings, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVariables);
+	// TODO - v3 - It makes sense to include the pathvars in the request object itself
+	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp, Map<String, String> pathVariables);
 }

@@ -17,8 +17,7 @@
  */
 package com.threewks.thundr.view.jsonp;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -27,6 +26,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.threewks.thundr.json.GsonSupport;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 import com.threewks.thundr.view.BaseView;
 import com.threewks.thundr.view.ViewResolutionException;
 import com.threewks.thundr.view.ViewResolver;
@@ -52,28 +53,30 @@ public class JsonpViewResolver implements ViewResolver<JsonpView> {
 	}
 
 	@Override
-	public void resolve(HttpServletRequest req, HttpServletResponse resp, JsonpView viewResult) {
+	public void resolve(Request req, Response resp, JsonpView viewResult) {
 		Object output = viewResult.getOutput();
 		try {
 			Gson create = gsonBuilder.create();
 			JsonElement jsonElement = Cast.as(output, JsonElement.class);
 			String json = jsonElement == null ? create.toJson(output) : create.toJson(jsonElement);
 			String jsonp = wrapJsonInCallback(req, json);
-
 			String encoding = viewResult.getCharacterEncoding();
-			resp.setContentLength(jsonp.getBytes(encoding).length);
+			byte[] data = jsonp.getBytes(encoding);
 			BaseView.applyToResponse(viewResult, resp);
-			resp.getWriter().write(jsonp);
+			resp.withContentLength(data.length);
+			OutputStream outputStream = resp.getOutputStream();
+			outputStream.write(data);
+			outputStream.flush();
 		} catch (Exception e) {
 			throw new ViewResolutionException(e, "Failed to generate JSONP output for object '%s': %s", output.toString(), e.getMessage());
 		}
 	}
 
-	public static String wrapJsonInCallback(HttpServletRequest req, String json) {
+	public static String wrapJsonInCallback(Request req, String json) {
 		return getCallback(req) + "(" + json + ");";
 	}
 
-	public static String getCallback(HttpServletRequest req) {
+	public static String getCallback(Request req) {
 		Object callback = req.getParameter("callback");
 		String callbackStr = callback == null ? null : StringUtils.trimToNull(callback.toString());
 		callbackStr = callbackStr == null ? "callback" : callbackStr;

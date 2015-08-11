@@ -18,13 +18,12 @@
 package com.threewks.thundr.view.file;
 
 import java.io.InputStream;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
 
 import com.threewks.thundr.http.Header;
 import com.threewks.thundr.logger.Logger;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 import com.threewks.thundr.util.Streams;
 import com.threewks.thundr.view.BaseView;
 import com.threewks.thundr.view.ViewResolutionException;
@@ -32,12 +31,13 @@ import com.threewks.thundr.view.ViewResolver;
 
 public class FileViewResolver implements ViewResolver<FileView> {
 	@Override
-	public void resolve(HttpServletRequest req, HttpServletResponse resp, FileView viewResult) {
+	public void resolve(Request req, Response resp, FileView viewResult) {
 		InputStream inputStream = viewResult.getData();
 		try {
-			ServletOutputStream outputStream = resp.getOutputStream();
-			resp.addHeader(Header.ContentDisposition, String.format("%s; filename=%s", viewResult.getDisposition().value(), viewResult.getFileName()));
+			resp.withHeader(Header.ContentDisposition, String.format("%s; filename=%s", viewResult.getDisposition().value(), viewResult.getFileName()));
 			BaseView.applyToResponse(viewResult, resp);
+
+			OutputStream outputStream = resp.getOutputStream();
 			Streams.copy(inputStream, outputStream);
 			outputStream.flush();
 		} catch (Exception e) {
@@ -47,16 +47,16 @@ public class FileViewResolver implements ViewResolver<FileView> {
 		}
 	}
 
-	@Override
-	public String toString() {
-		return this.getClass().getSimpleName();
-	}
-
 	protected void closeInputStream(InputStream inputStream) {
 		try {
 			inputStream.close();
 		} catch (Exception e) {
 			Logger.warn("Failed to close InputStream while writing file output - %s: %s", e.getClass().getSimpleName(), e.getMessage());
 		}
+	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName();
 	}
 }

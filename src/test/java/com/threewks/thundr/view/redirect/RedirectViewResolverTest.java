@@ -19,50 +19,51 @@ package com.threewks.thundr.view.redirect;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
 
 import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
-import com.threewks.thundr.view.ViewResolutionException;
+import com.threewks.thundr.http.Header;
+import com.threewks.thundr.http.StatusCode;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.mock.MockRequest;
+import com.threewks.thundr.request.mock.MockResponse;
 
 public class RedirectViewResolverTest {
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
 
 	private RedirectViewResolver resolver = new RedirectViewResolver();
-	private HttpServletRequest req = new MockHttpServletRequest();
-	private HttpServletResponse resp = mock(HttpServletResponse.class);
+	private Request req = new MockRequest();
+	private MockResponse resp = new MockResponse();
 
 	@Test
 	public void shouldRedirectSpecifiedByRedirectView() throws IOException {
 		RedirectView viewResult = new RedirectView("/redirect/to");
 		resolver.resolve(req, resp, viewResult);
-		verify(resp).sendRedirect("/redirect/to");
+		assertThat(resp.getStatusCode(), is(StatusCode.TemporaryRedirect));
+		assertThat(resp.getHeader(Header.Location), is("/redirect/to"));
 	}
 
-	@Test
-	public void shouldThrowViewResolutionExceptionWhenRedirectFails() throws IOException {
-		thrown.expect(ViewResolutionException.class);
-		thrown.expectMessage("Failed to redirect to /redirect/to: BOOM");
-
-		doThrow(new IOException("BOOM")).when(resp).sendRedirect(anyString());
-
-		RedirectView viewResult = new RedirectView("/redirect/to");
-		resolver.resolve(req, resp, viewResult);
-	}
-
+	/*
+	 * TODO - v3 - is this still a possibility?
+	 * 
+	 * @Test
+	 * public void shouldThrowViewResolutionExceptionWhenRedirectFails() throws IOException {
+	 * thrown.expect(ViewResolutionException.class);
+	 * thrown.expectMessage("Failed to redirect to /redirect/to: BOOM");
+	 * 
+	 * doThrow(new IOException("BOOM")).when(resp).sendRedirect(anyString());
+	 * 
+	 * RedirectView viewResult = new RedirectView("/redirect/to");
+	 * resolver.resolve(req, resp, viewResult);
+	 * }
+	 */
 	@Test
 	public void shouldReturnClassNameForToString() {
 		assertThat(new RedirectViewResolver().toString(), is("RedirectViewResolver"));
-
 	}
 }

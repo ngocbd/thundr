@@ -29,14 +29,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 import com.threewks.thundr.route.HttpMethod;
 import com.threewks.thundr.route.controller.TestAnnotation;
 import com.threewks.thundr.transformer.TransformerManager;
@@ -46,16 +45,16 @@ public class PathVariableBinderTest {
 	private PathVariableBinder pathVariableBinder;
 	private Map<ParameterDescription, Object> parameterDescriptions;
 	private HashMap<String, String> pathVariables;
-	private HttpServletRequest request;
-	private HttpServletResponse response;
+	private Request request;
+	private Response response;
 
 	@Before
 	public void before() {
 		pathVariableBinder = new PathVariableBinder(TransformerManager.createWithDefaults());
 		parameterDescriptions = new LinkedHashMap<ParameterDescription, Object>();
 		pathVariables = new HashMap<String, String>();
-		request = mock(HttpServletRequest.class);
-		response = mock(HttpServletResponse.class);
+		request = mock(Request.class);
+		response = mock(Response.class);
 	}
 
 	@Test
@@ -130,7 +129,7 @@ public class PathVariableBinderTest {
 		assertThat(parameterDescriptions.get(param13), is((Object) BigInteger.valueOf(13)));
 		assertThat(parameterDescriptions.get(param14), is((Object) UUID.fromString(uuidString)));
 		// Timezones will differ as parsing maintains the timezone exactly (i.e. Australia/Sydney becomes +10:00)
-		assertThat(((DateTime)parameterDescriptions.get(param15)).compareTo(dateTime), is(0));
+		assertThat(((DateTime) parameterDescriptions.get(param15)).compareTo(dateTime), is(0));
 		assertThat(parameterDescriptions.get(param16), is((Object) HttpMethod.POST));
 	}
 
@@ -155,7 +154,7 @@ public class PathVariableBinderTest {
 
 		assertThat(parameterDescriptions.get(param1), is((Object) "string-value"));
 		assertThat(parameterDescriptions.get(param2), is(nullValue()));
-		assertThat(parameterDescriptions.get(param3), is((Object)"3"));
+		assertThat(parameterDescriptions.get(param3), is((Object) "3"));
 		assertThat(parameterDescriptions.get(param4), is(nullValue()));
 	}
 }

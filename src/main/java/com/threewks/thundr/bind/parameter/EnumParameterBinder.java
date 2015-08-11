@@ -17,15 +17,18 @@
  */
 package com.threewks.thundr.bind.parameter;
 
+import java.util.List;
+
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.transformer.TransformerManager;
 
 public class EnumParameterBinder implements ParameterBinder<Object> {
+	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Object bind(ParameterBinderRegistry binders, ParameterDescription parameterDescription, RequestDataMap pathMap, TransformerManager transformerManager) {
-		String[] stringValues = pathMap.get(parameterDescription.name());
-		String stringValue = stringValues == null || stringValues.length == 0 ? null : stringValues[0];
+		List<String> stringValues = pathMap.get(parameterDescription.name());
+		String stringValue = stringValues == null || stringValues.size() == 0 ? null : stringValues.get(0);
 		Class<?> classType = parameterDescription.classType();
 		Class<Enum> enumType = (Class<Enum>) classType;
 		return Expressive.Transformers.toEnum(enumType).from(stringValue);

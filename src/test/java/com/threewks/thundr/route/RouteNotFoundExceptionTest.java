@@ -20,9 +20,9 @@ package com.threewks.thundr.route;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.junit.Test;
+
+import com.threewks.thundr.http.StatusCode;
 
 public class RouteNotFoundExceptionTest {
 	@Test
@@ -30,7 +30,7 @@ public class RouteNotFoundExceptionTest {
 		RouteNotFoundException routeNotFoundException = new RouteNotFoundException("String %s", "format");
 		assertThat(routeNotFoundException.getMessage(), is("String format"));
 		assertThat(routeNotFoundException.getCause(), is(nullValue()));
-		assertThat(routeNotFoundException.getStatus(), is(HttpServletResponse.SC_NOT_FOUND));
+		assertThat(routeNotFoundException.getStatus(), is(StatusCode.NotFound));
 	}
 
 	@Test
@@ -39,6 +39,6 @@ public class RouteNotFoundExceptionTest {
 		RouteNotFoundException routeNotFoundException = new RouteNotFoundException(exception, "String %s", "format");
 		assertThat(routeNotFoundException.getMessage(), is("String format"));
 		assertThat(routeNotFoundException.getCause(), is((Throwable) exception));
-		assertThat(routeNotFoundException.getStatus(), is(HttpServletResponse.SC_NOT_FOUND));
+		assertThat(routeNotFoundException.getStatus(), is(StatusCode.NotFound));
 	}
 }

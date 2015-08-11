@@ -17,10 +17,9 @@
  */
 package com.threewks.thundr.view.negotiating.strategy;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang3.StringUtils;
 
+import com.threewks.thundr.request.Request;
 import com.threewks.thundr.view.negotiating.NegotiatingView;
 import com.threewks.thundr.view.negotiating.Negotiator;
 import com.threewks.thundr.view.negotiating.ViewNegotiatorRegistry;
@@ -34,8 +33,8 @@ import jodd.util.MimeTypes;
 public class FileExtensionNegotiationStrategy implements NegotiationStrategy {
 
 	@Override
-	public Negotiator<?> findNegotiator(HttpServletRequest req, NegotiatingView view, ViewNegotiatorRegistry viewNegotiatorRegistry) {
-		String requestUri = req.getRequestURI();
+	public Negotiator<?> findNegotiator(Request req, NegotiatingView view, ViewNegotiatorRegistry viewNegotiatorRegistry) {
+		String requestUri = req.getRequestPath();
 		String extension = StringUtils.trimToEmpty(StringUtils.substringAfterLast(requestUri, "."));
 		String mimeType = MimeTypes.lookupMimeType(extension);
 		return viewNegotiatorRegistry.getNegotiator(mimeType);

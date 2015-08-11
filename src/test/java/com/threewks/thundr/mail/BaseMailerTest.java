@@ -32,7 +32,6 @@ import java.util.Map.Entry;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.junit.After;
 import org.junit.Before;
@@ -44,6 +43,9 @@ import org.mockito.Mockito;
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.exception.BaseException;
 import com.threewks.thundr.http.RequestThreadLocal;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
+import com.threewks.thundr.request.ThreadLocalRequestContainer;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.view.ViewResolver;
 import com.threewks.thundr.view.ViewResolverRegistry;
@@ -56,7 +58,8 @@ public class BaseMailerTest {
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
 	private ViewResolverRegistry viewResolverRegistry = new ViewResolverRegistry();
-	private BaseMailer mailer = spy(new BaseMailer(viewResolverRegistry) {
+	private ThreadLocalRequestContainer requestContainer = new ThreadLocalRequestContainer();
+	private BaseMailer mailer = spy(new BaseMailer(viewResolverRegistry, requestContainer) {
 		@Override
 		protected void sendInternal(Entry<String, String> from, Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject, Object body,
 				List<Attachment> attachments) {
@@ -234,11 +237,12 @@ public class BaseMailerTest {
 	public void shouldSaveThenRestoreAttributesOnRequestDuringContentRendering() {
 		viewResolverRegistry.addResolver(String.class, new ViewResolver<String>() {
 			@Override
-			public void resolve(HttpServletRequest req, HttpServletResponse resp, String viewResult) {
+			public void resolve(Request request, Response resp, String viewResult) {
+				HttpServletRequest req = request.getRawRequest(HttpServletRequest.class);
 				req.setAttribute("updated", 2);
 				req.removeAttribute("initial");
 				try {
-					resp.getWriter().write(viewResult);
+					resp.getOutputStream().write(viewResult.getBytes("UTF-8"));
 				} catch (IOException e) {
 					throw new BaseException(e);
 				}

@@ -22,10 +22,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.atomicleopard.expressive.Expressive;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -40,6 +36,8 @@ import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.introspection.TypeIntrospector;
 import com.threewks.thundr.json.GsonSupport;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 
 public class GsonBinder implements Binder {
 	/**
@@ -50,7 +48,8 @@ public class GsonBinder implements Binder {
 	 * When trying to bind to the individual parameters of the json body, there are parameters that imply the controller wants to handle the request body itself and mean this binder shouldnt consume
 	 * the input stream.
 	 */
-	public static final List<Class<?>> TypesIndicatingBindingShouldBeSkipped = Expressive.<Class<?>> list(HttpServletRequest.class, ServletRequest.class);
+	// TODO - v3 - can this be shared somewhere, so that other modules can register against them (for HttpServletRequest)
+	public static final List<Class<?>> TypesIndicatingBindingShouldBeSkipped = Expressive.<Class<?>> list(Request.class);
 
 	private GsonBuilder gsonBuilder;
 
@@ -71,15 +70,14 @@ public class GsonBinder implements Binder {
 		return gsonBuilder;
 	}
 
-	public boolean canBind(String contentType) {
-		return ContentType.ApplicationJson.value().equalsIgnoreCase(contentType);
+	public boolean canBind(ContentType contentType) {
+		return ContentType.ApplicationJson == contentType;
 	}
 
 	@Override
-	public void bindAll(Map<ParameterDescription, Object> bindings, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVariables) {
+	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp, Map<String, String> pathVariables) {
 		if (!bindings.isEmpty() && bindings.containsValue(null)) {
-			String sanitisedContentType = ContentType.cleanContentType(req.getContentType());
-			if (canBind(sanitisedContentType)) {
+			if (canBind(req.getContentType())) {
 				ParameterDescription jsonParameterDescription = findParameterDescriptionForJsonParameter(bindings);
 				Gson gson = gsonBuilder.create();
 				if (jsonParameterDescription != null) {
@@ -91,7 +89,7 @@ public class GsonBinder implements Binder {
 		}
 	}
 
-	private void bindToUnboundParameters(Map<ParameterDescription, Object> bindings, HttpServletRequest req, Gson gson) {
+	private void bindToUnboundParameters(Map<ParameterDescription, Object> bindings, Request req, Gson gson) {
 		if (shouldBindToUnboundParameters(bindings)) {
 			try {
 				BufferedReader reader = req.getReader();
@@ -130,7 +128,7 @@ public class GsonBinder implements Binder {
 		return true;
 	}
 
-	private void bindToSingleParameter(Map<ParameterDescription, Object> bindings, HttpServletRequest req, Gson gson, ParameterDescription jsonParameterDescription) {
+	private void bindToSingleParameter(Map<ParameterDescription, Object> bindings, Request req, Gson gson, ParameterDescription jsonParameterDescription) {
 		try {
 			BufferedReader reader = req.getReader();
 			if (reader != null) {
@@ -150,7 +148,7 @@ public class GsonBinder implements Binder {
 			boolean isABindableType = !NonBindableTypes.contains(parameterDescription.type());
 			boolean isACollection = Collection.class.isAssignableFrom(type) || Map.class.isAssignableFrom(type);
 			boolean isAJavabean = TypeIntrospector.isAJavabean(type);
-			if ( isUnbound && isABindableType && (isACollection || isAJavabean)){
+			if (isUnbound && isABindableType && (isACollection || isAJavabean)) {
 				return parameterDescription;
 			}
 		}

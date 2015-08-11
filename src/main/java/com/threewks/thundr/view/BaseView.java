@@ -17,17 +17,18 @@
  */
 package com.threewks.thundr.view;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.threewks.thundr.http.ContentType;
+import com.threewks.thundr.http.Cookie;
 import com.threewks.thundr.http.Cookies;
 import com.threewks.thundr.http.StatusCode;
 import com.threewks.thundr.http.exception.HttpStatusException;
+import com.threewks.thundr.request.Response;
 import com.threewks.thundr.view.redirect.RedirectView;
 import com.threewks.thundr.view.redirect.RouteRedirectView;
 
@@ -42,9 +43,9 @@ import com.threewks.thundr.view.redirect.RouteRedirectView;
  */
 public abstract class BaseView<Self extends BaseView<Self>> implements View {
 
-	protected Map<String, String> headers = new LinkedHashMap<String, String>();
-	protected Map<String, Cookie> cookies = new LinkedHashMap<String, Cookie>();
-	protected Integer statusCode;
+	protected Map<String, Object> headers = new LinkedHashMap<>();
+	protected Map<String, Cookie> cookies = new LinkedHashMap<>();
+	protected StatusCode statusCode;
 	protected String contentType;
 	protected String characterEncoding;
 	@SuppressWarnings("unchecked")
@@ -78,7 +79,7 @@ public abstract class BaseView<Self extends BaseView<Self>> implements View {
 	 * @param name
 	 * @return the value of the header previously set into this view, or null
 	 */
-	public String getHeader(String name) {
+	public Object getHeader(String name) {
 		return headers.get(name);
 	}
 
@@ -90,7 +91,7 @@ public abstract class BaseView<Self extends BaseView<Self>> implements View {
 	 * @return this view
 	 */
 	public Self withCookie(String name, String value) {
-		return withCookie(Cookies.build(name).withValue(value).build());
+		return withCookie(Cookie.build(name).withValue(value).build());
 	}
 
 	/**
@@ -117,14 +118,14 @@ public abstract class BaseView<Self extends BaseView<Self>> implements View {
 	 * @return the full set of cookies already added - alterations directly affect the underlying collection
 	 */
 	public Map<String, Cookie> getCookies() {
-		return cookies;
+		return Collections.unmodifiableMap(cookies);
 	}
 
 	/**
 	 * @return the full set of headers already added - alterations directly affect the underlying collection
 	 */
-	public Map<String, String> getHeaders() {
-		return headers;
+	public Map<String, Object> getHeaders() {
+		return Collections.unmodifiableMap(headers);
 	}
 
 	/**
@@ -139,38 +140,18 @@ public abstract class BaseView<Self extends BaseView<Self>> implements View {
 	 * <li>To send an error with your view as content, use this method and set an error status code</li>
 	 * </ul>
 	 * 
-	 * 
-	 * @param code
+	 * @param statusCode
 	 * @return this view
 	 */
-	public Self withStatusCode(int code) {
-		this.statusCode = code;
+	public Self withStatusCode(StatusCode statusCode) {
+		this.statusCode = statusCode;
 		return self;
-	}
-
-	/**
-	 * Sets the response code of the response.
-	 * Care needs to be taken to use this appropriately.
-	 * 
-	 * For example, to send a redirect, prefer a {@link RedirectView} or {@link RouteRedirectView}
-	 * 
-	 * To send an error:
-	 * <ul>
-	 * <li>To use the containers configured error page, throw {@link HttpStatusException} or setting {@link HttpServletResponse#sendError(int)}</li>
-	 * <li>To send an error with your view as content, use this method and set an error status code</li>
-	 * </ul>
-	 * 
-	 * @param code
-	 * @return this view
-	 */
-	public Self withStatusCode(StatusCode code) {
-		return withStatusCode(code.getCode());
 	}
 
 	/**
 	 * @return the response code previously set into this view
 	 */
-	public Integer getStatusCode() {
+	public StatusCode getStatusCode() {
 		return statusCode;
 	}
 
@@ -220,30 +201,13 @@ public abstract class BaseView<Self extends BaseView<Self>> implements View {
 		return characterEncoding;
 	}
 
-	public static void applyToResponse(BaseView<?> view, HttpServletResponse resp) {
-		for (Cookie cookie : view.getCookies().values()) {
-			resp.addCookie(cookie);
-		}
-		for (Map.Entry<String, String> header : view.getHeaders().entrySet()) {
-			resp.addHeader(header.getKey(), header.getValue());
-		}
-		Integer statusCode = view.getStatusCode();
-		String contentType = view.getContentType();
-		String characterEncoding = view.getCharacterEncoding();
-		if (statusCode != null) {
-			resp.setStatus(statusCode);
-		}
-		if (contentType != null) {
-			resp.setContentType(contentType);
-		}
-		if (characterEncoding != null) {
-			resp.setCharacterEncoding(characterEncoding);
-		}
-	}
-
-	public static void includeModelInRequest(HttpServletRequest req, Map<String, Object> model) {
-		for (Map.Entry<String, Object> modelEntry : model.entrySet()) {
-			req.setAttribute(modelEntry.getKey(), modelEntry.getValue());
-		}
+	public static void applyToResponse(BaseView<?> view, Response resp) {
+		// @formatter:off
+		resp.withCookies(view.getCookies().values())
+			.withHeaders(view.getHeaders())
+			.withStatusCode(view.getStatusCode(), view.getStatusCode() != null)
+			.withContentType(view.getContentType(), view.getContentType() != null)
+			.withCharacterEncoding(view.getCharacterEncoding(), view.getCharacterEncoding() != null);
+		// @formatter:on
 	}
 }

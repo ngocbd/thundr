@@ -25,7 +25,6 @@ import java.util.Map;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
-@SuppressWarnings("rawtypes")
 public class MockServletConfig implements ServletConfig {
 	private ServletContext servletContext;
 	private Map<String, String> initParameters;
@@ -63,7 +62,7 @@ public class MockServletConfig implements ServletConfig {
 	}
 
 	@Override
-	public Enumeration getInitParameterNames() {
+	public Enumeration<String> getInitParameterNames() {
 		return Collections.enumeration(initParameters.keySet());
 	}
 }

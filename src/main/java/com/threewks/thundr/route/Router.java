@@ -27,12 +27,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.threewks.thundr.logger.Logger;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 import com.threewks.thundr.route.controller.Controller;
 
 public class Router {
@@ -180,12 +179,13 @@ public class Router {
 		return namedRoutes.get(name);
 	}
 
-	@SuppressWarnings("unchecked")
-	public <T extends RouteResult> Object invoke(String routePath, HttpMethod httpMethod, HttpServletRequest req, HttpServletResponse resp) {
-		Logger.debug("Requesting '%s'", routePath);
+	public Object invoke(Request req, Response resp) {
+		String routePath = req.getRequestPath();
+		HttpMethod httpMethod = req.getMethod();
+		Logger.debug("Request %s: %s %s", req.getId(), httpMethod, routePath);
 		Route route = findMatchingRoute(routePath, httpMethod);
 		if (route != null) {
-			T action = (T) actionsForRoutes.get(route);
+			RouteResult action = actionsForRoutes.get(route);
 			return resolveAction(routePath, httpMethod, req, resp, route, action);
 		}
 		String debugString = debug ? listRoutes() : "";
@@ -203,8 +203,7 @@ public class Router {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends RouteResult> Object resolveAction(final String routePath, final HttpMethod method, final HttpServletRequest req, final HttpServletResponse resp, final Route route,
-			final T action) {
+	private <T extends RouteResult> Object resolveAction(final String routePath, final HttpMethod method, final Request req, final Response resp, final Route route, final T action) {
 		Map<String, String> pathVars = route.getPathVars(routePath);
 		RouteResolver<T> actionResolver = (RouteResolver<T>) actionResolvers.get(action.getClass());
 		Object resolve = actionResolver.resolve(action, method, req, resp, pathVars);

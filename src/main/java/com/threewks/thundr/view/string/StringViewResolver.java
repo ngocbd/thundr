@@ -17,9 +17,10 @@
  */
 package com.threewks.thundr.view.string;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
 
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 import com.threewks.thundr.view.BaseView;
 import com.threewks.thundr.view.ViewResolutionException;
 import com.threewks.thundr.view.ViewResolver;
@@ -30,12 +31,14 @@ public class StringViewResolver implements ViewResolver<StringView> {
 	}
 
 	@Override
-	public void resolve(HttpServletRequest req, HttpServletResponse resp, StringView viewResult) {
+	public void resolve(Request req, Response resp, StringView viewResult) {
 		try {
 			BaseView.applyToResponse(viewResult, resp);
-			byte[] bytes = viewResult.contentBytes();
-			resp.getOutputStream().write(bytes);
-			resp.flushBuffer();
+			byte[] data = viewResult.contentBytes();
+			resp.withContentLength(data.length);
+			OutputStream outputStream = resp.getOutputStream();
+			outputStream.write(data);
+			outputStream.flush();
 		} catch (Exception e) {
 			throw new ViewResolutionException(e, "Failed to write String view result: %s", e.getMessage());
 		}

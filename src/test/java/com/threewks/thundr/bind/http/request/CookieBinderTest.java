@@ -25,26 +25,24 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Map;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
-
 import org.junit.Before;
 import org.junit.Test;
 
 import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
+import com.threewks.thundr.http.Cookie;
 import com.threewks.thundr.introspection.ParameterDescription;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
+import com.threewks.thundr.request.mock.MockRequest;
+import com.threewks.thundr.request.mock.MockResponse;
 import com.threewks.thundr.transformer.TransformerManager;
 
 public class CookieBinderTest {
 	private CookieBinder binder;
-	private MockHttpServletRequest req = new MockHttpServletRequest();
-	private HttpServletResponse resp = new MockHttpServletResponse();
+	private MockRequest req = new MockRequest();
+	private MockResponse resp = new MockResponse();
 	private Map<String, String> pathVariables = map();
 	Map<ParameterDescription, Object> bindings = map();
 	private ParameterBinderRegistry parameterBinderRegistry;
-	
+
 	@Before
 	public void before() {
 		parameterBinderRegistry = new ParameterBinderRegistry(TransformerManager.createWithDefaults());
@@ -56,7 +54,7 @@ public class CookieBinderTest {
 	public void shouldBindCookieMatchingParameterName() {
 		ParameterDescription varParam = new ParameterDescription("var", String.class);
 		bindings.put(varParam, null);
-		req.cookie("var", "expected");
+		req.withCookie("var", "expected");
 		binder.bindAll(bindings, req, resp, pathVariables);
 
 		assertThat(bindings.get(varParam), is((Object) "expected"));
@@ -66,7 +64,7 @@ public class CookieBinderTest {
 	public void shouldOnlyBindCookieWhenNoBindingAlreadyMade() {
 		ParameterDescription varParam = new ParameterDescription("var", String.class);
 		bindings.put(varParam, "original");
-		req.cookie("var", "overridden");
+		req.withCookie("var", "overridden");
 		binder.bindAll(bindings, req, resp, pathVariables);
 
 		assertThat(bindings.get(varParam), is((Object) "original"));
@@ -76,7 +74,7 @@ public class CookieBinderTest {
 	public void shouldSupportTypeBindingByRelyingOnHttpBinder() {
 		ParameterDescription varParam = new ParameterDescription("var", Integer.class);
 		bindings.put(varParam, null);
-		req.cookie("var", "123");
+		req.withCookie("var", "123");
 		binder.bindAll(bindings, req, resp, pathVariables);
 
 		assertThat(bindings.get(varParam), is((Object) 123));
@@ -90,9 +88,9 @@ public class CookieBinderTest {
 		bindings.put(varParam1, null);
 		bindings.put(varParam2, null);
 		bindings.put(varParam3, null);
-		req.cookie("var1", "first");
-		req.cookie("var2", "second");
-		req.cookie("var3", "third");
+		req.withCookie("var1", "first");
+		req.withCookie("var2", "second");
+		req.withCookie("var3", "third");
 		binder.bindAll(bindings, req, resp, pathVariables);
 
 		assertThat(bindings.get(varParam1), is((Object) "first"));
@@ -104,9 +102,9 @@ public class CookieBinderTest {
 	public void shouldBindFirstMatchedCookieWhenMultipleCookiesWithSameNameExistMultipleCookies() {
 		ParameterDescription varParam = new ParameterDescription("var", String.class);
 		bindings.put(varParam, null);
-		req.cookie("var", "first");
-		req.cookie("var", "second");
-		req.cookie("var", "third");
+		req.withCookie("var", "first");
+		req.withCookie("var", "second");
+		req.withCookie("var", "third");
 		binder.bindAll(bindings, req, resp, pathVariables);
 
 		assertThat(bindings.get(varParam), is((Object) "first"));
@@ -118,7 +116,7 @@ public class CookieBinderTest {
 		bindings.put(varParam, null);
 
 		Cookie expected = new Cookie("var", "expected");
-		req.cookie(expected);
+		req.withCookie(expected);
 
 		binder.bindAll(bindings, req, resp, pathVariables);
 
@@ -148,22 +146,21 @@ public class CookieBinderTest {
 
 		Cookie requestCookie = new Cookie("cookie", "newValue");
 		Cookie requestCookieValue = new Cookie("cookieValue", "newValue2");
-		req.cookie(requestCookie);
-		req.cookie(requestCookieValue);
+		req.withCookie(requestCookie);
+		req.withCookie(requestCookieValue);
 
 		binder.bindAll(bindings, req, resp, pathVariables);
 
 		assertThat(bindings.get(varParam1), is((Object) existingCookie));
 		assertThat(bindings.get(varParam2), is((Object) "existingValue2"));
 	}
-	
+
 	@Test
 	public void shouldNotBindIfNoCookiesExistingOnTheRequest() {
 		ParameterDescription varParam1 = new ParameterDescription("cookie", Cookie.class);
 		ParameterDescription varParam2 = new ParameterDescription("cookieValue", String.class);
 		bindings.put(varParam1, null);
 		bindings.put(varParam2, null);
-
 
 		binder.bindAll(bindings, req, resp, pathVariables);
 
@@ -181,8 +178,8 @@ public class CookieBinderTest {
 
 		Cookie requestCookie = new Cookie("cookie", "newValue1");
 		Cookie requestCookieValue = new Cookie("cookieValue", "newValue2");
-		req.cookie(requestCookie);
-		req.cookie(requestCookieValue);
+		req.withCookie(requestCookie);
+		req.withCookie(requestCookieValue);
 
 		binder.bindAll(bindings, req, resp, pathVariables);
 
@@ -221,19 +218,19 @@ public class CookieBinderTest {
 		parameterDescriptions.put(param12, null);
 		parameterDescriptions.put(param13, null);
 
-		req.cookie("param1", "string-value");
-		req.cookie("param2", "2");
-		req.cookie("param3", "3");
-		req.cookie("param4", "4.0");
-		req.cookie("param5", "5.0");
-		req.cookie("param6", "6");
-		req.cookie("param7", "7");
-		req.cookie("param8", "8.8");
-		req.cookie("param9", "9.9");
-		req.cookie("param10", "10");
-		req.cookie("param11", "11");
-		req.cookie("param12", "12.00");
-		req.cookie("param13", "13");
+		req.withCookie("param1", "string-value");
+		req.withCookie("param2", "2");
+		req.withCookie("param3", "3");
+		req.withCookie("param4", "4.0");
+		req.withCookie("param5", "5.0");
+		req.withCookie("param6", "6");
+		req.withCookie("param7", "7");
+		req.withCookie("param8", "8.8");
+		req.withCookie("param9", "9.9");
+		req.withCookie("param10", "10");
+		req.withCookie("param11", "11");
+		req.withCookie("param12", "12.00");
+		req.withCookie("param13", "13");
 
 		binder.bindAll(parameterDescriptions, req, resp, pathVariables);
 

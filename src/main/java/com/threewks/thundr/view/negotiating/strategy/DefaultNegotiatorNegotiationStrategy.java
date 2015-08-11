@@ -17,8 +17,7 @@
  */
 package com.threewks.thundr.view.negotiating.strategy;
 
-import javax.servlet.http.HttpServletRequest;
-
+import com.threewks.thundr.request.Request;
 import com.threewks.thundr.view.negotiating.NegotiatingView;
 import com.threewks.thundr.view.negotiating.Negotiator;
 import com.threewks.thundr.view.negotiating.ViewNegotiatorRegistry;
@@ -31,7 +30,7 @@ import com.threewks.thundr.view.negotiating.ViewNegotiatorRegistry;
 public class DefaultNegotiatorNegotiationStrategy implements NegotiationStrategy {
 
 	@Override
-	public Negotiator<?> findNegotiator(HttpServletRequest req, NegotiatingView view, ViewNegotiatorRegistry viewNegotiatorRegistry) {
+	public Negotiator<?> findNegotiator(Request req, NegotiatingView view, ViewNegotiatorRegistry viewNegotiatorRegistry) {
 		return viewNegotiatorRegistry.getDefaultNegotiator();
 	}
 

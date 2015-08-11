@@ -42,6 +42,8 @@ import org.apache.commons.lang3.StringUtils;
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.Header;
+import com.threewks.thundr.request.InMemoryResponse;
+import com.threewks.thundr.request.RequestContainer;
 import com.threewks.thundr.view.BasicViewRenderer;
 import com.threewks.thundr.view.ViewResolverRegistry;
 
@@ -52,8 +54,8 @@ import jodd.util.Base64;
  */
 public class JavaMailMailer extends BaseMailer {
 
-	public JavaMailMailer(ViewResolverRegistry viewResolverRegistry) {
-		super(viewResolverRegistry);
+	public JavaMailMailer(ViewResolverRegistry viewResolverRegistry, RequestContainer requestContainer) {
+		super(viewResolverRegistry, requestContainer);
 	}
 
 	@Override
@@ -70,9 +72,9 @@ public class JavaMailMailer extends BaseMailer {
 
 			message.setSubject(subject);
 
-			BasicViewRenderer viewRenderer = render(body);
-			String content = viewRenderer.getOutputAsString();
-			String contentType = ContentType.cleanContentType(viewRenderer.getContentType());
+			InMemoryResponse renderedResult = render(body);
+			String content = renderedResult.getBodyAsString();
+			String contentType = ContentType.cleanContentType(renderedResult.getContentTypeString());
 			contentType = StringUtils.isBlank(contentType) ? ContentType.TextHtml.value() : contentType;
 
 			if (Expressive.isEmpty(attachments)) {
@@ -120,11 +122,11 @@ public class JavaMailMailer extends BaseMailer {
 
 	private void addAttachments(Multipart multipart, List<Attachment> attachments) throws MessagingException {
 		for (Attachment attachment : attachments) {
-			BasicViewRenderer response = render(attachment.view());
-			byte[] base64Encoded = Base64.encodeToByte(response.getOutputAsBytes());
+			InMemoryResponse renderedResult = render(attachment.view());
+			byte[] base64Encoded = Base64.encodeToByte(renderedResult.getBodyAsBytes());
 
 			InternetHeaders headers = new InternetHeaders();
-			headers.addHeader(Header.ContentType, response.getContentType());
+			headers.addHeader(Header.ContentType, renderedResult.getContentTypeString());
 			headers.addHeader(Header.ContentTransferEncoding, "base64");
 
 			MimeBodyPart part = new MimeBodyPart(headers, base64Encoded);

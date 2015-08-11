@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.UUID;
@@ -51,6 +52,7 @@ public class BasicTypesParameterBinderTest {
 		binder = new BasicTypesParameterBinder();
 		binders = null;
 	}
+
 	@Test
 	public void shouldReturnTrueForWillBindBasicTypes() {
 		assertThat(binder.willBind(description("name", byte.class), transformerManager), is(true));
@@ -110,6 +112,6 @@ public class BasicTypesParameterBinderTest {
 	}
 
 	private RequestDataMap data(String key, String value) {
-		return new RequestDataMap(Collections.singletonMap(key, new String[] { value }));
+		return new RequestDataMap(Collections.singletonMap(key, Arrays.asList(value)));
 	}
 }

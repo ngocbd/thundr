@@ -17,17 +17,20 @@
  */
 package com.threewks.thundr.bind.http.request;
 
+import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.bind.Binder;
 import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 
 public class RequestAttributeBinder implements Binder {
 	private ParameterBinderRegistry parameterBinderRegistry;
@@ -38,28 +41,31 @@ public class RequestAttributeBinder implements Binder {
 	}
 
 	@Override
-	public void bindAll(Map<ParameterDescription, Object> bindings, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVariables) {
-		Map<String, String[]> requestAttributes = createStringRequestAttributes(req);
-		parameterBinderRegistry.bind(bindings, requestAttributes, null);
-		for (Map.Entry<ParameterDescription, Object> binding : bindings.entrySet()) {
-			ParameterDescription key = binding.getKey();
-			String name = key.name();
-			Object value = req.getAttribute(name);
-			if (binding.getValue() == null && value != null && key.isA(value.getClass())) {
-				bindings.put(key, value);
+	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp, Map<String, String> pathVariables) {
+		HttpServletRequest httpServletRequest = req.getRawRequest(HttpServletRequest.class);
+		if (httpServletRequest != null) {
+			Map<String, List<String>> requestAttributes = createStringRequestAttributes(httpServletRequest);
+			parameterBinderRegistry.bind(bindings, requestAttributes, null);
+			for (Map.Entry<ParameterDescription, Object> binding : bindings.entrySet()) {
+				ParameterDescription key = binding.getKey();
+				String name = key.name();
+				Object value = httpServletRequest.getAttribute(name);
+				if (binding.getValue() == null && value != null && key.isA(value.getClass())) {
+					bindings.put(key, value);
+				}
 			}
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, String[]> createStringRequestAttributes(HttpServletRequest req) {
-		Map<String, String[]> results = new HashMap<String, String[]>();
+	private Map<String, List<String>> createStringRequestAttributes(HttpServletRequest req) {
+		Map<String, List<String>> results = new LinkedHashMap<>();
 		Enumeration<String> attributeNames = req.getAttributeNames();
 		if (attributeNames != null) {
 			for (String name : Expressive.iterable(attributeNames)) {
 				Object value = req.getAttribute(name);
 				if (value instanceof String) {
-					results.put(name, new String[] { (String) value });
+					results.put(name, Arrays.asList((String) value));
 				}
 			}
 		}

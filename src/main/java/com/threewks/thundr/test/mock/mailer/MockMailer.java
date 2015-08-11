@@ -34,7 +34,7 @@ public class MockMailer extends BaseMailer implements Mailer {
 	private EList<MailBuilder> sent = list();
 
 	public MockMailer() {
-		super(null);
+		super(null, null);
 	}
 
 	@Override

@@ -26,17 +26,18 @@ import com.threewks.thundr.introspection.TypeIntrospector;
 import com.threewks.thundr.transformer.TransformerManager;
 
 import jodd.bean.BeanUtilBean;
-import jodd.bean.loader.BeanLoader;
-import jodd.bean.loader.MapBeanLoader;
 
 public class JavaBeanParameterBinder implements ParameterBinder<Object> {
+	@Override
 	public Object bind(ParameterBinderRegistry binders, ParameterDescription parameterDescription, RequestDataMap pathMap, final TransformerManager transformerManager) {
 		Map<String, Object> stringMap = pathMap.toStringMap(parameterDescription.name());
 		if (!stringMap.isEmpty()) {
 			try {
 				Object bean = parameterDescription.classType().newInstance();
-				BeanLoader beanLoader = beanLoader(transformerManager);
-				beanLoader.load(bean, stringMap);
+				BeanUtilBean beaner = beanLoader(transformerManager);
+				stringMap.forEach((key, value) -> {
+					beaner.setPropertyForcedSilent(bean, key,  value);
+				});
 				return bean;
 			} catch (Exception e) {
 				throw new BindException(e, "Failed to bind onto %s: %s", parameterDescription.classType(), e.getMessage());
@@ -45,10 +46,8 @@ public class JavaBeanParameterBinder implements ParameterBinder<Object> {
 		return null;
 	}
 
-	public MapBeanLoader beanLoader(final TransformerManager transformerManager) {
-		MapBeanLoader mapBeanLoader = new MapBeanLoader();
-		mapBeanLoader.setBeanUtilBean(new TransformerManagerBeanUtilBean(transformerManager));
-		return mapBeanLoader;
+	public BeanUtilBean beanLoader(final TransformerManager transformerManager) {
+		return new TransformerManagerBeanUtilBean(transformerManager);
 	}
 
 	@Override

@@ -17,23 +17,24 @@
  */
 package com.threewks.thundr.view.exception;
 
-import static org.mockito.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.threewks.thundr.http.StatusCode;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.mock.MockResponse;
 import com.threewks.thundr.view.ViewResolutionException;
 
 public class ExceptionViewResolverTest {
 	private ExceptionViewResolver resolver = new ExceptionViewResolver();
-	private HttpServletRequest req = mock(HttpServletRequest.class);
-	private HttpServletResponse resp = mock(HttpServletResponse.class);
+	private Request req = mock(Request.class);
+	private MockResponse resp = new MockResponse();
 
 	@Test
 	public void shouldReturnStatus500() throws IOException {
@@ -41,30 +42,14 @@ public class ExceptionViewResolverTest {
 		Throwable viewResult = new Exception("message", cause);
 		resolver.resolve(req, resp, viewResult);
 
-		verify(resp).sendError(Mockito.eq(500), Mockito.startsWith("message\ncause\njava.lang.Exception: message"));
+		assertThat(resp.getStatusCode(), is(StatusCode.InternalServerError));
 	}
 
 	@Test
-	public void shouldReturnStatus500WithViewResolutionExceptionCauseMessage() throws IOException {
-		Exception cause = new Exception("cause");
-		Throwable viewResult = new ViewResolutionException(cause, "ViewResolutionMessage");
-		resolver.resolve(req, resp, viewResult);
-
-		verify(resp).sendError(Mockito.eq(500), Mockito.startsWith("ViewResolutionMessage\ncause"));
-	}
-
-	@Test
-	public void shouldReturnStatus500WithViewResolutionExceptionBecauseNoCauseIsProvided() throws IOException {
-		Throwable viewResult = new ViewResolutionException("message");
-		resolver.resolve(req, resp, viewResult);
-
-		verify(resp).sendError(Mockito.eq(500), Mockito.startsWith("message\ncom.threewks.thundr.view.ViewResolutionException: message"));
-	}
-
-	@Test
-	public void shouldSwallowAnyIOExceptionsDuringViewResolution() throws IOException {
+	public void shouldSwallowAnyExceptionsDuringViewResolution() throws IOException {
+		resp = spy(resp);
 		ViewResolutionException viewResult = mock(ViewResolutionException.class);
-		doThrow(new IOException("intentional")).when(resp).sendError(anyInt(), anyString());
+		doThrow(new RuntimeException("intentional")).when(resp).withStatusCode(Mockito.any(StatusCode.class));
 		resolver.resolve(req, resp, viewResult);
 	}
 }

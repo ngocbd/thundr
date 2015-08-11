@@ -20,6 +20,7 @@ package com.threewks.thundr.bind.parameter;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -27,9 +28,8 @@ import java.util.regex.Pattern;
 
 import com.threewks.thundr.collection.factory.CollectionFactory;
 import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.introspection.TypeIntrospector;
 import com.threewks.thundr.transformer.TransformerManager;
-
-import jodd.util.ReflectUtil;
 
 /**
  * Binds to a collection using the given Factory. Supports two types of list - indexed and unindexed.
@@ -49,25 +49,26 @@ public class CollectionParameterBinder<T extends Collection<Object>> implements 
 		this.collectionFactory = collectionFactory;
 	}
 
+	@Override
 	public T bind(ParameterBinderRegistry binders, ParameterDescription parameterDescription, RequestDataMap pathMap, TransformerManager transformerManager) {
-		String[] entryForParameter = pathMap.get(parameterDescription.name());
+		List<String> entryForParameter = pathMap.get(parameterDescription.name());
 		entryForParameter = entryForParameter == null ? pathMap.get(parameterDescription.name() + "[]") : entryForParameter;
-		boolean isIndexed = entryForParameter == null || entryForParameter.length == 0;
+		boolean isIndexed = entryForParameter == null || entryForParameter.size() == 0;
 		return isIndexed ? createIndexed(binders, parameterDescription, pathMap, transformerManager) : createUnindexed(binders, parameterDescription, pathMap, transformerManager);
 	}
 
 	// TODO - Is there a discrepency between how unindexed and indexed entities are created?
 	// createUnindexed uses the TransformerManager directly, but createIndexed uses the ParameterBinderRegistry?
 	private T createUnindexed(ParameterBinderRegistry binders, ParameterDescription parameterDescription, RequestDataMap pathMap, TransformerManager transformerManager) {
-		String[] entries = pathMap.get(parameterDescription.name());
+		List<String> entries = pathMap.get(parameterDescription.name());
 		entries = entries == null ? pathMap.get(parameterDescription.name() + "[]") : entries;
 		// a special case of a single empty string entry we'll equate to null
-		if (entries == null || entries.length == 1 && (entries[0] == null || "".equals(entries[0]))) {
+		if (entries == null || entries.size() == 1 && (entries.get(0) == null || "".equals(entries.get(0)))) {
 			return null;
 		}
 		T listParameter = collectionFactory.create();
 		Type type = parameterDescription.getGenericType(0);
-		Class<?> clazz = ReflectUtil.toClass(type);
+		Class<?> clazz = TypeIntrospector.asClass(type);
 		for (String entry : entries) {
 			Object listEntry = transformerManager.transform(String.class, clazz, entry);
 			listParameter.add(listEntry);

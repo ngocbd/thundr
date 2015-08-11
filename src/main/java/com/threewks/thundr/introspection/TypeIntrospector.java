@@ -64,7 +64,7 @@ public class TypeIntrospector {
 
 	@SuppressWarnings("rawtypes")
 	public static boolean isACollection(Type type) {
-		Class class1 = ReflectUtil.toClass(type);
+		Class class1 = asClass(type);
 		return Collection.class.isAssignableFrom(class1);
 	}
 
@@ -77,7 +77,7 @@ public class TypeIntrospector {
 	 * @return the class type of the type in the collection, or null if it cannot be determined.
 	 */
 	public static Class<?> getCollectionType(Type type) {
-		return ReflectUtil.getComponentType(type);
+		return ReflectUtil.getComponentType(type, 0);
 	}
 
 	/**
@@ -128,6 +128,15 @@ public class TypeIntrospector {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public static <T> Class<T> asClass(Type type) {
+		return ReflectUtil.getRawType(type);
+	}
+
+	public static boolean isGeneric(Type type) {
+		return ReflectUtil.getComponentType(type, 0) != null;
+	}
+
 	private static Map<Class<?>, Class<?>> boxedTypes(Map<Class<?>, Class<?>> primitiveTypes2) {
 		Map<Class<?>, Class<?>> map = new HashMap<>();
 		for (Map.Entry<Class<?>, Class<?>> entry : primitiveTypes2.entrySet()) {
@@ -159,4 +168,8 @@ public class TypeIntrospector {
 		return set;
 	}
 
+	public static boolean canBoxOrUnbox(Class<?> type1, Class<?> type2) {
+		return (primitiveTypes.containsKey(type1) && primitiveTypes.get(type1) == type2) || 
+			   (boxedTypes.containsKey(type1) && boxedTypes.get(type1) == type2);
+	}
 }

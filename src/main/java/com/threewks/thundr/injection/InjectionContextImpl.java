@@ -38,6 +38,8 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import com.atomicleopard.expressive.Expressive;
 import com.atomicleopard.expressive.collection.Pair;
 import com.atomicleopard.expressive.collection.Triplets;
+import com.threewks.thundr.aop.AdviceRegistry;
+import com.threewks.thundr.aop.AdviceRegistryImpl;
 import com.threewks.thundr.configuration.Environment;
 import com.threewks.thundr.introspection.ClassIntrospector;
 import com.threewks.thundr.introspection.MethodIntrospector;
@@ -51,8 +53,19 @@ public class InjectionContextImpl implements UpdatableInjectionContext {
 	private Triplets<Class<?>, String, Class<?>> types = map();
 	private Triplets<Class<?>, String, Object> instances = map();
 
-	private MethodIntrospector methodIntrospector = new MethodIntrospector();
 	private ClassIntrospector classIntrospector = new ClassIntrospector();
+	private AdviceRegistry adviceRegistry;
+
+	public InjectionContextImpl() {
+		this(new AdviceRegistryImpl());
+	}
+
+	public InjectionContextImpl(AdviceRegistry adviceRegistry) {
+		this.adviceRegistry = adviceRegistry;
+		if (this.adviceRegistry != null) {
+			this.inject(adviceRegistry).as(AdviceRegistry.class);
+		}
+	}
 
 	@Override
 	public <T> InjectorBuilder<T> inject(Class<T> type) {
@@ -98,7 +111,7 @@ public class InjectionContextImpl implements UpdatableInjectionContext {
 	}
 
 	protected <T> void addInstance(Class<T> type, String name, T as) {
-		instances.put(type, name, as);
+		putInstanceInternal(type, name, as);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -108,7 +121,7 @@ public class InjectionContextImpl implements UpdatableInjectionContext {
 		if (newInstance != null) {
 			synchronized (instances) {
 				if (!instances.containsKey(type, name)) {
-					instances.put(type, name, newInstance);
+					putInstanceInternal(type, name, newInstance);
 				}
 				instance = (T) instances.get(type, name);
 			}
@@ -124,7 +137,8 @@ public class InjectionContextImpl implements UpdatableInjectionContext {
 		List<ParameterDescription> minimalParameters = Collections.emptyList();
 		for (int i = ctors.size() - 1; i >= 0; i--) {
 			Constructor<T> constructor = ctors.get(i);
-			List<ParameterDescription> parameterDescriptions = methodIntrospector.getParameterDescriptions(constructor);
+			MethodIntrospector methodIntrospector = new MethodIntrospector(constructor);
+			List<ParameterDescription> parameterDescriptions = methodIntrospector.getParameterDescriptions();
 			minimalParameters = parameterDescriptions;
 			if (canSatisfy(parameterDescriptions)) {
 				Object[] args = getAll(parameterDescriptions);
@@ -231,13 +245,21 @@ public class InjectionContextImpl implements UpdatableInjectionContext {
 				}
 			}
 			if (existing.size() > 1) {
-				throw new InjectionException("Unable to get an instance of %s - the result is ambiguous. The following matches exist: %s. Check the casing of the expected parameter matches exactly.", type.getName(), StringUtils.join(existing.keySet(), ", "));
+				throw new InjectionException("Unable to get an instance of %s - the result is ambiguous. The following matches exist: %s. Check the casing of the expected parameter matches exactly.",
+						type.getName(), StringUtils.join(existing.keySet(), ", "));
 			}
 			if (existing.size() == 1) {
 				return existing.values().iterator().next();
 			}
 		}
 		return null;
+	}
+
+	private <T> void putInstanceInternal(Class<T> type, String name, T as) {
+		if (adviceRegistry != null) {
+			as = adviceRegistry.proxyIfNeeded(as);
+		}
+		instances.put(type, name, as);
 	}
 
 	private String environmentSpecificName(String name) {

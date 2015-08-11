@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.threewks.thundr.http.Header;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
+import com.threewks.thundr.request.mock.MockRequest;
 import com.threewks.thundr.view.json.JsonNegotiator;
 import com.threewks.thundr.view.jsonp.JsonpNegotiator;
 import com.threewks.thundr.view.negotiating.NegotiatingView;
@@ -34,18 +34,16 @@ import com.threewks.thundr.view.negotiating.ViewNegotiatorRegistryImpl;
 
 public class AcceptsHeaderNegotiationStrategyTest {
 
-	private MockHttpServletRequest req;
+	private MockRequest req;
 	private NegotiatingView view;
 	private ViewNegotiatorRegistry viewNegotiatorRegistry;
 	private AcceptsHeaderNegotiationStrategy strategy;
-	@SuppressWarnings("rawtypes")
-	private Negotiator jsonNegotiator;
-	@SuppressWarnings("rawtypes")
-	private Negotiator jsonpNegotiator;
+	private Negotiator<?> jsonNegotiator;
+	private Negotiator<?> jsonpNegotiator;
 
 	@Before
 	public void before() {
-		req = new MockHttpServletRequest();
+		req = new MockRequest();
 		view = new NegotiatingView("test");
 		viewNegotiatorRegistry = new ViewNegotiatorRegistryImpl();
 		strategy = new AcceptsHeaderNegotiationStrategy();
@@ -57,7 +55,7 @@ public class AcceptsHeaderNegotiationStrategyTest {
 	public void shouldReturnNegotiatorBasedOnAcceptHeader() {
 		viewNegotiatorRegistry.addNegotiator("application/json", jsonNegotiator);
 
-		req.header(Header.Accept, "application/json");
+		req.withHeader(Header.Accept, "application/json");
 
 		Negotiator<?> result = strategy.findNegotiator(req, view, viewNegotiatorRegistry);
 		assertThat(result, is(jsonNegotiator));
@@ -68,7 +66,7 @@ public class AcceptsHeaderNegotiationStrategyTest {
 		viewNegotiatorRegistry.addNegotiator("application/json", jsonNegotiator);
 		viewNegotiatorRegistry.addNegotiator("application/javascript", jsonpNegotiator);
 
-		req.header(Header.Accept, "application/json;q=0.7,application/javascript;q=0.8");
+		req.withHeader(Header.Accept, "application/json;q=0.7,application/javascript;q=0.8");
 
 		Negotiator<?> result = strategy.findNegotiator(req, view, viewNegotiatorRegistry);
 		assertThat(result, is(jsonpNegotiator));
@@ -79,7 +77,7 @@ public class AcceptsHeaderNegotiationStrategyTest {
 		viewNegotiatorRegistry.addNegotiator("application/json", jsonNegotiator);
 		viewNegotiatorRegistry.addNegotiator("application/javascript", jsonpNegotiator);
 
-		req.header(Header.Accept, "application/json;q=0.9,application/javascript");
+		req.withHeader(Header.Accept, "application/json;q=0.9,application/javascript");
 
 		Negotiator<?> result = strategy.findNegotiator(req, view, viewNegotiatorRegistry);
 		assertThat(result, is(jsonpNegotiator));
@@ -90,7 +88,7 @@ public class AcceptsHeaderNegotiationStrategyTest {
 		viewNegotiatorRegistry.addNegotiator("application/json", jsonNegotiator);
 		viewNegotiatorRegistry.addNegotiator("application/javascript", jsonpNegotiator);
 
-		req.header(Header.Accept, "text/plain;q=1,application/json;q=0.9");
+		req.withHeader(Header.Accept, "text/plain;q=1,application/json;q=0.9");
 
 		Negotiator<?> result = strategy.findNegotiator(req, view, viewNegotiatorRegistry);
 		assertThat(result, is(jsonNegotiator));

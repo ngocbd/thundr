@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
+import com.threewks.thundr.http.StatusCode;
 import com.threewks.thundr.http.exception.HttpStatusException;
 import com.threewks.thundr.injection.InjectionContextImpl;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
@@ -72,7 +73,7 @@ public class ViewModuleTest {
 		module.configure(injectionContext);
 
 		assertThat(registry.findViewResolver(new Throwable()) instanceof ExceptionViewResolver, is(true));
-		assertThat(registry.findViewResolver(new HttpStatusException(1, "")) instanceof HttpStatusExceptionViewResolver, is(true));
+		assertThat(registry.findViewResolver(new HttpStatusException(StatusCode.BadGateway, "")) instanceof HttpStatusExceptionViewResolver, is(true));
 		assertThat(registry.findViewResolver(new RouteNotFoundException("")) instanceof RouteNotFoundViewResolver, is(true));
 		assertThat(registry.findViewResolver(new RouteRedirectView("")) instanceof RouteRedirectViewResolver, is(true));
 		assertThat(registry.findViewResolver(new RedirectView("")) instanceof RedirectViewResolver, is(true));

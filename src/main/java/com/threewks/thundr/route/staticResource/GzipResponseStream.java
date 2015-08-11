@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletResponse;
 
 public class GzipResponseStream extends ServletOutputStream {
@@ -153,6 +154,17 @@ public class GzipResponseStream extends ServletOutputStream {
 
 	public boolean closed() {
 		return (this.closed);
+	}
+
+	@Override
+	public boolean isReady() {
+		// TODO - v3 - If this class cant be replaced by OSS implementation, this should work
+		return true;
+	}
+
+	@Override
+	public void setWriteListener(WriteListener writeListener) {
+		// TODO - v3 - If this class cant be replaced by OSS implementation, this should work
 	}
 
 }

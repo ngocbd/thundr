@@ -19,11 +19,9 @@ package com.threewks.thundr;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
-import java.util.Collections;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -31,8 +29,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.hamcrest.Matchers;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -40,23 +38,22 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import com.threewks.thundr.configuration.ConfigurationModule;
+import com.atomicleopard.expressive.Cast;
 import com.threewks.thundr.http.RequestThreadLocal;
-import com.threewks.thundr.injection.InjectionContextImpl;
-import com.threewks.thundr.injection.Module;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
-import com.threewks.thundr.module.Modules;
 import com.threewks.thundr.module.ModulesModule;
+import com.threewks.thundr.request.MutableRequestContainer;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
+import com.threewks.thundr.request.servlet.ServletRequest;
+import com.threewks.thundr.request.servlet.ServletResponse;
 import com.threewks.thundr.route.HttpMethod;
-import com.threewks.thundr.route.RouteResolverException;
 import com.threewks.thundr.route.Router;
-import com.threewks.thundr.route.RouterModule;
-import com.threewks.thundr.test.TestSupport;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
 import com.threewks.thundr.test.mock.servlet.MockServletConfig;
 import com.threewks.thundr.test.mock.servlet.MockServletContext;
-import com.threewks.thundr.transformer.TransformerModule;
+import com.threewks.thundr.view.ViewRenderer;
 import com.threewks.thundr.view.ViewResolver;
 import com.threewks.thundr.view.ViewResolverNotFoundException;
 import com.threewks.thundr.view.ViewResolverRegistry;
@@ -65,77 +62,72 @@ public class ThundrServletTest {
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
 
-	private ThundrServlet servlet = new ThundrServlet();
+	private ThundrServlet servlet;
+	private Thundr thundr;
+
 	private UpdatableInjectionContext injectionContext;
 	private MockHttpServletResponse resp = new MockHttpServletResponse();
 	private Router router = mock(Router.class);
 	private ViewResolverRegistry viewResolverRegistry;
 
 	@Before
-	public void before() {
-		injectionContext = new InjectionContextImpl();
-		setInjectionContextIntoServlet(injectionContext);
+	public void before() throws ServletException {
+		ServletContext servletContext = new MockServletContext();
+		ServletConfig config = new MockServletConfig(servletContext);
+		servlet = new ThundrServlet() {
+			private static final long serialVersionUID = 1L;
 
-		when(router.invoke(anyString(), Mockito.any(HttpMethod.class), Mockito.any(HttpServletRequest.class), Mockito.any(HttpServletResponse.class))).thenReturn("View Name");
+			@Override
+			protected Thundr createAndStartThundr() {
+				Thundr thundr = new Thundr();
+				thundr.injectionContext.inject(ThundrServletTest.class.getPackage().getName() + ".TestApplicationModule").named(ModulesModule.ApplicationClassProperty).as(String.class);
+				thundr.start();
+				return thundr;
+			}
+		};
+		servlet.init(config);
+		servlet.thundr = spy(servlet.thundr);
+		thundr = servlet.thundr;
+		injectionContext = thundr.injectionContext;
+
+		when(router.invoke(Mockito.any(Request.class), Mockito.any(Response.class))).thenReturn("View Name");
 		injectionContext.inject(router).as(Router.class);
 
 		viewResolverRegistry = new ViewResolverRegistry();
 		viewResolverRegistry.addResolver(String.class, new ViewResolver<String>() {
 			@Override
-			public void resolve(HttpServletRequest req, HttpServletResponse resp, String viewResult) {
+			public void resolve(Request req, Response resp, String viewResult) {
 			}
 		});
 		injectionContext.inject(viewResolverRegistry).as(ViewResolverRegistry.class);
 	}
 
+	@Ignore("TODO - NAO - This should be relocated or reinstituted")
 	@Test
-	public void shouldInitializeInjectionContextOnServletInit() throws ServletException {
+	public void shouldInitializeThundrServletInit() throws ServletException {
+		// reset the servlet state which was already initialised in the before() block
+		servlet.thundr = null;
+
 		ServletContext servletContext = new MockServletContext();
 		ServletConfig config = new MockServletConfig(servletContext);
-		ThundrServlet servlet = new ThundrServlet();
-		servlet = spy(servlet);
-		when(servlet.getBaseModules()).thenReturn(Collections.<Class<? extends Module>> emptyList());
+
 		servlet.init(config);
-		UpdatableInjectionContext injectionContext = getInjectionContextFromServlet(servlet);
+		UpdatableInjectionContext injectionContext = servlet.thundr.injectionContext;
 		assertThat(injectionContext, is(notNullValue()));
 		assertThat(injectionContext.get(ServletContext.class), is(servletContext));
 		assertThat(servletContext.getAttribute("injectionContext"), is((Object) injectionContext));
-
-		verify(servlet).initInjectionContext(servletContext);
-		verify(servlet).initModules(eq(injectionContext), Mockito.any(Modules.class));
 	}
 
-	@Test
-	public void shouldDependOnBaseModulesAndStartThem() {
-		Modules modules = mock(Modules.class);
-		servlet.initModules(injectionContext, modules);
-		verify(modules).addModule(ConfigurationModule.class);
-		verify(modules).addModule(ModulesModule.class);
-		verify(modules).addModule(TransformerModule.class);
-		verify(modules).addModule(TransformerModule.class);
-		verify(modules).runStartupLifecycle(injectionContext);
-	}
-
-	@SuppressWarnings("serial")
 	@Test
 	public void shouldWrapExceptionInServletException() throws ServletException {
 		thrown.expect(ServletException.class);
 
 		ServletContext servletContext = new MockServletContext();
 		ServletConfig config = new MockServletConfig(servletContext);
-		ThundrServlet servlet = new ThundrServlet() {
-			@Override
-			protected java.util.List<java.lang.Class<? extends Module>> getBaseModules() {
-				throw new RuntimeException("Expected");
-			};
-		};
-		servlet.init(config);
-	}
+		servlet = spy(servlet);
+		doThrow(new RuntimeException("Expected")).when(servlet).createAndStartThundr();
 
-	@SuppressWarnings("unchecked")
-	@Test
-	public void shouldUseBasicSetOfInjectionConfiguraitons() {
-		assertThat(servlet.getBaseModules(), Matchers.<Class<? extends Module>> hasItems(ConfigurationModule.class, TransformerModule.class, ModulesModule.class, RouterModule.class));
+		servlet.init(config);
 	}
 
 	@Test
@@ -259,8 +251,8 @@ public class ThundrServletTest {
 		servlet = spy(servlet);
 		servlet.service(req, resp);
 		// we expect the response to be wrapped in the NoBodyResponse in the base HttpServlet class
-		verify(servlet).applyRoute(Mockito.eq(HttpMethod.GET), Mockito.eq(req), Mockito.any(HttpServletResponse.class));
 		verify(servlet).doGet(Mockito.eq(req), Mockito.any(HttpServletResponse.class));
+		verify(servlet).applyRoute(Mockito.eq(HttpMethod.GET), Mockito.eq(req), Mockito.any(HttpServletResponse.class));
 	}
 
 	@Test
@@ -275,118 +267,27 @@ public class ThundrServletTest {
 	}
 
 	@Test
-	public void shouldFindViewForResolvedRoute() throws ServletException, IOException {
-		viewResolverRegistry.addResolver(String.class, new ViewResolver<String>() {
-			@Override
-			public void resolve(HttpServletRequest req, HttpServletResponse resp, String viewResult) {
-				resp.setStatus(123);
-			}
-		});
-
-		servlet.applyRoute(HttpMethod.GET, new MockHttpServletRequest("/get/"), resp);
-		assertThat(resp.status(), is(123));
-	}
-
-	@Test
-	public void shouldNotResolveViewWhenNullViewResultReturned() throws ServletException, IOException {
-		when(router.invoke(anyString(), Mockito.any(HttpMethod.class), Mockito.any(HttpServletRequest.class), Mockito.any(HttpServletResponse.class))).thenReturn(null);
-
-		viewResolverRegistry.addResolver(Object.class, new ViewResolver<Object>() {
-			@Override
-			public void resolve(HttpServletRequest req, HttpServletResponse resp, Object viewResult) {
-				resp.setStatus(123);
-			}
-		});
-
-		servlet.applyRoute(HttpMethod.GET, new MockHttpServletRequest("/get/"), resp);
-		assertThat(resp.status(), is(-1));
-	}
-
-	@Test
-	public void shouldCatchExceptionsFromViewResolversAndResolveExceptionWithExceptionView() throws ServletException, IOException {
-		when(router.invoke(anyString(), Mockito.any(HttpMethod.class), Mockito.any(HttpServletRequest.class), Mockito.any(HttpServletResponse.class))).thenReturn("View Name");
-
-		viewResolverRegistry.addResolver(String.class, new ViewResolver<String>() {
-			@Override
-			public void resolve(HttpServletRequest req, HttpServletResponse resp, String viewResult) {
-				throw new RuntimeException("Intentional Exception");
-			}
-		});
-		viewResolverRegistry.addResolver(Exception.class, new ViewResolver<Exception>() {
-			@Override
-			public void resolve(HttpServletRequest req, HttpServletResponse resp, Exception viewResult) {
-				resp.setStatus(5678);
-			}
-		});
-
-		servlet.applyRoute(HttpMethod.GET, new MockHttpServletRequest("/get/"), resp);
-		assertThat(resp.status(), is(5678));
-	}
-
-	@Test
-	public void shouldCatchActionExceptionsFromViewResolversAndUnwrapThemBeforeResolvoingWithExceptionView() throws ServletException, IOException {
-		when(router.invoke(anyString(), Mockito.any(HttpMethod.class), Mockito.any(HttpServletRequest.class), Mockito.any(HttpServletResponse.class))).thenReturn("View Name");
-
-		viewResolverRegistry.addResolver(String.class, new ViewResolver<String>() {
-			@Override
-			public void resolve(HttpServletRequest req, HttpServletResponse resp, String viewResult) {
-				throw new RouteResolverException(new RuntimeException("Intentional Exception"), "");
-			}
-		});
-		viewResolverRegistry.addResolver(RuntimeException.class, new ViewResolver<RuntimeException>() {
-			@Override
-			public void resolve(HttpServletRequest req, HttpServletResponse resp, RuntimeException viewResult) {
-				resp.setStatus(5678);
-			}
-		});
-
-		servlet.applyRoute(HttpMethod.GET, new MockHttpServletRequest("/get/"), resp);
-		assertThat(resp.status(), is(5678));
-	}
-
-	@Test
-	public void shouldCatchExceptionsFromViewResolversButDoNothingWhenResponseAlreadyCommitted() throws ServletException, IOException {
-		when(router.invoke(anyString(), Mockito.any(HttpMethod.class), Mockito.any(HttpServletRequest.class), Mockito.any(HttpServletResponse.class))).thenThrow(
-				new RuntimeException("Expected exception"));
-
-		viewResolverRegistry.addResolver(Exception.class, new ViewResolver<Exception>() {
-			@Override
-			public void resolve(HttpServletRequest req, HttpServletResponse resp, Exception viewResult) {
-				resp.setStatus(5678);
-			}
-		});
-
-		resp.sendError(1234);
-		servlet.applyRoute(HttpMethod.GET, new MockHttpServletRequest("/get/"), resp);
-		assertThat(resp.status(), is(1234));
-	}
-
-	@Test
-	public void shouldThrowViewResolverNotFoundIfNoMatchingViewResolverExists() throws ServletException, IOException {
-		thrown.expect(ViewResolverNotFoundException.class);
-
-		when(router.invoke(anyString(), Mockito.any(HttpMethod.class), Mockito.any(HttpServletRequest.class), Mockito.any(HttpServletResponse.class))).thenReturn(false);
-		servlet.applyRoute(HttpMethod.GET, new MockHttpServletRequest("/get/"), resp);
-	}
-
-	@Test
 	public void shouldSetAndClearRequestAndResponseIntoRequestScope() throws ServletException, IOException {
 		final MockHttpServletRequest req = new MockHttpServletRequest();
 		req.method("GET");
-		servlet = spy(servlet);
+		MutableRequestContainer requestContainer = injectionContext.get(MutableRequestContainer.class);
 
-		when(router.invoke(anyString(), Mockito.any(HttpMethod.class), Mockito.any(HttpServletRequest.class), Mockito.any(HttpServletResponse.class))).thenAnswer(new Answer<String>() {
+		doAnswer(new Answer<String>() {
 			@Override
 			public String answer(InvocationOnMock invocation) throws Throwable {
-				assertThat(RequestThreadLocal.getRequest(), is((HttpServletRequest) req));
-				assertThat(RequestThreadLocal.getResponse(), is((HttpServletResponse) resp));
+				Request request = requestContainer.getRequest();
+				Response response = requestContainer.getResponse();
+				assertThat(Cast.is(request, ServletRequest.class), is(true));
+				assertThat(Cast.is(response, ServletResponse.class), is(true));
+				assertThat(request.getRawRequest(HttpServletRequest.class), is(req));
+				assertThat(response.getRawResponse(HttpServletResponse.class), is(resp));
 				return "view";
 			}
-		});
+		}).when(thundr).applyRoute(Mockito.any(Request.class), Mockito.any(Response.class), Mockito.any(ViewRenderer.class));
 
 		servlet.service(req, resp);
-		assertThat(RequestThreadLocal.getRequest(), is(nullValue()));
-		assertThat(RequestThreadLocal.getResponse(), is(nullValue()));
+		assertThat(requestContainer.getRequest(), is(nullValue()));
+		assertThat(requestContainer.getResponse(), is(nullValue()));
 	}
 
 	@Test
@@ -394,36 +295,35 @@ public class ThundrServletTest {
 		thrown.expect(ViewResolverNotFoundException.class);
 		final MockHttpServletRequest req = new MockHttpServletRequest();
 		req.method("GET");
-		servlet = spy(servlet);
 
-		when(router.invoke(anyString(), Mockito.any(HttpMethod.class), Mockito.any(HttpServletRequest.class), Mockito.any(HttpServletResponse.class))).thenAnswer(new Answer<String>() {
+		MutableRequestContainer requestContainer = injectionContext.get(MutableRequestContainer.class);
+
+		doAnswer(new Answer<String>() {
 			@Override
 			public String answer(InvocationOnMock invocation) throws Throwable {
-				assertThat(RequestThreadLocal.getRequest(), is((HttpServletRequest) req));
-				assertThat(RequestThreadLocal.getResponse(), is((HttpServletResponse) resp));
+				Request request = requestContainer.getRequest();
+				Response response = requestContainer.getResponse();
+				assertThat(Cast.is(request, ServletRequest.class), is(true));
+				assertThat(Cast.is(response, ServletResponse.class), is(true));
+				assertThat(request.getRawRequest(HttpServletRequest.class), is(req));
+				assertThat(response.getRawResponse(HttpServletResponse.class), is(resp));
 				throw new ViewResolverNotFoundException("Intentional");
 			}
-		});
+		}).when(thundr).applyRoute(Mockito.any(Request.class), Mockito.any(Response.class), Mockito.any(ViewRenderer.class));
 
-		servlet.service(req, resp);
-		assertThat(RequestThreadLocal.getRequest(), is(nullValue()));
-		assertThat(RequestThreadLocal.getResponse(), is(nullValue()));
+		try {
+			servlet.service(req, resp);
+		} catch (RuntimeException e) {
+			assertThat(RequestThreadLocal.getRequest(), is(nullValue()));
+			assertThat(RequestThreadLocal.getResponse(), is(nullValue()));
+			throw e;
+		}
 	}
 
 	@Test
 	public void shouldStopModulesOnDestroy() {
-		Modules modules = mock(Modules.class);
-		TestSupport.setField(servlet, "modules", modules);
 		servlet.destroy();
 
-		verify(modules).runStopLifecycle(injectionContext);
-	}
-
-	private void setInjectionContextIntoServlet(UpdatableInjectionContext injectionContext) {
-		TestSupport.setField(servlet, "injectionContext", injectionContext);
-	}
-
-	private UpdatableInjectionContext getInjectionContextFromServlet(ThundrServlet servlet) {
-		return TestSupport.getField(servlet, "injectionContext");
+		verify(thundr).stop();
 	}
 }

@@ -36,15 +36,15 @@ import org.junit.Test;
 
 import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.introspection.ParameterDescription;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
+import com.threewks.thundr.request.mock.MockRequest;
+import com.threewks.thundr.request.mock.MockResponse;
 import com.threewks.thundr.transformer.TransformerManager;
 
 public class RequestHeaderBinderTest {
 	private Map<ParameterDescription, Object> parameterDescriptions;
 	private HashMap<String, String> pathVariables;
-	private MockHttpServletRequest request = new MockHttpServletRequest();
-	private MockHttpServletResponse response = new MockHttpServletResponse();
+	private MockRequest request = new MockRequest();
+	private MockResponse response = new MockResponse();
 	private ParameterBinderRegistry parameterBinderRegistry;
 	private RequestHeaderBinder binder;
 
@@ -87,19 +87,19 @@ public class RequestHeaderBinderTest {
 		parameterDescriptions.put(param12, null);
 		parameterDescriptions.put(param13, null);
 
-		request.header("param1", "string-value");
-		request.header("param2", "2");
-		request.header("param3", "3");
-		request.header("param4", "4.0");
-		request.header("param5", "5.0");
-		request.header("param6", "6");
-		request.header("param7", "7");
-		request.header("param8", "8.8");
-		request.header("param9", "9.9");
-		request.header("param10", "10");
-		request.header("param11", "11");
-		request.header("param12", "12.00");
-		request.header("param13", "13");
+		request.withHeader("param1", "string-value");
+		request.withHeader("param2", "2");
+		request.withHeader("param3", "3");
+		request.withHeader("param4", "4.0");
+		request.withHeader("param5", "5.0");
+		request.withHeader("param6", "6");
+		request.withHeader("param7", "7");
+		request.withHeader("param8", "8.8");
+		request.withHeader("param9", "9.9");
+		request.withHeader("param10", "10");
+		request.withHeader("param11", "11");
+		request.withHeader("param12", "12.00");
+		request.withHeader("param13", "13");
 
 		binder.bindAll(parameterDescriptions, request, response, pathVariables);
 
@@ -127,9 +127,9 @@ public class RequestHeaderBinderTest {
 		parameterDescriptions.put(param1, null);
 		parameterDescriptions.put(param2, null);
 
-		request.header("param1", "string-value");
-		request.header("param2", Color.BLACK.toString());
-		request.header("param3", "3");
+		request.withHeader("param1", "string-value");
+		request.withHeader("param2", Color.BLACK.toString());
+		request.withHeader("param3", "3");
 
 		binder.bindAll(parameterDescriptions, request, response, pathVariables);
 
@@ -152,9 +152,9 @@ public class RequestHeaderBinderTest {
 		parameterDescriptions.put(param2, null);
 		parameterDescriptions.put(param3, null);
 
-		request.header("param1", "1", "one");
-		request.header("param2", "2", "22");
-		request.header("param3", "3", "three");
+		request.withHeader("param1", "1", "one");
+		request.withHeader("param2", "2", "22");
+		request.withHeader("param3", "3", "three");
 
 		binder.bindAll(parameterDescriptions, request, response, pathVariables);
 
@@ -193,19 +193,19 @@ public class RequestHeaderBinderTest {
 		parameterDescriptions.put(param12, null);
 		parameterDescriptions.put(param13, null);
 
-		request.header("X-Http-Header-Param1", "string-value");
-		request.header("x-http-header-param2", "2");
-		request.header("X-HTTP-HEADER-PARAM3", "3");
-		request.header("X-Http-Header-Param4", "4.0");
-		request.header("X-Http-Header-Param5", "5.0");
-		request.header("X-Http-Header-Param6", "6");
-		request.header("X-Http-Header-Param7", "7");
-		request.header("X-Http-Header-Param8", "8.8");
-		request.header("X-Http-Header-Param9", "9.9");
-		request.header("X-Http-Header-Param10", "10");
-		request.header("X-Http-Header-Param11", "11");
-		request.header("X-Http-Header-Param12", "12.00");
-		request.header("X-Http-Header-Param13", "13");
+		request.withHeader("X-Http-Header-Param1", "string-value");
+		request.withHeader("x-http-header-param2", "2");
+		request.withHeader("X-HTTP-HEADER-PARAM3", "3");
+		request.withHeader("X-Http-Header-Param4", "4.0");
+		request.withHeader("X-Http-Header-Param5", "5.0");
+		request.withHeader("X-Http-Header-Param6", "6");
+		request.withHeader("X-Http-Header-Param7", "7");
+		request.withHeader("X-Http-Header-Param8", "8.8");
+		request.withHeader("X-Http-Header-Param9", "9.9");
+		request.withHeader("X-Http-Header-Param10", "10");
+		request.withHeader("X-Http-Header-Param11", "11");
+		request.withHeader("X-Http-Header-Param12", "12.00");
+		request.withHeader("X-Http-Header-Param13", "13");
 
 		binder.bindAll(parameterDescriptions, request, response, pathVariables);
 

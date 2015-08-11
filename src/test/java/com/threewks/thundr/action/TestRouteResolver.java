@@ -15,29 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.route.rewrite;
+package com.threewks.thundr.action;
 
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 import com.threewks.thundr.route.HttpMethod;
 import com.threewks.thundr.route.RouteResolver;
 import com.threewks.thundr.route.RouteResolverException;
-import com.threewks.thundr.route.Router;
 
-public class RewriteRouteResolver implements RouteResolver<Rewrite> {
-	private Router router;
-
-	public RewriteRouteResolver(Router router) {
-		this.router = router;
-	}
-
+public class TestRouteResolver implements RouteResolver<TestAction> {
 	@Override
-	public Object resolve(Rewrite action, HttpMethod method, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws RouteResolverException {
-		String rewriteTo = action.getRewriteTo(pathVars);
-		return router.invoke(rewriteTo, method, req, resp);
+	public Object resolve(TestAction action, HttpMethod method, Request req, Response resp, Map<String, String> pathVars) throws RouteResolverException {
+		return null;
 	}
-
 }

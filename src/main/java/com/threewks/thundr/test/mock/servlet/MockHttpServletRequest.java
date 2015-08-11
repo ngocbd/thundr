@@ -27,23 +27,36 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.Principal;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import javax.servlet.AsyncContext;
+import javax.servlet.DispatcherType;
+import javax.servlet.ReadListener;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpUpgradeHandler;
+import javax.servlet.http.Part;
 
 import com.atomicleopard.expressive.Cast;
 import com.threewks.thundr.http.ContentType;
 
-@SuppressWarnings("rawtypes")
+// TODO - v3 - consolidate 'with' style setters and apply normal getters
+
 public class MockHttpServletRequest implements HttpServletRequest {
 	private Map<String, Object> attributes = new HashMap<String, Object>();
 	private Map<String, String[]> parameters = new HashMap<String, String[]>();
@@ -168,7 +181,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 	}
 
 	@Override
-	public Enumeration getAttributeNames() {
+	public Enumeration<String> getAttributeNames() {
 		return Collections.enumeration(attributes.keySet());
 	}
 
@@ -184,6 +197,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public int getContentLength() {
+		return this.content == null ? 0 : content.getBytes().length;
+	}
+
+	@Override
+	public long getContentLengthLong() {
 		return this.content == null ? 0 : content.getBytes().length;
 	}
 
@@ -205,6 +223,20 @@ public class MockHttpServletRequest implements HttpServletRequest {
 			public int read() throws IOException {
 				return inputStream.read();
 			}
+
+			@Override
+			public boolean isFinished() {
+				return false;
+			}
+
+			@Override
+			public boolean isReady() {
+				return true;
+			}
+
+			@Override
+			public void setReadListener(ReadListener readListener) {
+			}
 		};
 	}
 
@@ -215,7 +247,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 	}
 
 	@Override
-	public Enumeration getParameterNames() {
+	public Enumeration<String> getParameterNames() {
 		return Collections.enumeration(parameters.keySet());
 	}
 
@@ -225,7 +257,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 	}
 
 	@Override
-	public Map getParameterMap() {
+	public Map<String, String[]> getParameterMap() {
 		return parameters;
 	}
 
@@ -284,7 +316,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 	}
 
 	@Override
-	public Enumeration getLocales() {
+	public Enumeration<Locale> getLocales() {
 		return Collections.enumeration(Collections.emptyList());
 	}
 
@@ -372,19 +404,27 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public String getHeader(String name) {
-		String[] values = headers.get(name);
-		return values == null ? null : values[0];
+		Enumeration<String> headers = getHeaders(name);
+		return headers.hasMoreElements() ? headers.nextElement() : null;
 	}
 
 	@Override
-	public Enumeration getHeaders(String name) {
-		String[] values = headers.get(name);
-		return values == null ? null : Collections.enumeration(list(values));
-	}
-
-	@Override
-	public Enumeration getHeaderNames() {
+	public Enumeration<String> getHeaderNames() {
 		return Collections.enumeration(headers.keySet());
+	}
+
+	@Override
+	public Enumeration<String> getHeaders(String name) {
+		// @formatter:off
+		Entry<String, String[]> entry = headers
+				.entrySet()
+				.stream()
+				.filter(e -> e.getKey().equalsIgnoreCase(name))
+				.findFirst()
+				.orElse(null);
+		// @formatter:on
+		String[] values = entry == null ? null : entry.getValue();
+		return values == null ? Collections.emptyEnumeration() : Collections.enumeration(list(values));
 	}
 
 	@Override
@@ -468,6 +508,46 @@ public class MockHttpServletRequest implements HttpServletRequest {
 	}
 
 	@Override
+	public ServletContext getServletContext() {
+		return session == null ? null : session.getServletContext();
+	}
+
+	@Override
+	public AsyncContext startAsync() throws IllegalStateException {
+		return null;
+	}
+
+	@Override
+	public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) throws IllegalStateException {
+		return null;
+	}
+
+	@Override
+	public boolean isAsyncStarted() {
+		return false;
+	}
+
+	@Override
+	public boolean isAsyncSupported() {
+		return false;
+	}
+
+	@Override
+	public AsyncContext getAsyncContext() {
+		return null;
+	}
+
+	@Override
+	public DispatcherType getDispatcherType() {
+		return null;
+	}
+
+	@Override
+	public String changeSessionId() {
+		return null;
+	}
+
+	@Override
 	public boolean isRequestedSessionIdValid() {
 		return true;
 	}
@@ -485,5 +565,34 @@ public class MockHttpServletRequest implements HttpServletRequest {
 	@Override
 	public boolean isRequestedSessionIdFromUrl() {
 		return false;
+	}
+
+	@Override
+	public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
+		return true;
+	}
+
+	@Override
+	public void login(String username, String password) throws ServletException {
+	}
+
+	@Override
+	public void logout() throws ServletException {
+	}
+
+	// TODO - v3 - if we can support parts natively we can clean up the multipart binder a lot
+	@Override
+	public Collection<Part> getParts() throws IOException, ServletException {
+		return null;
+	}
+
+	@Override
+	public Part getPart(String name) throws IOException, ServletException {
+		return null;
+	}
+
+	@Override
+	public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
+		return null;
 	}
 }

@@ -19,28 +19,27 @@ package com.threewks.thundr.route;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
+import com.threewks.thundr.request.mock.MockRequest;
 import com.threewks.thundr.route.redirect.Redirect;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
 
 public class RouterTest {
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
 	private Router router;
 
-	private MockHttpServletRequest req = new MockHttpServletRequest();
-	private MockHttpServletResponse resp = new MockHttpServletResponse();
+	private Request req = new MockRequest(HttpMethod.GET, "/path");
+	private Response resp = mock(Response.class);
 
 	@Before
 	public void before() {
@@ -97,7 +96,9 @@ public class RouterTest {
 	@Test
 	public void shouldInvokeRouteByReturningTheResultOfTheAction() {
 		router.add(HttpMethod.GET, "/route", new TestResolve("actionName"), null);
-		Object result = router.invoke("/route", HttpMethod.GET, req, resp);
+		req = new MockRequest(HttpMethod.GET, "/route");
+		
+		Object result = router.invoke(req, resp);
 		assertThat(result, is(notNullValue()));
 		assertThat(result instanceof TestResolve, is(true));
 	}
@@ -105,8 +106,8 @@ public class RouterTest {
 	@Test
 	public void shouldThrowRouteNotFoundExceptionWhenRouteIsntMatched() {
 		thrown.expect(RouteNotFoundException.class);
-		thrown.expectMessage("No route matching the request GET /route\n");
-		router.invoke("/route", HttpMethod.GET, req, resp);
+		thrown.expectMessage("No route matching the request GET /path\n");
+		router.invoke(req, resp);
 	}
 
 	@Test
@@ -294,7 +295,7 @@ public class RouterTest {
 
 	private static class TestRouteResolver implements RouteResolver<TestResolve> {
 		@Override
-		public TestResolve resolve(TestResolve action, HttpMethod method, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws RouteResolverException {
+		public TestResolve resolve(TestResolve action, HttpMethod method, Request req, Response resp, Map<String, String> pathVars) throws RouteResolverException {
 			return action;
 		}
 	}

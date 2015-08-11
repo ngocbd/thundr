@@ -26,7 +26,6 @@ import java.math.BigInteger;
 import java.util.Date;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.junit.Before;
@@ -34,15 +33,17 @@ import org.junit.Test;
 
 import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.request.mock.MockRequest;
+import com.threewks.thundr.request.mock.MockResponse;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
 import com.threewks.thundr.test.mock.servlet.MockHttpSession;
 import com.threewks.thundr.transformer.TransformerManager;
 
 public class SessionAttributeBinderTest {
-	private MockHttpServletRequest req = new MockHttpServletRequest();
 	private HttpSession session = new MockHttpSession();
-	private HttpServletResponse resp = new MockHttpServletResponse();
+	private MockHttpServletRequest servletRequest = new MockHttpServletRequest().session(session);
+	private MockRequest request = new MockRequest().withRawRequest(servletRequest);
+	private MockResponse response = new MockResponse();
 	private Map<String, String> pathVariables = map();
 	private Map<ParameterDescription, Object> bindings = map();
 	private ParameterBinderRegistry parameterBinderRegistry;
@@ -53,7 +54,6 @@ public class SessionAttributeBinderTest {
 		parameterBinderRegistry = new ParameterBinderRegistry(TransformerManager.createWithDefaults());
 		ParameterBinderRegistry.addDefaultBinders(parameterBinderRegistry);
 		binder = new SessionAttributeBinder(parameterBinderRegistry);
-		req.session(session);
 	}
 
 	@Test
@@ -61,7 +61,7 @@ public class SessionAttributeBinderTest {
 		ParameterDescription varParam = new ParameterDescription("var", String.class);
 		bindings.put(varParam, null);
 		session.setAttribute("var", "expected");
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, request, response, pathVariables);
 
 		assertThat(bindings.get(varParam), is((Object) "expected"));
 	}
@@ -71,7 +71,7 @@ public class SessionAttributeBinderTest {
 		ParameterDescription varParam = new ParameterDescription("var", String.class);
 		bindings.put(varParam, "original");
 		session.setAttribute("var", "overridden");
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, request, response, pathVariables);
 
 		assertThat(bindings.get(varParam), is((Object) "original"));
 	}
@@ -81,7 +81,7 @@ public class SessionAttributeBinderTest {
 		ParameterDescription varParam = new ParameterDescription("var", Integer.class);
 		bindings.put(varParam, null);
 		session.setAttribute("var", "123");
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, request, response, pathVariables);
 
 		assertThat(bindings.get(varParam), is((Object) 123));
 	}
@@ -97,7 +97,7 @@ public class SessionAttributeBinderTest {
 		session.setAttribute("var1", "first");
 		session.setAttribute("var2", "second");
 		session.setAttribute("var3", "third");
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, request, response, pathVariables);
 
 		assertThat(bindings.get(varParam1), is((Object) "first"));
 		assertThat(bindings.get(varParam2), is((Object) "second"));
@@ -115,7 +115,7 @@ public class SessionAttributeBinderTest {
 		session.setAttribute("integer", 123);
 		session.setAttribute("date", new Date(1));
 		session.setAttribute("string", "stringVal");
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, request, response, pathVariables);
 
 		assertThat(bindings.get(varParam1), is((Object) 123));
 		assertThat(bindings.get(varParam2), is((Object) new Date(1)));
@@ -167,7 +167,7 @@ public class SessionAttributeBinderTest {
 		session.setAttribute("param12", "12.00");
 		session.setAttribute("param13", "13");
 
-		binder.bindAll(parameterDescriptions, req, resp, pathVariables);
+		binder.bindAll(parameterDescriptions, request, response, pathVariables);
 
 		assertThat(parameterDescriptions.get(param1), is((Object) "string-value"));
 		assertThat(parameterDescriptions.get(param2), is((Object) 2));

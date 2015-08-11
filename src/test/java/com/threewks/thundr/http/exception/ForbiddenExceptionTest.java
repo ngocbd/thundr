@@ -20,9 +20,9 @@ package com.threewks.thundr.http.exception;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.junit.Test;
+
+import com.threewks.thundr.http.StatusCode;
 
 public class ForbiddenExceptionTest {
 
@@ -31,7 +31,7 @@ public class ForbiddenExceptionTest {
 		ForbiddenException forbiddenException = new ForbiddenException("String %s", "format");
 		assertThat(forbiddenException.getMessage(), is("String format"));
 		assertThat(forbiddenException.getCause(), is(nullValue()));
-		assertThat(forbiddenException.getStatus(), is(HttpServletResponse.SC_FORBIDDEN));
+		assertThat(forbiddenException.getStatus(), is(StatusCode.Forbidden));
 	}
 
 	@Test
@@ -40,6 +40,6 @@ public class ForbiddenExceptionTest {
 		ForbiddenException forbiddenException = new ForbiddenException(exception, "String %s", "format");
 		assertThat(forbiddenException.getMessage(), is("String format"));
 		assertThat(forbiddenException.getCause(), is((Throwable) exception));
-		assertThat(forbiddenException.getStatus(), is(HttpServletResponse.SC_FORBIDDEN));
+		assertThat(forbiddenException.getStatus(), is(StatusCode.Forbidden));
 	}
 }

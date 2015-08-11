@@ -20,9 +20,10 @@ package com.threewks.thundr.route.cors;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -30,6 +31,8 @@ import com.atomicleopard.expressive.ETransformer;
 import com.atomicleopard.expressive.Expressive;
 import com.atomicleopard.expressive.transform.CollectionTransformer;
 import com.threewks.thundr.http.Header;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 import com.threewks.thundr.route.HttpMethod;
 import com.threewks.thundr.route.controller.Filter;
 
@@ -97,33 +100,29 @@ public class CorsFilter implements Filter {
 	}
 
 	@Override
-	public <T> T before(HttpMethod method, HttpServletRequest req, HttpServletResponse resp) {
+	public <T> T before(Request req, Response resp) {
 		String origin = origins == null ? "*" : origin(req, origins);
-		resp.addHeader(Header.Vary, StringUtils.join(vary(), ", "));
+		resp.withHeader(Header.Vary, StringUtils.join(vary(), ", "));
 		if (origin != null) {
-			resp.addHeader(Header.AccessControlAllowOrigin, origin);
-			if (withCredentials) {
-				resp.addHeader(Header.AccessControlAllowCredentials, "true");
-			}
 			List<String> allowedHeaders = determineAllowedHeaders(headers, req);
-			if (Expressive.isNotEmpty(allowedHeaders)) {
-				resp.addHeader(Header.AccessControlAllowHeaders, StringUtils.join(allowedHeaders, ", "));
-			}
 			String requestedMethod = req.getHeader(Header.AccessControlRequestMethod);
-			if (StringUtils.isNotBlank(requestedMethod)) {
-				resp.addHeader(Header.AccessControlAllowMethods, requestedMethod);
-			}
+			// @formatter:off
+			resp.withHeader(Header.AccessControlAllowOrigin, origin)
+				.withHeader(Header.AccessControlAllowCredentials, "true", withCredentials)
+				.withHeader(Header.AccessControlAllowHeaders, StringUtils.join(allowedHeaders, ", "), Expressive.isNotEmpty(allowedHeaders))
+				.withHeader(Header.AccessControlAllowMethods, requestedMethod, StringUtils.isNotBlank(requestedMethod));
+			// @formatter:on
 		}
 		return null;
 	}
 
 	@Override
-	public <T> T after(HttpMethod method, Object view, HttpServletRequest req, HttpServletResponse resp) {
+	public <T> T after(Object view, Request req, Response resp) {
 		return null;
 	}
 
 	@Override
-	public <T> T exception(HttpMethod method, Exception e, HttpServletRequest req, HttpServletResponse resp) {
+	public <T> T exception(Exception e, Request req, Response resp) {
 		return null;
 	}
 
@@ -136,17 +135,25 @@ public class CorsFilter implements Filter {
 		return Arrays.asList(Header.Origin, Header.AccessControlRequestMethod, Header.AccessControlRequestHeaders);
 	}
 
-	protected List<String> determineAllowedHeaders(List<String> headers, HttpServletRequest req) {
-		List<String> requestedHeadersCombined = lowerCaseAll.from(Header.getHeaders(Header.AccessControlRequestHeaders, req));
-		List<String> requestedHeaders = new ArrayList<String>();
-		for (String combined : requestedHeadersCombined) {
-			String[] uncombined = StringUtils.split(combined, ", ");
-			requestedHeaders.addAll(Arrays.asList(uncombined));
+	protected List<String> determineAllowedHeaders(List<String> headers, Request req) {
+		List<String> allowedHeaders = new ArrayList<String>();
+		List<String> requestedHeaders = req.getHeaders(Header.AccessControlRequestHeaders);
+		if (requestedHeaders != null) {
+			// @formatter:off
+			requestedHeaders
+				.stream()
+				.map(StringUtils::lowerCase)
+				.forEach(combined -> {
+					// TODO - v3 - this can probably just be chained into the stream and returned
+					String[] uncombined = StringUtils.split(combined, ", ");
+					allowedHeaders.addAll(Arrays.asList(uncombined));	
+				});
+			// @formatter:on
+			if (headers != null) {
+				allowedHeaders.retainAll(headers);
+			}
 		}
-		if (headers != null) {
-			requestedHeaders.retainAll(headers);
-		}
-		return requestedHeaders;
+		return allowedHeaders;
 	}
 
 	/**
@@ -158,7 +165,7 @@ public class CorsFilter implements Filter {
 	 * @param origins
 	 * @return
 	 */
-	protected String origin(HttpServletRequest req, List<String> origins) {
+	protected String origin(Request req, List<String> origins) {
 		String originHeader = req.getHeader(Header.Origin);
 		String origin = StringUtils.substringAfter(originHeader, "//");
 		return origins.contains(origin) ? originHeader : null;

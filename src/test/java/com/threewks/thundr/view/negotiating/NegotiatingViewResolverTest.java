@@ -20,13 +20,10 @@ package com.threewks.thundr.view.negotiating;
 import static com.atomicleopard.expressive.Expressive.list;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,9 +31,11 @@ import org.junit.rules.ExpectedException;
 
 import com.atomicleopard.expressive.Cast;
 import com.threewks.thundr.http.Header;
+import com.threewks.thundr.http.StatusCode;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.mock.MockRequest;
+import com.threewks.thundr.request.mock.MockResponse;
 import com.threewks.thundr.test.TestSupport;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
 import com.threewks.thundr.view.ViewResolverRegistry;
 import com.threewks.thundr.view.json.JsonNegotiator;
 import com.threewks.thundr.view.json.JsonView;
@@ -56,8 +55,8 @@ public class NegotiatingViewResolverTest {
 	private ViewResolverRegistry viewResolverRegistry = new ViewResolverRegistry();
 	private ViewNegotiatorRegistry viewNegotiatorRegistry = new ViewNegotiatorRegistryImpl();
 	private NegotiatingViewResolver viewResolver = new NegotiatingViewResolver(viewResolverRegistry, viewNegotiatorRegistry);
-	private MockHttpServletRequest req = new MockHttpServletRequest();
-	private MockHttpServletResponse resp = new MockHttpServletResponse();
+	private MockRequest req = new MockRequest();
+	private MockResponse resp = new MockResponse();
 
 	@Test
 	public void shouldRetainViewResolverRegistry() {
@@ -69,7 +68,7 @@ public class NegotiatingViewResolverTest {
 	public void shouldReturnNegotiatedView() {
 		viewNegotiatorRegistry.addNegotiator("application/json", new JsonNegotiator());
 
-		HttpServletRequest req = new MockHttpServletRequest().header(Header.Accept, "application/json");
+		Request req = new MockRequest().withHeader(Header.Accept, "application/json");
 		Object payload = "Test";
 		Object view = viewResolver.determineView(req, new NegotiatingView(payload));
 		assertThat(view instanceof JsonView, is(true));
@@ -82,7 +81,7 @@ public class NegotiatingViewResolverTest {
 		viewNegotiatorRegistry.addNegotiator("application/json", new JsonNegotiator());
 		viewNegotiatorRegistry.addNegotiator("application/javascript", new JsonpNegotiator());
 
-		HttpServletRequest req = new MockHttpServletRequest().header(Header.Accept, "application/json;q=0.7,application/javascript;q=0.8");
+		Request req = new MockRequest().withHeader(Header.Accept, "application/json;q=0.7,application/javascript;q=0.8");
 		Object payload = "Test";
 		Object view = viewResolver.determineView(req, new NegotiatingView(payload));
 		assertThat(view instanceof JsonpView, is(true));
@@ -95,7 +94,7 @@ public class NegotiatingViewResolverTest {
 		viewNegotiatorRegistry.addNegotiator("application/json", new JsonNegotiator());
 		viewNegotiatorRegistry.addNegotiator("application/javascript", new JsonpNegotiator());
 
-		HttpServletRequest req = new MockHttpServletRequest().header(Header.Accept, "application/json;q=0.9,application/javascript");
+		Request req = new MockRequest().withHeader(Header.Accept, "application/json;q=0.9,application/javascript");
 		Object payload = "Test";
 		Object view = viewResolver.determineView(req, new NegotiatingView(payload));
 		assertThat(view instanceof JsonpView, is(true));
@@ -108,7 +107,7 @@ public class NegotiatingViewResolverTest {
 		viewNegotiatorRegistry.addNegotiator("application/json", new JsonNegotiator());
 		viewNegotiatorRegistry.addNegotiator("application/javascript", new JsonpNegotiator());
 
-		HttpServletRequest req = new MockHttpServletRequest().header(Header.Accept, "text/plain;q=1,application/json;q=0.9");
+		Request req = new MockRequest().withHeader(Header.Accept, "text/plain;q=1,application/json;q=0.9");
 
 		Object view = viewResolver.determineView(req, new NegotiatingView("Test"));
 
@@ -117,17 +116,15 @@ public class NegotiatingViewResolverTest {
 		assertThat(jsonView.getOutput(), is((Object) "Test"));
 	}
 
-	@SuppressWarnings("deprecation")
 	@Test
 	public void shouldRespondNotAcceptableWhenNoViewCanBeNegotiated() throws IOException {
-		req.header(Header.Accept, "text/plain;q=1,application/json;q=0.9");
-		HttpServletResponse resp = mock(HttpServletResponse.class);
+		req.withHeader(Header.Accept, "text/plain;q=1,application/json;q=0.9");
+		MockResponse resp = new MockResponse();
 
 		viewResolver.resolve(req, resp, new NegotiatingView("Test"));
 
-		verify(resp).setStatus(406, "Unable to match any requested content types in the Accept header.");
-		verify(resp, times(0)).getOutputStream();
-		verify(resp, times(0)).getWriter();
+		assertThat(resp.getStatusCode(), is(StatusCode.NotAcceptable));
+		assertThat(resp.getStatusMessage(), is("Unable to match any requested content types in the Accept header."));
 	}
 
 	@Test
@@ -135,12 +132,12 @@ public class NegotiatingViewResolverTest {
 		viewResolverRegistry.addResolver(JsonView.class, new JsonViewResolver());
 		viewNegotiatorRegistry.setDefaultNegotiator(new JsonNegotiator());
 
-		req.header(Header.Accept, "text/plain;q=1,application/javascript;q=0.9");
+		req.withHeader(Header.Accept, "text/plain;q=1,application/javascript;q=0.9");
 
 		viewResolver.resolve(req, resp, new NegotiatingView("Test"));
 
-		assertThat(resp.content(), is("\"Test\""));
-		assertThat(resp.status(), is(200));
+		assertThat(resp.getBodyAsString(), is("\"Test\""));
+		assertThat(resp.getStatusCode(), is(StatusCode.OK));
 	}
 
 	@Test
@@ -151,12 +148,12 @@ public class NegotiatingViewResolverTest {
 		viewNegotiatorRegistry.addNegotiator("application/json", new JsonNegotiator());
 		viewNegotiatorRegistry.addNegotiator("application/javascript", new JsonpNegotiator());
 
-		req.header(Header.Accept, "application/json");
+		req.withHeader(Header.Accept, "application/json");
 
 		viewResolver.resolve(req, resp, new NegotiatingView("Test").withContentType("application/javascript"));
 
-		assertThat(resp.content(), is("callback(\"Test\");"));
-		assertThat(resp.status(), is(200));
+		assertThat(resp.getBodyAsString(), is("callback(\"Test\");"));
+		assertThat(resp.getStatusCode(), is(StatusCode.OK));
 	}
 
 	@Test
@@ -167,12 +164,12 @@ public class NegotiatingViewResolverTest {
 		viewNegotiatorRegistry.addNegotiator("application/json", new JsonNegotiator());
 		viewNegotiatorRegistry.addNegotiator("application/javascript", new JsonpNegotiator());
 
-		req.header(Header.Accept, "application/json");
+		req.withHeader(Header.Accept, "application/json");
 
 		viewResolver.resolve(req, resp, new NegotiatingView("Test").withContentType("no/registered"));
 
-		assertThat(resp.content(), is("\"Test\""));
-		assertThat(resp.status(), is(200));
+		assertThat(resp.getBodyAsString(), is("\"Test\""));
+		assertThat(resp.getStatusCode(), is(StatusCode.OK));
 	}
 
 	@Test
@@ -180,12 +177,12 @@ public class NegotiatingViewResolverTest {
 		viewResolverRegistry.addResolver(JsonView.class, new JsonViewResolver());
 		viewNegotiatorRegistry.addNegotiator("application/javascript", new JsonNegotiator());
 
-		req.header(Header.Accept, "text/plain;q=1,application/javascript;q=0.9");
+		req.withHeader(Header.Accept, "text/plain;q=1,application/javascript;q=0.9");
 
 		viewResolver.resolve(req, resp, new NegotiatingView("Test"));
 
-		assertThat(resp.content(), is("\"Test\""));
-		assertThat(resp.status(), is(200));
+		assertThat(resp.getBodyAsString(), is("\"Test\""));
+		assertThat(resp.getStatusCode(), is(StatusCode.OK));
 	}
 
 	@Test

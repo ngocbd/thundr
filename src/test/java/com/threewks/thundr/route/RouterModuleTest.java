@@ -32,8 +32,6 @@ import com.threewks.thundr.route.controller.ControllerRouteResolver;
 import com.threewks.thundr.route.controller.InterceptorRegistry;
 import com.threewks.thundr.route.redirect.Redirect;
 import com.threewks.thundr.route.redirect.RedirectRouteResolver;
-import com.threewks.thundr.route.rewrite.Rewrite;
-import com.threewks.thundr.route.rewrite.RewriteRouteResolver;
 import com.threewks.thundr.route.staticResource.StaticResource;
 import com.threewks.thundr.route.staticResource.StaticResourceRouteResolver;
 import com.threewks.thundr.view.ViewModule;
@@ -59,7 +57,7 @@ public class RouterModuleTest {
 	}
 
 	@Test
-	public void shouldProvideMethodActionResolverToInjectionContext() {
+	public void shouldProvideRouteResolverToInjectionContext() {
 		routeModule.initialise(injectionContext);
 		routeModule.configure(injectionContext);
 		assertThat(injectionContext.get(ControllerRouteResolver.class), is(notNullValue()));
@@ -76,7 +74,5 @@ public class RouterModuleTest {
 		assertThat(router.getResolver(Controller.class) instanceof ControllerRouteResolver, is(true));
 		assertThat(router.getResolver(StaticResource.class) instanceof StaticResourceRouteResolver, is(true));
 		assertThat(router.getResolver(Redirect.class) instanceof RedirectRouteResolver, is(true));
-		assertThat(router.getResolver(Rewrite.class) instanceof RewriteRouteResolver, is(true));
-
 	}
 }

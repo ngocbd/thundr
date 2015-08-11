@@ -17,18 +17,23 @@
  */
 package com.threewks.thundr.bind.http.request;
 
+import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.atomicleopard.expressive.Cast;
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.bind.Binder;
 import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
+import com.threewks.thundr.request.servlet.ServletRequest;
 
 public class SessionAttributeBinder implements Binder {
 
@@ -40,10 +45,11 @@ public class SessionAttributeBinder implements Binder {
 	}
 
 	@Override
-	public void bindAll(Map<ParameterDescription, Object> bindings, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVariables) {
-		HttpSession session = req.getSession();
+	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp, Map<String, String> pathVariables) {
+		HttpServletRequest httpServletRequest = req.getRawRequest(HttpServletRequest.class);
+		HttpSession session = httpServletRequest == null ? null : httpServletRequest.getSession();
 		if (session != null) {
-			Map<String, String[]> requestAttributes = createStringSessionAttributes(session);
+			Map<String, List<String>> requestAttributes = createStringSessionAttributes(session);
 			parameterBinderRegistry.bind(bindings, requestAttributes, null);
 
 			for (Map.Entry<ParameterDescription, Object> binding : bindings.entrySet()) {
@@ -58,14 +64,14 @@ public class SessionAttributeBinder implements Binder {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, String[]> createStringSessionAttributes(HttpSession session) {
-		Map<String, String[]> results = new HashMap<String, String[]>();
+	private Map<String, List<String>> createStringSessionAttributes(HttpSession session) {
+		Map<String, List<String>> results = new LinkedHashMap<>();
 		Enumeration<String> attributeNames = session.getAttributeNames();
 		if (attributeNames != null) {
 			for (String name : Expressive.iterable(attributeNames)) {
 				Object value = session.getAttribute(name);
 				if (value instanceof String) {
-					results.put(name, new String[] { (String) value });
+					results.put(name, Arrays.asList((String) value));
 				}
 			}
 		}

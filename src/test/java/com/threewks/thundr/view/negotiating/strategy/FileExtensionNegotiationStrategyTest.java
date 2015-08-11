@@ -23,7 +23,7 @@ import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
+import com.threewks.thundr.request.mock.MockRequest;
 import com.threewks.thundr.view.json.JsonNegotiator;
 import com.threewks.thundr.view.negotiating.NegotiatingView;
 import com.threewks.thundr.view.negotiating.Negotiator;
@@ -32,7 +32,7 @@ import com.threewks.thundr.view.negotiating.ViewNegotiatorRegistryImpl;
 
 public class FileExtensionNegotiationStrategyTest {
 
-	private MockHttpServletRequest req;
+	private MockRequest req;
 	private NegotiatingView view;
 	private ViewNegotiatorRegistry viewNegotiatorRegistry;
 	private FileExtensionNegotiationStrategy strategy;
@@ -41,7 +41,7 @@ public class FileExtensionNegotiationStrategyTest {
 
 	@Before
 	public void before() {
-		req = new MockHttpServletRequest();
+		req = new MockRequest();
 		view = new NegotiatingView("test");
 		viewNegotiatorRegistry = new ViewNegotiatorRegistryImpl();
 		strategy = new FileExtensionNegotiationStrategy();
@@ -53,7 +53,7 @@ public class FileExtensionNegotiationStrategyTest {
 	public void shouldReturnTheNegotiatorMatchingTheFileExtension() {
 		viewNegotiatorRegistry.addNegotiator("application/json", negotiator);
 
-		req.url("/request/url.json");
+		req.withRequestPath("/request/url.json");
 		Negotiator result = strategy.findNegotiator(req, view, viewNegotiatorRegistry);
 		assertThat(result, is(negotiator));
 	}
@@ -62,7 +62,7 @@ public class FileExtensionNegotiationStrategyTest {
 	public void shouldReturnNullIfNoExtensions() {
 		viewNegotiatorRegistry.addNegotiator("application/json", negotiator);
 
-		req.url("/request/url");
+		req.withRequestPath("/request/url");
 		Negotiator<?> result = strategy.findNegotiator(req, view, viewNegotiatorRegistry);
 
 		assertThat(result, is(nullValue()));
@@ -72,7 +72,7 @@ public class FileExtensionNegotiationStrategyTest {
 	public void shouldReturnNullIfNoNegotiatorForExtension() {
 		viewNegotiatorRegistry.addNegotiator("application/json", negotiator);
 
-		req.url("/request/url.xml");
+		req.withRequestPath("/request/url.xml");
 		Negotiator<?> result = strategy.findNegotiator(req, view, viewNegotiatorRegistry);
 
 		assertThat(result, is(nullValue()));

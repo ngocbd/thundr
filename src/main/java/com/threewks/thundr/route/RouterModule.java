@@ -27,11 +27,10 @@ import com.threewks.thundr.module.DependencyRegistry;
 import com.threewks.thundr.route.controller.Controller;
 import com.threewks.thundr.route.controller.ControllerRouteResolver;
 import com.threewks.thundr.route.controller.FilterRegistry;
+import com.threewks.thundr.route.controller.FilterRegistryImpl;
 import com.threewks.thundr.route.controller.InterceptorRegistry;
 import com.threewks.thundr.route.redirect.Redirect;
 import com.threewks.thundr.route.redirect.RedirectRouteResolver;
-import com.threewks.thundr.route.rewrite.Rewrite;
-import com.threewks.thundr.route.rewrite.RewriteRouteResolver;
 import com.threewks.thundr.route.staticResource.StaticResource;
 import com.threewks.thundr.route.staticResource.StaticResourceRouteResolver;
 import com.threewks.thundr.view.ViewModule;
@@ -47,7 +46,7 @@ public class RouterModule extends BaseModule {
 	public void initialise(UpdatableInjectionContext injectionContext) {
 		super.initialise(injectionContext);
 		injectionContext.inject(new Router()).as(Router.class);
-		injectionContext.inject(new FilterRegistry()).as(FilterRegistry.class);
+		injectionContext.inject(new FilterRegistryImpl()).as(FilterRegistry.class);
 	}
 
 	@Override
@@ -64,7 +63,6 @@ public class RouterModule extends BaseModule {
 		injectionContext.inject(methodActionResolver.getMethodBinderRegistry()).as(BinderRegistry.class);
 
 		router.addResolver(Redirect.class, new RedirectRouteResolver());
-		router.addResolver(Rewrite.class, new RewriteRouteResolver(router));
 		router.addResolver(StaticResource.class, new StaticResourceRouteResolver(servletContext));
 		router.addResolver(Controller.class, methodActionResolver);
 	}

@@ -17,8 +17,7 @@
  */
 package com.threewks.thundr.view.negotiating.strategy;
 
-import javax.servlet.http.HttpServletRequest;
-
+import com.threewks.thundr.request.Request;
 import com.threewks.thundr.view.negotiating.NegotiatingView;
 import com.threewks.thundr.view.negotiating.NegotiatingViewResolver;
 import com.threewks.thundr.view.negotiating.Negotiator;
@@ -32,5 +31,5 @@ import com.threewks.thundr.view.negotiating.ViewNegotiatorRegistry;
  * resolve a negotiator, it should return null.
  */
 public interface NegotiationStrategy {
-	public Negotiator<?> findNegotiator(HttpServletRequest req, NegotiatingView view, ViewNegotiatorRegistry viewNegotiatorRegistry);
+	public Negotiator<?> findNegotiator(Request req, NegotiatingView view, ViewNegotiatorRegistry viewNegotiatorRegistry);
 }

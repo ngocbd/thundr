@@ -20,12 +20,10 @@ package com.threewks.thundr.view.negotiating.strategy;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.junit.Before;
 import org.junit.Test;
 
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
+import com.threewks.thundr.request.mock.MockRequest;
 import com.threewks.thundr.view.json.JsonNegotiator;
 import com.threewks.thundr.view.negotiating.NegotiatingView;
 import com.threewks.thundr.view.negotiating.Negotiator;
@@ -34,7 +32,7 @@ import com.threewks.thundr.view.negotiating.ViewNegotiatorRegistryImpl;
 
 public class DefaultNegotiatorNegotiationStrategyTest {
 
-	private HttpServletRequest req;
+	private MockRequest req;
 	private NegotiatingView view;
 	private ViewNegotiatorRegistry viewNegotiatorRegistry;
 	private DefaultNegotiatorNegotiationStrategy strategy;
@@ -43,7 +41,7 @@ public class DefaultNegotiatorNegotiationStrategyTest {
 
 	@Before
 	public void before() {
-		req = new MockHttpServletRequest();
+		req = new MockRequest();
 		view = new NegotiatingView("test");
 		viewNegotiatorRegistry = new ViewNegotiatorRegistryImpl();
 		strategy = new DefaultNegotiatorNegotiationStrategy();

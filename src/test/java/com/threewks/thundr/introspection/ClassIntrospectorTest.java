@@ -47,7 +47,7 @@ public class ClassIntrospectorTest {
 	public void shouldListSetters() {
 		List<Method> setters = new ClassIntrospector().listSetters(TestCA.class);
 		assertThat(setters.size(), is(3));
-		List<String> setterNames = new ArrayList<String>();
+		List<String> setterNames = new ArrayList<>();
 		for (Method method : setters) {
 			setterNames.add(method.getName());
 		}

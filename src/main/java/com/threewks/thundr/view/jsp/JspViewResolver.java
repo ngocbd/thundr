@@ -17,11 +17,15 @@
  */
 package com.threewks.thundr.view.jsp;
 
+import java.util.Map;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.threewks.thundr.exception.BaseException;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 import com.threewks.thundr.view.BaseView;
 import com.threewks.thundr.view.GlobalModel;
 import com.threewks.thundr.view.ViewResolutionException;
@@ -35,24 +39,27 @@ public class JspViewResolver implements ViewResolver<JspView> {
 	 * This can be useful for setting values that apply to every page, or are extremely common. For example,
 	 * application environment, domain or version number.
 	 */
-	private GlobalModel globalModel;
+	protected GlobalModel globalModel;
 
 	public JspViewResolver(GlobalModel globalModel) {
 		this.globalModel = globalModel;
 	}
 
 	@Override
-	public void resolve(HttpServletRequest req, HttpServletResponse resp, JspView viewResult) {
+	public void resolve(Request request, Response response, JspView viewResult) {
 		try {
+			HttpServletRequest req = request.getRawRequest(HttpServletRequest.class);
+			HttpServletResponse resp = response.getRawResponse(HttpServletResponse.class);
+			
 			// different containers handle missing resources differently when you include content, we perform this
 			// check up front to help normalise their behaviour
 			if (req.getSession().getServletContext().getResource(viewResult.getView()) == null) {
 				throw new BaseException("resource %s does not exist", viewResult.getView());
 			}
 			String url = resp.encodeRedirectURL(viewResult.getView());
-			BaseView.includeModelInRequest(req, globalModel);
-			BaseView.includeModelInRequest(req, viewResult.getModel());
-			BaseView.applyToResponse(viewResult, resp);
+			includeModelInRequest(req, globalModel);
+			includeModelInRequest(req, viewResult.getModel());
+			BaseView.applyToResponse(viewResult, response);
 			RequestDispatcher requestDispatcher = req.getRequestDispatcher(url);
 			requestDispatcher.include(req, resp);
 		} catch (Exception e) {
@@ -63,6 +70,13 @@ public class JspViewResolver implements ViewResolver<JspView> {
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName();
+	}
+	
+
+	public static void includeModelInRequest(HttpServletRequest req, Map<String, Object> model) {
+		for (Map.Entry<String, Object> modelEntry : model.entrySet()) {
+			req.setAttribute(modelEntry.getKey(), modelEntry.getValue());
+		}
 	}
 
 }

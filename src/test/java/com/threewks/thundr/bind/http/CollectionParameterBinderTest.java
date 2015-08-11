@@ -64,19 +64,19 @@ public class CollectionParameterBinderTest {
 	@Test
 	public void shouldBindEmptyListEntriesToNull() {
 		ParameterDescription parameterDescription = new ParameterDescription("paramName", TypeProvider.ListOfStrings);
-		Map<String, String[]> data = Collections.emptyMap();
+		Map<String, List<String>> data = Collections.emptyMap();
 		RequestDataMap pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(nullValue()));
 
-		data = Collections.singletonMap("paramName", new String[0]);
+		data = Collections.singletonMap("paramName", Collections.emptyList());
 		pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(nullValue()));
 
-		data = Collections.singletonMap("paramName", new String[] { null });
+		data = Collections.singletonMap("paramName", listWithNull());
 		pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(nullValue()));
 
-		data = Collections.singletonMap("paramName", new String[] { "" });
+		data = Collections.singletonMap("paramName", Arrays.asList(""));
 		pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(nullValue()));
 	}
@@ -84,19 +84,19 @@ public class CollectionParameterBinderTest {
 	@Test
 	public void shouldBindSingleIndexedEmptyOrNullEntryToNull() {
 		ParameterDescription parameterDescription = new ParameterDescription("paramName[0]", TypeProvider.ListOfStrings);
-		Map<String, String[]> data = Collections.emptyMap();
+		Map<String, List<String>> data = Collections.emptyMap();
 		RequestDataMap pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(nullValue()));
 
-		data = Collections.singletonMap("paramName[0]", new String[0]);
+		data = Collections.singletonMap("paramName[0]", Collections.emptyList());
 		pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(nullValue()));
 
-		data = Collections.singletonMap("paramName[0]", new String[] { null });
+		data = Collections.singletonMap("paramName[0]", listWithNull());
 		pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(nullValue()));
 
-		data = Collections.singletonMap("paramName[0]", new String[] { "" });
+		data = Collections.singletonMap("paramName[0]", Arrays.asList(""));
 		pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(nullValue()));
 	}
@@ -104,19 +104,19 @@ public class CollectionParameterBinderTest {
 	@Test
 	public void shouldBindSingleUnindexedEmptyOrNullEntryToNull() {
 		ParameterDescription parameterDescription = new ParameterDescription("paramName[]", TypeProvider.ListOfStrings);
-		Map<String, String[]> data = Collections.emptyMap();
+		Map<String, List<String>> data = Collections.emptyMap();
 		RequestDataMap pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(nullValue()));
 
-		data = Collections.singletonMap("paramName[]", new String[0]);
+		data = Collections.singletonMap("paramName[]", Collections.emptyList());
 		pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(nullValue()));
 
-		data = Collections.singletonMap("paramName[]", new String[] { null });
+		data = Collections.singletonMap("paramName[]", listWithNull());
 		pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(nullValue()));
 
-		data = Collections.singletonMap("paramName[]", new String[] { "" });
+		data = Collections.singletonMap("paramName[]", Arrays.asList(""));
 		pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(nullValue()));
 	}
@@ -124,7 +124,7 @@ public class CollectionParameterBinderTest {
 	@Test
 	public void shouldBindUnindexedListEntries() {
 		ParameterDescription parameterDescription = new ParameterDescription("paramName", TypeProvider.ListOfStrings);
-		Map<String, String[]> data = Collections.singletonMap("paramName", new String[] { "first", "second", "third" });
+		Map<String, List<String>> data = Collections.singletonMap("paramName", Arrays.asList("first", "second", "third"));
 		RequestDataMap pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(notNullValue()));
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), Matchers.isA(List.class));
@@ -134,7 +134,7 @@ public class CollectionParameterBinderTest {
 	@Test
 	public void shouldBindUnindexedJsonStyleListEntries() {
 		ParameterDescription parameterDescription = new ParameterDescription("paramName", TypeProvider.ListOfStrings);
-		Map<String, String[]> data = Collections.singletonMap("paramName[]", new String[] { "first", "second", "third" });
+		Map<String, List<String>> data = Collections.singletonMap("paramName[]", Arrays.asList("first", "second", "third"));
 		RequestDataMap pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(notNullValue()));
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), Matchers.isA(List.class));
@@ -144,10 +144,10 @@ public class CollectionParameterBinderTest {
 	@Test
 	public void shouldBindIndexedStyleListEntries() {
 		ParameterDescription parameterDescription = new ParameterDescription("paramName", TypeProvider.ListOfStrings);
-		Map<String, String[]> data = Expressive.map();
-		data.put("paramName[0]", new String[] { "first" });
-		data.put("paramName[1]", new String[] { "second" });
-		data.put("paramName[2]", new String[] { "third" });
+		Map<String, List<String>> data = Expressive.map();
+		data.put("paramName[0]", Arrays.asList("first"));
+		data.put("paramName[1]", Arrays.asList("second"));
+		data.put("paramName[2]", Arrays.asList("third"));
 		RequestDataMap pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(notNullValue()));
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), Matchers.isA(List.class));
@@ -157,10 +157,10 @@ public class CollectionParameterBinderTest {
 	@Test
 	public void shouldBindSparselyIndexedStyleListEntries() {
 		ParameterDescription parameterDescription = new ParameterDescription("paramName", TypeProvider.ListOfStrings);
-		Map<String, String[]> data = Expressive.map();
-		data.put("paramName[0]", new String[] { "first" });
-		data.put("paramName[1]", new String[] { "second" });
-		data.put("paramName[4]", new String[] { "fifth" });
+		Map<String, List<String>> data = Expressive.map();
+		data.put("paramName[0]", Arrays.asList("first"));
+		data.put("paramName[1]", Arrays.asList("second"));
+		data.put("paramName[4]", Arrays.asList("fifth"));
 		RequestDataMap pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(notNullValue()));
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), Matchers.isA(List.class));
@@ -170,7 +170,7 @@ public class CollectionParameterBinderTest {
 	@Test
 	public void shouldBindUnindexedCollectionEntries() {
 		ParameterDescription parameterDescription = new ParameterDescription("paramName", TypeProvider.CollectionOfStrings);
-		Map<String, String[]> data = Collections.singletonMap("paramName", new String[] { "first", "second", "third" });
+		Map<String, List<String>> data = Collections.singletonMap("paramName", Arrays.asList("first", "second", "third"));
 		RequestDataMap pathMap = new RequestDataMap(data);
 		assertThat(collectionParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(notNullValue()));
 		assertThat(collectionParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), Matchers.isA(Collection.class));
@@ -180,7 +180,7 @@ public class CollectionParameterBinderTest {
 	@Test
 	public void shouldBindUnindexedJsonStyleCollectionEntries() {
 		ParameterDescription parameterDescription = new ParameterDescription("paramName", TypeProvider.CollectionOfStrings);
-		Map<String, String[]> data = Collections.singletonMap("paramName[]", new String[] { "first", "second", "third" });
+		Map<String, List<String>> data = Collections.singletonMap("paramName[]", Arrays.asList("first", "second", "third"));
 		RequestDataMap pathMap = new RequestDataMap(data);
 		assertThat(collectionParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(notNullValue()));
 		assertThat(collectionParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), Matchers.isA(Collection.class));
@@ -190,10 +190,10 @@ public class CollectionParameterBinderTest {
 	@Test
 	public void shouldBindIndexedStyleCollectionEntries() {
 		ParameterDescription parameterDescription = new ParameterDescription("paramName", TypeProvider.CollectionOfStrings);
-		Map<String, String[]> data = Expressive.map();
-		data.put("paramName[0]", new String[] { "first" });
-		data.put("paramName[1]", new String[] { "second" });
-		data.put("paramName[2]", new String[] { "third" });
+		Map<String, List<String>> data = Expressive.map();
+		data.put("paramName[0]", Arrays.asList("first"));
+		data.put("paramName[1]", Arrays.asList("second"));
+		data.put("paramName[2]", Arrays.asList("third"));
 		RequestDataMap pathMap = new RequestDataMap(data);
 		assertThat(collectionParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(notNullValue()));
 		assertThat(collectionParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), Matchers.isA(Collection.class));
@@ -203,10 +203,10 @@ public class CollectionParameterBinderTest {
 	@Test
 	public void shouldBindSparselyIndexedStyleCollectionEntries() {
 		ParameterDescription parameterDescription = new ParameterDescription("paramName", TypeProvider.CollectionOfStrings);
-		Map<String, String[]> data = Expressive.map();
-		data.put("paramName[0]", new String[] { "first" });
-		data.put("paramName[1]", new String[] { "second" });
-		data.put("paramName[4]", new String[] { "fifth" });
+		Map<String, List<String>> data = Expressive.map();
+		data.put("paramName[0]", Arrays.asList("first"));
+		data.put("paramName[1]", Arrays.asList("second"));
+		data.put("paramName[4]", Arrays.asList("fifth"));
 		RequestDataMap pathMap = new RequestDataMap(data);
 		assertThat(collectionParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(notNullValue()));
 		assertThat(collectionParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), Matchers.isA(Collection.class));
@@ -216,7 +216,7 @@ public class CollectionParameterBinderTest {
 	@Test
 	public void shouldBindUnindexedSetEntries() {
 		ParameterDescription parameterDescription = new ParameterDescription("paramName", TypeProvider.SetOfStrings);
-		Map<String, String[]> data = Collections.singletonMap("paramName", new String[] { "first", "second", "third" });
+		Map<String, List<String>> data = Collections.singletonMap("paramName", Arrays.asList("first", "second", "third"));
 		RequestDataMap pathMap = new RequestDataMap(data);
 		assertThat(setParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(notNullValue()));
 		assertThat(setParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), Matchers.isA(Set.class));
@@ -226,7 +226,7 @@ public class CollectionParameterBinderTest {
 	@Test
 	public void shouldBindUnindexedJsonStyleSetEntries() {
 		ParameterDescription parameterDescription = new ParameterDescription("paramName", TypeProvider.SetOfStrings);
-		Map<String, String[]> data = Collections.singletonMap("paramName[]", new String[] { "first", "second", "third" });
+		Map<String, List<String>> data = Collections.singletonMap("paramName[]", Arrays.asList("first", "second", "third"));
 		RequestDataMap pathMap = new RequestDataMap(data);
 		assertThat(setParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(notNullValue()));
 		assertThat(setParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), Matchers.isA(Set.class));
@@ -236,10 +236,10 @@ public class CollectionParameterBinderTest {
 	@Test
 	public void shouldBindIndexedStyleSetEntries() {
 		ParameterDescription parameterDescription = new ParameterDescription("paramName", TypeProvider.SetOfStrings);
-		Map<String, String[]> data = Expressive.map();
-		data.put("paramName[0]", new String[] { "first" });
-		data.put("paramName[1]", new String[] { "second" });
-		data.put("paramName[2]", new String[] { "third" });
+		Map<String, List<String>> data = Expressive.map();
+		data.put("paramName[0]", Arrays.asList("first"));
+		data.put("paramName[1]", Arrays.asList("second"));
+		data.put("paramName[2]", Arrays.asList("third"));
 		RequestDataMap pathMap = new RequestDataMap(data);
 		assertThat(setParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(notNullValue()));
 		assertThat(setParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), Matchers.isA(Set.class));
@@ -249,14 +249,20 @@ public class CollectionParameterBinderTest {
 	@Test
 	public void shouldBindSparselyIndexedStyleSetEntries() {
 		ParameterDescription parameterDescription = new ParameterDescription("paramName", TypeProvider.SetOfStrings);
-		Map<String, String[]> data = Expressive.map();
-		data.put("paramName[0]", new String[] { "first" });
-		data.put("paramName[1]", new String[] { "second" });
-		data.put("paramName[4]", new String[] { "fifth" });
+		Map<String, List<String>> data = Expressive.map();
+		data.put("paramName[0]", Arrays.asList("first"));
+		data.put("paramName[1]", Arrays.asList("second"));
+		data.put("paramName[4]", Arrays.asList("fifth"));
 		RequestDataMap pathMap = new RequestDataMap(data);
 		assertThat(setParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(notNullValue()));
 		assertThat(setParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), Matchers.isA(Set.class));
 		assertThat(setParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(Expressive.<Object> set("first", "second", null, "fifth")));
+	}
+
+	private List<String> listWithNull() {
+		List<String> list = new ArrayList<>();
+		list.add(null);
+		return list;
 	}
 
 	private static class TypeProvider {

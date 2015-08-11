@@ -17,17 +17,8 @@
  */
 package com.threewks.thundr.route.controller;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.threewks.thundr.route.HttpMethod;
-import com.threewks.thundr.route.Route;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 
 /**
  * {@link Filter} allows the definition of a simple interceptor strategy for invocation of controller methods
@@ -38,9 +29,7 @@ import com.threewks.thundr.route.Route;
  * 
  * Filters are registered with this class at startup.
  */
-public class FilterRegistry {
-	private Map<String, List<Filter>> filters = new HashMap<String, List<Filter>>();
-
+public interface FilterRegistry {
 	/**
 	 * Add the given filter for all controller methods on the given path.
 	 * Allows wildcards in the form of * and **.
@@ -49,15 +38,7 @@ public class FilterRegistry {
 	 * @param path
 	 * @param filter
 	 */
-	public void add(String path, Filter filter) {
-		String regex = convertPathStringToRegex(path);
-		List<Filter> existing = filters.get(regex);
-		if (existing == null) {
-			existing = new ArrayList<Filter>();
-			filters.put(regex, existing);
-		}
-		existing.add(filter);
-	}
+	public void add(String path, Filter filter);
 
 	/**
 	 * Remove the given filter from the given path.
@@ -65,34 +46,23 @@ public class FilterRegistry {
 	 * @param path
 	 * @param filter
 	 */
-	public void remove(String path, Filter filter) {
-		String regex = convertPathStringToRegex(path);
-		List<Filter> existing = filters.get(regex);
-		if (existing != null) {
-			existing.remove(filter);
-		}
-	}
+	// TODO - removing a filter by type is probably more useful than requiring the specific instance
+	public void remove(String path, Filter filter);
 
 	/**
 	 * Remove the given filter from any paths it was previously added for
 	 * 
 	 * @param filter
 	 */
-	public void remove(Filter filter) {
-		for (List<Filter> fs : filters.values()) {
-			fs.remove(filter);
-		}
-	}
+	public void remove(Filter filter);
 
 	/**
 	 * @param path
 	 * @param filter
 	 * @return true if the given filter has already been added on the given path
 	 */
-	public boolean has(String path, Filter filter) {
-		List<Filter> filtersForPath = filters.get(convertPathStringToRegex(path));
-		return filtersForPath == null ? false : filtersForPath.contains(filter);
-	}
+	// TODO - has by type is probably useful
+	public boolean has(String path, Filter filter);
 
 	/**
 	 * Used by the framework at runtime, you should not need to invoke this method directly.
@@ -102,16 +72,7 @@ public class FilterRegistry {
 	 * @param resp
 	 * @return a view to use instead of calling through to the controller method, or null if execution should continue
 	 */
-	public Object before(HttpMethod method, HttpServletRequest req, HttpServletResponse resp) {
-		List<Filter> matchingFilters = findMatchingFilters(req.getRequestURI());
-		for (Filter filter : matchingFilters) {
-			Object result = filter.before(method, req, resp);
-			if (result != null) {
-				return result;
-			}
-		}
-		return null;
-	}
+	public Object before(Request req, Response resp);
 
 	/**
 	 * Used by the framework at runtime, you should not need to invoke this method directly.
@@ -122,17 +83,7 @@ public class FilterRegistry {
 	 * @param resp
 	 * @return a view to use instead of the result from the controller method, or null if the given result should be used
 	 */
-	public Object after(HttpMethod method, Object view, HttpServletRequest req, HttpServletResponse resp) {
-		List<Filter> matchingFilters = findMatchingFilters(req.getRequestURI());
-		for (int i = matchingFilters.size() - 1; i >= 0; i--) {
-			Filter filter = matchingFilters.get(i);
-			Object result = filter.after(method, view, req, resp);
-			if (result != null) {
-				return result;
-			}
-		}
-		return null;
-	}
+	public Object after(Object view, Request req, Response resp);
 
 	/**
 	 * Used by the framework at runtime, you should not need to invoke this method directly.
@@ -143,37 +94,6 @@ public class FilterRegistry {
 	 * @param resp
 	 * @return a view to use instead of allowing the exception to propagate up, or null to continue exception flow as normal
 	 */
-	public Object exception(HttpMethod method, Exception e, HttpServletRequest req, HttpServletResponse resp) {
-		List<Filter> matchingFilters = findMatchingFilters(req.getRequestURI());
-		for (int i = matchingFilters.size() - 1; i >= 0; i--) {
-			Filter filter = matchingFilters.get(i);
-			Object result = filter.exception(method, e, req, resp);
-			if (result != null) {
-				return result;
-			}
-		}
-		return null;
-	}
+	public Object exception(Exception e, Request req, Response resp);
 
-	private List<Filter> findMatchingFilters(String path) {
-		List<Filter> filters = new ArrayList<Filter>();
-		if (path != null) {
-			for (Map.Entry<String, List<Filter>> entry : this.filters.entrySet()) {
-				String key = entry.getKey();
-				if (path.matches(key)) {
-					filters.addAll(entry.getValue());
-				}
-			}
-		}
-		return filters;
-	}
-
-	static String convertPathStringToRegex(String path) {
-		String wildCardPlaceholder = "____placeholder____";
-		path = path.replaceAll("\\*\\*", wildCardPlaceholder);
-		path = path.replaceAll("\\*", Matcher.quoteReplacement("[" + Route.AcceptablePathCharacters + "]*?"));
-		path = Route.PathParameterPattern.matcher(path).replaceAll(Matcher.quoteReplacement("([" + Route.AcceptablePathCharacters + "]+)"));
-		path = path.replaceAll(wildCardPlaceholder, Matcher.quoteReplacement("[" + Route.AcceptableMultiPathCharacters + "]*?"));
-		return path + Route.SemiColonDelimitedRequestParameters;
-	}
 }

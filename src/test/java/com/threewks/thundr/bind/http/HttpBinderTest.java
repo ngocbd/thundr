@@ -25,8 +25,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.junit.Before;
@@ -35,14 +33,15 @@ import org.junit.Test;
 import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.introspection.ParameterDescription;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
+import com.threewks.thundr.request.mock.MockRequest;
+import com.threewks.thundr.request.mock.MockResponse;
+import com.threewks.thundr.route.HttpMethod;
 import com.threewks.thundr.transformer.TransformerManager;
 
 public class HttpBinderTest {
 	private HttpBinder binder;
-	private MockHttpServletRequest request = new MockHttpServletRequest();
-	private HttpServletResponse response = new MockHttpServletResponse();
+	private MockRequest request = new MockRequest(HttpMethod.GET, "/path");
+	private MockResponse response = new MockResponse(TransformerManager.createWithDefaults());
 	private Map<String, String> pathVariables;
 	private Map<ParameterDescription, Object> parameterDescriptions;
 	private ParameterBinderRegistry parameterBinderRegistry;
@@ -59,12 +58,12 @@ public class HttpBinderTest {
 
 	@Test
 	public void shouldBindNullContentType() {
-		request.contentType(ContentType.Null);
-		request.parameter("param1", "1");
+		request.withContentType(ContentType.Null);
+		request.withParameter("param1", "1");
 
 		ParameterDescription param1 = new ParameterDescription("param1", int.class);
 
-		request.contentType((String) null);
+		request.withContentTypeString(null);
 		parameterDescriptions = map(param1, null);
 		binder.bindAll(parameterDescriptions, request, response, pathVariables);
 		assertThat(parameterDescriptions.get(param1), is((Object) 1));
@@ -72,13 +71,13 @@ public class HttpBinderTest {
 
 	@Test
 	public void shouldBindAnyContentType() {
-		request.contentType(ContentType.Null);
-		request.parameter("param1", "1");
+		request.withContentType(ContentType.Null);
+		request.withParameter("param1", "1");
 
 		ParameterDescription param1 = new ParameterDescription("param1", int.class);
 
 		for (ContentType contentType : ContentType.values()) {
-			request.contentType(contentType);
+			request.withContentType(contentType);
 			parameterDescriptions = map(param1, null);
 			binder.bindAll(parameterDescriptions, request, response, pathVariables);
 			assertThat(parameterDescriptions.get(param1), is((Object) 1));
@@ -87,11 +86,11 @@ public class HttpBinderTest {
 
 	@Test
 	public void shouldBindMultipleParams() {
-		request.contentType(ContentType.Null);
-		request.parameter("param1", "1");
-		request.parameter("param2", "2");
-		request.parameter("param3.value1", "3");
-		request.parameter("param3.value2", "three");
+		request.withContentType(ContentType.Null);
+		request.withParameter("param1", "1");
+		request.withParameter("param2", "2");
+		request.withParameter("param3.value1", "3");
+		request.withParameter("param3.value2", "three");
 
 		ParameterDescription param1 = new ParameterDescription("param1", int.class);
 		ParameterDescription param2 = new ParameterDescription("param2", String.class);

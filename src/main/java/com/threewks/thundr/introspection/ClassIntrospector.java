@@ -21,18 +21,18 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.ClassUtils;
 
 import com.atomicleopard.expressive.EList;
-import com.atomicleopard.expressive.ETransformer;
 import com.atomicleopard.expressive.Expressive;
-import com.atomicleopard.expressive.transform.CollectionTransformer;
 
 import jodd.introspector.ClassDescriptor;
 import jodd.util.ReflectUtil;
@@ -42,30 +42,21 @@ import jodd.util.ReflectUtil;
  *
  * @see TypeIntrospector
  */
+// TODO - NAO - It makes sense for MethodIntrospector and ClassIntrospector to behave the same in terms of being bound to a specific Class/Method or not
 public class ClassIntrospector {
 	public static final boolean supportsInjection = TypeIntrospector.classExists("javax.inject.Inject");
 
-	@SuppressWarnings({ "rawtypes" })
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public <T> List<Constructor<T>> listConstructors(Class<T> type) {
-		ClassDescriptor classDescriptor = new ClassDescriptor(type, true);
-		CollectionTransformer<Constructor, Constructor<T>> castAll = Expressive.Transformers.transformAllUsing(ClassIntrospector.<Constructor, Constructor<T>> castTransformer());
-		List<Constructor<T>> ctors = castAll.from(classDescriptor.getAllCtors(true));
-		Collections.sort(ctors, new Comparator<Constructor<T>>() {
-			@Override
-			public int compare(Constructor<T> o1, Constructor<T> o2) {
-				Class<?>[] types1 = o1.getParameterTypes();
-				Class<?>[] types2 = o2.getParameterTypes();
-				int compare = new Integer(types1.length).compareTo(types2.length);
-				if (compare == 0) {
-					// to keep the outcome consistent, we want to deterministically sort
-					for (int i = 0; compare == 0 && i < types1.length; i++) {
-						compare = types1[i].getName().compareTo(types2[i].getName());
-					}
-				}
-				return compare;
-			}
-		});
-		return ctors;
+		ClassDescriptor classDescriptor = new ClassDescriptor(type, false, false, true, null);
+		List<Constructor> ctors = Arrays.stream(classDescriptor.getAllCtorDescriptors()).map(descriptor -> descriptor.getConstructor()).collect(Collectors.toList());
+		Collections.sort(ctors, new ConstructorComparator());
+		// Some generics shenangins
+		List<Constructor<T>> result = new ArrayList<>();
+		for (Constructor constructor : ctors) {
+			result.add(constructor);
+		}
+		return result;
 	}
 
 	public <T> List<Method> listSetters(Class<T> type) {
@@ -99,14 +90,30 @@ public class ClassIntrospector {
 		types.addItems(ClassUtils.getAllInterfaces(type));
 		return types;
 	}
+	
 
-	private static <A, B> ETransformer<A, B> castTransformer() {
-		return new ETransformer<A, B>() {
-			@SuppressWarnings("unchecked")
-			@Override
-			public B from(A from) {
-				return (B) from;
-			}
-		};
+	public Method getMethod(Class<?> type, String methodName) {
+		return Arrays.stream(type.getMethods())
+			.filter(method -> method.getName().equals(methodName))
+			.findFirst()
+			.orElse(null);
 	}
+
+	@SuppressWarnings("rawtypes")
+	static class ConstructorComparator implements Comparator<Constructor> {
+		@Override
+		public int compare(Constructor o1, Constructor o2) {
+			Class<?>[] types1 = o1.getParameterTypes();
+			Class<?>[] types2 = o2.getParameterTypes();
+			int compare = new Integer(types1.length).compareTo(types2.length);
+			if (compare == 0) {
+				// to keep the outcome consistent, we want to deterministically sort
+				for (int i = 0; compare == 0 && i < types1.length; i++) {
+					compare = types1[i].getName().compareTo(types2[i].getName());
+				}
+			}
+			return compare;
+		}
+	}
+
 }

@@ -21,6 +21,8 @@ import static com.atomicleopard.expressive.Expressive.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
@@ -49,13 +51,13 @@ public class ParameterBinderRegistryTest {
 
 	@Test
 	public void shouldReturnNullWhenCannotBeBound() {
-		Map<String, String[]> map = map("string", new String[] { "value" });
+		Map<String, List<String>> map = map("string", values("value"));
 		assertThat(registry.createFor(new ParameterDescription("string", Void.class), new RequestDataMap(map)), is(nullValue()));
 	}
 
 	@Test
 	public void shouldAllowAdditionOfBindersForBinderInstance() {
-		Map<String, String[]> map = map("string", new String[] { "value" });
+		Map<String, List<String>> map = map("string", values("value"));
 		assertThat(registry.createFor(new ParameterDescription("string", TestBindable.class), new RequestDataMap(map)), is(nullValue()));
 
 		registry.addBinder(new TestParameterBinder());
@@ -66,7 +68,7 @@ public class ParameterBinderRegistryTest {
 
 	@Test
 	public void shouldAllowRegistrationOfParameterBinders() {
-		Map<String, String[]> map = map("bind", new String[] { "bound!" });
+		Map<String, List<String>> map = map("bind", values("bound!"));
 
 		assertThat(registry.createFor(new ParameterDescription("bind", TestBindable.class), new RequestDataMap(map)), is(nullValue()));
 
@@ -88,7 +90,7 @@ public class ParameterBinderRegistryTest {
 	public void shouldAllowUnregistrationOfParameterBinders() {
 		registry.addBinder(binder);
 		registry.removeBinder(binder);
-		Map<String, String[]> map = map("bind", new String[] { "bound!" });
+		Map<String, List<String>> map = map("bind", values("bound!"));
 		ParameterBinderRegistry registry = new ParameterBinderRegistry(transformerManager);
 		assertThat(registry.createFor(new ParameterDescription("bind", TestBindable.class), new RequestDataMap(map)), is(nullValue()));
 	}
@@ -127,6 +129,7 @@ public class ParameterBinderRegistryTest {
 		registry.removeBinder((BinaryParameterBinder<?>) null);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void shouldBindAllParametersNotAlreadyBound() {
 		ParameterBinderRegistry.addDefaultBinders(registry);
@@ -138,11 +141,19 @@ public class ParameterBinderRegistryTest {
 		ParameterDescription parameterDescription5 = new ParameterDescription("param4", byte[].class);
 
 		// @formatter:off
-		Map<ParameterDescription, Object> bindings = mapKeys(parameterDescription1, parameterDescription2, parameterDescription3, parameterDescription4, parameterDescription5)
-												.<Object> to(null, null,"Already bound", null, new byte[] { 3, 2, 1 });
+		Map<ParameterDescription, Object> bindings = mapKeys(parameterDescription1, 
+															parameterDescription2,
+															parameterDescription3, 
+															parameterDescription4, 
+															parameterDescription5)
+												.<Object> to(null,
+															null,
+															"Already bound", 
+															null, 
+															new byte[] { 3, 2, 1 });
 		// @formatter:on
 
-		Map<String, String[]> parameterMap = mapKeys("param1", "param2", "param3").to(array("value1"), array("2"), array("value3"));
+		Map<String, List<String>> parameterMap = mapKeys("param1", "param2", "param3").to(values("value1"), values("2"), values("value3"));
 		Map<String, MultipartFile> fileMap = mapKeys("param4", "param5").to(new MultipartFile("param4", new byte[] { 1, 2, 3 }, null), new MultipartFile("param5", new byte[] { 1, 2, 3 }, null));
 
 		registry.bind(bindings, parameterMap, fileMap);
@@ -152,6 +163,10 @@ public class ParameterBinderRegistryTest {
 		assertThat(bindings.get(parameterDescription3), is((Object) "Already bound"));
 		assertThat(bindings.get(parameterDescription4), is((Object) new byte[] { 1, 2, 3 }));
 		assertThat(bindings.get(parameterDescription5), is((Object) new byte[] { 3, 2, 1 }));
+	}
+
+	private List<String> values(String... values) {
+		return Arrays.asList(values);
 	}
 
 	private static class TestBindable {
@@ -190,8 +205,8 @@ public class ParameterBinderRegistryTest {
 
 		@Override
 		public TestBindable bind(ParameterBinderRegistry binders, ParameterDescription parameterDescription, RequestDataMap pathMap, TransformerManager transformerManager) {
-			String[] strings = pathMap.get(parameterDescription.name());
-			return new TestBindable(strings[0]);
+			List<String> strings = pathMap.get(parameterDescription.name());
+			return new TestBindable(strings.get(0));
 		}
 	}
 

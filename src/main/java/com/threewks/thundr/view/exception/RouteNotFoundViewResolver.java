@@ -17,9 +17,8 @@
  */
 package com.threewks.thundr.view.exception;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 import com.threewks.thundr.route.RouteNotFoundException;
 import com.threewks.thundr.view.ViewResolver;
 
@@ -27,7 +26,7 @@ public class RouteNotFoundViewResolver implements ViewResolver<RouteNotFoundExce
 	private HttpStatusExceptionViewResolver delegate = new HttpStatusExceptionViewResolver();
 
 	@Override
-	public void resolve(HttpServletRequest req, HttpServletResponse resp, RouteNotFoundException viewResult) {
+	public void resolve(Request req, Response resp, RouteNotFoundException viewResult) {
 		delegate.resolve(req, resp, viewResult);
 	}
 }

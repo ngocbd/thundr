@@ -19,13 +19,16 @@ package com.threewks.thundr.bind.parameter;
 
 import static com.atomicleopard.expressive.Expressive.list;
 
+import java.util.List;
+
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.transformer.TransformerManager;
 
 public class StringParameterBinder implements ParameterBinder<String> {
+	@Override
 	public String bind(ParameterBinderRegistry binder, ParameterDescription parameterDescription, RequestDataMap pathMap, TransformerManager transformerManager) {
-		String[] values = pathMap.get(list(parameterDescription.name()));
-		return values != null && values.length > 0 ? values[0] : null;
+		List<String> values = pathMap.get(list(parameterDescription.name()));
+		return values != null && values.size() > 0 ? values.get(0) : null;
 	}
 
 	@Override

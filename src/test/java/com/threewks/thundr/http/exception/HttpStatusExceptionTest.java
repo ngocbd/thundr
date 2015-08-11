@@ -22,22 +22,24 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
+import com.threewks.thundr.http.StatusCode;
+
 public class HttpStatusExceptionTest {
 
 	@Test
 	public void shouldFormatAndRetainStatusAndReason() {
-		HttpStatusException httpStatusException = new HttpStatusException(123, "String %s", "format");
+		HttpStatusException httpStatusException = new HttpStatusException(StatusCode.ImATeapot, "String %s", "format");
 		assertThat(httpStatusException.getMessage(), is("String format"));
 		assertThat(httpStatusException.getCause(), is(nullValue()));
-		assertThat(httpStatusException.getStatus(), is(123));
+		assertThat(httpStatusException.getStatus(), is(StatusCode.ImATeapot));
 	}
 
 	@Test
 	public void shouldFormatAndRetainCauseStatusAndAndReason() {
 		Exception exception = new Exception("cause");
-		HttpStatusException httpStatusException = new HttpStatusException(exception, 456, "String %s", "format");
+		HttpStatusException httpStatusException = new HttpStatusException(exception, StatusCode.BandwidthLimitExceeded, "String %s", "format");
 		assertThat(httpStatusException.getMessage(), is("String format"));
 		assertThat(httpStatusException.getCause(), is((Throwable) exception));
-		assertThat(httpStatusException.getStatus(), is(456));
+		assertThat(httpStatusException.getStatus(), is(StatusCode.BandwidthLimitExceeded));
 	}
 }

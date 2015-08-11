@@ -21,6 +21,7 @@ import static com.atomicleopard.expressive.Expressive.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -45,10 +46,11 @@ public class JavaBeanParameterBinderTest {
 	private TransformerManager transformerManager = TransformerManager.createWithDefaults();
 	private ParameterBinderRegistry binders = new ParameterBinderRegistry(transformerManager);
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void shouldBindABasicJavabean() {
 		ParameterDescription parameterDescription = new ParameterDescription("bean", BasicTestBean.class);
-		Map<String, String[]> map = mapKeys("bean.name", "bean.id").to(array("string"), array("1"));
+		Map<String, List<String>> map = mapKeys("bean.name", "bean.id").to(values("string"), values("1"));
 
 		Object result = binder.bind(binders, parameterDescription, new RequestDataMap(map), transformerManager);
 		assertThat(result, is(notNullValue()));
@@ -58,10 +60,11 @@ public class JavaBeanParameterBinderTest {
 		assertThat(bean.getId(), is(1l));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void shouldBindABasicJavabeanWithExtendedTypes() {
 		ParameterDescription parameterDescription = new ParameterDescription("bean", BasicTestBean.class);
-		Map<String, String[]> map = mapKeys("bean.name", "bean.id", "bean.dateTime").to(array("string"), array("1"), array("2014-06-02T12:01:01.001Z"));
+		Map<String, List<String>> map = mapKeys("bean.name", "bean.id", "bean.dateTime").to(values("string"), values("1"), values("2014-06-02T12:01:01.001Z"));
 
 		Object result = binder.bind(binders, parameterDescription, new RequestDataMap(map), transformerManager);
 		assertThat(result, is(notNullValue()));
@@ -72,10 +75,11 @@ public class JavaBeanParameterBinderTest {
 		assertThat(bean.getDateTime(), is(new DateTime(2014, 6, 2, 12, 1, 1, 1).withZoneRetainFields(DateTimeZone.UTC)));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void shouldBindANestedJavabean() {
 		ParameterDescription parameterDescription = new ParameterDescription("bean", NestedTestBean.class);
-		Map<String, String[]> map = mapKeys("bean.name", "bean.nested.name", "bean.nested.id").to(array("outer"), array("inner"), array("1"));
+		Map<String, List<String>> map = mapKeys("bean.name", "bean.nested.name", "bean.nested.id").to(values("outer"), values("inner"), values("1"));
 
 		Object result = binder.bind(binders, parameterDescription, new RequestDataMap(map), transformerManager);
 		assertThat(result, is(notNullValue()));
@@ -88,11 +92,12 @@ public class JavaBeanParameterBinderTest {
 		assertThat(bean.getNested().getId(), is(1l));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void shouldBindAMultidimensonalJavabean() {
 		ParameterDescription parameterDescription = new ParameterDescription("bean", MultidimensionalTestBean.class);
-		Map<String, String[]> map = mapKeys("bean.name", "bean.nested[0].name", "bean.nested[0].id", "bean.nested[1].name", "bean.nested[1].id").to(array("outer"), array("inner1"), array("1"),
-				array("inner2"), array("2"));
+		Map<String, List<String>> map = mapKeys("bean.name", "bean.nested[0].name", "bean.nested[0].id", "bean.nested[1].name", "bean.nested[1].id").to(values("outer"), values("inner1"), values("1"),
+				values("inner2"), values("2"));
 
 		Object result = binder.bind(binders, parameterDescription, new RequestDataMap(map), transformerManager);
 		assertThat(result, is(notNullValue()));
@@ -114,7 +119,7 @@ public class JavaBeanParameterBinderTest {
 		thrown.expectMessage("Failed to bind onto class com.threewks.thundr.bind.parameter.JavaBeanParameterBinderTest$UnbindableTestBean: Intentional");
 
 		ParameterDescription parameterDescription = new ParameterDescription("bean", UnbindableTestBean.class);
-		Map<String, String[]> map = map("bean.value", array("value"));
+		Map<String, List<String>> map = map("bean.value", values("value"));
 
 		binder.bind(binders, parameterDescription, new RequestDataMap(map), transformerManager);
 	}
@@ -122,7 +127,7 @@ public class JavaBeanParameterBinderTest {
 	@Test
 	public void shouldReturnNullIfNoDataInRequestMap() {
 		ParameterDescription parameterDescription = new ParameterDescription("bean", UnbindableTestBean.class);
-		Map<String, String[]> map = map("other.data", array("value"));
+		Map<String, List<String>> map = map("other.data", values("value"));
 
 		Object result = binder.bind(binders, parameterDescription, new RequestDataMap(map), transformerManager);
 		assertThat(result, is(nullValue()));
@@ -141,6 +146,10 @@ public class JavaBeanParameterBinderTest {
 		assertThat(binder.willBind(new ParameterDescription(null, Collection.class), transformerManager), is(false));
 		assertThat(binder.willBind(new ParameterDescription(null, Map.class), transformerManager), is(false));
 		assertThat(binder.willBind(new ParameterDescription(null, Set.class), transformerManager), is(false));
+	}
+
+	public static List<String> values(String... args) {
+		return Arrays.asList(args);
 	}
 
 	public static class MultidimensionalTestBean {

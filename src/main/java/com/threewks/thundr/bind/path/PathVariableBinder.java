@@ -20,13 +20,12 @@ package com.threewks.thundr.bind.path;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.atomicleopard.expressive.Cast;
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.bind.Binder;
 import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 import com.threewks.thundr.transformer.TransformerManager;
 
 public class PathVariableBinder implements Binder {
@@ -38,7 +37,7 @@ public class PathVariableBinder implements Binder {
 	}
 
 	@Override
-	public void bindAll(Map<ParameterDescription, Object> bindings, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVariables) {
+	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp, Map<String, String> pathVariables) {
 		for (ParameterDescription parameterDescription : bindings.keySet()) {
 			if (bindings.get(parameterDescription) == null) {
 				if (canBindFromPathVariable(parameterDescription)) {

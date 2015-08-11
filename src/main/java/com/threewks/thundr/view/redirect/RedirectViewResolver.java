@@ -17,23 +17,21 @@
  */
 package com.threewks.thundr.view.redirect;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.threewks.thundr.view.ViewResolutionException;
+import com.threewks.thundr.http.Header;
+import com.threewks.thundr.http.StatusCode;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 import com.threewks.thundr.view.ViewResolver;
 
 public class RedirectViewResolver implements ViewResolver<RedirectView> {
 
 	@Override
-	public void resolve(HttpServletRequest req, HttpServletResponse resp, RedirectView viewResult) {
-		try {
-			resp.sendRedirect(viewResult.getRedirect());
-		} catch (IOException e) {
-			throw new ViewResolutionException(e, "Failed to redirect to %s: %s", viewResult.getRedirect(), e.getMessage());
-		}
+	public void resolve(Request req, Response resp, RedirectView viewResult) {
+		// @formatter:off
+		resp.withStatusCode(StatusCode.TemporaryRedirect)
+			.withHeader(Header.Location, viewResult.getRedirect());
+		// TODO - v3 - does this require a content length?
+		// @formatter:on
 	}
 
 	@Override

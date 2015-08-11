@@ -17,22 +17,19 @@
  */
 package com.threewks.thundr.bind.http.request;
 
-import static com.atomicleopard.expressive.Expressive.list;
-
-import java.util.Enumeration;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
-import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.bind.Binder;
 import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 
 import jodd.util.StringPool;
 
@@ -45,21 +42,17 @@ public class RequestHeaderBinder implements Binder {
 	}
 
 	@Override
-	public void bindAll(Map<ParameterDescription, Object> bindings, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVariables) {
-		Map<String, String[]> parameterMap = createNormalisedHeaderMap(req);
+	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp, Map<String, String> pathVariables) {
+		Map<String, List<String>> parameterMap = createNormalisedHeaderMap(req);
 		parameterBinderRegistry.bind(bindings, parameterMap, null);
 	}
 
-	@SuppressWarnings("unchecked")
-	private Map<String, String[]> createNormalisedHeaderMap(HttpServletRequest req) {
-		Map<String, String[]> results = new HashMap<String, String[]>();
-		Enumeration<String> headerNames = req.getHeaderNames();
-		if (headerNames != null) {
-			for (String name : Expressive.iterable(headerNames)) {
-				String[] values = headerValues(req.getHeaders(name));
-				results.put(normaliseHeaderName(name), values);
-			}
-		}
+	private Map<String, List<String>> createNormalisedHeaderMap(Request req) {
+		Map<String, List<String>> results = new LinkedHashMap<>();
+		Map<String, List<String>> headers = req.getAllHeaders();
+		headers.forEach((name, values) -> {
+			results.put(normaliseHeaderName(name), values);
+		});
 		return results;
 	}
 
@@ -67,9 +60,5 @@ public class RequestHeaderBinder implements Binder {
 		String capitalised = WordUtils.capitalizeFully(header, '-');
 		String withoutDashes = capitalised.replaceAll(StringPool.DASH, StringPool.EMPTY);
 		return StringUtils.uncapitalize(withoutDashes);
-	}
-
-	private String[] headerValues(Enumeration<String> headers) {
-		return list(Expressive.iterable(headers)).toArray(new String[0]);
 	}
 }

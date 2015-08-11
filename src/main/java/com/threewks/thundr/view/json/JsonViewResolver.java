@@ -17,14 +17,15 @@
  */
 package com.threewks.thundr.view.json;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
 
 import com.atomicleopard.expressive.Cast;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.threewks.thundr.json.GsonSupport;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 import com.threewks.thundr.view.BaseView;
 import com.threewks.thundr.view.ViewResolutionException;
 import com.threewks.thundr.view.ViewResolver;
@@ -50,16 +51,20 @@ public class JsonViewResolver implements ViewResolver<JsonView> {
 	}
 
 	@Override
-	public void resolve(HttpServletRequest req, HttpServletResponse resp, JsonView viewResult) {
+	public void resolve(Request req, Response resp, JsonView viewResult) {
 		Object output = viewResult.getOutput();
 		try {
 			Gson create = gsonBuilder.create();
 			JsonElement jsonElement = Cast.as(output, JsonElement.class);
 			String json = jsonElement == null ? create.toJson(output) : create.toJson(jsonElement);
 			String encoding = viewResult.getCharacterEncoding();
-			resp.setContentLength(json.getBytes(encoding).length);
+			byte[] data = json.getBytes(encoding);
 			BaseView.applyToResponse(viewResult, resp);
-			resp.getWriter().write(json);
+			resp.withContentLength(data.length);
+			OutputStream outputStream = resp.getOutputStream();
+			outputStream.write(data);
+			outputStream.flush();
+			// @formatter:on
 		} catch (Exception e) {
 			throw new ViewResolutionException(e, "Failed to generate JSON output for object '%s': %s", output.toString(), e.getMessage());
 		}

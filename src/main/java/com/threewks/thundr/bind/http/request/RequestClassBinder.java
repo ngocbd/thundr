@@ -20,32 +20,27 @@ package com.threewks.thundr.bind.http.request;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.bind.Binder;
 import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 
 public class RequestClassBinder implements Binder {
-	public static final List<Class<?>> BoundTypes = Expressive.<Class<?>> list(HttpServletRequest.class, HttpServletResponse.class, HttpSession.class);
+	public static final List<Class<?>> BoundTypes = Expressive.<Class<?>> list(Request.class, Response.class);
 
 	@Override
-	public void bindAll(Map<ParameterDescription, Object> bindings, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVariables) {
+	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp, Map<String, String> pathVariables) {
 		for (Map.Entry<ParameterDescription, Object> binding : bindings.entrySet()) {
 			if (binding.getValue() == null) {
 				ParameterDescription parameterDescription = binding.getKey();
 
 				Object value = null;
-				if (parameterDescription.isA(HttpServletRequest.class)) {
+				if (parameterDescription.isA(Request.class)) {
 					value = req;
 				}
-				if (parameterDescription.isA(HttpServletResponse.class)) {
+				if (parameterDescription.isA(Response.class)) {
 					value = resp;
-				}
-				if (parameterDescription.isA(HttpSession.class)) {
-					value = req.getSession();
 				}
 				bindings.put(parameterDescription, value);
 			}

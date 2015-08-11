@@ -23,8 +23,9 @@ import java.lang.reflect.Type;
 
 import com.atomicleopard.expressive.Cast;
 
-import jodd.util.ReflectUtil;
-
+/**
+ * Provides information about a method parameter.
+ */
 public class ParameterDescription {
 	private String name;
 	private Type type;
@@ -35,11 +36,24 @@ public class ParameterDescription {
 		this.type = type;
 	}
 
+	/**
+	 * Returns true if this parameter is of the given type.
+	 * 
+	 * @param is
+	 * @return
+	 */
 	public boolean isA(Class<?> is) {
 		Class<?> clazz = classType();
 		return clazz == null ? false : clazz.isAssignableFrom(is);
 	}
 
+	/**
+	 * Returns the type of the the generic argument at the given index, or null if this is not a
+	 * parameter of generic type.
+	 * 
+	 * @param index
+	 * @return
+	 */
 	public Type getGenericType(int index) {
 		ParameterizedType pt = Cast.as(type, ParameterizedType.class);
 		if (pt != null) {
@@ -67,7 +81,7 @@ public class ParameterDescription {
 	}
 
 	public boolean isGeneric() {
-		return ReflectUtil.getComponentType(type) != null;
+		return TypeIntrospector.isGeneric(type);
 	}
 
 	public String name() {
@@ -75,7 +89,7 @@ public class ParameterDescription {
 	}
 
 	public Class<?> classType() {
-		return ReflectUtil.toClass(type);
+		return TypeIntrospector.asClass(type);
 	}
 
 	public Type type() {

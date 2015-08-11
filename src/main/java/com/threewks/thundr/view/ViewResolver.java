@@ -17,8 +17,8 @@
  */
 package com.threewks.thundr.view;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 
 /**
  * Implementations of {@link ViewResolver} determine what content to place in the response for a given request for a given
@@ -33,5 +33,5 @@ import javax.servlet.http.HttpServletResponse;
  * @see ViewResolverRegistry#addResolver(Class, ViewResolver)
  */
 public interface ViewResolver<T> {
-	public void resolve(HttpServletRequest req, HttpServletResponse resp, T viewResult);
+	public void resolve(Request req, Response resp, T viewResult);
 }

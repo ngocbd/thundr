@@ -17,11 +17,9 @@
  */
 package com.threewks.thundr.route.controller;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.threewks.thundr.injection.Module;
-import com.threewks.thundr.route.HttpMethod;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 
 /**
  * Filters allow a before, after and exception cutpoint on controller methods invoked based on the
@@ -34,36 +32,31 @@ public interface Filter {
 	 * Invoked before the controller method is called, and before binding happens for the controller method. Returning null from this method allows normal execution to continue,
 	 * returning anything else results in the controller not being invoked and the returned view being resolved.
 	 * 
-	 * @param method
-	 * 
 	 * @param req
 	 * @param resp
 	 * @return the view to resolve if this filter wishes to resolve the view and prevent the controller being invoked, null otherwise
 	 */
-	public <T> T before(HttpMethod method, HttpServletRequest req, HttpServletResponse resp);
+	public <T> T before(Request req, Response resp);
 
 	/**
 	 * Invoked after the controller method is called. Returning null from this method will result in the given view object being resolved as normal, any other
 	 * return value will be resolved as the view instead of the controller's returned view.
 	 * 
 	 * @param view the view the controller returned after execution
-	 * @param view2
 	 * @param req
 	 * @param resp
 	 * @return the view to resolve instead of the controllers result, or null to use the result of the controller execution
 	 */
-	public <T> T after(HttpMethod method, Object view, HttpServletRequest req, HttpServletResponse resp);
+	public <T> T after(Object view, Request req, Response resp);
 
 	/**
 	 * Invoked if the controller method execution throws an exception. This method can return a view which will be resolved instead of the exception, or null
 	 * if the exception should be resolved to a view normally.
-	 * 
-	 * @param method
 	 * 
 	 * @param e the exception thrown from the controller method
 	 * @param req
 	 * @param resp
 	 * @return the view to resolve instead of the exception, or null to resolve as normal
 	 */
-	public <T> T exception(HttpMethod method, Exception e, HttpServletRequest req, HttpServletResponse resp);
+	public <T> T exception(Exception e, Request req, Response resp);
 }

@@ -18,22 +18,23 @@
 package com.threewks.thundr.http.exception;
 
 import com.threewks.thundr.exception.BaseException;
+import com.threewks.thundr.http.StatusCode;
 
 public class HttpStatusException extends BaseException {
 	private static final long serialVersionUID = 8001486426456728315L;
-	private int status;
+	private StatusCode status;
 
-	public HttpStatusException(int status, String format, Object... formatArgs) {
+	public HttpStatusException(StatusCode status, String format, Object... formatArgs) {
 		super(format, formatArgs);
 		this.status = status;
 	}
 
-	public HttpStatusException(Throwable cause, int status, String format, Object... formatArgs) {
+	public HttpStatusException(Throwable cause, StatusCode status, String format, Object... formatArgs) {
 		super(cause, format, formatArgs);
 		this.status = status;
 	}
 
-	public int getStatus() {
+	public StatusCode getStatus() {
 		return status;
 	}
 }

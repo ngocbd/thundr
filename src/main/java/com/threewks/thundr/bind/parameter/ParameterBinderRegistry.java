@@ -121,7 +121,7 @@ public class ParameterBinderRegistry {
 		return null;
 	}
 
-	public void bind(Map<ParameterDescription, Object> bindings, Map<String, String[]> parameterMap, Map<String, MultipartFile> fileMap) {
+	public void bind(Map<ParameterDescription, Object> bindings, Map<String, List<String>> parameterMap, Map<String, MultipartFile> fileMap) {
 		RequestDataMap pathMap = new RequestDataMap(parameterMap);
 		for (ParameterDescription parameterDescription : bindings.keySet()) {
 			if (bindings.get(parameterDescription) == null) {

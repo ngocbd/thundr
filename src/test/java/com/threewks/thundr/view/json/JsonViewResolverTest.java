@@ -24,9 +24,6 @@ import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -34,25 +31,28 @@ import org.junit.rules.ExpectedException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.threewks.thundr.http.Cookies;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
+import com.threewks.thundr.http.ContentType;
+import com.threewks.thundr.http.Cookie;
+import com.threewks.thundr.http.StatusCode;
+import com.threewks.thundr.request.mock.MockRequest;
+import com.threewks.thundr.request.mock.MockResponse;
 import com.threewks.thundr.view.ViewResolutionException;
 
 public class JsonViewResolverTest {
 
-	@Rule public ExpectedException thrown = ExpectedException.none();
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
-	private MockHttpServletRequest req = new MockHttpServletRequest();
-	private MockHttpServletResponse resp = new MockHttpServletResponse();
+	private MockRequest req = new MockRequest();
+	private MockResponse resp = new MockResponse();
 	private JsonViewResolver resolver = new JsonViewResolver();
 
 	@Test
 	public void shouldResolveByWritingJsonToOutputStream() throws IOException {
 		JsonView viewResult = new JsonView(map("key", "value"));
 		resolver.resolve(req, resp, viewResult);
-		assertThat(resp.status(), is(HttpServletResponse.SC_OK));
-		assertThat(resp.content(), is("{\"key\":\"value\"}"));
+		assertThat(resp.getStatusCode(), is(StatusCode.OK));
+		assertThat(resp.getBodyAsString(), is("{\"key\":\"value\"}"));
 		assertThat(resp.getCharacterEncoding(), is("UTF-8"));
 		assertThat(resp.getContentLength(), is(15));
 	}
@@ -62,8 +62,8 @@ public class JsonViewResolverTest {
 		JsonElement jsonEl = createJsonElement();
 		JsonView viewResult = new JsonView(jsonEl);
 		resolver.resolve(req, resp, viewResult);
-		assertThat(resp.status(), is(HttpServletResponse.SC_OK));
-		assertThat(resp.content(), is("{\"key\":\"value\"}"));
+		assertThat(resp.getStatusCode(), is(StatusCode.OK));
+		assertThat(resp.getBodyAsString(), is("{\"key\":\"value\"}"));
 		assertThat(resp.getCharacterEncoding(), is("UTF-8"));
 		assertThat(resp.getContentLength(), is(15));
 	}
@@ -74,7 +74,7 @@ public class JsonViewResolverTest {
 		thrown.expectMessage("Failed to generate JSON output for object 'string'");
 
 		resp = spy(resp);
-		when(resp.getWriter()).thenThrow(new RuntimeException("fail"));
+		when(resp.getOutputStream()).thenThrow(new RuntimeException("fail"));
 		JsonView viewResult = new JsonView("string");
 		resolver.resolve(req, resp, viewResult);
 	}
@@ -88,19 +88,20 @@ public class JsonViewResolverTest {
 	public void shouldSetJsonContentType() {
 		JsonView viewResult = new JsonView(map("key", "value"));
 		resolver.resolve(req, resp, viewResult);
-		assertThat(resp.getContentType(), is("application/json"));
+		assertThat(resp.getContentType(), is(ContentType.ApplicationJson));
 	}
 
 	@Test
 	public void shouldRespectExtendedViewValues() {
 		JsonView view = new JsonView(map("key", "value"));
-		Cookie cookie = Cookies.build("cookie").withValue("value2").build();
+		Cookie cookie = Cookie.build("cookie").withValue("value2").build();
 		view.withContentType("content/type").withCharacterEncoding("UTF-16").withHeader("header", "value1").withCookie(cookie);
 
 		resolver.resolve(req, resp, view);
-		assertThat(resp.getContentType(), is("content/type"));
+		assertThat(resp.getContentType(), is(nullValue()));
+		assertThat(resp.getContentTypeString(), is("content/type"));
 		assertThat(resp.getCharacterEncoding(), is("UTF-16"));
-		assertThat(resp.<String> header("header"), is("value1"));
+		assertThat(resp.getHeader("header"), is("value1"));
 		assertThat(resp.getCookies(), hasItem(cookie));
 	}
 

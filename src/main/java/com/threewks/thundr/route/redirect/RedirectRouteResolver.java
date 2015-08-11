@@ -19,22 +19,24 @@ package com.threewks.thundr.route.redirect;
 
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.threewks.thundr.http.Header;
+import com.threewks.thundr.http.StatusCode;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 import com.threewks.thundr.route.HttpMethod;
 import com.threewks.thundr.route.RouteResolver;
 import com.threewks.thundr.route.RouteResolverException;
+import com.threewks.thundr.view.redirect.RedirectView;
 
 public class RedirectRouteResolver implements RouteResolver<Redirect> {
 	@Override
-	public Object resolve(Redirect action, HttpMethod method, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws RouteResolverException {
+	public Object resolve(Redirect action, HttpMethod method, Request req, Response resp, Map<String, String> pathVars) throws RouteResolverException {
 		String redirectTo = action.getRedirectTo(pathVars);
 		try {
-			resp.sendRedirect(redirectTo);
+			resp.withStatusCode(StatusCode.TemporaryRedirect).withHeader(Header.Location, redirectTo);
 			return null;
 		} catch (Exception e) {
-			throw new RouteResolverException(e, "Failed to redirect %s to %s: %s", req.getRequestURI(), redirectTo, e.getMessage());
+			throw new RouteResolverException(e, "Failed to redirect %s to %s: %s", req.getRequestPath(), redirectTo, e.getMessage());
 		}
 	}
 }

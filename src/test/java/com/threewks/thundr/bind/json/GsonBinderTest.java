@@ -40,7 +40,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,17 +51,18 @@ import com.threewks.thundr.bind.BindException;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.introspection.MethodIntrospector;
 import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.mock.MockRequest;
+import com.threewks.thundr.request.mock.MockResponse;
 import com.threewks.thundr.test.TestSupport;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
 
 public class GsonBinderTest {
 
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
 	private GsonBinder gsonBinder = new GsonBinder();
-	private MockHttpServletRequest req = new MockHttpServletRequest().contentType(ContentType.ApplicationJson);
-	private HttpServletResponse resp = new MockHttpServletResponse();
+	private MockRequest req = new MockRequest().withContentType(ContentType.ApplicationJson);
+	private MockResponse resp = new MockResponse();
 	private Map<String, String> pathVariables = Collections.emptyMap();
 
 	@Test
@@ -74,9 +74,8 @@ public class GsonBinderTest {
 
 	@Test
 	public void shouldReturnTrueForCanBindToJsonContentType() {
-		assertThat(gsonBinder.canBind(ContentType.ApplicationJson.value()), is(true));
-		assertThat(gsonBinder.canBind("APPLICATION/JSON"), is(true));
-		assertThat(gsonBinder.canBind(ContentType.TextPlain.value()), is(false));
+		assertThat(gsonBinder.canBind(ContentType.ApplicationJson), is(true));
+		assertThat(gsonBinder.canBind(ContentType.TextPlain), is(false));
 		assertThat(gsonBinder.canBind(null), is(false));
 	}
 
@@ -84,7 +83,7 @@ public class GsonBinderTest {
 	public void shouldBindJsonToPojoControllerParameter() {
 		ParameterDescription parameterDescription = new ParameterDescription("pojo", TestPojo.class);
 		Map<ParameterDescription, Object> bindings = map(parameterDescription, null);
-		req.content("{ \"name\": \"pojo name\", \"value\": 5 }");
+		req.withBody("{ \"name\": \"pojo name\", \"value\": 5 }");
 
 		gsonBinder.bindAll(bindings, req, resp, pathVariables);
 
@@ -110,7 +109,7 @@ public class GsonBinderTest {
 		bindings.put(intParameterDescription, null);
 		bindings.put(stringParameterDescription, null);
 
-		req.content("{ \"name\": \"pojo name\", \"value\": 5 }");
+		req.withBody("{ \"name\": \"pojo name\", \"value\": 5 }");
 
 		gsonBinder.bindAll(bindings, req, resp, pathVariables);
 
@@ -129,11 +128,11 @@ public class GsonBinderTest {
 
 	@Test
 	public void shouldNotBindJsonToExplodedParametersWhenNoPojoAvailableAndAHttpRequestIsPresent() {
-		ParameterDescription requestParameterDescription = new ParameterDescription("req", HttpServletRequest.class);
+		ParameterDescription requestParameterDescription = new ParameterDescription("req", Request.class);
 		ParameterDescription stringParameterDescription = new ParameterDescription("name", String.class);
 		ParameterDescription intParameterDescription = new ParameterDescription("value", int.class);
 		Map<ParameterDescription, Object> bindings = mapKeys(requestParameterDescription, intParameterDescription, stringParameterDescription).to(null, null, null, null);
-		req.content("{ \"name\": \"pojo name\", \"value\": 5 }");
+		req.withBody("{ \"name\": \"pojo name\", \"value\": 5 }");
 
 		gsonBinder.bindAll(bindings, req, resp, pathVariables);
 
@@ -150,7 +149,7 @@ public class GsonBinderTest {
 		ParameterDescription stringParameterDescription = new ParameterDescription("name", String.class);
 		ParameterDescription intParameterDescription = new ParameterDescription("value", int.class);
 		Map<ParameterDescription, Object> bindings = mapKeys(intParameterDescription, stringParameterDescription).to(null, null, null);
-		req.content("{ \"name\": \"pojo name\", \"value\": 5 }");
+		req.withBody("{ \"name\": \"pojo name\", \"value\": 5 }");
 
 		gsonBinder.bindAll(bindings, req, resp, pathVariables);
 
@@ -167,9 +166,7 @@ public class GsonBinderTest {
 		ParameterDescription stringParameterDescription = new ParameterDescription("name", String.class);
 		ParameterDescription intParameterDescription = new ParameterDescription("value", int.class);
 		Map<ParameterDescription, Object> bindings = mapKeys(intParameterDescription, stringParameterDescription).to(null, null, null);
-		HttpServletRequest req = mock(HttpServletRequest.class);
-		when(req.getReader()).thenReturn(null);
-		when(req.getContentType()).thenReturn(ContentType.ApplicationJson.value());
+		req.withContentType(ContentType.ApplicationJson);
 
 		gsonBinder.bindAll(bindings, req, resp, pathVariables);
 
@@ -184,9 +181,10 @@ public class GsonBinderTest {
 		ParameterDescription parameterDescription = new ParameterDescription("pojo", TestPojo.class);
 		Map<ParameterDescription, Object> bindings = map(parameterDescription, null);
 
-		HttpServletRequest req = mock(HttpServletRequest.class);
-		when(req.getReader()).thenReturn(null);
-		when(req.getContentType()).thenReturn(ContentType.ApplicationJson.value());
+		// @formatter:off
+		MockRequest req = new MockRequest()
+			.withContentType(ContentType.ApplicationJson);
+		// @formatter:on
 
 		gsonBinder.bindAll(bindings, req, resp, pathVariables);
 
@@ -200,7 +198,7 @@ public class GsonBinderTest {
 		ParameterDescription intParameterDescription = new ParameterDescription("value", int.class);
 		Map<ParameterDescription, Object> bindings = mapKeys(intParameterDescription, stringParameterDescription).<Object> to(null, "existing name");
 
-		req.content("{ \"name\": \"pojo name\", \"value\": 5 }");
+		req.withBody("{ \"name\": \"pojo name\", \"value\": 5 }");
 
 		gsonBinder.bindAll(bindings, req, resp, pathVariables);
 
@@ -226,7 +224,7 @@ public class GsonBinderTest {
 		bindings.put(intParameterDescription, null);
 		bindings.put(stringParameterDescription, null);
 
-		req.content("{ \"name\": \"pojo name\", \"value\": 5 }");
+		req.withBody("{ \"name\": \"pojo name\", \"value\": 5 }");
 
 		gsonBinder.bindAll(bindings, req, resp, pathVariables);
 
@@ -253,14 +251,14 @@ public class GsonBinderTest {
 	@SuppressWarnings("unchecked")
 	private <T extends Collection<?>> void assertBindToCollection(String methodName, Class<T> parameterType) throws NoSuchMethodException, SecurityException {
 		Method method = this.getClass().getDeclaredMethod(methodName, parameterType);
-		MethodIntrospector methodIntrospector = new MethodIntrospector();
-		List<ParameterDescription> parameterDescriptions = methodIntrospector.getParameterDescriptions(method);
+		MethodIntrospector methodIntrospector = new MethodIntrospector(method);
+		List<ParameterDescription> parameterDescriptions = methodIntrospector.getParameterDescriptions();
 
 		Map<ParameterDescription, Object> bindings = new LinkedHashMap<ParameterDescription, Object>();
 		ParameterDescription parameterDescription = parameterDescriptions.get(0);
 		bindings.put(parameterDescription, null);
 
-		req.content("[{\"name\": \"pojo name\", \"value\": 5 }]");
+		req.withBody("[{\"name\": \"pojo name\", \"value\": 5 }]");
 
 		gsonBinder.bindAll(bindings, req, resp, pathVariables);
 
@@ -282,7 +280,7 @@ public class GsonBinderTest {
 		ParameterDescription pojoParameterDescription = new ParameterDescription("pojo", TestPojo.class);
 		Map<ParameterDescription, Object> bindings = map(pojoParameterDescription, null);
 
-		req.content("{ \"name\": \"pojo name\"");
+		req.withBody("{ \"name\": \"pojo name\"");
 
 		gsonBinder.bindAll(bindings, req, resp, pathVariables);
 	}
@@ -296,7 +294,7 @@ public class GsonBinderTest {
 		ParameterDescription intParameterDescription = new ParameterDescription("value", int.class);
 		Map<ParameterDescription, Object> bindings = mapKeys(intParameterDescription, stringParameterDescription).to(null, null);
 
-		req.content("{ \"name\": \"pojo name\", \"value\": \"not a number\" }");
+		req.withBody("{ \"name\": \"pojo name\", \"value\": \"not a number\" }");
 
 		gsonBinder.bindAll(bindings, req, resp, pathVariables);
 	}
@@ -310,7 +308,7 @@ public class GsonBinderTest {
 		ParameterDescription intParameterDescription = new ParameterDescription("value", int.class);
 		Map<ParameterDescription, Object> bindings = mapKeys(intParameterDescription, stringParameterDescription).to(null, null);
 
-		req.content("{ \"name\": \"pojo name\", \"value\": \"5.0\"");
+		req.withBody("{ \"name\": \"pojo name\", \"value\": \"5.0\"");
 
 		gsonBinder.bindAll(bindings, req, resp, pathVariables);
 	}
@@ -321,7 +319,7 @@ public class GsonBinderTest {
 		ParameterDescription intParameterDescription = new ParameterDescription("value", int.class);
 		Map<ParameterDescription, Object> bindings = mapKeys(intParameterDescription, stringParameterDescription).<Object> to(15, "existing");
 
-		req.content("{ \"name\": \"pojo name\", \"value\": 12 }");
+		req.withBody("{ \"name\": \"pojo name\", \"value\": 12 }");
 
 		req = spy(req);
 		gsonBinder.bindAll(bindings, req, resp, pathVariables);
@@ -331,19 +329,18 @@ public class GsonBinderTest {
 		assertThat(intValue, is((Object) 15));
 		assertThat(stringValue, is((Object) "existing"));
 
-		verify(req, never()).getInputStream();
+		verify(req, never()).getReader();
 	}
 
 	@Test
 	public void shouldNotBindAndLeaveReaderAndInputStreamUnconsumedWhenNoVariablesPresent() throws IOException {
 		Map<ParameterDescription, Object> bindings = Collections.emptyMap();
 
-		req.content("{ \"name\": \"pojo name\", \"value\": 12 }");
+		req.withBody("{ \"name\": \"pojo name\", \"value\": 12 }");
 
 		req = spy(req);
 		gsonBinder.bindAll(bindings, req, resp, pathVariables);
 
-		verify(req, never()).getInputStream();
 		verify(req, never()).getReader();
 	}
 
@@ -353,13 +350,12 @@ public class GsonBinderTest {
 		ParameterDescription intParameterDescription = new ParameterDescription("value", int.class);
 		Map<ParameterDescription, Object> bindings = map(stringParameterDescription, null, intParameterDescription, null);
 
-		req.content("{ \"name\": \"pojo name\", \"value\": 12 }");
-		req.contentType(ContentType.ApplicationFormUrlEncoded);
+		req.withBody("{ \"name\": \"pojo name\", \"value\": 12 }");
+		req.withContentType(ContentType.ApplicationFormUrlEncoded);
 
 		req = spy(req);
 		gsonBinder.bindAll(bindings, req, resp, pathVariables);
 
-		verify(req, never()).getInputStream();
 		verify(req, never()).getReader();
 	}
 
@@ -390,7 +386,7 @@ public class GsonBinderTest {
 	private <I extends Collection<String>, T extends I> void assertCanBindToCollection(Class<I> parameterType, Class<T> concreteType) {
 		ParameterDescription parameterDescription = new ParameterDescription("bind", parameterType);
 		Map<ParameterDescription, Object> bindings = map(parameterDescription, null);
-		req.content("[\"first\", \"second\"]");
+		req.withBody("[\"first\", \"second\"]");
 
 		gsonBinder.bindAll(bindings, req, resp, pathVariables);
 
@@ -408,7 +404,7 @@ public class GsonBinderTest {
 	private <I extends Map<String, Object>, T extends I> void assertCanBindToMap(Class<I> parameterType, Class<T> concreteType) {
 		ParameterDescription parameterDescription = new ParameterDescription("bind", parameterType);
 		Map<ParameterDescription, Object> bindings = map(parameterDescription, null);
-		req.content("{ \"name\": \"pojo name\", \"value\": 5 }");
+		req.withBody("{ \"name\": \"pojo name\", \"value\": 5 }");
 
 		gsonBinder.bindAll(bindings, req, resp, pathVariables);
 

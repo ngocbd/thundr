@@ -27,7 +27,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionContext;
 
-@SuppressWarnings({ "rawtypes", "deprecation" })
+@SuppressWarnings("deprecation")
 public class MockHttpSession implements HttpSession {
 	private String id = UUID.randomUUID().toString();
 	private ServletContext context;
@@ -95,7 +95,7 @@ public class MockHttpSession implements HttpSession {
 	}
 
 	@Override
-	public Enumeration getAttributeNames() {
+	public Enumeration<String> getAttributeNames() {
 		return Collections.enumeration(attributes.keySet());
 	}
 

@@ -22,20 +22,28 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.atomicleopard.expressive.Expressive;
+import com.threewks.thundr.request.InMemoryResponse;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.RequestContainer;
+import com.threewks.thundr.transformer.TransformerManager;
 import com.threewks.thundr.view.BasicViewRenderer;
 import com.threewks.thundr.view.ViewResolverRegistry;
 
 public abstract class BaseMailer implements Mailer {
 	protected ViewResolverRegistry viewResolverRegistry;
+	protected RequestContainer requestContainer;
 
-	public BaseMailer(ViewResolverRegistry viewResolverRegistry) {
+	public BaseMailer(ViewResolverRegistry viewResolverRegistry, RequestContainer requestContainer) {
 		this.viewResolverRegistry = viewResolverRegistry;
+		this.requestContainer = requestContainer;
 	}
 
+	@Override
 	public MailBuilder mail() {
 		return new MailBuilderImpl(this);
 	}
 
+	@Override
 	public void send(MailBuilder mailBuilder) {
 		String subject = mailBuilder.subject();
 		Map.Entry<String, String> from = mailBuilder.from();
@@ -56,14 +64,20 @@ public abstract class BaseMailer implements Mailer {
 		}
 	}
 
-	protected BasicViewRenderer render(Object view) {
+	protected InMemoryResponse render(Object view) {
 		try {
+
 			BasicViewRenderer basicViewRenderer = new BasicViewRenderer(viewResolverRegistry);
-			basicViewRenderer.render(view);
-			return basicViewRenderer;
+			InMemoryResponse response = new InMemoryResponse(getTransformerManager());
+			basicViewRenderer.render(requestContainer.getRequest(), response, view);
+			return response;
 		} catch (Exception e) {
 			throw new MailException(e, "Failed to render email part: %s", e.getMessage());
 		}
+	}
+
+	protected TransformerManager getTransformerManager() {
+		return TransformerManager.createWithDefaults();
 	}
 
 	protected abstract void sendInternal(Entry<String, String> from, Entry<String, String> replyTo, Map<String, String> to, Map<String, String> cc, Map<String, String> bcc, String subject,

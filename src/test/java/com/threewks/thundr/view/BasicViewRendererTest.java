@@ -17,24 +17,21 @@
  */
 package com.threewks.thundr.view;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.threewks.thundr.http.RequestThreadLocal;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
+import com.threewks.thundr.http.ContentType;
+import com.threewks.thundr.request.InMemoryResponse;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.mock.MockRequest;
+import com.threewks.thundr.transformer.TransformerManager;
 import com.threewks.thundr.view.string.StringView;
 import com.threewks.thundr.view.string.StringViewResolver;
 
@@ -43,27 +40,23 @@ public class BasicViewRendererTest {
 	public ExpectedException thrown = ExpectedException.none();
 	private ViewResolverRegistry viewResolverRegistry = new ViewResolverRegistry();
 	private BasicViewRenderer renderer = new BasicViewRenderer(viewResolverRegistry);
+	private Request request = new MockRequest();
+	private InMemoryResponse response = new InMemoryResponse(TransformerManager.createWithDefaults());
 
 	@Before
 	public void before() {
 		viewResolverRegistry.addResolver(StringView.class, new StringViewResolver());
-		RequestThreadLocal.clear();
-	}
-
-	@After
-	public void after() {
-		RequestThreadLocal.clear();
 	}
 
 	@Test
 	public void shouldRenderAViewMakingOutputAndHeadersAvailable() throws UnsupportedEncodingException {
-		renderer.render(new StringView("contents").withHeader("header", "value"));
-		assertThat(renderer.getOutputAsString(), is("contents"));
-		assertThat(renderer.getOutputAsBytes(), is("contents".getBytes("UTF-8")));
-		assertThat(renderer.getContentType(), is("text/plain"));
-		assertThat(renderer.getCharacterEncoding(), is("UTF-8"));
-		assertThat(renderer.getHeader("header"), is("value"));
-		assertThat(renderer.getHeader("HEADER"), is("value"));
+		renderer.render(request, response, new StringView("contents").withHeader("header", "value"));
+		assertThat(response.getBodyAsString(), is("contents"));
+		assertThat(response.getBodyAsBytes(), is("contents".getBytes("UTF-8")));
+		assertThat(response.getContentType(), is(ContentType.TextPlain));
+		assertThat(response.getCharacterEncoding(), is("UTF-8"));
+		assertThat(response.getHeader("header"), is("value"));
+		assertThat(response.getHeader("HEADER"), is(nullValue()));
 	}
 
 	@Test
@@ -71,66 +64,6 @@ public class BasicViewRendererTest {
 		thrown.expect(ViewResolverNotFoundException.class);
 		thrown.expectMessage("No ViewResolver is registered for the view result String - ");
 
-		renderer.render("no");
-	}
-
-	@Test
-	public void shouldThrowViewResolutionExceptionWhenTryingToReuseABasicViewRenderer() {
-		thrown.expect(ViewResolutionException.class);
-		thrown.expectMessage("This BasicViewRenderer has already been used to render a view, it cannot be reused. Create a new one");
-
-		renderer.render(new StringView("contents"));
-		renderer.render(new StringView("contents"));
-	}
-
-	@Test
-	public void shouldUseRequestInThreadLocalIfPresentRestoringInitialState() {
-		HttpServletRequest req = new MockHttpServletRequest();
-		HttpServletResponse resp = new MockHttpServletResponse();
-
-		req.setAttribute("existing", "value");
-		RequestThreadLocal.set(req, resp);
-
-		viewResolverRegistry.addResolver(String.class, new ViewResolver<String>() {
-			@Override
-			public void resolve(HttpServletRequest req, HttpServletResponse resp, String viewResult) {
-				assertThat(req.getAttribute("existing"), is((Object) "value"));
-				req.setAttribute("existing", "overwritten");
-				assertThat(req.getAttribute("existing"), is((Object) "overwritten"));
-				try {
-					resp.getWriter().write(viewResult);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		});
-		renderer.render("Body");
-		assertThat(renderer.getOutputAsString(), is("Body"));
-		assertThat(req.getAttribute("existing"), is((Object) "value"));
-	}
-
-	@Test
-	public void shouldUseRequestInThreadLocalIfPresentRestoringInitialStateEvenOnException() {
-		HttpServletRequest req = new MockHttpServletRequest();
-		HttpServletResponse resp = new MockHttpServletResponse();
-
-		req.setAttribute("existing", "value");
-		RequestThreadLocal.set(req, resp);
-
-		viewResolverRegistry.addResolver(String.class, new ViewResolver<String>() {
-			@Override
-			public void resolve(HttpServletRequest req, HttpServletResponse resp, String viewResult) {
-				assertThat(req.getAttribute("existing"), is((Object) "value"));
-				req.setAttribute("existing", "overwritten");
-				assertThat(req.getAttribute("existing"), is((Object) "overwritten"));
-				throw new RuntimeException("intentional");
-			}
-		});
-		try {
-			renderer.render("Body");
-			fail("Expected an exception");
-		} catch (RuntimeException e) {
-			assertThat(req.getAttribute("existing"), is((Object) "value"));
-		}
+		renderer.render(request, response, "no");
 	}
 }

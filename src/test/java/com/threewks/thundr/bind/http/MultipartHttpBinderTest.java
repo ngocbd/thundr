@@ -52,6 +52,10 @@ import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.MultipartFile;
 import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.mock.MockRequest;
+import com.threewks.thundr.request.mock.MockResponse;
+import com.threewks.thundr.route.HttpMethod;
 import com.threewks.thundr.test.TestSupport;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
@@ -64,15 +68,23 @@ public class MultipartHttpBinderTest {
 	public ExpectedException thrown = ExpectedException.none();
 
 	private MultipartHttpBinder binder;
-	private MockHttpServletRequest request = new MockHttpServletRequest().contentType(ContentType.MultipartFormData);
-	private MockHttpServletResponse response = new MockHttpServletResponse();
+	private MockRequest request;
+	private MockHttpServletRequest rawRequest;
+	private MockResponse response = new MockResponse();
 	private Map<String, String> pathVariables;
 	private Map<ParameterDescription, Object> parameterDescriptions;
 	private ArrayList<FileItemStream> multipartData;
 	private ParameterBinderRegistry parameterBinderRegistry;
 
+
 	@Before
 	public void before() throws FileUploadException, IOException {
+		// @formatter:off
+		rawRequest = new MockHttpServletRequest().contentType(ContentType.MultipartFormData);
+		request = new MockRequest(HttpMethod.POST, "/path/operation")
+							.withContentType(ContentType.MultipartFormData)
+							.withRawRequest(rawRequest);
+		// @formatter:on
 		parameterBinderRegistry = new ParameterBinderRegistry(TransformerManager.createWithDefaults());
 		ParameterBinderRegistry.addDefaultBinders(parameterBinderRegistry);
 		binder = new MultipartHttpBinder(parameterBinderRegistry);
@@ -81,7 +93,7 @@ public class MultipartHttpBinderTest {
 
 		multipartData = new ArrayList<FileItemStream>();
 		ServletFileUpload mockUpload = mock(ServletFileUpload.class);
-		when(mockUpload.getItemIterator(request)).thenAnswer(new Answer<FileItemIterator>() {
+		when(mockUpload.getItemIterator(rawRequest)).thenAnswer(new Answer<FileItemIterator>() {
 
 			@Override
 			public FileItemIterator answer(InvocationOnMock invocation) throws Throwable {
@@ -105,7 +117,7 @@ public class MultipartHttpBinderTest {
 
 	@Test
 	public void shouldOnlyBindMultipartContent() {
-		request.contentType(ContentType.ApplicationFormUrlEncoded);
+		request.withContentType(ContentType.ApplicationFormUrlEncoded);
 		ParameterDescription field1 = new ParameterDescription("field1", String.class);
 		ParameterDescription field2 = new ParameterDescription("field2", String.class);
 		addFormField("field1", "value1");
@@ -118,7 +130,7 @@ public class MultipartHttpBinderTest {
 		assertThat(parameterDescriptions.get(field1), is(nullValue()));
 		assertThat(parameterDescriptions.get(field2), is(nullValue()));
 
-		request.contentType(ContentType.MultipartFormData);
+		request.withContentType(ContentType.MultipartFormData);
 		binder.bindAll(parameterDescriptions, request, response, pathVariables);
 		assertThat(parameterDescriptions.get(field1), is(notNullValue()));
 		assertThat(parameterDescriptions.get(field2), is(notNullValue()));
@@ -201,7 +213,7 @@ public class MultipartHttpBinderTest {
 		binder = spy(binder);
 		binder.bindAll(parameterDescriptions, request, response, pathVariables);
 
-		verify(binder, times(0)).extractParameters(Mockito.any(HttpServletRequest.class), Mockito.anyMap(), Mockito.anyMapOf(String.class, MultipartFile.class));
+		verify(binder, times(0)).extractParameters(Mockito.any(Request.class), Mockito.anyMap(), Mockito.anyMapOf(String.class, MultipartFile.class));
 
 		assertThat(binder.shouldTryToBind(parameterDescriptions), is(false));
 	}
@@ -216,7 +228,7 @@ public class MultipartHttpBinderTest {
 		binder = spy(binder);
 		binder.bindAll(parameterDescriptions, request, response, pathVariables);
 
-		verify(binder, times(0)).extractParameters(Mockito.any(HttpServletRequest.class), Mockito.anyMap(), Mockito.anyMapOf(String.class, MultipartFile.class));
+		verify(binder, times(0)).extractParameters(Mockito.any(Request.class), Mockito.anyMap(), Mockito.anyMapOf(String.class, MultipartFile.class));
 
 		assertThat(binder.shouldTryToBind(parameterDescriptions), is(false));
 	}

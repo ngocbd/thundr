@@ -42,6 +42,7 @@ public class StringView extends BaseView<StringView> implements View {
 		return content;
 	}
 
+	@Override
 	public String toString() {
 		return content.toString();
 	}

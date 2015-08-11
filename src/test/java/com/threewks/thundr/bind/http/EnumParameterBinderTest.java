@@ -21,6 +21,8 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 import java.lang.annotation.RetentionPolicy;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -58,7 +60,7 @@ public class EnumParameterBinderTest {
 	}
 
 	private RequestDataMap data(String name, String value) {
-		RequestDataMap pathMap = new RequestDataMap(Expressive.<String, String[]> map(name, new String[] { value }));
+		RequestDataMap pathMap = new RequestDataMap(Expressive.<String, List<String>> map(name, Arrays.asList(value )));
 		return pathMap;
 	}
 

@@ -17,13 +17,12 @@
  */
 package com.threewks.thundr.view.json;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
 
+import com.threewks.thundr.http.ContentType;
+import com.threewks.thundr.http.StatusCode;
 import com.threewks.thundr.view.DataView;
 
-import jodd.util.MimeTypes;
 import jodd.util.StringPool;
 
 public class JsonView extends DataView<JsonView> {
@@ -40,13 +39,13 @@ public class JsonView extends DataView<JsonView> {
 
 	private void applyDefaults() {
 		if (StringUtils.isBlank(getContentType())) {
-			withContentType(MimeTypes.MIME_APPLICATION_JSON);
+			withContentType(ContentType.ApplicationJson);
 		}
 		if (StringUtils.isBlank(getCharacterEncoding())) {
 			withCharacterEncoding(StringPool.UTF_8);
 		}
 		if (getStatusCode() == null) {
-			withStatusCode(HttpServletResponse.SC_OK);
+			withStatusCode(StatusCode.OK);
 		}
 	}
 }

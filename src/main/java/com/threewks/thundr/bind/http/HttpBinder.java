@@ -17,14 +17,14 @@
  */
 package com.threewks.thundr.bind.http;
 
+import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.threewks.thundr.bind.Binder;
 import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 
 public class HttpBinder implements Binder {
 	private ParameterBinderRegistry parameterBinderRegistry;
@@ -36,8 +36,8 @@ public class HttpBinder implements Binder {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void bindAll(Map<ParameterDescription, Object> bindings, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVariables) {
-		Map<String, String[]> parameterMap = req.getParameterMap();
+	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp, Map<String, String> pathVariables) {
+		Map<String, List<String>> parameterMap = req.getAllParameters();
 		parameterBinderRegistry.bind(bindings, parameterMap, null);
 	}
 }

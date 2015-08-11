@@ -45,8 +45,9 @@ public class ModulesModule extends BaseModule {
 			type = Class.forName(className);
 		} catch (Exception e) {
 			throw new ModuleLoadingException(
-					"Failed to load the application module. You must provide an implementation of '%s', either as '%s' in the default package, or you can specify the full class name in the configuration property '%s'.",
-					Module.class.getName(), ApplicationModule, ApplicationClassProperty);
+					e,
+					"Failed to load the application module. You must provide an implementation of '%s', either as '%s' in the default package, or you can specify the full class name in the configuration property '%s'. In this case we failed trying to load '%s' - error: %s",
+					Module.class.getName(), ApplicationModule, ApplicationClassProperty, className, e.getMessage());
 		}
 		if (Module.class.isAssignableFrom(type)) {
 			return (Class<? extends Module>) type;

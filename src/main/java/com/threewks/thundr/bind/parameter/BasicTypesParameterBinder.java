@@ -18,15 +18,17 @@
 package com.threewks.thundr.bind.parameter;
 
 import java.util.Collections;
+import java.util.List;
 
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.transformer.TransformerManager;
 
 public class BasicTypesParameterBinder implements ParameterBinder<Object> {
 
+	@Override
 	public Object bind(ParameterBinderRegistry binder, ParameterDescription parameterDescription, RequestDataMap pathMap, TransformerManager transformerManager) {
-		String[] values = pathMap.get(Collections.singletonList(parameterDescription.name()));
-		return values != null && values.length > 0 ? transformerManager.transform(String.class, parameterDescription.classType(), values[0]) : null;
+		List<String> values = pathMap.get(Collections.singletonList(parameterDescription.name()));
+		return values != null && values.size() > 0 ? transformerManager.transform(String.class, parameterDescription.classType(), values.get(0)) : null;
 	}
 
 	@Override

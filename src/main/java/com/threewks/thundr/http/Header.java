@@ -47,6 +47,7 @@ public class Header {
 	public static final String Expires = "Expires";
 	public static final String IfModifiedSince = "If-Modified-Since";
 	public static final String LastModified = "Last-Modified";
+	public static final String Location = "Location";
 	public static final String Origin = "Origin";
 	public static final String Pragma = "Pragma";
 	public static final String SetCookie = "Set-Cookie";
@@ -54,10 +55,7 @@ public class Header {
 	public static final String UserAgent = "User-Agent";
 	public static final String Vary = "Vary";
 	public static final String XHttpMethodOverride = "X-HTTP-Method-Override";
-	
-	
-	
-	@SuppressWarnings("unchecked")
+
 	public static Map<String, List<String>> getHeaderMap(HttpServletRequest req) {
 		Map<String, List<String>> headerMap = new LinkedHashMap<String, List<String>>();
 		Iterable<String> iterable = Expressive.<String> iterable(req.getHeaderNames());
@@ -71,9 +69,7 @@ public class Header {
 		return req.getHeader(name);
 	}
 
-	@SuppressWarnings("unchecked")
 	public static List<String> getHeaders(String name, HttpServletRequest req) {
-		Enumeration<String> enumeration = req.getHeaders(name);
-		return enumeration == null ? Collections.<String> emptyList() : Expressive.list(Expressive.iterable(enumeration));
+		return Expressive.list(Expressive.iterable(req.getHeaders(name)));
 	}
 }

@@ -27,9 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.atomicleopard.expressive.Cast;
 import com.threewks.thundr.bind.Binder;
 import com.threewks.thundr.bind.BinderRegistry;
@@ -37,6 +34,9 @@ import com.threewks.thundr.exception.BaseException;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.logger.Logger;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
+import com.threewks.thundr.route.HttpMethod;
 import com.threewks.thundr.route.RouteResolver;
 import com.threewks.thundr.route.RouteResolverException;
 
@@ -57,27 +57,27 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Inter
 	}
 
 	@Override
-	public Object resolve(Controller action, com.threewks.thundr.route.HttpMethod method, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws RouteResolverException {
+	public Object resolve(Controller action, HttpMethod method, Request req, Response resp, Map<String, String> pathVars) throws RouteResolverException {
 		Object controller = getOrCreateController(action);
 		Map<Annotation, Interceptor<Annotation>> interceptors = getInterceptors(action);
-		Object result = beforeFilters(method, req, resp);
+		Object result = beforeFilters(req, resp);
 		try {
 			result = beforeInterceptors(interceptors, req, resp, result);
 			result = invokeAction(action, req, resp, pathVars, controller, result);
 			result = afterInterceptors(result, interceptors, req, resp);
-			result = afterFilters(method, req, resp, result);
+			result = afterFilters(req, resp, result);
 		} catch (Exception e) {
 			result = exceptionInterceptors(interceptors, req, resp, e);
-			result = exceptionFilters(method, req, resp, e, result);
+			result = exceptionFilters(req, resp, e, result);
 			if (result == null) {
 				throw new RouteResolverException(e, "Failed in %s: %s", action, e.getMessage());
 			}
 		}
-		Logger.debug("%s -> %s resolved", req.getRequestURI(), action);
+		Logger.debug("%s: %s %s resolved using %s", req.getId(), req.getMethod(), req.getRequestPath(), action);
 		return result;
 	}
 
-	private Object invokeAction(Controller action, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars, Object controller, Object existingResult) throws Exception {
+	private Object invokeAction(Controller action, Request req, Response resp, Map<String, String> pathVars, Object controller, Object existingResult) throws Exception {
 		if (existingResult != null) {
 			return existingResult;
 		}
@@ -91,13 +91,13 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Inter
 		}
 	}
 
-	private Object beforeFilters(com.threewks.thundr.route.HttpMethod method, HttpServletRequest req, HttpServletResponse resp) {
-		return filters == null ? null : filters.before(method, req, resp);
+	private Object beforeFilters(Request req, Response resp) {
+		return filters == null ? null : filters.before(req, resp);
 	}
 
-	private Object afterFilters(com.threewks.thundr.route.HttpMethod method, HttpServletRequest req, HttpServletResponse resp, Object existingResult) {
+	private Object afterFilters(Request req, Response resp, Object existingResult) {
 		if (filters != null) {
-			Object result = filters.after(method, existingResult, req, resp);
+			Object result = filters.after(existingResult, req, resp);
 			if (result != null) {
 				return result;
 			}
@@ -105,9 +105,9 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Inter
 		return existingResult;
 	}
 
-	private Object exceptionFilters(com.threewks.thundr.route.HttpMethod method, HttpServletRequest req, HttpServletResponse resp, Exception exception, Object existingResult) {
+	private Object exceptionFilters(Request req, Response resp, Exception exception, Object existingResult) {
 		if (filters != null) {
-			Object view = filters.exception(method, exception, req, resp);
+			Object view = filters.exception(exception, req, resp);
 			if (view != null) {
 				return view;
 			}
@@ -125,7 +125,7 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Inter
 		return results;
 	}
 
-	List<Object> bindArguments(Controller action, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) {
+	List<Object> bindArguments(Controller action, Request req, Response resp, Map<String, String> pathVars) {
 		Map<ParameterDescription, Object> boundParameters = new LinkedHashMap<ParameterDescription, Object>();
 		for (ParameterDescription parameterDescription : action.parameters()) {
 			boundParameters.put(parameterDescription, null);
@@ -138,7 +138,7 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Inter
 		return new ArrayList<Object>(boundParameters.values());
 	}
 
-	private Object afterInterceptors(Object result, Map<Annotation, Interceptor<Annotation>> interceptors, HttpServletRequest req, HttpServletResponse resp) {
+	private Object afterInterceptors(Object result, Map<Annotation, Interceptor<Annotation>> interceptors, Request req, Response resp) {
 		for (Map.Entry<Annotation, Interceptor<Annotation>> interceptorEntry : interceptors.entrySet()) {
 			Object interceptorResult = interceptorEntry.getValue().after(interceptorEntry.getKey(), result, req, resp);
 			if (interceptorResult != null) {
@@ -149,7 +149,7 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Inter
 		return result;
 	}
 
-	private Object exceptionInterceptors(Map<Annotation, Interceptor<Annotation>> interceptors, HttpServletRequest req, HttpServletResponse resp, Exception e) {
+	private Object exceptionInterceptors(Map<Annotation, Interceptor<Annotation>> interceptors, Request req, Response resp, Exception e) {
 		for (Map.Entry<Annotation, Interceptor<Annotation>> interceptorEntry : interceptors.entrySet()) {
 			Object interceptorResult = interceptorEntry.getValue().exception(interceptorEntry.getKey(), e, req, resp);
 			if (interceptorResult != null) {
@@ -159,7 +159,7 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Inter
 		return null;
 	}
 
-	private Object beforeInterceptors(Map<Annotation, Interceptor<Annotation>> interceptors, HttpServletRequest req, HttpServletResponse resp, Object existingResult) {
+	private Object beforeInterceptors(Map<Annotation, Interceptor<Annotation>> interceptors, Request req, Response resp, Object existingResult) {
 		if (existingResult != null) {
 			return existingResult;
 		}

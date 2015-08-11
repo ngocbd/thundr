@@ -17,29 +17,33 @@
  */
 package com.threewks.thundr.test.mock.servlet;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import com.threewks.thundr.exception.BaseException;
 
-import jodd.io.StringOutputStream;
 import jodd.util.StringPool;
 
+//TODO - v3 - consolidate 'with' style setters and apply normal getters
 public class MockHttpServletResponse implements HttpServletResponse {
 	private Map<String, String> headers = new HashMap<String, String>();
 	private String characterEncoding = StringPool.UTF_8;
 	private String contentType = null;
-	private StringOutputStream sos;
-	private int contentLength;
+	private ByteArrayOutputStream baos;
+	private long contentLength;
 	private boolean committed = false;
 	private List<Cookie> cookies = new ArrayList<Cookie>();
 	private int status = -1;
@@ -57,7 +61,11 @@ public class MockHttpServletResponse implements HttpServletResponse {
 				throw new BaseException(e);
 			}
 		}
-		return sos.toString();
+		try {
+			return new String(baos.toByteArray(), characterEncoding).toString();
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public int status() {
@@ -65,7 +73,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 	}
 
 	public int getContentLength() {
-		return contentLength;
+		return (int) contentLength;
 	}
 
 	@Override
@@ -84,28 +92,37 @@ public class MockHttpServletResponse implements HttpServletResponse {
 			throw new IllegalStateException("This request attempted to get a ServletOutputStream after getting a PrintWriter from the HttpServletRepsonse");
 		}
 		if (servletOutputStream == null) {
-			sos = createOutputStream();
+			baos = createOutputStream();
 			servletOutputStream = new ServletOutputStream() {
 
 				@Override
 				public void write(int arg0) throws IOException {
 					// in practice, for the purposes of headers the response is committed to when you start writing to it - the container can flush at any time
 					committed = true;
-					sos.write(arg0);
+					baos.write(arg0);
 				}
 
 				@Override
 				public void write(byte[] b) throws IOException {
 					// in practice, for the purposes of headers the response is committed to when you start writing to it - the container can flush at any time
 					committed = true;
-					sos.write(b);
+					baos.write(b);
 				}
 
 				@Override
 				public void write(byte[] b, int off, int len) throws IOException {
 					// in practice, for the purposes of headers the response is committed to when you start writing to it - the container can flush at any time
 					committed = true;
-					sos.write(b, off, len);
+					baos.write(b, off, len);
+				}
+
+				@Override
+				public boolean isReady() {
+					return true;
+				}
+
+				@Override
+				public void setWriteListener(WriteListener writeListener) {
 				}
 			};
 		}
@@ -118,8 +135,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
 			throw new IllegalStateException("This request attempted to get a PrintWriter after getting a ServletOutputStream from the HttpServletRepsonse");
 		}
 		if (writer == null) {
-			sos = createOutputStream();
-			writer = new PrintWriter(sos, true);
+			baos = createOutputStream();
+			writer = new PrintWriter(baos, true);
 		}
 		return writer;
 	}
@@ -133,9 +150,12 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
 	@Override
 	public void setContentLength(int len) {
-		if (!committed) {
-			this.contentLength = len;
-		}
+		setContentLengthLong(len);
+	}
+
+	@Override
+	public void setContentLengthLong(long contentLength) {
+		this.contentLength = contentLength;
 	}
 
 	@Override
@@ -156,7 +176,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
 	@Override
 	public void flushBuffer() throws IOException {
-		sos.flush();
+		baos.flush();
 	}
 
 	@Override
@@ -278,21 +298,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
 		setStatus(sc);
 	}
 
-	@SuppressWarnings("serial")
-	private StringOutputStream createOutputStream() {
-		sos = new StringOutputStream(characterEncoding) {
-			@Override
-			public void flush() throws IOException {
-				committed = true;
-				super.flush();
-			}
-
-			@Override
-			public void close() {
-				committed = true;
-			}
-		};
-		return sos;
+	private ByteArrayOutputStream createOutputStream() {
+		return new ByteArrayOutputStream();
 	}
 
 	public List<Cookie> getCookies() {
@@ -302,6 +309,30 @@ public class MockHttpServletResponse implements HttpServletResponse {
 	@SuppressWarnings("unchecked")
 	public <T> T header(String name) {
 		return (T) headers.get(name);
+	}
+
+	@Override
+	public int getStatus() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public String getHeader(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<String> getHeaders(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<String> getHeaderNames() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

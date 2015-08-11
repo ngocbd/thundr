@@ -29,14 +29,16 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.threewks.thundr.exception.BaseException;
 import com.threewks.thundr.http.Header;
+import com.threewks.thundr.http.StatusCode;
 import com.threewks.thundr.logger.Logger;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 import com.threewks.thundr.route.HttpMethod;
 import com.threewks.thundr.route.RouteResolver;
 import com.threewks.thundr.route.RouteResolverException;
@@ -78,22 +80,22 @@ public class StaticResourceRouteResolver implements RouteResolver<StaticResource
 	}
 
 	@Override
-	public Object resolve(StaticResource action, HttpMethod method, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVars) throws RouteResolverException {
+	public Object resolve(StaticResource action, HttpMethod method, Request req, Response resp, Map<String, String> pathVars) throws RouteResolverException {
 		try {
 			serve(action, req, resp);
 			return null;
 		} catch (Exception e) {
 			Throwable original = e.getCause() == null ? e : e.getCause();
-			throw new BaseException(original, "Failed to load resource %s: %s", req.getRequestURI(), original.getMessage());
+			throw new BaseException(original, "Failed to load resource %s: %s", req.getRequestPath(), original.getMessage());
 		}
 	}
 
-	protected void serve(StaticResource action, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String resource = request.getRequestURI();
+	protected void serve(StaticResource action, Request request, Response response) throws ServletException, IOException {
+		String resource = request.getRequestPath();
 		URL resourceUrl = servletContext.getResource(resource);
 		boolean allowed = isAllowed(resource);
 		if (resourceUrl == null || !allowed) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			response.withStatusCode(StatusCode.NotFound);
 			Logger.info("%s -> %s not resolved: %s", resource, action, allowed ? "Not found" : "Not Permitted");
 			return;
 		}
@@ -105,27 +107,32 @@ public class StaticResourceRouteResolver implements RouteResolver<StaticResource
 		String acceptEncoding = request.getHeader(Header.AcceptEncoding);
 		long cacheTimeSeconds = deriveCacheDuration(resource, mimeType);
 
-		response.setContentType(mimeType);
-		response.setDateHeader(Header.Expires, System.currentTimeMillis() + cacheTimeSeconds * 1000L); // HTTP 1.0
-		response.setHeader(Header.CacheControl, String.format("max-age=%d, public", cacheTimeSeconds)); // HTTP 1.1
-		response.setDateHeader(Header.LastModified, lastModified);
+		// TODO - v3 - Validate objects written to headers are serialized correctly - ints and dates mostly.
+		// @formatter:off
+		response.withContentType(mimeType)
+		//response.setDateHeader(Header.Expires, System.currentTimeMillis() + cacheTimeSeconds * 1000L); // HTTP 1.0
+				.withHeader(Header.Expires, System.currentTimeMillis() + cacheTimeSeconds * 1000L) // HTTP 1.0
+				.withHeader(Header.CacheControl, String.format("max-age=%d, public", cacheTimeSeconds)) // HTTP 1.1
+				.withHeader(Header.LastModified, lastModified);
+		// @formatter:on
 
 		OutputStream os = null;
 		InputStream is = urlConnection.getInputStream();
 
 		if (shouldZip(acceptEncoding, mimeType)) {
-			GzipResponseWrapper wrapper = new GzipResponseWrapper(response);
+			HttpServletResponse resp = response.getRawResponse(HttpServletResponse.class);
+			GzipResponseWrapper wrapper = new GzipResponseWrapper(resp);
 			os = wrapper.getOutputStream();
 			StreamUtil.copy(is, os);
 			wrapper.finishResponse();
 		} else {
-			response.setHeader(Header.ContentLength, Long.toString(contentLength));
+			response.withHeader(Header.ContentLength, Long.toString(contentLength));
 			os = response.getOutputStream();
 			StreamUtil.copy(is, os);
 			os.close();
 		}
 
-		response.setStatus(HttpServletResponse.SC_OK);
+		response.withStatusCode(StatusCode.OK);
 		Logger.debug("%s -> %s resolved as %s(%d bytes)", resource, action, mimeType, contentLength);
 	}
 

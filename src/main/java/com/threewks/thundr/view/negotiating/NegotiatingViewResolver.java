@@ -23,11 +23,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.threewks.thundr.http.StatusCode;
 import com.threewks.thundr.injection.Module;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 import com.threewks.thundr.view.View;
 import com.threewks.thundr.view.ViewResolver;
 import com.threewks.thundr.view.ViewResolverRegistry;
@@ -72,14 +71,13 @@ public class NegotiatingViewResolver implements ViewResolver<NegotiatingView> {
 		registerDefaultNegotiationStrategies();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
-	public void resolve(HttpServletRequest req, HttpServletResponse resp, NegotiatingView viewResult) {
+	public void resolve(Request req, Response resp, NegotiatingView viewResult) {
 		Object negotiatedView = determineView(req, viewResult);
 		ViewResolver<Object> viewResolver = viewResolverRegistry.findViewResolver(negotiatedView);
 		if (viewResolver == null) {
 			// send not acceptable
-			resp.setStatus(StatusCode.NotAcceptable.getCode(), "Unable to match any requested content types in the Accept header.");
+			resp.withStatusCode(StatusCode.NotAcceptable).withStatusMessage("Unable to match any requested content types in the Accept header.");
 		} else {
 			viewResolver.resolve(req, resp, negotiatedView);
 		}
@@ -107,12 +105,12 @@ public class NegotiatingViewResolver implements ViewResolver<NegotiatingView> {
 		addNegotiationStrategy(new ContentTypeNegotiationStrategy());
 	}
 
-	protected Object determineView(HttpServletRequest req, NegotiatingView negotiatedView) {
+	protected Object determineView(Request req, NegotiatingView negotiatedView) {
 		Negotiator<?> negotiator = findNegotiator(req, negotiatedView);
 		return negotiator == null ? null : negotiator.create(negotiatedView);
 	}
 
-	protected Negotiator<?> findNegotiator(HttpServletRequest req, NegotiatingView negotiatedView) {
+	protected Negotiator<?> findNegotiator(Request req, NegotiatingView negotiatedView) {
 		for (NegotiationStrategy negotiationStrategy : orderedNegotiationStrategies) {
 			Negotiator<?> negotiator = negotiationStrategy.findNegotiator(req, negotiatedView, viewNegotiatorRegistry);
 			if (negotiator != null) {

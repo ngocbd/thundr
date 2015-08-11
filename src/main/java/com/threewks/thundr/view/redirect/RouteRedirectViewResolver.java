@@ -17,12 +17,11 @@
  */
 package com.threewks.thundr.view.redirect;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.threewks.thundr.http.Header;
+import com.threewks.thundr.http.StatusCode;
 import com.threewks.thundr.http.URLEncoder;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 import com.threewks.thundr.route.ReverseRouteException;
 import com.threewks.thundr.route.Route;
 import com.threewks.thundr.route.Router;
@@ -37,7 +36,7 @@ public class RouteRedirectViewResolver implements ViewResolver<RouteRedirectView
 	}
 
 	@Override
-	public void resolve(HttpServletRequest req, HttpServletResponse resp, RouteRedirectView viewResult) {
+	public void resolve(Request req, Response resp, RouteRedirectView viewResult) {
 		String routeName = viewResult.getRoute();
 		Route route = this.router.getNamedRoute(routeName);
 		if (route == null) {
@@ -45,12 +44,11 @@ public class RouteRedirectViewResolver implements ViewResolver<RouteRedirectView
 		}
 		String reverseRoute = getReverseRoute(viewResult, route);
 		String queryString = URLEncoder.encodeQueryString(viewResult.getQueryParameters());
-		reverseRoute += queryString;
-		try {
-			resp.sendRedirect(reverseRoute);
-		} catch (IOException e) {
-			throw new ViewResolutionException(e, "Failed to redirect to route '%s' (%s): %s", routeName, reverseRoute, e.getMessage());
-		}
+		// @formatter:off
+		resp.withStatusCode(StatusCode.TemporaryRedirect)
+			.withHeader(Header.Location, reverseRoute + queryString);
+		// TODO - v3 - does this require a content length?
+		// @formatter:on
 	}
 
 	private String getReverseRoute(RouteRedirectView viewResult, Route route) {

@@ -27,18 +27,19 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.threewks.thundr.http.Header;
+import com.threewks.thundr.request.mock.MockRequest;
+import com.threewks.thundr.request.mock.MockResponse;
 import com.threewks.thundr.route.HttpMethod;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
+import com.threewks.thundr.transformer.TransformerManager;
 
 public class CorsFilterTest {
 
-	private MockHttpServletRequest req = new MockHttpServletRequest();
-	private MockHttpServletResponse resp = new MockHttpServletResponse();
+	private MockRequest req = new MockRequest(HttpMethod.GET, "/path");
+	private MockResponse resp = new MockResponse(TransformerManager.createWithDefaults());
 
 	@Before
 	public void before() {
-		req.header(Header.Origin, "https://www.origin.com");
+		req.withHeader(Header.Origin, "https://www.origin.com");
 	}
 
 	@Test
@@ -64,80 +65,81 @@ public class CorsFilterTest {
 	@Test
 	public void shouldApplyCorsHeadersForWildcardOrigin() {
 		CorsFilter corsFilter = new CorsFilter();
-		corsFilter.before(HttpMethod.GET, req, resp);
-
-		assertThat(resp.<String> header(Header.AccessControlAllowOrigin), is("*"));
-		assertThat(resp.<String> header(Header.AccessControlAllowCredentials), is(nullValue()));
-		assertThat(resp.<String> header(Header.AccessControlAllowMethods), is(nullValue()));
-		assertThat(resp.<String> header(Header.AccessControlAllowHeaders), is(nullValue()));
+		corsFilter.before(req, resp);
+		assertThat(resp.getHeader(Header.AccessControlAllowOrigin), is("*"));
+		assertThat(resp.getHeader(Header.AccessControlAllowCredentials), is(nullValue()));
+		assertThat(resp.getHeader(Header.AccessControlAllowMethods), is(nullValue()));
+		assertThat(resp.getHeader(Header.AccessControlAllowHeaders), is(nullValue()));
 	}
 
 	@Test
 	public void shouldApplyCorsHeadersForWildcardOriginWithRequestMethodAndHeaders() {
-		req.header(Header.AccessControlRequestMethod, "POST");
-		req.header(Header.AccessControlRequestHeaders, "Accept, X-Custom-Header");
+		// @formatter:off
+		req.withHeader(Header.AccessControlRequestMethod, "POST")
+		   .withHeader(Header.AccessControlRequestHeaders, "Accept, X-Custom-Header");
+		// @formatter:on
 		CorsFilter corsFilter = new CorsFilter();
-		corsFilter.before(HttpMethod.POST, req, resp);
+		corsFilter.before(req, resp);
 
-		assertThat(resp.<String> header(Header.AccessControlAllowOrigin), is("*"));
-		assertThat(resp.<String> header(Header.AccessControlAllowCredentials), is(nullValue()));
-		assertThat(resp.<String> header(Header.AccessControlAllowMethods), is("POST"));
-		assertThat(resp.<String> header(Header.AccessControlAllowHeaders), is("accept, x-custom-header"));
+		assertThat(resp.getHeader(Header.AccessControlAllowOrigin), is("*"));
+		assertThat(resp.getHeader(Header.AccessControlAllowCredentials), is(nullValue()));
+		assertThat(resp.getHeader(Header.AccessControlAllowMethods), is("POST"));
+		assertThat(resp.getHeader(Header.AccessControlAllowHeaders), is("accept, x-custom-header"));
 	}
 
 	@Test
 	public void shouldApplyCorsHeadersForNamedOriginWithCredentialsAndSpecificHeaders() {
-		req.header(Header.AccessControlRequestMethod, "POST");
-		req.header(Header.AccessControlRequestHeaders, "Accept, X-Custom-Header");
+		req.withHeader(Header.AccessControlRequestMethod, "POST");
+		req.withHeader(Header.AccessControlRequestHeaders, "Accept, X-Custom-Header");
 		CorsFilter corsFilter = new CorsFilter(list("www.origin.com"), list("X-Custom-Header"));
-		corsFilter.before(HttpMethod.POST, req, resp);
+		corsFilter.before(req, resp);
 
-		assertThat(resp.<String> header(Header.AccessControlAllowOrigin), is("https://www.origin.com"));
-		assertThat(resp.<String> header(Header.AccessControlAllowCredentials), is("true"));
-		assertThat(resp.<String> header(Header.AccessControlAllowMethods), is("POST"));
-		assertThat(resp.<String> header(Header.AccessControlAllowHeaders), is("x-custom-header"));
+		assertThat(resp.getHeader(Header.AccessControlAllowOrigin), is("https://www.origin.com"));
+		assertThat(resp.getHeader(Header.AccessControlAllowCredentials), is("true"));
+		assertThat(resp.getHeader(Header.AccessControlAllowMethods), is("POST"));
+		assertThat(resp.getHeader(Header.AccessControlAllowHeaders), is("x-custom-header"));
 	}
 
 	@Test
 	public void shouldIncludeAnyProtocolForNamedOrigin() {
-		req.header(Header.Origin, "fake://www.origin.com");
+		req.replaceHeader(Header.Origin, "fake://www.origin.com");
 		CorsFilter corsFilter = new CorsFilter(list("www.origin.com"), list("X-Custom-Header"));
-		corsFilter.before(HttpMethod.POST, req, resp);
+		corsFilter.before(req, resp);
 
-		assertThat(resp.<String> header(Header.AccessControlAllowOrigin), is("fake://www.origin.com"));
+		assertThat(resp.getHeader(Header.AccessControlAllowOrigin), is("fake://www.origin.com"));
 	}
 
 	@Test
 	public void shouldNotIncludeCorsHeadersWhenOriginDoesntMatch() {
 		CorsFilter corsFilter = new CorsFilter(list("www.other.com"));
-		corsFilter.before(HttpMethod.POST, req, resp);
+		corsFilter.before(req, resp);
 
-		assertThat(resp.<String> header(Header.AccessControlAllowOrigin), is(nullValue()));
-		assertThat(resp.<String> header(Header.AccessControlAllowCredentials), is(nullValue()));
-		assertThat(resp.<String> header(Header.AccessControlAllowMethods), is(nullValue()));
-		assertThat(resp.<String> header(Header.AccessControlAllowHeaders), is(nullValue()));
+		assertThat(resp.getHeader(Header.AccessControlAllowOrigin), is(nullValue()));
+		assertThat(resp.getHeader(Header.AccessControlAllowCredentials), is(nullValue()));
+		assertThat(resp.getHeader(Header.AccessControlAllowMethods), is(nullValue()));
+		assertThat(resp.getHeader(Header.AccessControlAllowHeaders), is(nullValue()));
 	}
 
 	@Test
 	public void shouldExcludeUnallowedHeaders() {
 		CorsFilter corsFilter = new CorsFilter(null, list("X-Header-1", "X-Header-2", "X-Header-3"));
-		req.header(Header.AccessControlRequestHeaders, "Accept, X-Disallowed, MadeUp, X-Header-1, X-Header-2");
-		corsFilter.before(HttpMethod.POST, req, resp);
+		req.withHeader(Header.AccessControlRequestHeaders, "Accept, X-Disallowed, MadeUp, X-Header-1, X-Header-2");
+		corsFilter.before(req, resp);
 
-		assertThat(resp.<String> header(Header.AccessControlAllowHeaders), is("x-header-1, x-header-2"));
+		assertThat(resp.getHeader(Header.AccessControlAllowHeaders), is("x-header-1, x-header-2"));
 	}
 
 	@Test
 	public void shouldIncludeVaryHeaderToCauseCorrectCachingPerClientMethodAndHeaders() {
 		CorsFilter corsFilter = new CorsFilter();
-		corsFilter.before(HttpMethod.POST, req, resp);
+		corsFilter.before(req, resp);
 
-		assertThat(resp.<String> header(Header.Vary), is("Origin, Access-Control-Request-Method, Access-Control-Request-Headers"));
+		assertThat(resp.getHeader(Header.Vary), is("Origin, Access-Control-Request-Method, Access-Control-Request-Headers"));
 	}
 
 	@Test
 	public void shouldReturnNullForAfterAndException() {
-		assertThat(new CorsFilter().after(null, null, null, null), is(nullValue()));
-		assertThat(new CorsFilter().exception(null, null, null, null), is(nullValue()));
+		assertThat(new CorsFilter().after(null, null, null), is(nullValue()));
+		assertThat(new CorsFilter().exception(null, null, null), is(nullValue()));
 	}
 }

@@ -23,7 +23,7 @@ import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
+import com.threewks.thundr.request.mock.MockRequest;
 import com.threewks.thundr.view.json.JsonNegotiator;
 import com.threewks.thundr.view.negotiating.NegotiatingView;
 import com.threewks.thundr.view.negotiating.Negotiator;
@@ -32,7 +32,7 @@ import com.threewks.thundr.view.negotiating.ViewNegotiatorRegistryImpl;
 
 public class ContentTypeNegotiationStrategyTest {
 
-	private MockHttpServletRequest req;
+	private MockRequest req;
 	private NegotiatingView view;
 	private ViewNegotiatorRegistry viewNegotiatorRegistry;
 	private ContentTypeNegotiationStrategy strategy;
@@ -41,7 +41,7 @@ public class ContentTypeNegotiationStrategyTest {
 
 	@Before
 	public void before() {
-		req = new MockHttpServletRequest();
+		req = new MockRequest();
 		view = new NegotiatingView("test");
 		viewNegotiatorRegistry = new ViewNegotiatorRegistryImpl();
 		strategy = new ContentTypeNegotiationStrategy();

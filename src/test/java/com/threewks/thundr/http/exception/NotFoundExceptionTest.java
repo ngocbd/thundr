@@ -20,9 +20,9 @@ package com.threewks.thundr.http.exception;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.junit.Test;
+
+import com.threewks.thundr.http.StatusCode;
 
 public class NotFoundExceptionTest {
 
@@ -31,7 +31,7 @@ public class NotFoundExceptionTest {
 		NotFoundException notFoundException = new NotFoundException("String %s", "format");
 		assertThat(notFoundException.getMessage(), is("String format"));
 		assertThat(notFoundException.getCause(), is(nullValue()));
-		assertThat(notFoundException.getStatus(), is(HttpServletResponse.SC_NOT_FOUND));
+		assertThat(notFoundException.getStatus(), is(StatusCode.NotFound));
 	}
 
 	@Test
@@ -40,6 +40,6 @@ public class NotFoundExceptionTest {
 		NotFoundException notFoundException = new NotFoundException(exception, "String %s", "format");
 		assertThat(notFoundException.getMessage(), is("String format"));
 		assertThat(notFoundException.getCause(), is((Throwable) exception));
-		assertThat(notFoundException.getStatus(), is(HttpServletResponse.SC_NOT_FOUND));
+		assertThat(notFoundException.getStatus(), is(StatusCode.NotFound));
 	}
 }

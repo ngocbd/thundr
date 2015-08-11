@@ -17,26 +17,23 @@
  */
 package com.threewks.thundr.bind.http.request;
 
-import static com.atomicleopard.expressive.Expressive.*;
+import static com.atomicleopard.expressive.Expressive.isNotEmpty;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.atomicleopard.expressive.ETransformer;
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.bind.Binder;
 import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
+import com.threewks.thundr.http.Cookie;
 import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 
+// TODO - v3 - need a http.Cookie binder too
 public class CookieBinder implements Binder {
-	private static final ETransformer<Collection<Cookie>, Map<String, List<Cookie>>> toLookup = Expressive.Transformers.<Cookie, String> toBeanLookup("name", Cookie.class);
 	public static final List<Class<?>> BoundTypes = Expressive.<Class<?>> list(Cookie.class);
 
 	private ParameterBinderRegistry parameterBinderRegistry;
@@ -47,13 +44,12 @@ public class CookieBinder implements Binder {
 	}
 
 	@Override
-	public void bindAll(Map<ParameterDescription, Object> bindings, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVariables) {
+	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp, Map<String, String> pathVariables) {
 		if (req.getCookies() != null && bindings.values().contains(null)) {
-			Map<String, List<String>> cookieValueLookup = createCookieMap(req);
-			Map<String, String[]> parameterMap = ParameterBinderRegistry.convertListMapToArrayMap(cookieValueLookup);
-			parameterBinderRegistry.bind(bindings, parameterMap, null);
+			Map<String, List<String>> cookieMap = createCookieMap(req);
+			parameterBinderRegistry.bind(bindings, cookieMap, null);
 
-			Map<String, List<Cookie>> lookup = toLookup.from(list(req.getCookies()));
+			Map<String, List<Cookie>> lookup = req.getAllCookies();
 			for (Map.Entry<ParameterDescription, Object> binding : bindings.entrySet()) {
 				ParameterDescription key = binding.getKey();
 				if (binding.getValue() == null && key.isA(Cookie.class)) {
@@ -66,7 +62,7 @@ public class CookieBinder implements Binder {
 		}
 	}
 
-	private Map<String, List<String>> createCookieMap(HttpServletRequest req) {
+	private Map<String, List<String>> createCookieMap(Request req) {
 		Map<String, List<String>> lookup = new HashMap<String, List<String>>();
 		for (Cookie cookie : req.getCookies()) {
 			String name = cookie.getName();

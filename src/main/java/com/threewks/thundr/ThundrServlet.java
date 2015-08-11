@@ -18,131 +18,88 @@
 package com.threewks.thundr;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.atomicleopard.expressive.Cast;
 import com.atomicleopard.expressive.Expressive;
-import com.threewks.thundr.configuration.ConfigurationModule;
 import com.threewks.thundr.http.Header;
-import com.threewks.thundr.http.RequestThreadLocal;
-import com.threewks.thundr.injection.InjectionContextImpl;
-import com.threewks.thundr.injection.Module;
-import com.threewks.thundr.injection.UpdatableInjectionContext;
-import com.threewks.thundr.logger.Logger;
-import com.threewks.thundr.module.Modules;
-import com.threewks.thundr.module.ModulesModule;
+import com.threewks.thundr.injection.InjectionContext;
+import com.threewks.thundr.request.MutableRequestContainer;
+import com.threewks.thundr.request.servlet.ServletRequest;
+import com.threewks.thundr.request.servlet.ServletResponse;
 import com.threewks.thundr.route.HttpMethod;
-import com.threewks.thundr.route.RouteResolverException;
-import com.threewks.thundr.route.Router;
-import com.threewks.thundr.route.RouterModule;
-import com.threewks.thundr.transformer.TransformerModule;
-import com.threewks.thundr.view.ServletViewRenderer;
-import com.threewks.thundr.view.ViewResolverNotFoundException;
+import com.threewks.thundr.transformer.TransformerManager;
+import com.threewks.thundr.view.BasicViewRenderer;
+import com.threewks.thundr.view.ViewRenderer;
 import com.threewks.thundr.view.ViewResolverRegistry;
 
+@WebServlet(name = "thundr", urlPatterns = { "/" }, asyncSupported = true)
 public class ThundrServlet extends HttpServlet {
-	private static final long serialVersionUID = -7179293239117252585L;
-	private static final String POST = "POST";
-	private static final String HEAD = "HEAD";
-	private UpdatableInjectionContext injectionContext;
-	private Modules modules;
+	private static final long serialVersionUID = -1;
+	protected Thundr thundr;
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		try {
-			long start = System.currentTimeMillis();
-			ServletContext servletContext = config.getServletContext();
-			injectionContext = initInjectionContext(servletContext);
-			modules = initModules(injectionContext, new Modules());
-			debugRoutes(injectionContext);
-			Logger.info("Started up in %dms", System.currentTimeMillis() - start);
+			thundr = createAndStartThundr();
+			// TODO - v3 - this should be part of the 'servletmodule'
+			// servletContext.setAttribute("injectionContext", injectionContext);
+			// injectionContext.inject(servletContext).as(ServletContext.class);
 		} catch (RuntimeException e) {
 			throw new ServletException("Failed to initialse thundr: " + e.getMessage(), e);
 		}
 	}
 
-	private void debugRoutes(UpdatableInjectionContext injectionContext) {
-		Router router = injectionContext.get(Router.class);
-		if (router == null || router.isEmpty()) {
-			Logger.warn("No routes are configured for this application.");
-		}
-		if (Logger.willDebug()) {
-			Logger.debug("Loaded routes: \n%s", router.listRoutes());
-		}
-	}
-
-	protected Modules initModules(UpdatableInjectionContext injectionContext, Modules modules) {
-		injectionContext.inject(modules).as(Modules.class);
-
-		for (Class<? extends Module> module : getBaseModules()) {
-			modules.addModule(module);
-		}
-		modules.runStartupLifecycle(injectionContext);
-		return modules;
-	}
-
-	protected List<Class<? extends Module>> getBaseModules() {
-		List<Class<? extends Module>> baseModules = new ArrayList<Class<? extends Module>>();
-		baseModules.add(ConfigurationModule.class);
-		baseModules.add(ModulesModule.class);
-		baseModules.add(TransformerModule.class);
-		baseModules.add(RouterModule.class);
-		return baseModules;
+	@Override
+	public void destroy() {
+		thundr.stop();
+		super.destroy();
 	}
 
 	/**
-	 * This extension point allows overriding servlets to change the basic configuration of a thundr application.
-	 * Generally this involves bootstrapping a configuration solution, loading modules and adding any routes.
+	 * Factory method for creating the thundr executor, you can override this if you need to
+	 * customise the implementation.
 	 * 
-	 * @param servletContext
 	 * @return
 	 */
-	protected UpdatableInjectionContext initInjectionContext(ServletContext servletContext) {
-		UpdatableInjectionContext injectionContext = new InjectionContextImpl();
-		injectionContext.inject(servletContext).as(ServletContext.class);
-		servletContext.setAttribute("injectionContext", injectionContext);
-		return injectionContext;
+	protected Thundr createAndStartThundr() {
+		Thundr thundr = new Thundr();
+		thundr.start();
+		return thundr;
 	}
 
 	protected void applyRoute(final HttpMethod method, final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
-		final ViewResolverRegistry viewResolverRegistry = injectionContext.get(ViewResolverRegistry.class);
-		String requestPath = req.getRequestURI();
+		InjectionContext injectionContext = thundr.getInjectionContext();
+		TransformerManager transformerManager = injectionContext.get(TransformerManager.class);
+		MutableRequestContainer requestContainer = injectionContext.get(MutableRequestContainer.class);
+		ViewResolverRegistry viewResolverRegistry = injectionContext.get(ViewResolverRegistry.class);
+		ViewRenderer viewRenderer = createViewRenderer(viewResolverRegistry);
+		ServletRequest request = new ServletRequest(req, method);
+		ServletResponse response = new ServletResponse(transformerManager, resp);
 		try {
-			Logger.debug("Invoking path %s", requestPath);
-			RequestThreadLocal.set(req, resp);
-			Router router = injectionContext.get(Router.class);
-			final Object viewResult = router.invoke(requestPath, method, req, resp);
-			if (viewResult != null) {
-				resolveView(viewResolverRegistry, viewResult, true);
-			}
-		} catch (Exception e) {
-			if (Cast.is(e, RouteResolverException.class)) {
-				// unwrap ActionException if it is one
-				e = (Exception) Cast.as(e, RouteResolverException.class).getCause();
-			}
-			if (Cast.is(e, ViewResolverNotFoundException.class)) {
-				// if there was an error finding a view resolver, propogate this
-				throw (ViewResolverNotFoundException) e;
-			}
-			if (!resp.isCommitted()) {
-				resolveView(viewResolverRegistry, e, false);
-			}
+			requestContainer.set(request, response);
+			thundr.applyRoute(request, response, viewRenderer);
 		} finally {
-			RequestThreadLocal.clear();
+			requestContainer.clear();
 		}
 	}
 
-	protected void resolveView(final ViewResolverRegistry viewResolverRegistry, final Object viewResult, boolean failIfNoViewResolver) {
-		new ServletViewRenderer(viewResolverRegistry, failIfNoViewResolver).render(viewResult);
+	protected ViewRenderer createViewRenderer(ViewResolverRegistry viewResolverRegistry) {
+		return new BasicViewRenderer(viewResolverRegistry);
+	}
+
+	/*
+	 * This method is here so that the basic servlet HEAD functionality continues to work;
+	 */
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		applyRoute(HttpMethod.GET, req, resp);
 	}
 
 	@Override
@@ -151,10 +108,10 @@ public class ThundrServlet extends HttpServlet {
 		if (!handled) {
 			String httpMethod = determineMethod(req);
 			HttpMethod method = HttpMethod.from(httpMethod);
-			if (method != null) {
-				applyRoute(method, req, resp);
-			} else if (HEAD.equals(httpMethod)) {
+			if (method == HttpMethod.HEAD) {
 				doHead(req, resp);
+			} else if (method != null) {
+				applyRoute(method, req, resp);
 			} else {
 				// thundr doesnt deal with these
 				resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, "Request method '" + httpMethod + "' not implemented.");
@@ -170,8 +127,8 @@ public class ThundrServlet extends HttpServlet {
 	 */
 	protected String determineMethod(HttpServletRequest req) {
 		String method = req.getMethod();
-		if (POST.equalsIgnoreCase(method)) {
-			String methodOverride = getHeaderCaseInsensitive(req, Header.XHttpMethodOverride);
+		if (HttpMethod.POST.matches(method)) {
+			String methodOverride = req.getHeader(Header.XHttpMethodOverride);
 			String methodOverride2 = getParameterCaseInsensitive(req, "_method");
 
 			if (methodOverride != null) {
@@ -195,15 +152,6 @@ public class ThundrServlet extends HttpServlet {
 		return false;
 	}
 
-	/*
-	 * This method is here so that the basic servlet HEAD functionality continues to work;
-	 */
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		applyRoute(HttpMethod.GET, req, resp);
-	}
-
-	@SuppressWarnings("unchecked")
 	protected String getParameterCaseInsensitive(HttpServletRequest req, String parameterName) {
 		Iterable<String> iterable = Expressive.<String> iterable(req.getParameterNames());
 		for (String parameter : iterable) {
@@ -212,22 +160,5 @@ public class ThundrServlet extends HttpServlet {
 			}
 		}
 		return null;
-	}
-
-	@SuppressWarnings("unchecked")
-	protected String getHeaderCaseInsensitive(HttpServletRequest req, String headerName) {
-		Iterable<String> iterable = Expressive.<String> iterable(req.getHeaderNames());
-		for (String header : iterable) {
-			if (headerName.equalsIgnoreCase(header)) {
-				return req.getHeader(header);
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public void destroy() {
-		modules.runStopLifecycle(injectionContext);
-		super.destroy();
 	}
 }

@@ -20,18 +20,14 @@ package com.threewks.thundr.view;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.Cookie;
-
 import org.junit.Before;
 import org.junit.Test;
 
-import com.threewks.thundr.http.Cookies.CookieBuilder;
+import com.threewks.thundr.http.ContentType;
+import com.threewks.thundr.http.Cookie;
+import com.threewks.thundr.http.Cookie.CookieBuilder;
 import com.threewks.thundr.http.StatusCode;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
+import com.threewks.thundr.request.mock.MockResponse;
 
 public class BaseViewTest {
 
@@ -43,15 +39,9 @@ public class BaseViewTest {
 	}
 
 	@Test
-	public void shouldRetainStatusCodeFromEnum() {
-		assertThat(view.withStatusCode(StatusCode.Accepted), is(view));
-		assertThat(view.getStatusCode(), is(202));
-	}
-
-	@Test
 	public void shouldRetainStatusCode() {
-		assertThat(view.withStatusCode(201), is(view));
-		assertThat(view.getStatusCode(), is(201));
+		assertThat(view.withStatusCode(StatusCode.Accepted), is(view));
+		assertThat(view.getStatusCode(), is(StatusCode.Accepted));
 	}
 
 	@Test
@@ -95,56 +85,74 @@ public class BaseViewTest {
 
 	@Test
 	public void shouldApplyDefaultViewValuesToResponse() {
-		MockHttpServletResponse resp = new MockHttpServletResponse();
-		assertThat(resp.getContentType(), is(nullValue()));
-		assertThat(resp.getCharacterEncoding(), is("UTF-8"));
+		MockResponse resp = new MockResponse();
+
+		// @formatter:off
+		resp.withContentType((String)null)
+			.withCharacterEncoding("UTF-8")
+			.withStatusCode(null);
+		// @formatter:on
 
 		BaseView.applyToResponse(new TestView(), resp);
 
-		assertThat(resp.getContentType(), is(nullValue()));
+		assertThat(resp.getContentType(), is(ContentType.Null));
+		assertThat(resp.getContentTypeString(), is(nullValue()));
 		assertThat(resp.getCharacterEncoding(), is("UTF-8"));
 		assertThat(resp.isCommitted(), is(false));
-		assertThat(resp.status(), is(-1));
+		assertThat(resp.getStatusCode(), is(nullValue()));
 	}
 
 	@Test
 	public void shouldApplyViewValuesToResponse() {
-		MockHttpServletResponse resp = new MockHttpServletResponse();
+		MockResponse resp = new MockResponse();
 
-		TestView view = new TestView().withCharacterEncoding("UTF-16").withStatusCode(StatusCode.AlreadyReported).withContentType("text/html");
-		view.withHeader("header", "value").withCookie("cookie", "value2");
+		// @formatter:off
+		TestView view = new TestView()
+			.withCharacterEncoding("UTF-16")
+			.withStatusCode(StatusCode.AlreadyReported)
+			.withContentType("text/html")
+			.withHeader("header", "value")
+			.withCookie("cookie", "value2");
+		// @formatter:on
+
 		BaseView.applyToResponse(view, resp);
 
-		assertThat(resp.getContentType(), is("text/html"));
+		assertThat(resp.getContentTypeString(), is("text/html"));
+		assertThat(resp.getContentType(), is(ContentType.TextHtml));
 		assertThat(resp.getCharacterEncoding(), is("UTF-16"));
 		assertThat(resp.isCommitted(), is(false));
-		assertThat(resp.status(), is(208));
+		assertThat(resp.getStatusCode(), is(StatusCode.AlreadyReported));
 	}
 
-	@Test
-	public void shouldIncludeModelInRequest() {
-		MockHttpServletRequest req = new MockHttpServletRequest();
-		Map<String, Object> model = new HashMap<String, Object>();
-		model.put("attr1", "value1");
-		model.put("attr2", 2);
-		BaseView.includeModelInRequest(req, model);
-		assertThat(req.getAttribute("attr1"), is((Object) "value1"));
-		assertThat(req.getAttribute("attr2"), is((Object) 2));
-	}
-
-	@Test
-	public void shouldIncludeModelInRequestReplacingExitingValues() {
-		MockHttpServletRequest req = new MockHttpServletRequest();
-		req.attribute("attr1", "old");
-		req.attribute("attr2", "old");
-
-		Map<String, Object> model = new HashMap<String, Object>();
-		model.put("attr1", "value1");
-		model.put("attr2", 2);
-		BaseView.includeModelInRequest(req, model);
-		assertThat(req.getAttribute("attr1"), is((Object) "value1"));
-		assertThat(req.getAttribute("attr2"), is((Object) 2));
-	}
+	/*
+	 * TODO - v3 - This code got moved - need to identify where and move these tests
+	 * 
+	 * 
+	 * @Test
+	 * public void shouldIncludeModelInRequest() {
+	 * MockRequest req = new MockRequest(HttpMethod.GET, "/path");
+	 * Map<String, Object> model = new HashMap<String, Object>();
+	 * model.put("attr1", "value1");
+	 * model.put("attr2", 2);
+	 * BaseView.includeModelInRequest(req, model);
+	 * assertThat(req.getAttribute("attr1"), is((Object) "value1"));
+	 * assertThat(req.getAttribute("attr2"), is((Object) 2));
+	 * }
+	 * 
+	 * @Test
+	 * public void shouldIncludeModelInRequestReplacingExitingValues() {
+	 * MockHttpServletRequest req = new MockHttpServletRequest();
+	 * req.attribute("attr1", "old");
+	 * req.attribute("attr2", "old");
+	 * 
+	 * Map<String, Object> model = new HashMap<String, Object>();
+	 * model.put("attr1", "value1");
+	 * model.put("attr2", 2);
+	 * BaseView.includeModelInRequest(req, model);
+	 * assertThat(req.getAttribute("attr1"), is((Object) "value1"));
+	 * assertThat(req.getAttribute("attr2"), is((Object) 2));
+	 * }
+	 */
 
 	private static class TestView extends BaseView<TestView> {
 

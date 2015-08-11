@@ -20,15 +20,15 @@ package com.threewks.thundr.bind.parameter;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.introspection.TypeIntrospector;
 import com.threewks.thundr.transformer.TransformerManager;
-
-import jodd.util.ReflectUtil;
 
 /**
  * Binds to an array.
@@ -45,26 +45,26 @@ import jodd.util.ReflectUtil;
 public class ArrayParameterBinder<T> implements ParameterBinder<T[]> {
 	private static final Pattern indexPattern = Pattern.compile("\\[(\\d+)\\]");
 
+	@Override
 	public T[] bind(ParameterBinderRegistry binders, ParameterDescription parameterDescription, RequestDataMap pathMap, TransformerManager transformerManager) {
-		String[] entryForParameter = pathMap.get(parameterDescription.name());
-		boolean isIndexed = entryForParameter == null || entryForParameter.length == 0;
+		List<String> entryForParameter = pathMap.get(parameterDescription.name());
+		boolean isIndexed = entryForParameter == null || entryForParameter.size() == 0;
 		return isIndexed ? createIndexed(binders, parameterDescription, pathMap, transformerManager) : createUnindexed(binders, parameterDescription, pathMap, transformerManager);
 	}
 
 	// TODO - Is there a discrepency between how unindexed and indexed entities are created?
 	// createUnindexed uses the TransformerManager directly, but createIndexed uses the ParameterBinderRegistry?
-	@SuppressWarnings("unchecked")
 	private T[] createUnindexed(ParameterBinderRegistry binders, ParameterDescription parameterDescription, RequestDataMap pathMap, TransformerManager transformerManager) {
-		String[] entries = pathMap.get(parameterDescription.name());
+		List<String> entries = pathMap.get(parameterDescription.name());
 		// a special case of a single empty string entry we'll equate to null
-		if (entries == null || entries.length == 1 && (entries[0] == null || "".equals(entries[0]))) {
+		if (entries == null || entries.size() == 1 && (entries.get(0) == null || "".equals(entries.get(0)))) {
 			return null;
 		}
 		Type type = parameterDescription.getArrayType();
-		Class<T> clazz = ReflectUtil.toClass(type);
-		T[] arrayParameter = createArray(entries.length, clazz);
-		for (int i = 0; i < entries.length; i++) {
-			String entry = entries[i];
+		Class<T> clazz = TypeIntrospector.asClass(type);
+		T[] arrayParameter = createArray(entries.size(), clazz);
+		for (int i = 0; i < entries.size(); i++) {
+			String entry = entries.get(i);
 			arrayParameter[i] = transformerManager.transform(String.class, clazz, entry);
 		}
 		return arrayParameter;
@@ -93,7 +93,7 @@ public class ArrayParameterBinder<T> implements ParameterBinder<T[]> {
 		highestIndex += 1;
 
 		Type type = parameterDescription.getArrayType();
-		Class<T> clazz = ReflectUtil.toClass(type);
+		Class<T> clazz = TypeIntrospector.asClass(type);
 		T[] arrayParameter = createArray(highestIndex, clazz);
 		for (int i = 0; i < highestIndex; i++) {
 			String key = keyToIndex.get(i);

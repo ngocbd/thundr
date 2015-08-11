@@ -28,7 +28,6 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,8 +36,11 @@ import org.mockito.Mockito;
 import com.threewks.thundr.bind.BinderRegistry;
 import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.http.ContentType;
-import com.threewks.thundr.injection.InjectorBuilder;
+import com.threewks.thundr.injection.InjectionContextImpl;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
+import com.threewks.thundr.request.mock.MockRequest;
 import com.threewks.thundr.route.HttpMethod;
 import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.transformer.TransformerManager;
@@ -46,30 +48,26 @@ import com.threewks.thundr.transformer.TransformerManager;
 public class ControllerRouteResolverTest {
 	private ControllerRouteResolver resolver;
 	private UpdatableInjectionContext injectionContext;
-	private HttpServletRequest req = mock(HttpServletRequest.class);
-	private HttpServletResponse resp = mock(HttpServletResponse.class);
+	private Request req = mock(Request.class);
+	private Response resp = mock(Response.class);
 	private Map<String, String> pathVars = map();
 
-	private FilterRegistry filters = new FilterRegistry();
+	private FilterRegistry filterRegistry = new FilterRegistryImpl();
 	private BinderRegistry binderRegistry;
-	private TransformerManager transformerManager;
+	private TransformerManager transformerManager = TransformerManager.createWithDefaults();
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Before
 	public void before() {
-		transformerManager = TransformerManager.createWithDefaults();
 		ParameterBinderRegistry parameterBinderRegistry = new ParameterBinderRegistry(transformerManager);
 		ParameterBinderRegistry.addDefaultBinders(parameterBinderRegistry);
 
 		binderRegistry = new BinderRegistry();
 		BinderRegistry.registerDefaultBinders(binderRegistry, parameterBinderRegistry, transformerManager);
 
-		injectionContext = mock(UpdatableInjectionContext.class);
-		InjectorBuilder<Class> injectionBuilder = mock(InjectorBuilder.class);
-		when(injectionContext.inject(Mockito.any(Class.class))).thenReturn(injectionBuilder);
+		injectionContext = new InjectionContextImpl();
 
-		resolver = new ControllerRouteResolver(injectionContext, filters, binderRegistry);
-		when(req.getContentType()).thenReturn(ContentType.ApplicationFormUrlEncoded.value());
+		resolver = new ControllerRouteResolver(injectionContext, filterRegistry, binderRegistry);
+		when(req.getContentType()).thenReturn(ContentType.ApplicationFormUrlEncoded);
 	}
 
 	@Test
@@ -112,32 +110,32 @@ public class ControllerRouteResolverTest {
 	@Test
 	public void shouldInvokeFilterBeforeActionMethod() {
 		Filter filter = mock(Filter.class);
-		filters.add("/*", filter);
+		filterRegistry.add("/*", filter);
 		TestActionInterceptor registeredInterceptor = new TestActionInterceptor(null, null, null);
 		Controller action = prepareActionMethod("intercept", registeredInterceptor);
 
-		when(req.getRequestURI()).thenReturn("/request");
+		when(req.getRequestPath()).thenReturn("/request");
 
 		resolver.resolve(action, HttpMethod.GET, req, resp, pathVars);
 
-		verify(filter, times(1)).before(HttpMethod.GET, req, resp);
+		verify(filter, times(1)).before(req, resp);
 		assertThat(registeredInterceptor.beforeInvoked, is(true));
 	}
 
 	@Test
 	public void shouldReturnViewFromFilterAndSkipControllerInterceptorsAndOtherFilters() {
 		Filter filter = mock(Filter.class);
-		filters.add("/*", filter);
-		when(filter.before(HttpMethod.GET, req, resp)).thenReturn("Filter Result");
+		filterRegistry.add("/*", filter);
+		when(filter.before(req, resp)).thenReturn("Filter Result");
 
 		TestActionInterceptor registeredInterceptor = new TestActionInterceptor(null, null, null);
 		Controller action = prepareActionMethod("intercept", registeredInterceptor);
 
-		when(req.getRequestURI()).thenReturn("/request");
+		when(req.getRequestPath()).thenReturn("/request");
 
 		Object view = resolver.resolve(action, HttpMethod.GET, req, resp, pathVars);
 
-		verify(filter, times(1)).before(HttpMethod.GET, req, resp);
+		verify(filter, times(1)).before(req, resp);
 		assertThat(registeredInterceptor.beforeInvoked, is(false));
 		assertThat(view, is((Object) "Filter Result"));
 	}
@@ -169,25 +167,26 @@ public class ControllerRouteResolverTest {
 		@SuppressWarnings("unchecked")
 		Interceptor<TestAnnotation> registeredInterceptor = new Interceptor<TestAnnotation>() {
 			@Override
-			public String before(TestAnnotation annotation, HttpServletRequest req, HttpServletResponse resp) {
-				req.setAttribute("name", "value");
+			public String before(TestAnnotation annotation, Request req, Response resp) {
+				req.getRawRequest(HttpServletRequest.class).setAttribute("name", "value");
 				return null;
 			}
 
 			@Override
-			public String after(TestAnnotation annotation, Object result, HttpServletRequest req, HttpServletResponse resp) {
+			public String after(TestAnnotation annotation, Object result, Request req, Response resp) {
 				return null;
 			}
 
 			@Override
-			public String exception(TestAnnotation annotation, Exception e, HttpServletRequest req, HttpServletResponse resp) {
+			public String exception(TestAnnotation annotation, Exception e, Request req, Response resp) {
 				return null;
 			}
 
 		};
 		Controller action = prepareActionMethod("interceptWithValue", registeredInterceptor);
 
-		req = new MockHttpServletRequest();
+		req = new MockRequest(HttpMethod.GET, "/path").withRawRequest(new MockHttpServletRequest("/path"));
+
 		Object resolvedValue = resolver.resolve(action, HttpMethod.GET, req, resp, pathVars);
 		assertThat(resolvedValue, is((Object) "value"));
 	}
@@ -195,32 +194,32 @@ public class ControllerRouteResolverTest {
 	@Test
 	public void shouldInvokeFilterAfterActionMethodAndInterceptors() {
 		Filter filter = mock(Filter.class);
-		filters.add("/*", filter);
+		filterRegistry.add("/*", filter);
 		TestActionInterceptor registeredInterceptor = new TestActionInterceptor(null, null, null);
 		Controller action = prepareActionMethod("intercept", registeredInterceptor);
 
-		when(req.getRequestURI()).thenReturn("/request");
+		when(req.getRequestPath()).thenReturn("/request");
 
 		resolver.resolve(action, HttpMethod.GET, req, resp, pathVars);
 
-		verify(filter, times(1)).after(HttpMethod.GET, null, req, resp);
+		verify(filter, times(1)).after(null, req, resp);
 		assertThat(registeredInterceptor.afterInvoked, is(true));
 	}
 
 	@Test
 	public void shouldReturnViewFromAfterFilterAfterRunningInterceptors() {
 		Filter filter = mock(Filter.class);
-		filters.add("/*", filter);
-		when(filter.after(HttpMethod.GET, null, req, resp)).thenReturn("Filter Result");
+		filterRegistry.add("/*", filter);
+		when(filter.after(null, req, resp)).thenReturn("Filter Result");
 
 		TestActionInterceptor registeredInterceptor = new TestActionInterceptor(null, null, null);
 		Controller action = prepareActionMethod("intercept", registeredInterceptor);
 
-		when(req.getRequestURI()).thenReturn("/request");
+		when(req.getRequestPath()).thenReturn("/request");
 
 		Object view = resolver.resolve(action, HttpMethod.GET, req, resp, pathVars);
 
-		verify(filter, times(1)).after(HttpMethod.GET, null, req, resp);
+		verify(filter, times(1)).after(null, req, resp);
 		assertThat(registeredInterceptor.afterInvoked, is(true));
 		assertThat(registeredInterceptor.exceptionInvoked, is(false));
 		assertThat(view, is((Object) "Filter Result"));
@@ -250,32 +249,32 @@ public class ControllerRouteResolverTest {
 	@Test
 	public void shouldInvokeAfterFiltersPassingTheResultOfAfterInterceptors() {
 		Filter filter = mock(Filter.class);
-		filters.add("/*", filter);
+		filterRegistry.add("/*", filter);
 
 		TestActionInterceptor registeredInterceptor = new TestActionInterceptor(null, "Expected After", null);
 		Controller action = prepareActionMethod("intercept", registeredInterceptor);
 
-		when(req.getRequestURI()).thenReturn("/request");
+		when(req.getRequestPath()).thenReturn("/request");
 
 		assertThat((String) resolver.resolve(action, HttpMethod.GET, req, resp, pathVars), is("Expected After"));
 		assertThat(registeredInterceptor.beforeInvoked, is(true));
 		assertThat(registeredInterceptor.afterInvoked, is(true));
 		assertThat(registeredInterceptor.exceptionInvoked, is(false));
-		verify(filter).after(HttpMethod.GET, "Expected After", req, resp);
+		verify(filter).after("Expected After", req, resp);
 	}
 
 	@Test
 	public void shouldInvokeFilterOnException() {
 		Filter filter = mock(Filter.class);
-		filters.add("/*", filter);
+		filterRegistry.add("/*", filter);
 		TestActionInterceptor registeredInterceptor = new TestActionInterceptor(null, null, "invoked");
 		Controller action = prepareActionMethod("interceptException", registeredInterceptor);
 
-		when(req.getRequestURI()).thenReturn("/request");
+		when(req.getRequestPath()).thenReturn("/request");
 
 		resolver.resolve(action, HttpMethod.GET, req, resp, pathVars);
 
-		verify(filter, times(1)).exception(eq(HttpMethod.GET), Mockito.any(Exception.class), eq(req), eq(resp));
+		verify(filter, times(1)).exception(Mockito.any(Exception.class), eq(req), eq(resp));
 		assertThat(registeredInterceptor.exceptionInvoked, is(true));
 		assertThat(registeredInterceptor.afterInvoked, is(false));
 	}
@@ -283,17 +282,17 @@ public class ControllerRouteResolverTest {
 	@Test
 	public void shouldReturnViewFromExceptionFilterAfterRunningInterceptors() {
 		Filter filter = mock(Filter.class);
-		filters.add("/*", filter);
-		when(filter.exception(eq(HttpMethod.GET), Mockito.any(Exception.class), eq(req), eq(resp))).thenReturn("Filter Result");
+		filterRegistry.add("/*", filter);
+		when(filter.exception(Mockito.any(Exception.class), eq(req), eq(resp))).thenReturn("Filter Result");
 
 		TestActionInterceptor registeredInterceptor = new TestActionInterceptor(null, null, "invoked");
 		Controller action = prepareActionMethod("interceptException", registeredInterceptor);
 
-		when(req.getRequestURI()).thenReturn("/request");
+		when(req.getRequestPath()).thenReturn("/request");
 
 		Object view = resolver.resolve(action, HttpMethod.GET, req, resp, pathVars);
 
-		verify(filter, times(1)).exception(eq(HttpMethod.GET), Mockito.any(Exception.class), eq(req), eq(resp));
+		verify(filter, times(1)).exception(Mockito.any(Exception.class), eq(req), eq(resp));
 		assertThat(registeredInterceptor.exceptionInvoked, is(true));
 		assertThat(view, is((Object) "Filter Result"));
 	}
@@ -337,7 +336,7 @@ public class ControllerRouteResolverTest {
 	}
 
 	private Controller prepareActionMethod(String method, Interceptor<TestAnnotation> registeredInterceptor) {
-		when(injectionContext.get(ControllerRouteResolverTest.class)).thenReturn(this);
+		injectionContext.inject(this).as(ControllerRouteResolverTest.class);
 		resolver.registerInterceptor(TestAnnotation.class, registeredInterceptor);
 		Controller action = new Controller(ControllerRouteResolverTest.class, method);
 		assertThat(action, is(notNullValue()));
@@ -376,19 +375,19 @@ public class ControllerRouteResolverTest {
 		}
 
 		@Override
-		public String before(TestAnnotation annotation, HttpServletRequest req, HttpServletResponse resp) {
+		public String before(TestAnnotation annotation, Request req, Response resp) {
 			beforeInvoked = true;
 			return onBefore;
 		}
 
 		@Override
-		public String after(TestAnnotation annotation, Object result, HttpServletRequest req, HttpServletResponse resp) {
+		public String after(TestAnnotation annotation, Object result, Request req, Response resp) {
 			afterInvoked = true;
 			return onAfter;
 		}
 
 		@Override
-		public String exception(TestAnnotation annotation, Exception e, HttpServletRequest req, HttpServletResponse resp) {
+		public String exception(TestAnnotation annotation, Exception e, Request req, Response resp) {
 			exceptionInvoked = true;
 			return onException;
 		}

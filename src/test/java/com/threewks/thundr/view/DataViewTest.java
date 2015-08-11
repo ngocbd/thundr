@@ -22,6 +22,8 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
+import com.threewks.thundr.http.StatusCode;
+
 public class DataViewTest {
 
 	@Test
@@ -31,11 +33,11 @@ public class DataViewTest {
 	}
 
 	public void shouldRetainOutputAndSettingsFromOtherDataView() {
-		TestView other = new TestView("data").withHeader("header", "value").withContentType("content/type").withStatusCode(201);
+		TestView other = new TestView("data").withHeader("header", "value").withContentType("content/type").withStatusCode(StatusCode.Accepted);
 		TestView view = new TestView(other);
 		assertThat(view.getOutput(), is((Object) "data"));
 		assertThat(view.getContentType(), is("content/type"));
-		assertThat(view.getStatusCode(), is(201));
+		assertThat(view.getStatusCode(), is(StatusCode.Accepted));
 		assertThat(view.getHeader("header"), is("value"));
 	}
 

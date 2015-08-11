@@ -22,11 +22,15 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
@@ -40,6 +44,7 @@ import jodd.util.URLCoder;
 public class SyntheticHttpServletResponse implements HttpServletResponse {
 	private String contentType = ContentType.TextHtml.value();
 	private String characterEncoding = StringPool.UTF_8;
+	private int status = 200;
 	private Map<String, String> headers = new LinkedHashMap<>();
 	private ByteArrayOutputStream baos = new ByteArrayOutputStream();
 	private ServletOutputStream os = new ServletOutputStream() {
@@ -48,12 +53,23 @@ public class SyntheticHttpServletResponse implements HttpServletResponse {
 			baos.write(b);
 		}
 
+		@Override
 		public void write(byte[] arg0) throws IOException {
 			baos.write(arg0);
 		};
 
+		@Override
 		public void write(byte[] b, int off, int len) throws IOException {
 			baos.write(b, off, len);
+		}
+
+		@Override
+		public boolean isReady() {
+			return true;
+		}
+
+		@Override
+		public void setWriteListener(WriteListener writeListener) {
 		};
 
 	};
@@ -126,6 +142,11 @@ public class SyntheticHttpServletResponse implements HttpServletResponse {
 	}
 
 	@Override
+	public void setContentLengthLong(long len) {
+		// noop
+	}
+
+	@Override
 	public void setBufferSize(int size) {
 		// noop
 	}
@@ -177,7 +198,7 @@ public class SyntheticHttpServletResponse implements HttpServletResponse {
 
 	@Override
 	public String encodeURL(String url) {
-		return URLCoder.encodeUrl(url);
+		return URLCoder.encodeHttpUrl(url);
 	}
 
 	@Override
@@ -242,12 +263,38 @@ public class SyntheticHttpServletResponse implements HttpServletResponse {
 
 	@Override
 	public void setStatus(int sc) {
-		// noop
+		status = sc;
 	}
 
 	@Override
 	public void setStatus(int sc, String sm) {
-		// noop
+		status = sc;
+	}
+
+	@Override
+	public int getStatus() {
+		return status;
+	}
+
+	@Override
+	public String getHeader(String header) {
+		for (String head : headers.keySet()) {
+			if (head.equalsIgnoreCase(header)) {
+				return headers.get(head);
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public Collection<String> getHeaders(String name) {
+		String value = getHeader(name);
+		return value == null ? Collections.emptyList() : Arrays.asList(value);
+	}
+
+	@Override
+	public Collection<String> getHeaderNames() {
+		return headers.keySet();
 	}
 
 	private String getReasonForHttpStatus(int sc) {
@@ -266,14 +313,5 @@ public class SyntheticHttpServletResponse implements HttpServletResponse {
 		} catch (IOException e) {
 			throw new BaseException(e, "Failed to get output, could not flush a ByteArrayOutputStream!: %s", e.getMessage());
 		}
-	}
-
-	public String getHeader(String header) {
-		for (String head : headers.keySet()) {
-			if (head.equalsIgnoreCase(header)) {
-				return headers.get(head);
-			}
-		}
-		return null;
 	}
 }

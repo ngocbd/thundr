@@ -17,14 +17,16 @@
  */
 package com.threewks.thundr.view;
 
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
+
 /**
- * A {@link ViewRenderer} resolves the given view and writes it to some output.
- * Typically this would be a servlet response (@see {@link ServletViewRenderer}) or
+ * A {@link ViewRenderer} resolves the given view and writes it to the given response.
+ * Typically this would be a servlet response (@see {@link ServletRequestPreservingViewRenderer}) or
  * into memory (@see {@link BasicViewRenderer}).
  * 
- * All {@link ViewRenderer} implementations should be considered stateful and should not
- * be reused or shared across threads.
+ * All {@link ViewRenderer} implementations should be stateless and safe for reuse across threads, requests or invocations.
  */
 public interface ViewRenderer {
-	public void render(Object view);
+	public void render(Request request, Response response, Object view);
 }

@@ -39,16 +39,16 @@ import java.util.Set;
  */
 public class RequestDataMap {
 
-	private Map<List<String>, String[]> delegate = new LinkedHashMap<List<String>, String[]>();
+	private Map<List<String>, List<String>> delegate = new LinkedHashMap<>();
 
 	private RequestDataMap() {
 
 	}
 
-	public RequestDataMap(Map<String, String[]> input) {
+	public RequestDataMap(Map<String, List<String>> input) {
 		this();
 		if (input != null) {
-			for (Map.Entry<String, String[]> entry : input.entrySet()) {
+			for (Map.Entry<String, List<String>> entry : input.entrySet()) {
 				String key = entry.getKey();
 				String removeDashes = key.replaceAll("-", "");
 				String expandedKey = removeDashes.replaceAll("\\.", "\r");
@@ -61,7 +61,7 @@ public class RequestDataMap {
 
 	public RequestDataMap pathMapFor(String key) {
 		RequestDataMap pathMap = new RequestDataMap();
-		for (Map.Entry<List<String>, String[]> entry : delegate.entrySet()) {
+		for (Map.Entry<List<String>, List<String>> entry : delegate.entrySet()) {
 			List<String> path = entry.getKey();
 			if (path.size() > 1 && path.get(0).equals(key)) {
 				List<String> newPath = path.subList(1, path.size());
@@ -73,7 +73,7 @@ public class RequestDataMap {
 
 	public Set<String> uniqueChildren() {
 		Set<String> results = new HashSet<String>();
-		for (Map.Entry<List<String>, String[]> entry : delegate.entrySet()) {
+		for (Map.Entry<List<String>, List<String>> entry : delegate.entrySet()) {
 			List<String> path = entry.getKey();
 			String child = path.get(0);
 			results.add(child);
@@ -81,11 +81,11 @@ public class RequestDataMap {
 		return results;
 	}
 
-	public String[] get(List<String> arg0) {
+	public List<String> get(List<String> arg0) {
 		return delegate.get(arg0);
 	}
 
-	public String[] get(String arg0) {
+	public List<String> get(String arg0) {
 		return delegate.get(Collections.singletonList(arg0));
 	}
 
@@ -111,11 +111,11 @@ public class RequestDataMap {
 	 * object.a -> value A
 	 * object.b -> value B
 	 * 
-	 * The returned map is a map of String -> String, or if multiple values exist, String -> String[]
+	 * The returned map is a map of String -> String, or if multiple values exist, String -> List<String>
 	 */
 	public Map<String, Object> toStringMap(String pathElement) {
 		Map<String, Object> stringMap = new HashMap<String, Object>();
-		for (Entry<List<String>, String[]> entry : delegate.entrySet()) {
+		for (Entry<List<String>, List<String>> entry : delegate.entrySet()) {
 			List<String> key = entry.getKey();
 
 			if (pathElement.equals(key.get(0))) {
@@ -131,8 +131,8 @@ public class RequestDataMap {
 				}
 				String stringKey = joinedKey.toString();
 				if (stringKey.length() > 0) {
-					String[] value = entry.getValue();
-					stringMap.put(stringKey, value == null || value.length > 1 ? value : value[0]);
+					List<String> value = entry.getValue();
+					stringMap.put(stringKey, value == null || value.size() > 1 ? value : value.get(0));
 				}
 			}
 		}
@@ -152,9 +152,9 @@ public class RequestDataMap {
 	 * a -> value A
 	 * b -> value B
 	 */
-	public Map<String, String[]> toStringMap() {
-		Map<String, String[]> stringMap = new HashMap<String, String[]>();
-		for (Entry<List<String>, String[]> entry : delegate.entrySet()) {
+	public Map<String, List<String>> toStringMap() {
+		Map<String, List<String>> stringMap = new HashMap<String, List<String>>();
+		for (Entry<List<String>, List<String>> entry : delegate.entrySet()) {
 			List<String> key = entry.getKey();
 
 			StringBuilder joinedKey = new StringBuilder();

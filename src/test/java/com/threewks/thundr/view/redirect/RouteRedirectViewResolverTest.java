@@ -19,13 +19,8 @@ package com.threewks.thundr.view.redirect;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
 
 import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -34,10 +29,14 @@ import org.junit.rules.ExpectedException;
 
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.action.TestAction;
-import com.threewks.thundr.action.TestActionResolver;
+import com.threewks.thundr.action.TestRouteResolver;
+import com.threewks.thundr.http.Header;
+import com.threewks.thundr.http.StatusCode;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.mock.MockRequest;
+import com.threewks.thundr.request.mock.MockResponse;
 import com.threewks.thundr.route.HttpMethod;
 import com.threewks.thundr.route.Router;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.view.ViewResolutionException;
 
 public class RouteRedirectViewResolverTest {
@@ -45,13 +44,13 @@ public class RouteRedirectViewResolverTest {
 
 	private Router router;
 	private RouteRedirectViewResolver resolver;
-	private HttpServletRequest req = new MockHttpServletRequest();
-	private HttpServletResponse resp = mock(HttpServletResponse.class);
+	private Request req = new MockRequest();
+	private MockResponse resp = new MockResponse();
 
 	@Before
 	public void before() {
 		router = new Router();
-		router.addResolver(TestAction.class, new TestActionResolver());
+		router.addResolver(TestAction.class, new TestRouteResolver());
 		router.add(HttpMethod.GET, "/route/1", new TestAction("route1"), "route1");
 		router.add(HttpMethod.GET, "/route/{var}", new TestAction("route2"), "route2");
 		router.add(HttpMethod.GET, "/route/{var}/{var2}", new TestAction("route3"), "route3");
@@ -63,29 +62,35 @@ public class RouteRedirectViewResolverTest {
 	public void shouldRedirectToNamedRoute() throws IOException {
 		RouteRedirectView viewResult = new RouteRedirectView("route1");
 		resolver.resolve(req, resp, viewResult);
-		verify(resp).sendRedirect("/route/1");
+		assertThat(resp.getStatusCode(), is(StatusCode.TemporaryRedirect));
+		assertThat(resp.getHeader(Header.Location), is("/route/1"));
 	}
 
 	@Test
 	public void shouldRedirectToNamedRouteSubstitutingVariables() throws IOException {
 		RouteRedirectView viewResult = new RouteRedirectView("route2", Expressive.<String, Object> map("var", "expected"));
 		resolver.resolve(req, resp, viewResult);
-		verify(resp).sendRedirect("/route/expected");
+		assertThat(resp.getStatusCode(), is(StatusCode.TemporaryRedirect));
+		assertThat(resp.getHeader(Header.Location), is("/route/expected"));
 	}
 	@Test
 	public void shouldRedirectToNamedRouteWithQueryParameters() throws IOException {
 		RouteRedirectView viewResult = new RouteRedirectView("route2", Expressive.<String, Object> map("var", "expected"), Expressive.<String, Object> map("q1", "v1", "q2", "v2"));
 		resolver.resolve(req, resp, viewResult);
-		verify(resp).sendRedirect("/route/expected?q2=v2&q1=v1");
+		assertThat(resp.getStatusCode(), is(StatusCode.TemporaryRedirect));
+		assertThat(resp.getHeader(Header.Location), is("/route/expected?q1=v1&q2=v2"));
 	}
 
 	@Test
 	public void shouldOnlyIncludeQueryStringIfNecessary() throws IOException {
 		RouteRedirectView viewResult = new RouteRedirectView("route2", Expressive.<String, Object> map("var", "expected"), Expressive.<String, Object> map());
 		resolver.resolve(req, resp, viewResult);
-		verify(resp).sendRedirect("/route/expected");
+		assertThat(resp.getStatusCode(), is(StatusCode.TemporaryRedirect));
+		assertThat(resp.getHeader(Header.Location), is("/route/expected"));
 	}
 
+	/*
+	 * TODO - v3 - check this with redirect/sendError handling
 	@Test
 	public void shouldThrowViewResolutionExceptionWhenRedirectFails() throws IOException {
 		thrown.expect(ViewResolutionException.class);
@@ -96,6 +101,7 @@ public class RouteRedirectViewResolverTest {
 		RouteRedirectView viewResult = new RouteRedirectView("route1");
 		resolver.resolve(req, resp, viewResult);
 	}
+	*/
 
 	@Test
 	public void shouldThrowViewResolutionExceptionWhenRedirectToNonexistantRoute() throws IOException {

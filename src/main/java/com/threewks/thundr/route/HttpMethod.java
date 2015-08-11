@@ -26,6 +26,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 public enum HttpMethod {
+	HEAD,
 	GET,
 	POST,
 	PUT,
@@ -51,5 +52,9 @@ public enum HttpMethod {
 
 	public static HttpMethod from(String method) {
 		return lookup.get(StringUtils.trimToEmpty(StringUtils.upperCase(method)));
+	}
+
+	public boolean matches(String method) {
+		return name().equalsIgnoreCase(method);
 	}
 }

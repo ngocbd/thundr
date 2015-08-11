@@ -39,6 +39,7 @@ public class MapParameterBinder<T extends Map<Object, Object>> implements Parame
 		this.mapFactory = mapFactory;
 	}
 
+	@Override
 	public T bind(ParameterBinderRegistry binders, ParameterDescription parameterDescription, RequestDataMap pathMap, TransformerManager transformerManager) {
 		pathMap = pathMap.pathMapFor(parameterDescription.name());
 		Set<String> children = pathMap.uniqueChildren();

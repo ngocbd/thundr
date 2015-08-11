@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -50,7 +51,6 @@ public class MapParameterBinderTest {
 	private MapParameterBinder<Map<Object, Object>> binder = new MapParameterBinder<>(mapFactory);
 	private TransformerManager transformerManager = TransformerManager.createWithDefaults();
 	private ParameterBinderRegistry binders = new ParameterBinderRegistry(transformerManager);
-	private MethodIntrospector methodIntrospector = new MethodIntrospector();
 
 	@Before
 	public void before() {
@@ -61,7 +61,7 @@ public class MapParameterBinderTest {
 	public void shouldBindToStringStringMap() throws NoSuchMethodException, SecurityException {
 		ParameterDescription parameterDescription = getParameterFor("stringToString");
 
-		Map<String, String[]> input = mapKeys("map[entry1]", "map[entry2]").to(array("value 1"), array("value 2"));
+		Map<String, List<String>> input = mapKeys("map[entry1]", "map[entry2]").to(values("value 1"), values("value 2"));
 		RequestDataMap pathMap = new RequestDataMap(input);
 		Map<Object, Object> result = binder.bind(binders, parameterDescription, pathMap, transformerManager);
 		assertThat(result, hasEntry((Object) "entry1", (Object) "value 1"));
@@ -73,11 +73,11 @@ public class MapParameterBinderTest {
 	public void shouldBindToStringStringArrayMap() {
 		ParameterDescription parameterDescription = getParameterFor("stringToStringArray");
 
-		Map<String, String[]> input = mapKeys("map[entry1]", "map[entry2]").to(array("value 1", "value 2"), array("value 2"));
+		Map<String, List<String>> input = mapKeys("map[entry1]", "map[entry2]").to(values("value 1", "value 2"), values("value 2"));
 		RequestDataMap pathMap = new RequestDataMap(input);
 		Map<Object, Object> result = binder.bind(binders, parameterDescription, pathMap, transformerManager);
-		assertThat(result, hasEntry((Object) "entry1", (Object) new String[] { "value 1", "value 2" }));
-		assertThat(result, hasEntry((Object) "entry2", (Object) new String[] { "value 2" }));
+		assertThat(result, hasEntry((Object) "entry1", (Object) Arrays.asList("value 1", "value 2" )));
+		assertThat(result, hasEntry((Object) "entry2", (Object) Arrays.asList("value 2" )));
 		assertThat(result, instanceOf(HashMap.class));
 	}
 
@@ -88,11 +88,11 @@ public class MapParameterBinderTest {
 
 		ParameterDescription parameterDescription = getParameterFor("stringToStringArray");
 
-		Map<String, String[]> input = mapKeys("map[entry1]", "map[entry2]").to(array("value 1", "value 2"), array("value 2"));
+		Map<String, List<String>> input = mapKeys("map[entry1]", "map[entry2]").to(values("value 1", "value 2"), values("value 2"));
 		RequestDataMap pathMap = new RequestDataMap(input);
 		Map<Object, Object> result = binder.bind(binders, parameterDescription, pathMap, transformerManager);
-		assertThat(result, hasEntry((Object) "entry1", (Object) new String[] { "value 1", "value 2" }));
-		assertThat(result, hasEntry((Object) "entry2", (Object) new String[] { "value 2" }));
+		assertThat(result, hasEntry((Object) "entry1", (Object) Arrays.asList( "value 1", "value 2" )));
+		assertThat(result, hasEntry((Object) "entry2", (Object) Arrays.asList( "value 2" )));
 		assertThat(result, instanceOf(LinkedHashMap.class));
 	}
 
@@ -103,11 +103,11 @@ public class MapParameterBinderTest {
 
 		ParameterDescription parameterDescription = getParameterFor("stringToStringArray");
 
-		Map<String, String[]> input = mapKeys("map[entry1]", "map[entry2]").to(array("value 1", "value 2"), array("value 2"));
+		Map<String, List<String>> input = mapKeys("map[entry1]", "map[entry2]").to(values("value 1", "value 2"), values("value 2"));
 		RequestDataMap pathMap = new RequestDataMap(input);
 		Map<Object, Object> result = binder.bind(binders, parameterDescription, pathMap, transformerManager);
-		assertThat(result, hasEntry((Object) "entry1", (Object) new String[] { "value 1", "value 2" }));
-		assertThat(result, hasEntry((Object) "entry2", (Object) new String[] { "value 2" }));
+		assertThat(result, hasEntry((Object) "entry1", (Object) Arrays.asList( "value 1", "value 2" )));
+		assertThat(result, hasEntry((Object) "entry2", (Object) Arrays.asList( "value 2" )));
 		assertThat(result, instanceOf(TreeMap.class));
 	}
 
@@ -118,7 +118,7 @@ public class MapParameterBinderTest {
 
 		ParameterDescription parameterDescription = getParameterFor("stringToString");
 
-		Map<String, String[]> input = map("map[key", array("value 1"));
+		Map<String, List<String>> input = map("map[key", values("value 1"));
 		RequestDataMap pathMap = new RequestDataMap(input);
 		binder.bind(binders, parameterDescription, pathMap, transformerManager);
 	}
@@ -127,9 +127,9 @@ public class MapParameterBinderTest {
 	public void shouldReturnNullOnEmptyInput() {
 		ParameterDescription parameterDescription = getParameterFor("stringToString");
 
-		Map<String, String[]> input = map("map", new String[0]);
+		Map<String, List<String>> input = map("map", values());
 		assertThat(binder.bind(binders, parameterDescription, new RequestDataMap(input), transformerManager), is(nullValue()));
-		assertThat(binder.bind(binders, parameterDescription, new RequestDataMap(Collections.<String, String[]> emptyMap()), transformerManager), is(nullValue()));
+		assertThat(binder.bind(binders, parameterDescription, new RequestDataMap(emptyMap()), transformerManager), is(nullValue()));
 	}
 
 	@Test
@@ -138,12 +138,20 @@ public class MapParameterBinderTest {
 		assertThat(binder.willBind(getParameterFor("linkedHashMap"), transformerManager), is(false));
 	}
 
+	private Map<String, List<String>> emptyMap() {
+		return Collections.emptyMap();
+	}
+
+	private List<String> values(String... values) {
+		return Arrays.asList(values);
+	}
+
 	private ParameterDescription getParameterFor(String methodName) {
 		try {
 			Method[] declaredMethods = this.getClass().getDeclaredMethods();
 			for (Method method : declaredMethods) {
 				if (method.getName() == methodName) {
-					List<ParameterDescription> parameterDescriptions = methodIntrospector.getParameterDescriptions(method);
+					List<ParameterDescription> parameterDescriptions = new MethodIntrospector(method).getParameterDescriptions();
 					ParameterDescription parameterDescription = parameterDescriptions.get(0);
 					return parameterDescription;
 				}
@@ -158,11 +166,11 @@ public class MapParameterBinderTest {
 
 	}
 
-	public void stringToStringArray(Map<String, String[]> map) {
+	public void stringToStringArray(Map<String, List<String>> map) {
 
 	}
 
-	public void linkedHashMap(LinkedHashMap<String, String[]> map) {
+	public void linkedHashMap(LinkedHashMap<String, List<String>> map) {
 
 	}
 }

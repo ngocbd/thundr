@@ -25,10 +25,10 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.RequestContext;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 import com.threewks.thundr.bind.BindException;
@@ -37,6 +37,8 @@ import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.MultipartFile;
 import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 import com.threewks.thundr.util.Streams;
 
 public class MultipartHttpBinder implements Binder {
@@ -51,13 +53,13 @@ public class MultipartHttpBinder implements Binder {
 	}
 
 	@Override
-	public void bindAll(Map<ParameterDescription, Object> bindings, HttpServletRequest req, HttpServletResponse resp, Map<String, String> pathVariables) {
-		if (ContentType.matchesAny(req.getContentType(), supportedContentTypes) && shouldTryToBind(bindings)) {
+	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp, Map<String, String> pathVariables) {
+		boolean supported = supportedContentTypes.contains(req.getContentType());
+		if (supported && shouldTryToBind(bindings)) {
 			Map<String, List<String>> formFields = new HashMap<String, List<String>>();
 			Map<String, MultipartFile> fileFields = new HashMap<String, MultipartFile>();
 			extractParameters(req, formFields, fileFields);
-			Map<String, String[]> parameterMap = ParameterBinderRegistry.convertListMapToArrayMap(formFields);
-			parameterBinderRegistry.bind(bindings, parameterMap, fileFields);
+			parameterBinderRegistry.bind(bindings, formFields, fileFields);
 		}
 	}
 
@@ -71,9 +73,11 @@ public class MultipartHttpBinder implements Binder {
 		return bindings.values().contains(null);
 	}
 
-	void extractParameters(HttpServletRequest req, Map<String, List<String>> formFields, Map<String, MultipartFile> fileFields) {
+	void extractParameters(Request req, Map<String, List<String>> formFields, Map<String, MultipartFile> fileFields) {
 		try {
-			FileItemIterator itemIterator = upload.getItemIterator(req);
+			// TODO - v3 - getItemIterator takes a request content, which we could use to wrap a Request, rather than relying on HttpServletRequest here
+			HttpServletRequest rawRequest = req.getRawRequest(HttpServletRequest.class);
+			FileItemIterator itemIterator = upload.getItemIterator(rawRequest);
 			while (itemIterator.hasNext()) {
 				FileItemStream item = itemIterator.next();
 				InputStream stream = item.openStream();

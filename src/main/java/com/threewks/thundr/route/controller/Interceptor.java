@@ -19,8 +19,8 @@ package com.threewks.thundr.route.controller;
 
 import java.lang.annotation.Annotation;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 
 /**
  * This interface allows the definition of a simple interceptor strategy for invocation of controller methods.
@@ -37,7 +37,7 @@ public interface Interceptor<A extends Annotation> {
 	 * @param resp
 	 * @return the view to resolve if this interceptor wishes to resolve the view and prevent the controller being invoked, null otherwise
 	 */
-	public <T> T before(A annotation, HttpServletRequest req, HttpServletResponse resp);
+	public <T> T before(A annotation, Request req, Response resp);
 
 	/**
 	 * Invoked after the controller method is called. Returning null from this method will result in the given view object being resolved as normal, any other
@@ -49,7 +49,7 @@ public interface Interceptor<A extends Annotation> {
 	 * @param resp
 	 * @return the view to resolve instead of the controllers result, or null to use the result of the controller execution
 	 */
-	public <T> T after(A annotation, Object view, HttpServletRequest req, HttpServletResponse resp);
+	public <T> T after(A annotation, Object view, Request req, Response resp);
 
 	/**
 	 * Invoked if the controller method execution throws an exception. This method can return a view which will be resolved instead of the exception, or null
@@ -61,5 +61,5 @@ public interface Interceptor<A extends Annotation> {
 	 * @param resp
 	 * @return the view to resolve instead of the exception, or null to resolve as normal
 	 */
-	public <T> T exception(A annotation, Exception e, HttpServletRequest req, HttpServletResponse resp);
+	public <T> T exception(A annotation, Exception e, Request req, Response resp);
 }

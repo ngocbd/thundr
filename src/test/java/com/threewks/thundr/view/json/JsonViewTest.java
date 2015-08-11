@@ -33,7 +33,7 @@ public class JsonViewTest {
 		assertThat(view.getOutput(), is((Object) "string"));
 		assertThat(view.getContentType(), is("application/json"));
 		assertThat(view.getCharacterEncoding(), is("UTF-8"));
-		assertThat(view.getStatusCode(), is(200));
+		assertThat(view.getStatusCode(), is(StatusCode.OK));
 	}
 
 	@Test
@@ -63,7 +63,7 @@ public class JsonViewTest {
 		assertThat(view.getOutput(), is((Object) "Test output"));
 		assertThat(view.getContentType(), is("application/json"));
 		assertThat(view.getCharacterEncoding(), is("UTF-8"));
-		assertThat(view.getStatusCode(), is(200));
+		assertThat(view.getStatusCode(), is(StatusCode.OK));
 	}
 
 	@Test
@@ -74,6 +74,6 @@ public class JsonViewTest {
 		assertThat(view.getOutput(), is((Object) "Test output"));
 		assertThat(view.getContentType(), is("text/plain"));
 		assertThat(view.getCharacterEncoding(), is("UTF-7"));
-		assertThat(view.getStatusCode(), is(400));
+		assertThat(view.getStatusCode(), is(StatusCode.BadRequest));
 	}
 }

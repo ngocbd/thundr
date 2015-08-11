@@ -25,25 +25,23 @@ import static org.mockito.Mockito.*;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.servlet.http.Cookie;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
-import com.threewks.thundr.http.Cookies;
+import com.threewks.thundr.http.Cookie;
 import com.threewks.thundr.http.Header;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
+import com.threewks.thundr.request.mock.MockRequest;
+import com.threewks.thundr.request.mock.MockResponse;
 import com.threewks.thundr.view.ViewResolutionException;
 
 public class FileViewResolverTest {
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
 
-	private MockHttpServletRequest req = new MockHttpServletRequest();
-	private MockHttpServletResponse resp = new MockHttpServletResponse();
+	private MockRequest req = new MockRequest();
+	private MockResponse resp = new MockResponse();
 	private byte[] data = new byte[] { 1, 2, 3 };
 	private FileView fileView = new FileView("filename.ext", data, "content/type");
 	private FileViewResolver fileViewResolver = new FileViewResolver();
@@ -52,9 +50,8 @@ public class FileViewResolverTest {
 	public void shouldWriteContentTypeAndFilenameToHeaders() {
 		fileViewResolver.resolve(req, resp, fileView);
 
-		assertThat(resp.getContentType(), is("content/type"));
-		assertThat(resp.containsHeader(Header.ContentDisposition), is(true));
-		assertThat((String) resp.header(Header.ContentDisposition), is("attachment; filename=filename.ext"));
+		assertThat(resp.getContentTypeString(), is("content/type"));
+		assertThat(resp.getHeader(Header.ContentDisposition), is("attachment; filename=filename.ext"));
 	}
 
 	@Test
@@ -62,9 +59,8 @@ public class FileViewResolverTest {
 		fileView.withDisposition(Disposition.Inline);
 		fileViewResolver.resolve(req, resp, fileView);
 
-		assertThat(resp.getContentType(), is("content/type"));
-		assertThat(resp.containsHeader(Header.ContentDisposition), is(true));
-		assertThat((String) resp.header(Header.ContentDisposition), is("inline; filename=filename.ext"));
+		assertThat(resp.getContentTypeString(), is("content/type"));
+		assertThat(resp.getHeader(Header.ContentDisposition), is("inline; filename=filename.ext"));
 	}
 
 	@Test
@@ -72,9 +68,8 @@ public class FileViewResolverTest {
 		fileView.withHeader(Header.ContentDisposition, "something-else");
 		fileViewResolver.resolve(req, resp, fileView);
 
-		assertThat(resp.getContentType(), is("content/type"));
-		assertThat(resp.containsHeader(Header.ContentDisposition), is(true));
-		assertThat((String) resp.header(Header.ContentDisposition), is("something-else"));
+		assertThat(resp.getContentTypeString(), is("content/type"));
+		assertThat(resp.getHeader(Header.ContentDisposition), is("something-else"));
 	}
 
 	@Test
@@ -91,13 +86,13 @@ public class FileViewResolverTest {
 	@Test
 	public void shouldRespectExtendedViewValues() {
 
-		Cookie cookie = Cookies.build("cookie").withValue("value2").build();
+		Cookie cookie = Cookie.build("cookie").withValue("value2").build();
 		fileView.withContentType("content/type").withCharacterEncoding("UTF-16").withHeader("header", "value1").withCookie(cookie);
 
 		fileViewResolver.resolve(req, resp, fileView);
-		assertThat(resp.getContentType(), is("content/type"));
+		assertThat(resp.getContentTypeString(), is("content/type"));
 		assertThat(resp.getCharacterEncoding(), is("UTF-16"));
-		assertThat(resp.<String> header("header"), is("value1"));
+		assertThat(resp.getHeader("header"), is("value1"));
 		assertThat(resp.getCookies(), hasItem(cookie));
 	}
 
@@ -109,7 +104,7 @@ public class FileViewResolverTest {
 	@Test
 	public void shouldCloseInputStream() throws IOException {
 		InputStream is = mockInputStream();
-		
+
 		fileView = new FileView("filename.ext", is, "content/type");
 		fileViewResolver.resolve(req, resp, fileView);
 
@@ -119,12 +114,12 @@ public class FileViewResolverTest {
 	@Test
 	public void shouldNotThrowExceptionIfClosingInputStreamFails() throws IOException {
 		InputStream is = mockInputStream();
-		
+
 		doThrow(new IOException("intentional")).when(is).close();
 
 		fileView = new FileView("filename.ext", is, "content/type");
 		fileViewResolver.resolve(req, resp, fileView);
-		
+
 		verify(is).close();
 	}
 

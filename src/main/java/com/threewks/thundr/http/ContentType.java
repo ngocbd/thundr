@@ -35,6 +35,7 @@ public enum ContentType {
 	TextJavascript("text/javascript"),
 	ApplicationFormUrlEncoded("application/x-www-form-urlencoded"),
 	ApplicationOctetStream("application/octet-stream"),
+	ApplicationJavascript("application/javascript"),
 	ApplicationJson("application/json"),
 	ApplicationXml("application/xml"),
 	ApplicationXmlDtd("application/xml-dtd"),

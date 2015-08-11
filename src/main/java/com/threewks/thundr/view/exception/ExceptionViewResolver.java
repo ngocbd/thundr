@@ -17,22 +17,21 @@
  */
 package com.threewks.thundr.view.exception;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.threewks.thundr.http.StatusCode;
 import com.threewks.thundr.logger.Logger;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 import com.threewks.thundr.view.ViewResolutionException;
 import com.threewks.thundr.view.ViewResolver;
 
 public class ExceptionViewResolver implements ViewResolver<Throwable> {
 	@Override
-	public void resolve(HttpServletRequest req, HttpServletResponse resp, Throwable viewResult) {
+	public void resolve(Request req, Response resp, Throwable viewResult) {
 		List<String> messages = new ArrayList<String>();
 		for (Throwable cause = viewResult; cause != null; cause = cause.getCause()) {
 			messages.add(cause.getMessage());
@@ -49,9 +48,14 @@ public class ExceptionViewResolver implements ViewResolver<Throwable> {
 			}
 			exceptionOfInterest.printStackTrace(writer);
 			writer.flush();
-			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, stringWriter.toString());
+			// @formatter:off
+			resp.withStatusCode(StatusCode.InternalServerError)
+				.withStatusMessage(stringWriter.toString());
+			// @formatter:on
+			// TODO - v3 - does sendError trigger the servlet's error handling? If so this will behave differently
+			//resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, );
 			Logger.error(stringWriter.toString());
-		} catch (IOException e) {
+		} catch (Exception e) {
 			Logger.error("Failed to render an exception view because '%s' - original exception: %s", e.getMessage(), viewResult.getMessage());
 			viewResult.printStackTrace();
 		}

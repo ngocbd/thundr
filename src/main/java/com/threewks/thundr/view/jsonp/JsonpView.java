@@ -17,10 +17,9 @@
  */
 package com.threewks.thundr.view.jsonp;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang3.StringUtils;
 
+import com.threewks.thundr.http.StatusCode;
 import com.threewks.thundr.view.DataView;
 import com.threewks.thundr.view.View;
 
@@ -46,7 +45,7 @@ public class JsonpView extends DataView<JsonpView> implements View {
 			withCharacterEncoding(StringPool.UTF_8);
 		}
 		if (getStatusCode() == null) {
-			withStatusCode(HttpServletResponse.SC_OK);
+			withStatusCode(StatusCode.OK);
 		}
 	}
 }
