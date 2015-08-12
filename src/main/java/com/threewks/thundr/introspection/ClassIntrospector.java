@@ -93,10 +93,16 @@ public class ClassIntrospector {
 	
 
 	public Method getMethod(Class<?> type, String methodName) {
-		return Arrays.stream(type.getMethods())
+		return listMethods(type).stream()
 			.filter(method -> method.getName().equals(methodName))
 			.findFirst()
 			.orElse(null);
+	}
+	
+	// TODO - NAO - Isolate dependencies on ReflectUtil and other introspection magic to
+	// just this package.
+	public List<Method> listMethods(Class<?> type) {
+		return Arrays.asList(ReflectUtil.getSupportedMethods(type));
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -115,5 +121,4 @@ public class ClassIntrospector {
 			return compare;
 		}
 	}
-
 }

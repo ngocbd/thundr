@@ -17,9 +17,13 @@
  */
 package com.threewks.thundr.injection;
 
+import static com.atomicleopard.expressive.Expressive.*;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,11 +42,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.atomicleopard.expressive.Cast;
 import com.atomicleopard.expressive.Expressive;
+import com.threewks.thundr.aop.AdviceRegistry;
+import com.threewks.thundr.aop.BaseAdvice;
 import com.threewks.thundr.configuration.Environment;
 
 public class InjectionContextImplTest {
-	@Rule public ExpectedException thrown = ExpectedException.none();
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 	private InjectionContextImpl context = new InjectionContextImpl();
 
 	@Before
@@ -53,6 +61,29 @@ public class InjectionContextImplTest {
 	@After
 	public void after() {
 		Environment.set(null);
+	}
+
+	@Test
+	public void shouldCreateAdviceRegistryWhenInstatiated() {
+		assertThat(context.adviceRegistry, is(notNullValue()));
+		assertThat(context.contains(AdviceRegistry.class), is(true));
+		assertThat(context.get(AdviceRegistry.class), is(context.adviceRegistry));
+	}
+
+	@Test
+	public void shouldRetainGivenAdviceRegistry() {
+		AdviceRegistry adviceRegistry = mock(AdviceRegistry.class);
+		context = new InjectionContextImpl(adviceRegistry);
+		assertThat(context.adviceRegistry, is(sameInstance(adviceRegistry)));
+		assertThat(context.contains(AdviceRegistry.class), is(true));
+		assertThat(context.get(AdviceRegistry.class), is(context.adviceRegistry));
+	}
+
+	@Test
+	public void shouldPermitANullAdviceRegistry() {
+		context = new InjectionContextImpl(null);
+		assertThat(context.adviceRegistry, is(nullValue()));
+		assertThat(context.contains(AdviceRegistry.class), is(false));
 	}
 
 	@Test
@@ -496,5 +527,42 @@ public class InjectionContextImplTest {
 
 		context.inject("defaultvalue").named("key").as(String.class);
 		assertThat(context.contains(String.class, "key"), is(true));
+	}
+	
+	@Test
+	public void shouldReturnProxiedInstanceWhenPointcutPresent() {
+		context.adviceRegistry.add(Pointcut.class, new PointcutAdvice());
+		context.inject(new TestService()).as(TestService.class);
+		
+		TestService testService = context.get(TestService.class);
+		assertThat(testService, is(notNullValue()));
+		assertThat(testService.getClass(), is(not(TestService.class)));
+		assertThat(Cast.is(testService, TestService.class), is(true));
+	}
+	@Test
+	public void shouldReturnProxiedInstanceWhenPointcutPresentAndClassIsInjected() {
+		context.adviceRegistry.add(Pointcut.class, new PointcutAdvice());
+		context.inject(TestService.class).as(TestService.class);
+		
+		TestService testService = context.get(TestService.class);
+		assertThat(testService, is(notNullValue()));
+		assertThat(testService.getClass(), is(not(TestService.class)));
+		assertThat(Cast.is(testService, TestService.class), is(true));
+	}
+	
+	@Retention(RetentionPolicy.RUNTIME) 
+	protected static @interface Pointcut {
+		
+	}
+	
+	protected static class PointcutAdvice extends BaseAdvice<Pointcut, Object> {
+		
+	}
+	
+	protected static class TestService {
+		@Pointcut
+		public int method(){
+			return 1;
+		}
 	}
 }

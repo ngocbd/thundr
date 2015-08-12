@@ -112,16 +112,62 @@ public enum StatusCode {
 		return reason;
 	}
 
+	/**
+	 * Return true if this status code is within the range given
+	 * 
+	 * @param low equal to or greater than (inclusive)
+	 * @param high less than (exclusive)
+	 * @return
+	 */
+	public boolean isInRange(int low, int high) {
+		return code >= low && code < high;
+	}
+
+	/**
+	 * Return true if this status code is within the range given
+	 * 
+	 * @param low equal to or greater than (inclusive)
+	 * @param high less than (exclusive)
+	 * @return
+	 */
+	public boolean isInRange(StatusCode low, StatusCode high) {
+		return low == null || high == null ? false : isInRange(low.code, high.code);
+	}
+
+	/**
+	 * Return true if this status code is in the family of the given {@link StatusCode}.
+	 * Two codes are in the same 'family' if they're in the same range (i.e. 200-299, 300-399, 400-499)
+	 * 
+	 * @param statusCode
+	 * @return
+	 */
+	public boolean isInFamily(StatusCode statusCode) {
+		return statusCode == null ? false : isInFamily(statusCode.code);
+	}
+
+	/**
+	 * Return true if this status code is in the family of the given status code
+	 * Two codes are in the same 'family' if they're in the same range (i.e. 200-299, 300-399, 400-499)
+	 * 
+	 * @param statusCode
+	 * @return
+	 */
+	public boolean isInFamily(int statusCode) {
+		int family = statusCode / 100 * 100;
+		return isInRange(family, family + 100);
+	}
+
 	@Override
 	public String toString() {
 		return String.format("%d %s", code, reason);
 	}
-	
-	public static StatusCode fromCode(int code){
+
+	public static StatusCode fromCode(int code) {
 		return Lookup.get(code);
 	}
 
 	private static final Map<Integer, StatusCode> Lookup = createLookup();
+
 	private static Map<Integer, StatusCode> createLookup() {
 		Map<Integer, StatusCode> map = new LinkedHashMap<Integer, StatusCode>();
 		for (StatusCode statusCodes : StatusCode.values()) {

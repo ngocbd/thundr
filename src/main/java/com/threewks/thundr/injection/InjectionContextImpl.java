@@ -54,7 +54,7 @@ public class InjectionContextImpl implements UpdatableInjectionContext {
 	private Triplets<Class<?>, String, Object> instances = map();
 
 	private ClassIntrospector classIntrospector = new ClassIntrospector();
-	private AdviceRegistry adviceRegistry;
+	protected AdviceRegistry adviceRegistry;
 
 	public InjectionContextImpl() {
 		this(new AdviceRegistryImpl());
@@ -63,7 +63,7 @@ public class InjectionContextImpl implements UpdatableInjectionContext {
 	public InjectionContextImpl(AdviceRegistry adviceRegistry) {
 		this.adviceRegistry = adviceRegistry;
 		if (this.adviceRegistry != null) {
-			this.inject(adviceRegistry).as(AdviceRegistry.class);
+			this.inject(this.adviceRegistry).as(AdviceRegistry.class);
 		}
 	}
 
@@ -257,7 +257,8 @@ public class InjectionContextImpl implements UpdatableInjectionContext {
 
 	private <T> void putInstanceInternal(Class<T> type, String name, T as) {
 		if (adviceRegistry != null) {
-			as = adviceRegistry.proxyIfNeeded(as);
+			T proxy = adviceRegistry.proxyIfNeeded(as);
+			as = proxy == null ? as : proxy;
 		}
 		instances.put(type, name, as);
 	}

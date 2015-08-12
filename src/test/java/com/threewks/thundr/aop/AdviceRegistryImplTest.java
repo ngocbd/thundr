@@ -1,9 +1,25 @@
+/*
+ * This file is a component of thundr, a software library from 3wks.
+ * Read more: http://3wks.github.io/thundr/
+ * Copyright (C) 2014 3wks, <thundr@3wks.com.au>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.threewks.thundr.aop;
 
-import static com.atomicleopard.expressive.Expressive.*;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.spy;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -18,12 +34,12 @@ public class AdviceRegistryImplTest {
 		assertThat(registry.contains(Pointcut.class), is(false));
 		assertThat(registry.contains(Pointcut.class, TestAdvice.class), is(false));
 		assertThat(registry.contains(Pointcut.class, TestAdvice2.class), is(false));
-		
+
 		registry.add(Pointcut.class, new TestAdvice());
 		assertThat(registry.contains(Pointcut.class), is(true));
 		assertThat(registry.contains(Pointcut.class, TestAdvice.class), is(true));
 		assertThat(registry.contains(Pointcut.class, TestAdvice2.class), is(false));
-		
+
 		registry.add(Pointcut.class, new TestAdvice2());
 		assertThat(registry.contains(Pointcut.class), is(true));
 		assertThat(registry.contains(Pointcut.class, TestAdvice.class), is(false));
@@ -35,12 +51,23 @@ public class AdviceRegistryImplTest {
 		assertThat(registry.contains(Pointcut.class, TestAdvice2.class), is(false));
 	}
 
-	
 	@Test
 	public void shouldNotFailProxyingANullInstance() {
 		assertThat(registry.proxyIfNeeded(null), is(nullValue()));
 	}
-	
+
+	@Test
+	public void shouldNotFailProxyingAnAlreadyProxiedInstance() {
+		registry.add(Pointcut.class, new BaseAdvice<Pointcut, Integer>());
+
+		SimpleService alreadyProxiedService = spy(new SimpleService());
+		assertThat(alreadyProxiedService.getClass().equals(SimpleService.class), is(false));
+
+		SimpleService resultingService = registry.proxyIfNeeded(alreadyProxiedService);
+		assertThat(resultingService, is(notNullValue()));
+		assertThat(resultingService, is(sameInstance(alreadyProxiedService)));
+	}
+
 	@Test
 	public void shouldOnlyProxyIfAPointcutIsRegistered() {
 		SimpleService simpleService = registry.proxyIfNeeded(new SimpleService());
@@ -111,6 +138,65 @@ public class AdviceRegistryImplTest {
 		assertThat(registry.contains(Pointcut.class), is(true));
 		SimpleService simpleService = registry.proxyIfNeeded(new SimpleService());
 
+		assertThat(simpleService.method("2"), is(-1));
+	}
+
+	@Test
+	public void shouldCreateProxyAndExecuteBeforeAdviceOnSuperClassMethodCall() {
+		registry.add(Pointcut.class, new BaseAdvice<Pointcut, Integer>() {
+			@Override
+			public Integer before(Pointcut annotation, Arguments arguments) {
+				arguments.replaceArgument("numberString", annotation.value());
+				return null;
+			}
+		});
+
+		assertThat(registry.contains(Pointcut.class), is(true));
+
+		SimpleServiceExtension simpleServiceExtension = registry.proxyIfNeeded(new SimpleServiceExtension());
+		SimpleService simpleService = simpleServiceExtension;
+		assertThat(simpleServiceExtension.method("2"), is(1));
+		assertThat(simpleService.method("2"), is(1));
+	}
+
+	@Test
+	public void shouldCreateProxyAndExecuteAfterAdviceOnSuperClassMethodCall() {
+		registry.add(Pointcut.class, new BaseAdvice<Pointcut, Integer>() {
+			@Override
+			public Integer after(Integer result, Pointcut annotation, Arguments arguments) {
+				assertThat(result, is(2));
+				return 3;
+			}
+		});
+
+		assertThat(registry.contains(Pointcut.class), is(true));
+
+		SimpleServiceExtension simpleServiceExtension = registry.proxyIfNeeded(new SimpleServiceExtension());
+		SimpleService simpleService = simpleServiceExtension;
+		assertThat(simpleServiceExtension.method("2"), is(3));
+		assertThat(simpleService.method("2"), is(3));
+	}
+
+	@Test
+	public void shouldCreateProxyAndExecuteExceptionAdviceOnSuperClassMethodCall() {
+		registry.add(Pointcut.class, new BaseAdvice<Pointcut, Integer>() {
+			@Override
+			public Integer exception(Exception e, Pointcut annotation, Arguments arguments) {
+				assertThat(e.getMessage(), is("Expected"));
+				return -1;
+			}
+
+			@Override
+			public Integer after(Integer result, Pointcut annotation, Arguments arguments) {
+				throw new RuntimeException("Expected");
+			}
+		});
+
+		assertThat(registry.contains(Pointcut.class), is(true));
+
+		SimpleServiceExtension simpleServiceExtension = registry.proxyIfNeeded(new SimpleServiceExtension());
+		SimpleService simpleService = simpleServiceExtension;
+		assertThat(simpleServiceExtension.method("2"), is(-1));
 		assertThat(simpleService.method("2"), is(-1));
 	}
 
@@ -188,6 +274,9 @@ public class AdviceRegistryImplTest {
 		public String method2(String input) {
 			return input;
 		}
+	}
+
+	protected static class SimpleServiceExtension extends SimpleService {
 	}
 
 	@Retention(RetentionPolicy.RUNTIME)
