@@ -28,7 +28,7 @@ import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.bind.http.HttpBinder;
 import com.threewks.thundr.bind.http.MultipartHttpBinder;
 import com.threewks.thundr.bind.http.request.CookieBinder;
-import com.threewks.thundr.bind.http.request.RequestAttributeBinder;
+import com.threewks.thundr.bind.http.request.RequestDataBinder;
 import com.threewks.thundr.bind.http.request.RequestClassBinder;
 import com.threewks.thundr.bind.http.request.RequestHeaderBinder;
 import com.threewks.thundr.bind.http.request.SessionAttributeBinder;
@@ -66,7 +66,7 @@ public class BinderModuleTest {
 
 		assertThat(types, hasItem(PathVariableBinder.class));
 		assertThat(types, hasItem(RequestClassBinder.class));
-		assertThat(types, hasItem(RequestAttributeBinder.class));
+		assertThat(types, hasItem(RequestDataBinder.class));
 		assertThat(types, hasItem(RequestHeaderBinder.class));
 		assertThat(types, hasItem(HttpBinder.class));
 		assertThat(types, hasItem(SessionAttributeBinder.class));

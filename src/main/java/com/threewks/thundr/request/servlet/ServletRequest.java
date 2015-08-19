@@ -17,8 +17,10 @@
  */
 package com.threewks.thundr.request.servlet;
 
-import java.io.BufferedReader;
+import static com.atomicleopard.expressive.Expressive.iterable;
+
 import java.io.IOException;
+import java.io.Reader;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -83,7 +85,6 @@ public class ServletRequest extends BaseRequest implements Request {
 		return values == null ? null : Arrays.asList(values);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Map<String, List<String>> getAllParameters() {
 		Map<String, String[]> parameters = req.getParameterMap();
@@ -105,32 +106,13 @@ public class ServletRequest extends BaseRequest implements Request {
 	}
 
 	@Override
-	public List<Cookie> getCookies() {
-		// @formatter:off
-		return Arrays.stream(req.getCookies())
-			.map(Servlets::toThundrCookie)
-			.collect(Collectors.toList());
-		// @formatter:on
-	}
-
-	@Override
 	public Cookie getCookie(String name) {
 		// @formatter:off
 		return Arrays.stream(req.getCookies())
-				.filter(cookie -> cookie.getName().equalsIgnoreCase(name))
+				.filter(cookie -> cookie.getName().equals(name))
 				.findFirst()
 				.map(Servlets::toThundrCookie)
 				.orElse(null);
-		// @formatter:on
-	}
-
-	@Override
-	public List<Cookie> getCookies(String name) {
-		// @formatter:off
-		return Arrays.stream(req.getCookies())
-				.filter(cookie -> cookie.getName().equalsIgnoreCase(name))
-				.map(Servlets::toThundrCookie)
-				.collect(Collectors.toList());
 		// @formatter:on
 	}
 
@@ -144,12 +126,44 @@ public class ServletRequest extends BaseRequest implements Request {
 	}
 
 	@Override
-	public BufferedReader getReader() {
+	public Reader getReader() {
 		try {
 			return req.getReader();
 		} catch (IOException e) {
 			throw new BaseException(e);
 		}
+	}
+
+	@Override
+	public void putData(String key, Object value) {
+		req.setAttribute(key, value);
+	}
+
+	@Override
+	public void putData(Map<String, Object> values) {
+		for (Map.Entry<String, Object> pair : values.entrySet()) {
+			req.setAttribute(pair.getKey(), pair.getValue());
+		}
+	}
+
+	@Override
+	public Map<String, Object> getAllData() {
+		Map<String, Object> results = new LinkedHashMap<>();
+		for (String name : iterable(req.getAttributeNames())) {
+			results.put(name, req.getAttribute(name));
+		}
+		return results;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T getData(String key) {
+		return (T) req.getAttribute(key);
+	}
+
+	@Override
+	public boolean isSecure() {
+		return req.isSecure();
 	}
 
 }

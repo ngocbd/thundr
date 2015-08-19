@@ -17,7 +17,9 @@
  */
 package com.threewks.thundr.request;
 
-import java.time.ZonedDateTime;
+import static com.atomicleopard.expressive.Expressive.isEmpty;
+
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
 
 import com.atomicleopard.expressive.Cast;
 import com.atomicleopard.expressive.ETransformer;
+import com.threewks.thundr.exception.BaseException;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.Cookie;
 import com.threewks.thundr.http.StatusCode;
@@ -48,12 +51,13 @@ public abstract class BaseResponse implements Response {
 	public boolean isUncommitted() {
 		return !isCommitted();
 	}
-	
+
 	@Override
 	public <T> T getRawResponse(Class<T> type) {
 		return Cast.as(getRawResponse(), type);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Response withHeader(String header, Object value) {
 		ETransformer<Object, String> transformer = (ETransformer<Object, String>) transformerManager.getBestTransformer(value.getClass(), String.class);
@@ -78,20 +82,28 @@ public abstract class BaseResponse implements Response {
 	}
 
 	@Override
+	public String getHeader(String name) {
+		List<String> values = getHeaders(name);
+		return isEmpty(values) ? null : values.get(0);
+	}
+
+	@Override
+	public Response withBody(byte[] body) {
+		try {
+			getOutputStream().write(body);
+			return this;
+		} catch (IOException e) {
+			throw new BaseException(e);
+		}
+	}
+
+	@Override
 	public Response withHeaders(Map<String, Object> headers) {
 		headers.forEach(this::withHeader);
 		return this;
 	}
 
-	// TODO - v3 - make a specific type that wraps dates for RFC spec date formats
-	// so that users can send X-Last-Updated sensibly, but specific http dates in the right format
-	@Override
-	public Response withHeader(String header, ZonedDateTime value) {
-		throw new UnsupportedOperationException("To be implemented");
-		// resp.addDateHeader(header, value.toInstant().toEpochMilli());
-		// return this;
-	}
-
+	@SuppressWarnings("unchecked")
 	@Override
 	public Response withHeader(String header, Collection<Object> values) {
 		List<String> stringValues = values.stream().map(value -> {

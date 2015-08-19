@@ -23,7 +23,7 @@ import java.util.Map;
 import com.threewks.thundr.bind.http.HttpBinder;
 import com.threewks.thundr.bind.http.MultipartHttpBinder;
 import com.threewks.thundr.bind.http.request.CookieBinder;
-import com.threewks.thundr.bind.http.request.RequestAttributeBinder;
+import com.threewks.thundr.bind.http.request.RequestDataBinder;
 import com.threewks.thundr.bind.http.request.RequestClassBinder;
 import com.threewks.thundr.bind.http.request.RequestHeaderBinder;
 import com.threewks.thundr.bind.http.request.SessionAttributeBinder;
@@ -58,7 +58,7 @@ public class BinderRegistry {
 		binderRegistry.registerBinder(new PathVariableBinder(transformerManager));
 		binderRegistry.registerBinder(new RequestClassBinder());
 		binderRegistry.registerBinder(new HttpBinder(parameterBinderRegistry));
-		binderRegistry.registerBinder(new RequestAttributeBinder(parameterBinderRegistry));
+		binderRegistry.registerBinder(new RequestDataBinder(parameterBinderRegistry));
 		binderRegistry.registerBinder(new RequestHeaderBinder(parameterBinderRegistry));
 		binderRegistry.registerBinder(new SessionAttributeBinder(parameterBinderRegistry));
 		binderRegistry.registerBinder(new CookieBinder(parameterBinderRegistry));

@@ -17,7 +17,7 @@
  */
 package com.threewks.thundr.bind.json;
 
-import java.io.BufferedReader;
+import java.io.Reader;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -92,7 +92,7 @@ public class GsonBinder implements Binder {
 	private void bindToUnboundParameters(Map<ParameterDescription, Object> bindings, Request req, Gson gson) {
 		if (shouldBindToUnboundParameters(bindings)) {
 			try {
-				BufferedReader reader = req.getReader();
+				Reader reader = req.getReader();
 				if (reader != null) {
 					JsonObject json = new JsonParser().parse(reader).getAsJsonObject();
 
@@ -130,7 +130,7 @@ public class GsonBinder implements Binder {
 
 	private void bindToSingleParameter(Map<ParameterDescription, Object> bindings, Request req, Gson gson, ParameterDescription jsonParameterDescription) {
 		try {
-			BufferedReader reader = req.getReader();
+			Reader reader = req.getReader();
 			if (reader != null) {
 				Object converted = gson.fromJson(reader, jsonParameterDescription.type());
 				bindings.put(jsonParameterDescription, converted);

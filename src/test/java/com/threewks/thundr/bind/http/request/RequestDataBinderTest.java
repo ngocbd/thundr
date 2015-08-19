@@ -33,29 +33,28 @@ import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.request.mock.MockRequest;
 import com.threewks.thundr.request.mock.MockResponse;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.transformer.TransformerManager;
 
-public class RequestAttributeBinderTest {
-	private MockHttpServletRequest servletReq = new MockHttpServletRequest();
-	private MockRequest req = new MockRequest().withRawRequest(servletReq);
+public class RequestDataBinderTest {
+	private MockRequest req = new MockRequest();
 	private MockResponse resp = new MockResponse();
 	private Map<String, String> pathVariables = map();
 	private Map<ParameterDescription, Object> bindings = map();
 	private ParameterBinderRegistry parameterBinderRegistry;
-	private RequestAttributeBinder binder;
+	private RequestDataBinder binder;
 
 	@Before
 	public void before() {
 		parameterBinderRegistry = new ParameterBinderRegistry(TransformerManager.createWithDefaults());
 		ParameterBinderRegistry.addDefaultBinders(parameterBinderRegistry);
-		binder = new RequestAttributeBinder(parameterBinderRegistry);
+		binder = new RequestDataBinder(parameterBinderRegistry);
 	}
+
 	@Test
 	public void shouldBindRequestAttributeMatchingParameterName() {
 		ParameterDescription varParam = new ParameterDescription("var", String.class);
 		bindings.put(varParam, null);
-		servletReq.setAttribute("var", "expected");
+		req.putData("var", "expected");
 		binder.bindAll(bindings, req, resp, pathVariables);
 
 		assertThat(bindings.get(varParam), is((Object) "expected"));
@@ -65,7 +64,7 @@ public class RequestAttributeBinderTest {
 	public void shouldOnlyBindRequestAttributeWhenNoBindingAlreadyMade() {
 		ParameterDescription varParam = new ParameterDescription("var", String.class);
 		bindings.put(varParam, "original");
-		servletReq.setAttribute("var", "overridden");
+		req.putData("var", "overridden");
 		binder.bindAll(bindings, req, resp, pathVariables);
 
 		assertThat(bindings.get(varParam), is((Object) "original"));
@@ -75,7 +74,7 @@ public class RequestAttributeBinderTest {
 	public void shouldSupportTypeBindingOfStringsByRelyingOnHttpBinder() {
 		ParameterDescription varParam = new ParameterDescription("var", Integer.class);
 		bindings.put(varParam, null);
-		servletReq.setAttribute("var", "123");
+		req.putData("var", "123");
 		binder.bindAll(bindings, req, resp, pathVariables);
 
 		assertThat(bindings.get(varParam), is((Object) 123));
@@ -89,9 +88,9 @@ public class RequestAttributeBinderTest {
 		bindings.put(varParam1, null);
 		bindings.put(varParam2, null);
 		bindings.put(varParam3, null);
-		servletReq.setAttribute("var1", "first");
-		servletReq.setAttribute("var2", "second");
-		servletReq.setAttribute("var3", "third");
+		req.putData("var1", "first");
+		req.putData("var2", "second");
+		req.putData("var3", "third");
 		binder.bindAll(bindings, req, resp, pathVariables);
 
 		assertThat(bindings.get(varParam1), is((Object) "first"));
@@ -107,9 +106,9 @@ public class RequestAttributeBinderTest {
 		bindings.put(varParam1, null);
 		bindings.put(varParam2, null);
 		bindings.put(varParam3, null);
-		servletReq.setAttribute("integer", 123);
-		servletReq.setAttribute("date", new Date(1));
-		servletReq.setAttribute("string", "stringVal");
+		req.putData("integer", 123);
+		req.putData("date", new Date(1));
+		req.putData("string", "stringVal");
 		binder.bindAll(bindings, req, resp, pathVariables);
 
 		assertThat(bindings.get(varParam1), is((Object) 123));
@@ -148,19 +147,19 @@ public class RequestAttributeBinderTest {
 		parameterDescriptions.put(param12, null);
 		parameterDescriptions.put(param13, null);
 
-		servletReq.attribute("param1", "string-value");
-		servletReq.attribute("param2", "2");
-		servletReq.attribute("param3", "3");
-		servletReq.attribute("param4", "4.0");
-		servletReq.attribute("param5", "5.0");
-		servletReq.attribute("param6", "6");
-		servletReq.attribute("param7", "7");
-		servletReq.attribute("param8", "8.8");
-		servletReq.attribute("param9", "9.9");
-		servletReq.attribute("param10", "10");
-		servletReq.attribute("param11", "11");
-		servletReq.attribute("param12", "12.00");
-		servletReq.attribute("param13", "13");
+		req.putData("param1", "string-value");
+		req.putData("param2", "2");
+		req.putData("param3", "3");
+		req.putData("param4", "4.0");
+		req.putData("param5", "5.0");
+		req.putData("param6", "6");
+		req.putData("param7", "7");
+		req.putData("param8", "8.8");
+		req.putData("param9", "9.9");
+		req.putData("param10", "10");
+		req.putData("param11", "11");
+		req.putData("param12", "12.00");
+		req.putData("param13", "13");
 
 		binder.bindAll(parameterDescriptions, req, resp, pathVariables);
 
@@ -177,6 +176,26 @@ public class RequestAttributeBinderTest {
 		assertThat(parameterDescriptions.get(param11), is((Object) 11L));
 		assertThat(parameterDescriptions.get(param12), is((Object) new BigDecimal("12.00")));
 		assertThat(parameterDescriptions.get(param13), is((Object) BigInteger.valueOf(13)));
+	}
+
+	@Test
+	public void shouldNormalisePropertyNamesToJavaVariableNames() {
+		ParameterDescription varParam = new ParameterDescription("varName", String.class);
+		req.putData("var-name", "value");
+		bindings.put(varParam, null);
+		binder.bindAll(bindings, req, resp, pathVariables);
+
+		assertThat(bindings.get(varParam), is((Object) "value"));
+	}
+
+	@Test
+	public void shouldNormalisePropertyNamesToJavaVariableNamesWithLeadingUnderscoreWhenFirstCharacterIsNotValid() {
+		ParameterDescription varParam = new ParameterDescription("_3VarName", String.class);
+		req.putData("3-var-name", "value");
+		bindings.put(varParam, null);
+		binder.bindAll(bindings, req, resp, pathVariables);
+
+		assertThat(bindings.get(varParam), is((Object) "value"));
 	}
 
 }

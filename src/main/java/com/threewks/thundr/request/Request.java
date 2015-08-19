@@ -17,8 +17,7 @@
  */
 package com.threewks.thundr.request;
 
-import java.io.BufferedReader;
-import java.nio.charset.Charset;
+import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -26,8 +25,8 @@ import java.util.UUID;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.Cookie;
 import com.threewks.thundr.route.HttpMethod;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 
+// TODO - NAO - v3 - Need to be able to get request info: issecure, protocol, domain, ip, port, path, route, method
 public interface Request {
 
 	/**
@@ -64,6 +63,35 @@ public interface Request {
 
 	public Map<String, List<String>> getAllParameters();
 
+	/**
+	 * Add arbitraty data to the request scope
+	 * 
+	 * @param key
+	 * @param value
+	 */
+	public void putData(String key, Object value);
+
+	/**
+	 * Put a set of arbitraty data on the request scope
+	 * 
+	 * @param values
+	 */
+	public void putData(Map<String, Object> values);
+	
+	/**
+	 * Get all data set on the request scope
+	 * @return
+	 */
+	public Map<String, Object> getAllData();
+
+	/**
+	 * Get data from the request scope
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public <T> T getData(String key);
+
 	public int getContentLength();
 
 	public HttpMethod getMethod();
@@ -80,16 +108,15 @@ public interface Request {
 	 */
 	public String getRequestPath();
 
-	public List<Cookie> getCookies();
-
 	public Cookie getCookie(String name);
-
-	public List<Cookie> getCookies(String name);
 
 	public Map<String, List<Cookie>> getAllCookies();
 
 	// TODO - v3 - how should you be able to read the content, reader, channel, stream?
-	public BufferedReader getReader();
+	// TODO - v3 - I can't see how this could ever work without at least a get bytes/inputstream option
+	public Reader getReader();
+
+	public boolean isSecure();
 
 	// TODO - v3 - it makes sense for this stuff to be in the request itself, but requires some
 	// re-engineering.

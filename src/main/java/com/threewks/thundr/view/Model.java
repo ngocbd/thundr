@@ -39,4 +39,20 @@ public class Model extends LinkedHashMap<String, Object> {
 	public Model(Object... args) {
 		super(Expressive.<String, Object> map(args));
 	}
+
+	/**
+	 * Returns a new model which overlays the given model on top of this one.
+	 * This will not change the contents of this model.
+	 * 
+	 * @param model
+	 * @return
+	 */
+	@SafeVarargs
+	public static <M extends Map<String, Object>> Model combine(M... models) {
+		Model result = new Model();
+		for (M m : models) {
+			result.putAll(m);
+		}
+		return result;
+	}
 }

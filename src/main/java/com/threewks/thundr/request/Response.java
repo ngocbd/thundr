@@ -19,9 +19,11 @@ package com.threewks.thundr.request;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+
+import org.joda.time.DateTime;
 
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.Cookie;
@@ -59,8 +61,6 @@ public interface Response {
 	 * @return
 	 */
 	Response withHeader(String header, Object value);
-
-	Response withHeader(String header, ZonedDateTime value);
 
 	/**
 	 * Specify the given header has the provided value if 'include' evaluates to true, replacing all existing header values for this header
@@ -106,7 +106,12 @@ public interface Response {
 
 	Response withContentLength(int length);
 
+	Response withBody(String body);
+
+	Response withBody(byte[] body);
+
 	OutputStream getOutputStream() throws IOException;
+
 	// Response withContent(byte[] data) throws IOException;
 	//
 	// Response withContent(InputStream inputStream) throws IOException;
@@ -125,5 +130,13 @@ public interface Response {
 	 * String getCharacterEncoding();
 	 * long getContentLength();
 	 */
+	String getHeader(String name);
 
+	List<String> getHeaders(String name);
+
+	Map<String, List<String>> getAllHeaders();
+
+	Cookie getCookie(String name);
+
+	List<Cookie> getAllCookies();
 }

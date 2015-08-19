@@ -22,13 +22,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.exception.BaseException;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.Cookie;
@@ -52,6 +52,16 @@ public class InMemoryResponse extends BaseResponse implements Response {
 	@Override
 	public boolean isCommitted() {
 		return false;
+	}
+
+	@Override
+	public Response withBody(String body) {
+		try {
+			byte[] data = body.getBytes(characterEncoding);
+			return withBody(data);
+		} catch (UnsupportedEncodingException e) {
+			throw new BaseException(e);
+		}
 	}
 
 	@Override
@@ -163,6 +173,16 @@ public class InMemoryResponse extends BaseResponse implements Response {
 
 	public String getStatusMessage() {
 		return statusMessage;
+	}
+
+	@Override
+	public Cookie getCookie(String name) {
+		return cookies.stream().filter((cookie) -> cookie.getName().equals(name)).findFirst().orElse(null);
+	}
+
+	@Override
+	public List<Cookie> getAllCookies() {
+		return Collections.unmodifiableList(this.cookies);
 	}
 
 }

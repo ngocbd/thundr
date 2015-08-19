@@ -17,11 +17,10 @@
  */
 package com.threewks.thundr.request.mock;
 
-import java.io.BufferedReader;
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +39,7 @@ public class MockRequest extends BaseRequest implements Request {
 	private String contentType;
 	private Map<String, List<String>> headers = new LinkedHashMap<>();
 	private Map<String, List<String>> parameters = new LinkedHashMap<>();
+	private Map<String, Object> data = new LinkedHashMap<>();
 	private Object rawRequest;
 	private List<Cookie> cookies = new ArrayList<>();
 	private String encoding = "UTF-8";
@@ -113,26 +113,12 @@ public class MockRequest extends BaseRequest implements Request {
 	}
 
 	@Override
-	public List<Cookie> getCookies() {
-		return Collections.unmodifiableList(cookies);
-	}
-
-	@Override
 	public Cookie getCookie(String name) {
 		// @formatter:off
 		return cookies.stream()
-						.filter(cookie ->  cookie.getName().equalsIgnoreCase(name))
+						.filter(cookie ->  cookie.getName().equals(name))
 						.findFirst()
 						.orElse(null);
-		// @formatter:on
-	}
-
-	@Override
-	public List<Cookie> getCookies(String name) {
-		// @formatter:off
-		return cookies.stream()
-				.filter(cookie ->  cookie.getName().equalsIgnoreCase(name))
-				.collect(Collectors.toList());
 		// @formatter:on
 	}
 
@@ -142,8 +128,8 @@ public class MockRequest extends BaseRequest implements Request {
 	}
 
 	@Override
-	public BufferedReader getReader() {
-		return content == null ? null : new BufferedReader(new StringReader(content));
+	public Reader getReader() {
+		return content == null ? null : new StringReader(content);
 	}
 
 	@Override
@@ -220,4 +206,29 @@ public class MockRequest extends BaseRequest implements Request {
 		return this;
 	}
 
+	@Override
+	public void putData(String key, Object value) {
+		this.data.put(key, value);
+	}
+
+	@Override
+	public void putData(Map<String, Object> values) {
+		this.data.putAll(values);
+	}
+
+	@Override
+	public Map<String, Object> getAllData() {
+		return this.data;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T getData(String key) {
+		return (T) this.data.get(key);
+	}
+
+	@Override
+	public boolean isSecure() {
+		return false;
+	}
 }

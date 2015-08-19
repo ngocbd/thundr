@@ -27,7 +27,7 @@ public class Cookie {
 	protected String value;
 	protected String path;
 	protected String domain;
-	protected Duration expires;
+	protected Duration maxAge;
 	protected String comment;
 	protected Integer version;
 	protected Boolean secure;
@@ -40,13 +40,13 @@ public class Cookie {
 		super();
 	}
 
-	public Cookie(String name, String value, String path, String domain, Duration expires, String comment, Integer version, Boolean secure) {
+	public Cookie(String name, String value, String path, String domain, Duration maxAge, String comment, Integer version, Boolean secure) {
 		super();
 		this.name = name;
 		this.value = value;
 		this.path = path;
 		this.domain = domain;
-		this.expires = expires == null ? null : new Duration(expires);
+		this.maxAge = maxAge == null ? null : new Duration(maxAge);
 		this.comment = comment;
 		this.version = version;
 		this.secure = secure;
@@ -68,8 +68,8 @@ public class Cookie {
 		return domain;
 	}
 
-	public Duration getExpires() {
-		return expires;
+	public Duration getMaxAge() {
+		return maxAge;
 	}
 
 	public String getComment() {
@@ -88,7 +88,7 @@ public class Cookie {
 	public String toString() {
 		String domainAndPath = trimToEmpty(domain) + trimToEmpty(path);
 		domainAndPath = StringUtils.isEmpty(domainAndPath) ? "" : " (" + domainAndPath + ")";
-		String expires = this.expires == null ? "" : " expires " + this.expires.getStandardSeconds() + "s";
+		String expires = this.maxAge == null ? "" : " expires " + this.maxAge.getStandardSeconds() + "s";
 		return String.format("%s=%s%s%s%s%s;", name, value, Boolean.TRUE.equals(secure) ? " [secure]" : "", domainAndPath, expires, version == null ? "" : " v" + version, trimToEmpty(comment));
 	}
 
@@ -107,8 +107,8 @@ public class Cookie {
 
 		}
 
-		public CookieBuilder(String name, String value, String path, String domain, Duration expires, String comment, Integer version, Boolean secure) {
-			super(name, value, path, domain, expires, comment, version, secure);
+		public CookieBuilder(String name, String value, String path, String domain, Duration maxAge, String comment, Integer version, Boolean secure) {
+			super(name, value, path, domain, maxAge, comment, version, secure);
 		}
 
 		public CookieBuilder(String name) {
@@ -116,39 +116,39 @@ public class Cookie {
 		}
 
 		public CookieBuilder withName(String name) {
-			return new CookieBuilder(name, value, path, domain, expires, comment, version, secure);
+			return new CookieBuilder(name, value, path, domain, maxAge, comment, version, secure);
 		}
 
 		public CookieBuilder withValue(String value) {
-			return new CookieBuilder(name, value, path, domain, expires, comment, version, secure);
+			return new CookieBuilder(name, value, path, domain, maxAge, comment, version, secure);
 		}
 
 		public CookieBuilder withPath(String path) {
-			return new CookieBuilder(name, value, path, domain, expires, comment, version, secure);
+			return new CookieBuilder(name, value, path, domain, maxAge, comment, version, secure);
 		}
 
 		public CookieBuilder withDomain(String domain) {
-			return new CookieBuilder(name, value, path, domain, expires, comment, version, secure);
+			return new CookieBuilder(name, value, path, domain, maxAge, comment, version, secure);
 		}
 
-		public CookieBuilder withExpires(Duration expires) {
-			return new CookieBuilder(name, value, path, domain, expires, comment, version, secure);
+		public CookieBuilder withMaxAge(Duration maxAge) {
+			return new CookieBuilder(name, value, path, domain, maxAge, comment, version, secure);
 		}
 
 		public CookieBuilder withVersion(Integer version) {
-			return new CookieBuilder(name, value, path, domain, expires, comment, version, secure);
+			return new CookieBuilder(name, value, path, domain, maxAge, comment, version, secure);
 		}
 
 		public CookieBuilder withSecure(Boolean secure) {
-			return new CookieBuilder(name, value, path, domain, expires, comment, version, secure);
+			return new CookieBuilder(name, value, path, domain, maxAge, comment, version, secure);
 		}
 
 		public CookieBuilder withComment(String comment) {
-			return new CookieBuilder(name, value, path, domain, expires, comment, version, secure);
+			return new CookieBuilder(name, value, path, domain, maxAge, comment, version, secure);
 		}
 
 		public Cookie build() {
-			return new Cookie(name, value, path, domain, expires, comment, version, secure);
+			return new Cookie(name, value, path, domain, maxAge, comment, version, secure);
 		}
 
 		public javax.servlet.http.Cookie buildServletCookie() {
@@ -159,8 +159,8 @@ public class Cookie {
 			if (path != null) {
 				cookie.setPath(path);
 			}
-			if (expires != null) {
-				cookie.setMaxAge((int) expires.getStandardSeconds());
+			if (maxAge != null) {
+				cookie.setMaxAge((int) maxAge.getStandardSeconds());
 			}
 			if (comment != null) {
 				cookie.setComment(comment);

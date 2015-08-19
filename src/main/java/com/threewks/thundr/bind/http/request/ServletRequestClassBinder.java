@@ -24,14 +24,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.atomicleopard.expressive.Cast;
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.bind.Binder;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.Response;
-import com.threewks.thundr.request.servlet.ServletRequest;
-import com.threewks.thundr.request.servlet.ServletResponse;
 
 public class ServletRequestClassBinder implements Binder {
 	public static final List<Class<?>> BoundTypes = Expressive.<Class<?>> list(javax.servlet.ServletRequest.class, javax.servlet.ServletResponse.class, HttpServletRequest.class,

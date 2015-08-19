@@ -23,7 +23,6 @@ import java.util.Map.Entry;
 
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.request.InMemoryResponse;
-import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.RequestContainer;
 import com.threewks.thundr.transformer.TransformerManager;
 import com.threewks.thundr.view.BasicViewRenderer;
@@ -66,7 +65,6 @@ public abstract class BaseMailer implements Mailer {
 
 	protected InMemoryResponse render(Object view) {
 		try {
-
 			BasicViewRenderer basicViewRenderer = new BasicViewRenderer(viewResolverRegistry);
 			InMemoryResponse response = new InMemoryResponse(getTransformerManager());
 			basicViewRenderer.render(requestContainer.getRequest(), response, view);

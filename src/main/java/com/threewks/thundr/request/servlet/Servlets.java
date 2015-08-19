@@ -29,7 +29,7 @@ public class Servlets {
 				.withValue(cookie.getValue())
 				.withComment(cookie.getComment())
 				.withDomain(cookie.getDomain())
-				.withExpires(expires)
+				.withMaxAge(expires)
 				.withPath(cookie.getPath())
 				.withSecure(cookie.getSecure())
 				.withVersion(cookie.getVersion())
@@ -45,8 +45,8 @@ public class Servlets {
 		if (cookie.getPath() != null) {
 			result.setPath(cookie.getPath());
 		}
-		if (cookie.getExpires() != null) {
-			result.setMaxAge((int) cookie.getExpires().getStandardSeconds());
+		if (cookie.getMaxAge() != null) {
+			result.setMaxAge((int) cookie.getMaxAge().getStandardSeconds());
 		}
 		if (cookie.getComment() != null) {
 			result.setComment(cookie.getComment());

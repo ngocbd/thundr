@@ -19,11 +19,17 @@ package com.threewks.thundr.request.servlet;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.threewks.thundr.exception.BaseException;
 import com.threewks.thundr.http.Cookie;
 import com.threewks.thundr.http.StatusCode;
 import com.threewks.thundr.request.BaseResponse;
@@ -32,6 +38,7 @@ import com.threewks.thundr.transformer.TransformerManager;
 
 public class ServletResponse extends BaseResponse implements Response {
 	protected HttpServletResponse resp;
+	protected List<Cookie> cookies = new ArrayList<>();
 
 	public ServletResponse(TransformerManager transformerManager, HttpServletResponse resp) {
 		super(transformerManager);
@@ -46,6 +53,16 @@ public class ServletResponse extends BaseResponse implements Response {
 	@Override
 	public OutputStream getOutputStream() throws IOException {
 		return resp.getOutputStream();
+	}
+
+	@Override
+	public Response withBody(String body) {
+		try {
+			resp.getWriter().write(body);
+		} catch (IOException e) {
+			throw new BaseException(e);
+		}
+		return this;
 	}
 
 	/*
@@ -96,6 +113,7 @@ public class ServletResponse extends BaseResponse implements Response {
 
 	@Override
 	public Response withCookie(Cookie cookie) {
+		this.cookies.add(cookie);
 		resp.addCookie(Servlets.toServletCookie(cookie));
 		return this;
 	}
@@ -104,6 +122,10 @@ public class ServletResponse extends BaseResponse implements Response {
 	public Response withCookies(Collection<Cookie> cookies) {
 		// @formatter:off
 		cookies.stream()
+				.map(cookie -> {
+					this.cookies.add(cookie);
+					return cookie;
+				})
 				.map(Servlets::toServletCookie)
 				.forEach(cookie -> resp.addCookie(cookie));
 		// @formatter:on
@@ -121,4 +143,34 @@ public class ServletResponse extends BaseResponse implements Response {
 		resp.setContentLength((int) length);
 		return this;
 	}
+
+	@Override
+	public String getHeader(String name) {
+		return resp.getHeader(name);
+	}
+
+	@Override
+	public List<String> getHeaders(String name) {
+		return Collections.unmodifiableList(new ArrayList<String>(resp.getHeaders(name)));
+	}
+
+	@Override
+	public Map<String, List<String>> getAllHeaders() {
+		// @formatter:off
+		return resp.getHeaderNames()
+				.stream()
+				.collect(Collectors.toMap(Function.identity(), this::getHeaders));
+		// @formatter:on
+	}
+
+	@Override
+	public Cookie getCookie(String name) {
+		return this.cookies.stream().filter((cookie) -> cookie.getName().equals(name)).findFirst().orElse(null);
+	}
+
+	@Override
+	public List<Cookie> getAllCookies() {
+		return Collections.unmodifiableList(this.cookies);
+	}
+
 }

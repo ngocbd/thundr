@@ -28,5 +28,11 @@ import com.threewks.thundr.request.Response;
  * All {@link ViewRenderer} implementations should be stateless and safe for reuse across threads, requests or invocations.
  */
 public interface ViewRenderer {
+	// TODO - NAO - v3 - why is view rendering coupled to the request or response - is this an
+	// internal concern? Request seems like its optional, it's mostly the model thats interesting except
+	// in a servlet context. Response is really about capturing output - maybe that needs a higher level of
+	// abstraction, like a renderedview?
+	// If it is coupled, should this be a RequestContainer - and how are you expected to get it, or for that
+	// matter the right implementation of ViewRenderer?
 	public void render(Request request, Response response, Object view);
 }

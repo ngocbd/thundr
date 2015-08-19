@@ -26,14 +26,12 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import com.atomicleopard.expressive.Cast;
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.bind.Binder;
 import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.Response;
-import com.threewks.thundr.request.servlet.ServletRequest;
 
 public class SessionAttributeBinder implements Binder {
 
@@ -63,7 +61,6 @@ public class SessionAttributeBinder implements Binder {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private Map<String, List<String>> createStringSessionAttributes(HttpSession session) {
 		Map<String, List<String>> results = new LinkedHashMap<>();
 		Enumeration<String> attributeNames = session.getAttributeNames();

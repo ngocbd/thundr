@@ -17,58 +17,53 @@
  */
 package com.threewks.thundr.bind.http.request;
 
-import java.util.Arrays;
-import java.util.Enumeration;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
-import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.bind.Binder;
 import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.Response;
 
-public class RequestAttributeBinder implements Binder {
+public class RequestDataBinder implements Binder {
 	private ParameterBinderRegistry parameterBinderRegistry;
 
-	public RequestAttributeBinder(ParameterBinderRegistry parameterBinderRegistry) {
+	public RequestDataBinder(ParameterBinderRegistry parameterBinderRegistry) {
 		super();
 		this.parameterBinderRegistry = parameterBinderRegistry;
 	}
 
+	// TODO - NAO - v3 - a much more comprehensive test suite around the behaviour of normalising names is needed.
 	@Override
 	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp, Map<String, String> pathVariables) {
-		HttpServletRequest httpServletRequest = req.getRawRequest(HttpServletRequest.class);
-		if (httpServletRequest != null) {
-			Map<String, List<String>> requestAttributes = createStringRequestAttributes(httpServletRequest);
-			parameterBinderRegistry.bind(bindings, requestAttributes, null);
-			for (Map.Entry<ParameterDescription, Object> binding : bindings.entrySet()) {
-				ParameterDescription key = binding.getKey();
-				String name = key.name();
-				Object value = httpServletRequest.getAttribute(name);
-				if (binding.getValue() == null && value != null && key.isA(value.getClass())) {
+		Map<String, Object> requestData = req.getAllData();
+		Map<String, Object> normalisedKeys = RequestHeaderBinder.normaliseKeysToJavaVarNames(requestData);
+
+		Map<String, List<String>> datamap = createListMap(normalisedKeys);
+		parameterBinderRegistry.bind(bindings, datamap, null);
+
+		for (Map.Entry<ParameterDescription, Object> binding : bindings.entrySet()) {
+			ParameterDescription key = binding.getKey();
+			String name = key.name();
+			Object value = normalisedKeys.get(name);
+			if (binding.getValue() == null && value != null) {
+				if (key.isA(value.getClass())) {
 					bindings.put(key, value);
 				}
 			}
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	private Map<String, List<String>> createStringRequestAttributes(HttpServletRequest req) {
-		Map<String, List<String>> results = new LinkedHashMap<>();
-		Enumeration<String> attributeNames = req.getAttributeNames();
-		if (attributeNames != null) {
-			for (String name : Expressive.iterable(attributeNames)) {
-				Object value = req.getAttribute(name);
-				if (value instanceof String) {
-					results.put(name, Arrays.asList((String) value));
-				}
+	private Map<String, List<String>> createListMap(Map<String, Object> normalisedKeys) {
+		Map<String, List<String>> map = new LinkedHashMap<>();
+		for (Map.Entry<String, Object> entry : normalisedKeys.entrySet()) {
+			if (entry.getValue() instanceof String) {
+				map.put(entry.getKey(), Collections.singletonList((String) entry.getValue()));
 			}
 		}
-		return results;
+		return map;
 	}
 }

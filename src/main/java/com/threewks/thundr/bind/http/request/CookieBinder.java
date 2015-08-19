@@ -19,12 +19,13 @@ package com.threewks.thundr.bind.http.request;
 
 import static com.atomicleopard.expressive.Expressive.isNotEmpty;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.atomicleopard.expressive.ETransformer;
 import com.atomicleopard.expressive.Expressive;
+import com.atomicleopard.expressive.transform.CollectionTransformer;
 import com.threewks.thundr.bind.Binder;
 import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.http.Cookie;
@@ -35,7 +36,8 @@ import com.threewks.thundr.request.Response;
 // TODO - v3 - need a http.Cookie binder too
 public class CookieBinder implements Binder {
 	public static final List<Class<?>> BoundTypes = Expressive.<Class<?>> list(Cookie.class);
-
+	private static final ETransformer<Cookie, String> ToCookeValue = Expressive.Transformers.toProperty("value", Cookie.class);
+	private static final CollectionTransformer<Cookie, String> ToCookeValues = Expressive.Transformers.transformAllUsing(ToCookeValue);
 	private ParameterBinderRegistry parameterBinderRegistry;
 
 	public CookieBinder(ParameterBinderRegistry parameterBinderRegistry) {
@@ -45,16 +47,16 @@ public class CookieBinder implements Binder {
 
 	@Override
 	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp, Map<String, String> pathVariables) {
-		if (req.getCookies() != null && bindings.values().contains(null)) {
-			Map<String, List<String>> cookieMap = createCookieMap(req);
-			parameterBinderRegistry.bind(bindings, cookieMap, null);
+		Map<String, List<Cookie>> cookies = req.getAllCookies();
+		if (isNotEmpty(cookies) && bindings.values().contains(null)) {
+			Map<String, List<String>> cookieValues = getCookieValues(cookies);
+			parameterBinderRegistry.bind(bindings, cookieValues, null);
 
-			Map<String, List<Cookie>> lookup = req.getAllCookies();
 			for (Map.Entry<ParameterDescription, Object> binding : bindings.entrySet()) {
 				ParameterDescription key = binding.getKey();
 				if (binding.getValue() == null && key.isA(Cookie.class)) {
 					String name = key.name();
-					List<Cookie> namedCookies = lookup.get(name);
+					List<Cookie> namedCookies = cookies.get(name);
 					Cookie cookie = isNotEmpty(namedCookies) ? namedCookies.get(0) : null;
 					bindings.put(key, cookie);
 				}
@@ -62,18 +64,11 @@ public class CookieBinder implements Binder {
 		}
 	}
 
-	private Map<String, List<String>> createCookieMap(Request req) {
-		Map<String, List<String>> lookup = new HashMap<String, List<String>>();
-		for (Cookie cookie : req.getCookies()) {
-			String name = cookie.getName();
-			String value = cookie.getValue();
-			List<String> existing = lookup.get(name);
-			if (existing == null) {
-				existing = new ArrayList<String>();
-				lookup.put(name, existing);
-			}
-			existing.add(value);
+	private Map<String, List<String>> getCookieValues(Map<String, List<Cookie>> lookup) {
+		Map<String, List<String>> result = new HashMap<String, List<String>>();
+		for (Map.Entry<String, List<Cookie>> entry : lookup.entrySet()) {
+			result.put(entry.getKey(), ToCookeValues.from(entry.getValue()));
 		}
-		return lookup;
+		return result;
 	}
 }

@@ -56,4 +56,5 @@ public class MockResponse extends InMemoryResponse implements Response {
 		this.rawResponse = raw;
 		return this;
 	}
+
 }

@@ -168,7 +168,7 @@ public class ControllerRouteResolverTest {
 		Interceptor<TestAnnotation> registeredInterceptor = new Interceptor<TestAnnotation>() {
 			@Override
 			public String before(TestAnnotation annotation, Request req, Response resp) {
-				req.getRawRequest(HttpServletRequest.class).setAttribute("name", "value");
+				req.putData("name", "value");
 				return null;
 			}
 

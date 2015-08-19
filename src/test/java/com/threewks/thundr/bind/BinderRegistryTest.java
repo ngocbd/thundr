@@ -28,7 +28,7 @@ import org.junit.Test;
 import com.threewks.thundr.bind.http.HttpBinder;
 import com.threewks.thundr.bind.http.MultipartHttpBinder;
 import com.threewks.thundr.bind.http.request.CookieBinder;
-import com.threewks.thundr.bind.http.request.RequestAttributeBinder;
+import com.threewks.thundr.bind.http.request.RequestDataBinder;
 import com.threewks.thundr.bind.http.request.RequestClassBinder;
 import com.threewks.thundr.bind.http.request.RequestHeaderBinder;
 import com.threewks.thundr.bind.http.request.SessionAttributeBinder;
@@ -63,7 +63,7 @@ public class BinderRegistryTest {
 		assertThat(iterator.next() instanceof PathVariableBinder, is(true));
 		assertThat(iterator.next() instanceof RequestClassBinder, is(true));
 		assertThat(iterator.next() instanceof HttpBinder, is(true));
-		assertThat(iterator.next() instanceof RequestAttributeBinder, is(true));
+		assertThat(iterator.next() instanceof RequestDataBinder, is(true));
 		assertThat(iterator.next() instanceof RequestHeaderBinder, is(true));
 		assertThat(iterator.next() instanceof SessionAttributeBinder, is(true));
 		assertThat(iterator.next() instanceof CookieBinder, is(true));

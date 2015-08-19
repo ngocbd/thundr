@@ -20,7 +20,6 @@ package com.threewks.thundr.bind.http.request;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
@@ -48,17 +47,29 @@ public class RequestHeaderBinder implements Binder {
 	}
 
 	private Map<String, List<String>> createNormalisedHeaderMap(Request req) {
-		Map<String, List<String>> results = new LinkedHashMap<>();
 		Map<String, List<String>> headers = req.getAllHeaders();
-		headers.forEach((name, values) -> {
-			results.put(normaliseHeaderName(name), values);
+		return normaliseKeysToJavaVarNames(headers);
+	}
+
+	public static <V> Map<String, V> normaliseKeysToJavaVarNames(Map<String, V> input) {
+		Map<String, V> results = new LinkedHashMap<>();
+		input.forEach((name, values) -> {
+			results.put(normaliseToJavaVarName(name), values);
 		});
 		return results;
 	}
 
-	String normaliseHeaderName(String header) {
-		String capitalised = WordUtils.capitalizeFully(header, '-');
-		String withoutDashes = capitalised.replaceAll(StringPool.DASH, StringPool.EMPTY);
-		return StringUtils.uncapitalize(withoutDashes);
+	public static String normaliseToJavaVarName(String header) {
+		char[] chars = header.toCharArray();
+		StringBuilder sb = new StringBuilder();
+		if (!Character.isJavaIdentifierStart(chars[0])) {
+			sb.append(StringPool.UNDERSCORE);
+		}
+		for (int i = 0; i < chars.length; i++) {
+			sb.append(Character.isJavaIdentifierPart(chars[i]) ? chars[i] : StringPool.SPACE);
+		}
+		String capitalised = WordUtils.capitalizeFully(sb.toString(), ' ');
+		String withoutSpaces = capitalised.replaceAll(StringPool.SPACE, StringPool.EMPTY);
+		return StringUtils.uncapitalize(withoutSpaces);
 	}
 }
