@@ -80,7 +80,7 @@ public class FileViewTest {
 
 		assertThat(view.getContentType(), is("content/type"));
 		assertThat(view.getCharacterEncoding(), is("UTF-16"));
-		assertThat(view.getHeader("header"), is("value1"));
+		assertThat(view.getHeader("header"), is((Object)"value1"));
 		assertThat(view.getCookie("cookie"), is(notNullValue()));
 	}
 

@@ -17,16 +17,20 @@
  */
 package com.threewks.thundr.request.mock;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import com.atomicleopard.expressive.ETransformer;
 import com.atomicleopard.expressive.Expressive;
+import com.threewks.thundr.exception.BaseException;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.Cookie;
 import com.threewks.thundr.request.BaseRequest;
@@ -34,7 +38,7 @@ import com.threewks.thundr.request.Request;
 import com.threewks.thundr.route.HttpMethod;
 
 public class MockRequest extends BaseRequest implements Request {
-
+	private static final ETransformer<Collection<Cookie>, Map<String, List<Cookie>>> ToCookieLookup = Expressive.Transformers.toBeanLookup("name", Cookie.class);
 	private String path;
 	private String contentType;
 	private Map<String, List<String>> headers = new LinkedHashMap<>();
@@ -114,22 +118,31 @@ public class MockRequest extends BaseRequest implements Request {
 
 	@Override
 	public Cookie getCookie(String name) {
-		// @formatter:off
-		return cookies.stream()
-						.filter(cookie ->  cookie.getName().equals(name))
-						.findFirst()
-						.orElse(null);
-		// @formatter:on
+		for (Cookie cookie : this.cookies) {
+			if (cookie.getName().equals(name)) {
+				return cookie;
+			}
+		}
+		return null;
 	}
 
 	@Override
 	public Map<String, List<Cookie>> getAllCookies() {
-		return cookies.stream().collect(Collectors.groupingBy(Cookie::getName));
+		return ToCookieLookup.from(this.cookies);
 	}
 
 	@Override
 	public Reader getReader() {
 		return content == null ? null : new StringReader(content);
+	}
+
+	@Override
+	public InputStream getInputStream() {
+		try {
+			return new ByteArrayInputStream(content.getBytes(encoding));
+		} catch (UnsupportedEncodingException e) {
+			throw new BaseException(e);
+		}
 	}
 
 	@Override
@@ -158,7 +171,9 @@ public class MockRequest extends BaseRequest implements Request {
 	}
 
 	public MockRequest withHeader(String key, String... values) {
-		Arrays.stream(values).forEach(value -> withHeader(key, value));
+		for (String value : values) {
+			withHeader(key, value);
+		}
 		return this;
 	}
 

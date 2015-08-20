@@ -34,14 +34,21 @@ public class BinderModule extends BaseModule {
 	}
 
 	@Override
+	public void initialise(UpdatableInjectionContext injectionContext) {
+		super.initialise(injectionContext);
+		BinderRegistry binderRegistry = new BinderRegistry();
+		injectionContext.inject(binderRegistry).as(BinderRegistry.class);
+	}
+
+	@Override
 	public void configure(UpdatableInjectionContext injectionContext) {
 		super.configure(injectionContext);
 
 		TransformerManager transformerManager = injectionContext.get(TransformerManager.class);
 		ParameterBinderRegistry parameterBinderRegistry = injectionContext.get(ParameterBinderRegistry.class);
-		BinderRegistry binderRegistry = new BinderRegistry();
+		BinderRegistry binderRegistry = injectionContext.get(BinderRegistry.class);
+
 		BinderRegistry.registerDefaultBinders(binderRegistry, parameterBinderRegistry, transformerManager);
 
-		injectionContext.inject(binderRegistry).as(BinderRegistry.class);
 	}
 }

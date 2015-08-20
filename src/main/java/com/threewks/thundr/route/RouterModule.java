@@ -17,8 +17,6 @@
  */
 package com.threewks.thundr.route;
 
-import javax.servlet.ServletContext;
-
 import com.threewks.thundr.bind.BinderModule;
 import com.threewks.thundr.bind.BinderRegistry;
 import com.threewks.thundr.injection.BaseModule;
@@ -31,8 +29,6 @@ import com.threewks.thundr.route.controller.FilterRegistryImpl;
 import com.threewks.thundr.route.controller.InterceptorRegistry;
 import com.threewks.thundr.route.redirect.Redirect;
 import com.threewks.thundr.route.redirect.RedirectRouteResolver;
-import com.threewks.thundr.route.staticResource.StaticResource;
-import com.threewks.thundr.route.staticResource.StaticResourceRouteResolver;
 import com.threewks.thundr.view.ViewModule;
 
 public class RouterModule extends BaseModule {
@@ -53,17 +49,13 @@ public class RouterModule extends BaseModule {
 	public void configure(UpdatableInjectionContext injectionContext) {
 		Router router = injectionContext.get(Router.class);
 		FilterRegistry filters = injectionContext.get(FilterRegistry.class);
-		ServletContext servletContext = injectionContext.get(ServletContext.class);
 		BinderRegistry binderRegistry = injectionContext.get(BinderRegistry.class);
 
-		ControllerRouteResolver methodActionResolver = new ControllerRouteResolver(injectionContext, filters, binderRegistry);
-		injectionContext.inject(methodActionResolver).as(ControllerRouteResolver.class);
-		// The MethodActionResolver is special because we use it to perform controller interception
-		injectionContext.inject(methodActionResolver).as(InterceptorRegistry.class);
-		injectionContext.inject(methodActionResolver.getMethodBinderRegistry()).as(BinderRegistry.class);
+		ControllerRouteResolver controllerRouteResolver = new ControllerRouteResolver(injectionContext, filters, binderRegistry);
+		injectionContext.inject(controllerRouteResolver).as(ControllerRouteResolver.class);
+		injectionContext.inject(controllerRouteResolver).as(InterceptorRegistry.class);
 
 		router.addResolver(Redirect.class, new RedirectRouteResolver());
-		router.addResolver(StaticResource.class, new StaticResourceRouteResolver(servletContext));
-		router.addResolver(Controller.class, methodActionResolver);
+		router.addResolver(Controller.class, controllerRouteResolver);
 	}
 }

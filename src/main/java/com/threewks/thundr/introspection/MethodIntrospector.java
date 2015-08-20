@@ -20,12 +20,10 @@ package com.threewks.thundr.introspection;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.atomicleopard.expressive.Cast;
 
@@ -95,12 +93,8 @@ public class MethodIntrospector {
 	private List<Class<?>> getClasses(AccessibleObject methodOrCtor) {
 		Method method = Cast.as(methodOrCtor, Method.class);
 		Constructor<?> ctor = Cast.as(methodOrCtor, Constructor.class);
-		Parameter[] parameters = method != null ? method.getParameters() : ctor.getParameters();
-		// @formatter:off
-		return Arrays.stream(parameters)
-				.map((param) -> param.getType())
-				.collect(Collectors.toList());
-		// @formatter:on
+		Class<?>[] parameters = method != null ? method.getParameterTypes() : ctor.getParameterTypes();
+		return Arrays.asList(parameters);
 	}
 
 	/**

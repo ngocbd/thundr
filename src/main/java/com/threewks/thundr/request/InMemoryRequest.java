@@ -17,6 +17,8 @@
  */
 package com.threewks.thundr.request;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -81,6 +83,11 @@ public class InMemoryRequest extends BaseRequest {
 		} catch (UnsupportedEncodingException e) {
 			throw new BaseException(e);
 		}
+	}
+	
+	@Override
+	public InputStream getInputStream() {
+		return new ByteArrayInputStream(this.requestData);
 	}
 
 	@Override

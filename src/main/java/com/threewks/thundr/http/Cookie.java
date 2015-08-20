@@ -151,27 +151,5 @@ public class Cookie {
 			return new Cookie(name, value, path, domain, maxAge, comment, version, secure);
 		}
 
-		public javax.servlet.http.Cookie buildServletCookie() {
-			javax.servlet.http.Cookie cookie = new javax.servlet.http.Cookie(name, value);
-			if (domain != null) {
-				cookie.setDomain(domain);
-			}
-			if (path != null) {
-				cookie.setPath(path);
-			}
-			if (maxAge != null) {
-				cookie.setMaxAge((int) maxAge.getStandardSeconds());
-			}
-			if (comment != null) {
-				cookie.setComment(comment);
-			}
-			if (version != null) {
-				cookie.setVersion(version);
-			}
-			if (secure != null) {
-				cookie.setSecure(secure);
-			}
-			return cookie;
-		}
 	}
 }

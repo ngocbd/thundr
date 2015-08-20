@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.threewks.thundr.exception.BaseException;
 import com.threewks.thundr.http.ContentType;
@@ -121,16 +120,18 @@ public class InMemoryResponse extends BaseResponse implements Response {
 		return null;
 	}
 
-	// TODO - v3 - should this be a case insensitive operation?
+	@Override
 	public String getHeader(String name) {
 		List<String> list = headers.get(name);
 		return list == null ? null : list.get(0);
 	}
 
+	@Override
 	public List<String> getHeaders(String name) {
 		return headers.get(name);
 	}
 
+	@Override
 	public Map<String, List<String>> getAllHeaders() {
 		return headers;
 	}
@@ -177,7 +178,12 @@ public class InMemoryResponse extends BaseResponse implements Response {
 
 	@Override
 	public Cookie getCookie(String name) {
-		return cookies.stream().filter((cookie) -> cookie.getName().equals(name)).findFirst().orElse(null);
+		for (Cookie cookie : cookies) {
+			if (cookie.getName().equals(name)) {
+				return cookie;
+			}
+		}
+		return null;
 	}
 
 	@Override

@@ -23,8 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.joda.time.DateTime;
-
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.Cookie;
 import com.threewks.thundr.http.StatusCode;

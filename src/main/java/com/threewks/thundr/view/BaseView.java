@@ -21,11 +21,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
-
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.Cookie;
-import com.threewks.thundr.http.Cookies;
 import com.threewks.thundr.http.StatusCode;
 import com.threewks.thundr.http.exception.HttpStatusException;
 import com.threewks.thundr.request.Response;

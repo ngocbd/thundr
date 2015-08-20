@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -35,6 +34,7 @@ import com.atomicleopard.expressive.EList;
 import com.atomicleopard.expressive.Expressive;
 
 import jodd.introspector.ClassDescriptor;
+import jodd.introspector.CtorDescriptor;
 import jodd.util.ReflectUtil;
 
 /**
@@ -42,21 +42,19 @@ import jodd.util.ReflectUtil;
  *
  * @see TypeIntrospector
  */
-// TODO - NAO - It makes sense for MethodIntrospector and ClassIntrospector to behave the same in terms of being bound to a specific Class/Method or not
+// TODO - v3 - NAO - It makes sense for MethodIntrospector and ClassIntrospector to behave the same in terms of being bound to a specific Class/Method or not
 public class ClassIntrospector {
 	public static final boolean supportsInjection = TypeIntrospector.classExists("javax.inject.Inject");
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings("unchecked")
 	public <T> List<Constructor<T>> listConstructors(Class<T> type) {
 		ClassDescriptor classDescriptor = new ClassDescriptor(type, false, false, true, null);
-		List<Constructor> ctors = Arrays.stream(classDescriptor.getAllCtorDescriptors()).map(descriptor -> descriptor.getConstructor()).collect(Collectors.toList());
-		Collections.sort(ctors, new ConstructorComparator());
-		// Some generics shenangins
-		List<Constructor<T>> result = new ArrayList<>();
-		for (Constructor constructor : ctors) {
-			result.add(constructor);
+		List<Constructor<T>> ctors = new ArrayList<>();
+		for (CtorDescriptor desc : classDescriptor.getAllCtorDescriptors()) {
+			ctors.add(desc.getConstructor());
 		}
-		return result;
+		Collections.sort(ctors, new ConstructorComparator());
+		return ctors;
 	}
 
 	public <T> List<Method> listSetters(Class<T> type) {
@@ -90,15 +88,16 @@ public class ClassIntrospector {
 		types.addItems(ClassUtils.getAllInterfaces(type));
 		return types;
 	}
-	
 
 	public Method getMethod(Class<?> type, String methodName) {
-		return listMethods(type).stream()
-			.filter(method -> method.getName().equals(methodName))
-			.findFirst()
-			.orElse(null);
+		for (Method method : listMethods(type)) {
+			if (method.getName().equals(methodName)) {
+				return method;
+			}
+		}
+		return null;
 	}
-	
+
 	// TODO - NAO - Isolate dependencies on ReflectUtil and other introspection magic to
 	// just this package.
 	public List<Method> listMethods(Class<?> type) {

@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.mail.MessagingException;
-import javax.servlet.http.HttpServletRequest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -42,11 +41,10 @@ import org.mockito.Mockito;
 
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.exception.BaseException;
-import com.threewks.thundr.http.RequestThreadLocal;
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.Response;
 import com.threewks.thundr.request.ThreadLocalRequestContainer;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
+import com.threewks.thundr.request.mock.MockRequest;
 import com.threewks.thundr.view.ViewResolver;
 import com.threewks.thundr.view.ViewResolverRegistry;
 import com.threewks.thundr.view.file.Disposition;
@@ -65,17 +63,15 @@ public class BaseMailerTest {
 				List<Attachment> attachments) {
 		}
 	});
-	private MockHttpServletRequest req = new MockHttpServletRequest();
+	private MockRequest req = new MockRequest();
 
 	@Before
 	public void before() throws MessagingException {
 		viewResolverRegistry.addResolver(StringView.class, new StringViewResolver());
-		RequestThreadLocal.set(req, null);
 	}
 
 	@After
 	public void after() {
-		RequestThreadLocal.clear();
 	}
 
 	@Test
@@ -206,7 +202,7 @@ public class BaseMailerTest {
 
 	@Test
 	public void shouldNotFailToRenderBodyIfNoHttpServletRequestSupplied() {
-		RequestThreadLocal.clear();
+		requestContainer.clear();
 		StringView body = new StringView("Email body").withContentType((String) null);
 		// @formatter:off
 		MailBuilder builder = mailer.mail()
@@ -238,24 +234,23 @@ public class BaseMailerTest {
 		viewResolverRegistry.addResolver(String.class, new ViewResolver<String>() {
 			@Override
 			public void resolve(Request request, Response resp, String viewResult) {
-				HttpServletRequest req = request.getRawRequest(HttpServletRequest.class);
-				req.setAttribute("updated", 2);
-				req.removeAttribute("initial");
+				request.putData("updated", 2);
+				request.putData("initial", null);
 				try {
 					resp.getOutputStream().write(viewResult.getBytes("UTF-8"));
 				} catch (IOException e) {
 					throw new BaseException(e);
 				}
-				assertThat(BaseMailerTest.this.req.getAttribute("initial"), is(nullValue()));
-				assertThat(BaseMailerTest.this.req.getAttribute("updated"), is((Object) 2));
+				assertThat(BaseMailerTest.this.req.getData("initial"), is(nullValue()));
+				assertThat(BaseMailerTest.this.req.getData("updated"), is((Object) 2));
 			}
 		});
 
-		req.setAttribute("initial", "value");
-		req.setAttribute("updated", 1);
+		req.putData("initial", "value");
+		req.putData("updated", 1);
 
-		assertThat(req.getAttribute("initial"), is((Object) "value"));
-		assertThat(req.getAttribute("updated"), is((Object) 1));
+		assertThat(req.<String>getData("initial"), is("value"));
+		assertThat(req.<Integer>getData("updated"), is(1));
 
 		mailer.mail()
 			.from("sender@email.com")
@@ -266,8 +261,8 @@ public class BaseMailerTest {
 
 		verify(mailer).sendInternal(entry("sender@email.com"), null, email("recipient@email.com"), empty(), empty(), "Subject line", "Email body", Collections.<Attachment> emptyList());
 
-		assertThat(req.getAttribute("initial"), is((Object) "value"));
-		assertThat(req.getAttribute("updated"), is((Object) 1));
+		assertThat(req.<String>getData("initial"), is("value"));
+		assertThat(req.<Integer>getData("updated"), is(1));
 
 	}
 

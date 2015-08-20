@@ -17,8 +17,6 @@
  */
 package com.threewks.thundr.injection;
 
-import java.util.Arrays;
-
 public class InjectorBuilder<T> {
 	private InjectionContextImpl injector;
 	private Class<T> type;
@@ -55,6 +53,8 @@ public class InjectorBuilder<T> {
 
 	@SafeVarargs
 	public final void as(Class<? super T>... interfaceTypes) {
-		Arrays.stream(interfaceTypes).forEach(this::as);
+		for (Class<? super T> interfaceType : interfaceTypes) {
+			as(interfaceType);
+		}
 	}
 }

@@ -39,9 +39,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import com.atomicleopard.expressive.Expressive;
-import com.threewks.thundr.http.RequestThreadLocal;
 import com.threewks.thundr.request.ThreadLocalRequestContainer;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.view.ViewResolverRegistry;
 import com.threewks.thundr.view.file.Disposition;
 import com.threewks.thundr.view.string.StringView;
@@ -54,7 +52,6 @@ public class JavaMailMailerTest {
 	private ViewResolverRegistry viewResolverRegistry = new ViewResolverRegistry();
 	private ThreadLocalRequestContainer requestContainer = new ThreadLocalRequestContainer();
 	private JavaMailMailer mailer = new JavaMailMailer(viewResolverRegistry, requestContainer);
-	private MockHttpServletRequest req = new MockHttpServletRequest();
 	private ArrayList<Attachment> NoAttachments = new ArrayList<Attachment>();
 
 	@Before
@@ -63,12 +60,10 @@ public class JavaMailMailerTest {
 
 		mailer = spy(mailer);
 		doNothing().when(mailer).sendMessage(Mockito.any(Message.class));
-		RequestThreadLocal.set(req, null);
 	}
 
 	@After
 	public void after() {
-		RequestThreadLocal.clear();
 	}
 
 	@Test

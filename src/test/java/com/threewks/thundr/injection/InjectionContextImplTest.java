@@ -17,10 +17,9 @@
  */
 package com.threewks.thundr.injection;
 
-import static com.atomicleopard.expressive.Expressive.*;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -528,40 +527,41 @@ public class InjectionContextImplTest {
 		context.inject("defaultvalue").named("key").as(String.class);
 		assertThat(context.contains(String.class, "key"), is(true));
 	}
-	
+
 	@Test
 	public void shouldReturnProxiedInstanceWhenPointcutPresent() {
 		context.adviceRegistry.add(Pointcut.class, new PointcutAdvice());
 		context.inject(new TestService()).as(TestService.class);
-		
+
 		TestService testService = context.get(TestService.class);
 		assertThat(testService, is(notNullValue()));
-		assertThat(testService.getClass(), is(not(TestService.class)));
+		assertThat(testService.getClass() == TestService.class, is(false));
 		assertThat(Cast.is(testService, TestService.class), is(true));
 	}
+
 	@Test
 	public void shouldReturnProxiedInstanceWhenPointcutPresentAndClassIsInjected() {
 		context.adviceRegistry.add(Pointcut.class, new PointcutAdvice());
 		context.inject(TestService.class).as(TestService.class);
-		
+
 		TestService testService = context.get(TestService.class);
 		assertThat(testService, is(notNullValue()));
-		assertThat(testService.getClass(), is(not(TestService.class)));
+		assertThat(testService.getClass() == TestService.class, is(false));
 		assertThat(Cast.is(testService, TestService.class), is(true));
 	}
-	
-	@Retention(RetentionPolicy.RUNTIME) 
+
+	@Retention(RetentionPolicy.RUNTIME)
 	protected static @interface Pointcut {
-		
+
 	}
-	
+
 	protected static class PointcutAdvice extends BaseAdvice<Pointcut, Object> {
-		
+
 	}
-	
+
 	protected static class TestService {
 		@Pointcut
-		public int method(){
+		public int method() {
 			return 1;
 		}
 	}

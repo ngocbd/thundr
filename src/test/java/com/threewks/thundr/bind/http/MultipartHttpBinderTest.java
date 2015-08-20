@@ -31,21 +31,17 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.fileupload.FileItemHeaders;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.FileUpload;
 import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.RequestContext;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import com.threewks.thundr.bind.BindException;
 import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
@@ -53,12 +49,11 @@ import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.MultipartFile;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 import com.threewks.thundr.request.mock.MockRequest;
 import com.threewks.thundr.request.mock.MockResponse;
 import com.threewks.thundr.route.HttpMethod;
 import com.threewks.thundr.test.TestSupport;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletResponse;
 import com.threewks.thundr.transformer.TransformerManager;
 import com.threewks.thundr.util.Streams;
 
@@ -69,7 +64,6 @@ public class MultipartHttpBinderTest {
 
 	private MultipartHttpBinder binder;
 	private MockRequest request;
-	private MockHttpServletRequest rawRequest;
 	private MockResponse response = new MockResponse();
 	private Map<String, String> pathVariables;
 	private Map<ParameterDescription, Object> parameterDescriptions;
@@ -80,10 +74,8 @@ public class MultipartHttpBinderTest {
 	@Before
 	public void before() throws FileUploadException, IOException {
 		// @formatter:off
-		rawRequest = new MockHttpServletRequest().contentType(ContentType.MultipartFormData);
 		request = new MockRequest(HttpMethod.POST, "/path/operation")
-							.withContentType(ContentType.MultipartFormData)
-							.withRawRequest(rawRequest);
+							.withContentType(ContentType.MultipartFormData);
 		// @formatter:on
 		parameterBinderRegistry = new ParameterBinderRegistry(TransformerManager.createWithDefaults());
 		ParameterBinderRegistry.addDefaultBinders(parameterBinderRegistry);
@@ -92,11 +84,9 @@ public class MultipartHttpBinderTest {
 		pathVariables = new HashMap<String, String>();
 
 		multipartData = new ArrayList<FileItemStream>();
-		ServletFileUpload mockUpload = mock(ServletFileUpload.class);
-		when(mockUpload.getItemIterator(rawRequest)).thenAnswer(new Answer<FileItemIterator>() {
-
+		FileUpload mockUpload = new FileUpload(){
 			@Override
-			public FileItemIterator answer(InvocationOnMock invocation) throws Throwable {
+			public FileItemIterator getItemIterator(RequestContext ctx) throws FileUploadException, IOException {
 				return new FileItemIterator() {
 					Iterator<FileItemStream> iterator = multipartData.iterator();
 
@@ -111,7 +101,7 @@ public class MultipartHttpBinderTest {
 					}
 				};
 			}
-		});
+		};
 		TestSupport.setField(binder, "upload", mockUpload);
 	}
 
@@ -200,14 +190,14 @@ public class MultipartHttpBinderTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void shouldNotBindIfAllParametersAreAlreadyBound() {
-		ParameterDescription req = new ParameterDescription("req", HttpServletRequest.class);
-		ParameterDescription resp = new ParameterDescription("resp", HttpServletResponse.class);
+		ParameterDescription req = new ParameterDescription("req", Request.class);
+		ParameterDescription resp = new ParameterDescription("resp", Response.class);
 		ParameterDescription cookie = new ParameterDescription("cookie", String.class);
 		addFormField("field1", "value1");
 		addFormField("field2", "value2");
 		addFileField("data", new byte[] { 1, 2, 3 });
-		parameterDescriptions.put(req, new MockHttpServletRequest());
-		parameterDescriptions.put(resp, new MockHttpServletResponse());
+		parameterDescriptions.put(req, new MockRequest());
+		parameterDescriptions.put(resp, new MockResponse());
 		parameterDescriptions.put(cookie, "cookie-value");
 
 		binder = spy(binder);

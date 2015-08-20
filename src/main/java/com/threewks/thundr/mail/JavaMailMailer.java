@@ -44,7 +44,6 @@ import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.Header;
 import com.threewks.thundr.request.InMemoryResponse;
 import com.threewks.thundr.request.RequestContainer;
-import com.threewks.thundr.view.BasicViewRenderer;
 import com.threewks.thundr.view.ViewResolverRegistry;
 
 import jodd.util.Base64;

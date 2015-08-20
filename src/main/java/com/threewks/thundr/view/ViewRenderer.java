@@ -34,5 +34,8 @@ public interface ViewRenderer {
 	// abstraction, like a renderedview?
 	// If it is coupled, should this be a RequestContainer - and how are you expected to get it, or for that
 	// matter the right implementation of ViewRenderer?
+	// The optimal interface feels like it should be public RenderedView render(Object view);,
+	// and then a RenderedView can be applied to a response. In the contetx of Jsps, magic to get the request would be
+	// required though
 	public void render(Request request, Response response, Object view);
 }

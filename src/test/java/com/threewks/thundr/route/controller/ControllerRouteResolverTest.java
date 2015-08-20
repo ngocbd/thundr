@@ -27,8 +27,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -42,7 +40,6 @@ import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.Response;
 import com.threewks.thundr.request.mock.MockRequest;
 import com.threewks.thundr.route.HttpMethod;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.transformer.TransformerManager;
 
 public class ControllerRouteResolverTest {
@@ -185,7 +182,7 @@ public class ControllerRouteResolverTest {
 		};
 		Controller action = prepareActionMethod("interceptWithValue", registeredInterceptor);
 
-		req = new MockRequest(HttpMethod.GET, "/path").withRawRequest(new MockHttpServletRequest("/path"));
+		req = new MockRequest(HttpMethod.GET, "/path");
 
 		Object resolvedValue = resolver.resolve(action, HttpMethod.GET, req, resp, pathVars);
 		assertThat(resolvedValue, is((Object) "value"));

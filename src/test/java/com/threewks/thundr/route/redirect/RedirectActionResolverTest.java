@@ -53,7 +53,7 @@ public class RedirectActionResolverTest {
 		Map<String, String> pathVars = map("to", "new");
 		resolver.resolve(action, method, req, resp, pathVars);
 
-		assertThat(resp.getStatusCode(), is(StatusCode.TemporaryRedirect));
+		assertThat(resp.getStatusCode(), is(StatusCode.Found));
 		assertThat(resp.getHeader("Location"), is("/redirect/new"));
 	}
 

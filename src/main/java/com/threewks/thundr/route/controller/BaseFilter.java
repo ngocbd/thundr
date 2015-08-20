@@ -15,14 +15,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.route.staticResource;
+package com.threewks.thundr.route.controller;
 
-import com.threewks.thundr.route.RouteResult;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 
-public class StaticResource implements RouteResult {
+public class BaseFilter implements Filter {
 
 	@Override
-	public String toString() {
-		return "Static resource";
+	public <T> T before(Request req, Response resp) {
+		return null;
 	}
+
+	@Override
+	public <T> T after(Object view, Request req, Response resp) {
+		return null;
+	}
+
+	@Override
+	public <T> T exception(Exception e, Request req, Response resp) {
+		return null;
+	}
+
 }

@@ -206,7 +206,7 @@ public class AdviceRegistryImplTest {
 		registry.add(Pointcut.class, new BaseAdvice<Pointcut, Integer>() {
 			@Override
 			public Integer before(Pointcut annotation, Arguments arguments) {
-				assertThat(arguments.getArgument("input"), is("0"));
+				assertThat(arguments.<String>getArgument("input"), is("0"));
 				arguments.replaceArgument("input", "1");
 				return null;
 			}
@@ -214,7 +214,7 @@ public class AdviceRegistryImplTest {
 		registry.add(Pointcut2.class, new BaseAdvice<Pointcut2, Integer>() {
 			@Override
 			public Integer before(Pointcut2 annotation, Arguments arguments) {
-				assertThat(arguments.getArgument("input"), is("1"));
+				assertThat(arguments.<String>getArgument("input"), is("1"));
 				arguments.replaceArgument("input", "2");
 				return null;
 			}

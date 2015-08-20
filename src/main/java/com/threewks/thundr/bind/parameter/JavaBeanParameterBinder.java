@@ -35,9 +35,9 @@ public class JavaBeanParameterBinder implements ParameterBinder<Object> {
 			try {
 				Object bean = parameterDescription.classType().newInstance();
 				BeanUtilBean beaner = beanLoader(transformerManager);
-				stringMap.forEach((key, value) -> {
-					beaner.setPropertyForcedSilent(bean, key,  value);
-				});
+				for (Map.Entry<String, Object> entry : stringMap.entrySet()) {
+					beaner.setPropertyForcedSilent(bean, entry.getKey(), entry.getValue());
+				}
 				return bean;
 			} catch (Exception e) {
 				throw new BindException(e, "Failed to bind onto %s: %s", parameterDescription.classType(), e.getMessage());

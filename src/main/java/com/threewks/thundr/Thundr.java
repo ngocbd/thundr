@@ -111,7 +111,7 @@ public class Thundr {
 		return baseModules;
 	}
 
-	protected void applyRoute(final Request req, final Response resp, final ViewRenderer viewRenderer) {
+	public void applyRoute(final Request req, final Response resp, final ViewRenderer viewRenderer) {
 		try {
 			Router router = injectionContext.get(Router.class);
 			final Object viewResult = router.invoke(req, resp);

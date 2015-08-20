@@ -17,16 +17,6 @@
  */
 package com.threewks.thundr.http;
 
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
-import com.atomicleopard.expressive.Expressive;
-
 public class Header {
 	public static final String Accept = "Accept";
 	public static final String AcceptCharset = "Accept-Charset";
@@ -55,21 +45,4 @@ public class Header {
 	public static final String UserAgent = "User-Agent";
 	public static final String Vary = "Vary";
 	public static final String XHttpMethodOverride = "X-HTTP-Method-Override";
-
-	public static Map<String, List<String>> getHeaderMap(HttpServletRequest req) {
-		Map<String, List<String>> headerMap = new LinkedHashMap<String, List<String>>();
-		Iterable<String> iterable = Expressive.<String> iterable(req.getHeaderNames());
-		for (String name : iterable) {
-			headerMap.put(name, getHeaders(name, req));
-		}
-		return headerMap;
-	}
-
-	public static String getHeader(String name, HttpServletRequest req) {
-		return req.getHeader(name);
-	}
-
-	public static List<String> getHeaders(String name, HttpServletRequest req) {
-		return Expressive.list(Expressive.iterable(req.getHeaders(name)));
-	}
 }

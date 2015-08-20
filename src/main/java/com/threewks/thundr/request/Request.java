@@ -17,6 +17,7 @@
  */
 package com.threewks.thundr.request;
 
+import java.io.InputStream;
 import java.io.Reader;
 import java.util.List;
 import java.util.Map;
@@ -48,11 +49,10 @@ public interface Request {
 
 	public String getCharacterEncoding();
 
+	// TODO - v3 - header names should be case insensitive
 	public String getHeader(String name);
 
-	// TODO - v3 - Should provide a mechanism for getting headers and parameters ignoring case
-	// public String getHeaderStrict(String name);
-
+	// TODO - v3 - header names should be case insensitive - should return empty list if none exist
 	public List<String> getHeaders(String name);
 
 	public Map<String, List<String>> getAllHeaders();
@@ -92,6 +92,7 @@ public interface Request {
 	 */
 	public <T> T getData(String key);
 
+	// TODO - v3 - This should be a long
 	public int getContentLength();
 
 	public HttpMethod getMethod();
@@ -107,6 +108,7 @@ public interface Request {
 	 * @return
 	 */
 	public String getRequestPath();
+	
 
 	public Cookie getCookie(String name);
 
@@ -115,8 +117,10 @@ public interface Request {
 	// TODO - v3 - how should you be able to read the content, reader, channel, stream?
 	// TODO - v3 - I can't see how this could ever work without at least a get bytes/inputstream option
 	public Reader getReader();
-
+	public InputStream getInputStream();
 	public boolean isSecure();
+
+	
 
 	// TODO - v3 - it makes sense for this stuff to be in the request itself, but requires some
 	// re-engineering.

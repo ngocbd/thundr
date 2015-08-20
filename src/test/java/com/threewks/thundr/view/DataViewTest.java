@@ -38,7 +38,7 @@ public class DataViewTest {
 		assertThat(view.getOutput(), is((Object) "data"));
 		assertThat(view.getContentType(), is("content/type"));
 		assertThat(view.getStatusCode(), is(StatusCode.Accepted));
-		assertThat(view.getHeader("header"), is("value"));
+		assertThat(view.getHeader("header"), is((Object)"value"));
 	}
 
 	private static class TestView extends DataView<TestView> {

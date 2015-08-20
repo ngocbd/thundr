@@ -33,8 +33,6 @@ import com.threewks.thundr.view.json.JsonViewResolver;
 import com.threewks.thundr.view.jsonp.JsonpNegotiator;
 import com.threewks.thundr.view.jsonp.JsonpView;
 import com.threewks.thundr.view.jsonp.JsonpViewResolver;
-import com.threewks.thundr.view.jsp.JspView;
-import com.threewks.thundr.view.jsp.JspViewResolver;
 import com.threewks.thundr.view.negotiating.NegotiatingView;
 import com.threewks.thundr.view.negotiating.NegotiatingViewResolver;
 import com.threewks.thundr.view.negotiating.ViewNegotiatorRegistry;
@@ -52,7 +50,7 @@ public class ViewModule extends BaseModule {
 	@Override
 	public void initialise(UpdatableInjectionContext injectionContext) {
 		injectionContext.inject(ViewResolverRegistry.class).as(ViewResolverRegistry.class);
-		injectionContext.inject(ServletRequestPreservingViewRenderer.class).as(ViewRenderer.class);
+		injectionContext.inject(BasicViewRenderer.class).as(ViewRenderer.class);
 		injectionContext.inject(ViewNegotiatorRegistryImpl.class).as(ViewNegotiatorRegistry.class);
 		injectionContext.inject(GlobalModel.class).as(GlobalModel.class);
 	}
@@ -93,7 +91,6 @@ public class ViewModule extends BaseModule {
 		viewResolverRegistry.addResolver(JsonView.class, new JsonViewResolver());
 		viewResolverRegistry.addResolver(JsonpView.class, new JsonpViewResolver());
 		viewResolverRegistry.addResolver(FileView.class, new FileViewResolver());
-		viewResolverRegistry.addResolver(JspView.class, new JspViewResolver(globalModel));
 		viewResolverRegistry.addResolver(StringView.class, new StringViewResolver());
 		viewResolverRegistry.addResolver(NegotiatingView.class, negotiatingViewResolver);
 	}

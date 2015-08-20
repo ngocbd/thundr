@@ -15,28 +15,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.bind.http;
+package com.threewks.thundr.route.controller;
 
-import java.util.List;
-import java.util.Map;
+import java.lang.annotation.Annotation;
 
-import com.threewks.thundr.bind.Binder;
-import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
-import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.Response;
 
-public class HttpBinder implements Binder {
-	private ParameterBinderRegistry parameterBinderRegistry;
+public class BaseInterceptor<A extends Annotation> implements Interceptor<A> {
 
-	public HttpBinder(ParameterBinderRegistry parameterBinderRegistry) {
-		super();
-		this.parameterBinderRegistry = parameterBinderRegistry;
+	@Override
+	public <T> T before(A annotation, Request req, Response resp) {
+		return null;
 	}
 
 	@Override
-	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp, Map<String, String> pathVariables) {
-		Map<String, List<String>> parameterMap = req.getAllParameters();
-		parameterBinderRegistry.bind(bindings, parameterMap, null);
+	public <T> T after(A annotation, Object view, Request req, Response resp) {
+		return null;
+	}
+
+	@Override
+	public <T> T exception(A annotation, Exception e, Request req, Response resp) {
+		return null;
 	}
 }

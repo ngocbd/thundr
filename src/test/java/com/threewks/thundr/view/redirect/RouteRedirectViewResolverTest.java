@@ -17,7 +17,7 @@
  */
 package com.threewks.thundr.view.redirect;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
@@ -62,7 +62,7 @@ public class RouteRedirectViewResolverTest {
 	public void shouldRedirectToNamedRoute() throws IOException {
 		RouteRedirectView viewResult = new RouteRedirectView("route1");
 		resolver.resolve(req, resp, viewResult);
-		assertThat(resp.getStatusCode(), is(StatusCode.TemporaryRedirect));
+		assertThat(resp.getStatusCode(), is(StatusCode.Found));
 		assertThat(resp.getHeader(Header.Location), is("/route/1"));
 	}
 
@@ -70,22 +70,22 @@ public class RouteRedirectViewResolverTest {
 	public void shouldRedirectToNamedRouteSubstitutingVariables() throws IOException {
 		RouteRedirectView viewResult = new RouteRedirectView("route2", Expressive.<String, Object> map("var", "expected"));
 		resolver.resolve(req, resp, viewResult);
-		assertThat(resp.getStatusCode(), is(StatusCode.TemporaryRedirect));
+		assertThat(resp.getStatusCode(), is(StatusCode.Found));
 		assertThat(resp.getHeader(Header.Location), is("/route/expected"));
 	}
 	@Test
 	public void shouldRedirectToNamedRouteWithQueryParameters() throws IOException {
 		RouteRedirectView viewResult = new RouteRedirectView("route2", Expressive.<String, Object> map("var", "expected"), Expressive.<String, Object> map("q1", "v1", "q2", "v2"));
 		resolver.resolve(req, resp, viewResult);
-		assertThat(resp.getStatusCode(), is(StatusCode.TemporaryRedirect));
-		assertThat(resp.getHeader(Header.Location), is("/route/expected?q1=v1&q2=v2"));
+		assertThat(resp.getStatusCode(), is(StatusCode.Found));
+		assertThat(resp.getHeader(Header.Location), anyOf(is("/route/expected?q1=v1&q2=v2"), is("/route/expected?q2=v2&q1=v1")));
 	}
 
 	@Test
 	public void shouldOnlyIncludeQueryStringIfNecessary() throws IOException {
 		RouteRedirectView viewResult = new RouteRedirectView("route2", Expressive.<String, Object> map("var", "expected"), Expressive.<String, Object> map());
 		resolver.resolve(req, resp, viewResult);
-		assertThat(resp.getStatusCode(), is(StatusCode.TemporaryRedirect));
+		assertThat(resp.getStatusCode(), is(StatusCode.Found));
 		assertThat(resp.getHeader(Header.Location), is("/route/expected"));
 	}
 

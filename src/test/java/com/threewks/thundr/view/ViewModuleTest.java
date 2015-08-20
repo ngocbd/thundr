@@ -39,8 +39,6 @@ import com.threewks.thundr.view.json.JsonViewResolver;
 import com.threewks.thundr.view.jsonp.JsonpNegotiator;
 import com.threewks.thundr.view.jsonp.JsonpView;
 import com.threewks.thundr.view.jsonp.JsonpViewResolver;
-import com.threewks.thundr.view.jsp.JspView;
-import com.threewks.thundr.view.jsp.JspViewResolver;
 import com.threewks.thundr.view.negotiating.NegotiatingView;
 import com.threewks.thundr.view.negotiating.NegotiatingViewResolver;
 import com.threewks.thundr.view.negotiating.ViewNegotiatorRegistry;
@@ -80,7 +78,6 @@ public class ViewModuleTest {
 		assertThat(registry.findViewResolver(new JsonView("")) instanceof JsonViewResolver, is(true));
 		assertThat(registry.findViewResolver(new JsonpView("")) instanceof JsonpViewResolver, is(true));
 		assertThat(registry.findViewResolver(new FileView("", new byte[0], "")) instanceof FileViewResolver, is(true));
-		assertThat(registry.findViewResolver(new JspView("")) instanceof JspViewResolver, is(true));
 		assertThat(registry.findViewResolver(new StringView("")) instanceof StringViewResolver, is(true));
 		assertThat(registry.findViewResolver(new NegotiatingView("")) instanceof NegotiatingViewResolver, is(true));
 

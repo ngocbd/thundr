@@ -44,7 +44,7 @@ public class RedirectViewResolverTest {
 	public void shouldRedirectSpecifiedByRedirectView() throws IOException {
 		RedirectView viewResult = new RedirectView("/redirect/to");
 		resolver.resolve(req, resp, viewResult);
-		assertThat(resp.getStatusCode(), is(StatusCode.TemporaryRedirect));
+		assertThat(resp.getStatusCode(), is(StatusCode.Found));
 		assertThat(resp.getHeader(Header.Location), is("/redirect/to"));
 	}
 

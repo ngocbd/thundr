@@ -45,7 +45,7 @@ public class RouteRedirectViewResolver implements ViewResolver<RouteRedirectView
 		String reverseRoute = getReverseRoute(viewResult, route);
 		String queryString = URLEncoder.encodeQueryString(viewResult.getQueryParameters());
 		// @formatter:off
-		resp.withStatusCode(StatusCode.TemporaryRedirect)
+		resp.withStatusCode(StatusCode.Found)
 			.withHeader(Header.Location, reverseRoute + queryString);
 		// TODO - v3 - does this require a content length?
 		// @formatter:on

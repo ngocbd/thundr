@@ -222,7 +222,7 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Inter
 		return (Interceptor<Annotation>) actionInterceptors.get(annotationType);
 	}
 
-	public BinderRegistry getMethodBinderRegistry() {
+	public BinderRegistry getBinderRegistry() {
 		return binderRegistry;
 	}
 }

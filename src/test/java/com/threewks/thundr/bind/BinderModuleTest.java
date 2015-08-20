@@ -28,16 +28,17 @@ import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.bind.http.HttpBinder;
 import com.threewks.thundr.bind.http.MultipartHttpBinder;
 import com.threewks.thundr.bind.http.request.CookieBinder;
-import com.threewks.thundr.bind.http.request.RequestDataBinder;
 import com.threewks.thundr.bind.http.request.RequestClassBinder;
+import com.threewks.thundr.bind.http.request.RequestDataBinder;
 import com.threewks.thundr.bind.http.request.RequestHeaderBinder;
-import com.threewks.thundr.bind.http.request.SessionAttributeBinder;
 import com.threewks.thundr.bind.json.GsonBinder;
+import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.bind.parameter.ParameterBindingModule;
 import com.threewks.thundr.bind.path.PathVariableBinder;
 import com.threewks.thundr.injection.InjectionContextImpl;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.module.DependencyRegistry;
+import com.threewks.thundr.transformer.TransformerManager;
 
 public class BinderModuleTest {
 	ParameterBindingModule parameterBindingModule = new ParameterBindingModule();
@@ -52,15 +53,24 @@ public class BinderModuleTest {
 	}
 
 	@Test
-	public void shouldConfigureAndInjectTheBinderRegistry() {
+	public void shouldInjectTheBinderRegistry() {
 		UpdatableInjectionContext injectionContext = new InjectionContextImpl();
 
-		parameterBindingModule.configure(injectionContext);
-		binderModule.configure(injectionContext);
+		binderModule.initialise(injectionContext);
 
 		assertThat(injectionContext.contains(BinderRegistry.class), is(true));
+	}
 
-		BinderRegistry binderRegistry = injectionContext.get(BinderRegistry.class);
+	@Test
+	public void shouldConfigureBinderRegistryWithBasicBinders() {
+		UpdatableInjectionContext injectionContext = new InjectionContextImpl();
+		BinderRegistry binderRegistry = new BinderRegistry();
+		injectionContext.inject(binderRegistry).as(BinderRegistry.class);
+		injectionContext.inject(TransformerManager.createWithDefaults()).as(TransformerManager.class);
+		injectionContext.inject(ParameterBinderRegistry.class).as(ParameterBinderRegistry.class);
+				
+		binderModule.configure(injectionContext);
+
 		Iterable<Binder> binders = binderRegistry.getRegisteredBinders();
 		EList<Class<? extends Binder>> types = Expressive.Transformers.transformAllUsing(new ToClass<Binder>()).from(binders);
 
@@ -69,7 +79,6 @@ public class BinderModuleTest {
 		assertThat(types, hasItem(RequestDataBinder.class));
 		assertThat(types, hasItem(RequestHeaderBinder.class));
 		assertThat(types, hasItem(HttpBinder.class));
-		assertThat(types, hasItem(SessionAttributeBinder.class));
 		assertThat(types, hasItem(CookieBinder.class));
 		assertThat(types, hasItem(GsonBinder.class));
 		assertThat(types, hasItem(MultipartHttpBinder.class));

@@ -21,10 +21,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
-import java.io.IOException;
 import java.util.Collections;
-
-import javax.servlet.ServletException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -98,14 +95,14 @@ public class ThundrTest {
 	}
 
 	@Test
-	public void shouldInitializeInjectionContextAndModules() throws ServletException {
+	public void shouldInitializeInjectionContextAndModules() {
 		thundr = new Thundr();
 		assertThat(thundr.injectionContext, is(notNullValue()));
 		assertThat(thundr.modules, is(notNullValue()));
 	}
 
 	@Test
-	public void shouldInitModulesOnStart() throws ServletException {
+	public void shouldInitModulesOnStart() {
 		thundr = spy(new Thundr());
 		when(thundr.getBaseModules()).thenReturn(Collections.<Class<? extends Module>> emptyList());
 		thundr.start();
@@ -125,7 +122,7 @@ public class ThundrTest {
 	}
 
 	@Test
-	public void shouldFindViewForResolvedRoute() throws ServletException, IOException {
+	public void shouldFindViewForResolvedRoute() {
 		viewResolverRegistry.addResolver(String.class, new ViewResolver<String>() {
 			@Override
 			public void resolve(Request req, Response resp, String viewResult) {
@@ -138,7 +135,7 @@ public class ThundrTest {
 	}
 
 	@Test
-	public void shouldNotResolveViewWhenNullViewResultReturned() throws ServletException, IOException {
+	public void shouldNotResolveViewWhenNullViewResultReturned() {
 		when(router.invoke(Mockito.any(Request.class), Mockito.any(Response.class))).thenReturn(null);
 
 		viewResolverRegistry.addResolver(Object.class, new ViewResolver<Object>() {
@@ -153,7 +150,7 @@ public class ThundrTest {
 	}
 
 	@Test
-	public void shouldCatchExceptionsFromViewResolversAndResolveExceptionWithExceptionView() throws ServletException, IOException {
+	public void shouldCatchExceptionsFromViewResolversAndResolveExceptionWithExceptionView() {
 		when(router.invoke(Mockito.any(Request.class), Mockito.any(Response.class))).thenReturn("View Name");
 
 		viewResolverRegistry.addResolver(String.class, new ViewResolver<String>() {
@@ -174,7 +171,7 @@ public class ThundrTest {
 	}
 
 	@Test
-	public void shouldCatchActionExceptionsFromViewResolversAndUnwrapThemBeforeResolvoingWithExceptionView() throws ServletException, IOException {
+	public void shouldCatchActionExceptionsFromViewResolversAndUnwrapThemBeforeResolvoingWithExceptionView() {
 		when(router.invoke(Mockito.any(Request.class), Mockito.any(Response.class))).thenReturn("View Name");
 
 		viewResolverRegistry.addResolver(String.class, new ViewResolver<String>() {
@@ -195,7 +192,7 @@ public class ThundrTest {
 	}
 
 	@Test
-	public void shouldCatchExceptionsFromViewResolversButDoNothingWhenResponseAlreadyCommitted() throws ServletException, IOException {
+	public void shouldCatchExceptionsFromViewResolversButDoNothingWhenResponseAlreadyCommitted() {
 		when(router.invoke(Mockito.any(Request.class), Mockito.any(Response.class))).thenThrow(new RuntimeException("Expected exception"));
 
 		viewResolverRegistry.addResolver(Exception.class, new ViewResolver<Exception>() {
@@ -211,7 +208,7 @@ public class ThundrTest {
 	}
 
 	@Test
-	public void shouldThrowViewResolverNotFoundIfNoMatchingViewResolverExists() throws ServletException, IOException {
+	public void shouldThrowViewResolverNotFoundIfNoMatchingViewResolverExists() {
 		thrown.expect(ViewResolverNotFoundException.class);
 
 		when(router.invoke(Mockito.any(Request.class), Mockito.any(Response.class))).thenReturn(false);

@@ -20,10 +20,6 @@ package com.threewks.thundr.route.cors;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -139,16 +135,12 @@ public class CorsFilter implements Filter {
 		List<String> allowedHeaders = new ArrayList<String>();
 		List<String> requestedHeaders = req.getHeaders(Header.AccessControlRequestHeaders);
 		if (requestedHeaders != null) {
-			// @formatter:off
-			requestedHeaders
-				.stream()
-				.map(StringUtils::lowerCase)
-				.forEach(combined -> {
-					// TODO - v3 - this can probably just be chained into the stream and returned
-					String[] uncombined = StringUtils.split(combined, ", ");
-					allowedHeaders.addAll(Arrays.asList(uncombined));	
-				});
-			// @formatter:on
+			for (String header : requestedHeaders) {
+				String lowercase = StringUtils.lowerCase(header);
+				String[] uncombined = StringUtils.split(lowercase, ", ");
+				allowedHeaders.addAll(Arrays.asList(uncombined));
+			}
+
 			if (headers != null) {
 				allowedHeaders.retainAll(headers);
 			}

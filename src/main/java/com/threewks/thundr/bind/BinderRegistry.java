@@ -23,10 +23,9 @@ import java.util.Map;
 import com.threewks.thundr.bind.http.HttpBinder;
 import com.threewks.thundr.bind.http.MultipartHttpBinder;
 import com.threewks.thundr.bind.http.request.CookieBinder;
-import com.threewks.thundr.bind.http.request.RequestDataBinder;
 import com.threewks.thundr.bind.http.request.RequestClassBinder;
+import com.threewks.thundr.bind.http.request.RequestDataBinder;
 import com.threewks.thundr.bind.http.request.RequestHeaderBinder;
-import com.threewks.thundr.bind.http.request.SessionAttributeBinder;
 import com.threewks.thundr.bind.json.GsonBinder;
 import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.bind.path.PathVariableBinder;
@@ -60,7 +59,6 @@ public class BinderRegistry {
 		binderRegistry.registerBinder(new HttpBinder(parameterBinderRegistry));
 		binderRegistry.registerBinder(new RequestDataBinder(parameterBinderRegistry));
 		binderRegistry.registerBinder(new RequestHeaderBinder(parameterBinderRegistry));
-		binderRegistry.registerBinder(new SessionAttributeBinder(parameterBinderRegistry));
 		binderRegistry.registerBinder(new CookieBinder(parameterBinderRegistry));
 		// These are last so that we can avoid running them if all parameters are bound by an alternative method
 		binderRegistry.registerBinder(new GsonBinder());

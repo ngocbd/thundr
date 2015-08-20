@@ -17,6 +17,7 @@
  */
 package com.threewks.thundr.bind.http;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -24,12 +25,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.FileUpload;
 import org.apache.commons.fileupload.RequestContext;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload.UploadContext;
 
 import com.threewks.thundr.bind.BindException;
 import com.threewks.thundr.bind.Binder;
@@ -44,7 +44,7 @@ import com.threewks.thundr.util.Streams;
 public class MultipartHttpBinder implements Binder {
 
 	private List<ContentType> supportedContentTypes = Arrays.asList(ContentType.MultipartFormData);
-	private ServletFileUpload upload = new ServletFileUpload();
+	private FileUpload upload = new FileUpload();
 	private ParameterBinderRegistry parameterBinderRegistry;
 
 	public MultipartHttpBinder(ParameterBinderRegistry parameterBinderRegistry) {
@@ -75,9 +75,8 @@ public class MultipartHttpBinder implements Binder {
 
 	void extractParameters(Request req, Map<String, List<String>> formFields, Map<String, MultipartFile> fileFields) {
 		try {
-			// TODO - v3 - getItemIterator takes a request content, which we could use to wrap a Request, rather than relying on HttpServletRequest here
-			HttpServletRequest rawRequest = req.getRawRequest(HttpServletRequest.class);
-			FileItemIterator itemIterator = upload.getItemIterator(rawRequest);
+			ThundrRequestContext context = new ThundrRequestContext(req);
+			FileItemIterator itemIterator = upload.getItemIterator(context);
 			while (itemIterator.hasNext()) {
 				FileItemStream item = itemIterator.next();
 				InputStream stream = item.openStream();
@@ -94,10 +93,44 @@ public class MultipartHttpBinder implements Binder {
 					MultipartFile file = new MultipartFile(item.getName(), Streams.readBytes(stream), item.getContentType());
 					fileFields.put(fieldName, file);
 				}
-				stream.close();
+				//stream.close();
 			}
 		} catch (Exception e) {
 			throw new BindException(e, "Failed to bind multipart form data: %s", e.getMessage());
+		}
+	}
+
+	private static class ThundrRequestContext implements RequestContext, UploadContext {
+		private Request req;
+
+		public ThundrRequestContext(Request req) {
+			super();
+			this.req = req;
+		}
+
+		@Override
+		public String getCharacterEncoding() {
+			return req.getCharacterEncoding();
+		}
+
+		@Override
+		public String getContentType() {
+			return req.getContentTypeString();
+		}
+
+		@Override
+		public int getContentLength() {
+			return req.getContentLength();
+		}
+
+		@Override
+		public long contentLength() {
+			return req.getContentLength();
+		}
+
+		@Override
+		public InputStream getInputStream() throws IOException {
+			return req.getInputStream();
 		}
 	}
 }

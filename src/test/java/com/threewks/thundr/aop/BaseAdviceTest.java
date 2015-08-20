@@ -34,7 +34,7 @@ public class BaseAdviceTest {
 
 	@Test
 	public void shouldReturnGivenResultForAfter() {
-		assertThat(baseAdvice.after("Result", null, null), is("Result"));
+		assertThat(baseAdvice.after("Result", null, null), is((Object) "Result"));
 	}
 
 	@Test

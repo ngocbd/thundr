@@ -39,8 +39,6 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -99,7 +97,7 @@ public class GsonBinderTest {
 	public void shouldBindJsonToFirstPojoControllerParameterIgnoringOtherParameters() {
 		ParameterDescription pojoParameterDescription = new ParameterDescription("pojo", TestPojo.class);
 		ParameterDescription pojo2ParameterDescription = new ParameterDescription("pojo2", TestPojo.class);
-		ParameterDescription requestParameterDescription = new ParameterDescription("req", HttpServletRequest.class);
+		ParameterDescription requestParameterDescription = new ParameterDescription("req", Request.class);
 		ParameterDescription intParameterDescription = new ParameterDescription("integer", int.class);
 		ParameterDescription stringParameterDescription = new ParameterDescription("string", String.class);
 		Map<ParameterDescription, Object> bindings = new LinkedHashMap<ParameterDescription, Object>();
@@ -214,7 +212,7 @@ public class GsonBinderTest {
 	public void shouldBindJsonToFirstUnboundPojoControllerParameterIgnoringOtherParameters() {
 		ParameterDescription pojoParameterDescription = new ParameterDescription("pojo", TestPojo.class);
 		ParameterDescription pojo2ParameterDescription = new ParameterDescription("pojo2", TestPojo.class);
-		ParameterDescription requestParameterDescription = new ParameterDescription("req", HttpServletRequest.class);
+		ParameterDescription requestParameterDescription = new ParameterDescription("req", Request.class);
 		ParameterDescription intParameterDescription = new ParameterDescription("integer", int.class);
 		ParameterDescription stringParameterDescription = new ParameterDescription("string", String.class);
 		Map<ParameterDescription, Object> bindings = new LinkedHashMap<ParameterDescription, Object>();

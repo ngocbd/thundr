@@ -92,8 +92,8 @@ public class StatusCodeTest {
 		assertThat(StatusCode.BadRequest.isInFamily(OK), is(false));
 		assertThat(StatusCode.NotFound.isInFamily(BadRequest), is(true));
 		assertThat(StatusCode.BadRequest.isInFamily(NotFound), is(true));
-		assertThat(StatusCode.TemporaryRedirect.isInFamily(PermanentRedirect), is(true));
-		assertThat(StatusCode.PermanentRedirect.isInFamily(TemporaryRedirect), is(true));
+		assertThat(StatusCode.Found.isInFamily(PermanentRedirect), is(true));
+		assertThat(StatusCode.PermanentRedirect.isInFamily(Found), is(true));
 		assertThat(StatusCode.PermanentRedirect.isInFamily(NotFound), is(false));
 		assertThat(StatusCode.PermanentRedirect.isInFamily(OK), is(false));
 	}

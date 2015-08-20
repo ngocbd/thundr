@@ -32,8 +32,6 @@ import com.threewks.thundr.route.controller.ControllerRouteResolver;
 import com.threewks.thundr.route.controller.InterceptorRegistry;
 import com.threewks.thundr.route.redirect.Redirect;
 import com.threewks.thundr.route.redirect.RedirectRouteResolver;
-import com.threewks.thundr.route.staticResource.StaticResource;
-import com.threewks.thundr.route.staticResource.StaticResourceRouteResolver;
 import com.threewks.thundr.view.ViewModule;
 
 public class RouterModuleTest {
@@ -72,7 +70,6 @@ public class RouterModuleTest {
 		Router router = injectionContext.get(Router.class);
 
 		assertThat(router.getResolver(Controller.class) instanceof ControllerRouteResolver, is(true));
-		assertThat(router.getResolver(StaticResource.class) instanceof StaticResourceRouteResolver, is(true));
 		assertThat(router.getResolver(Redirect.class) instanceof RedirectRouteResolver, is(true));
 	}
 }

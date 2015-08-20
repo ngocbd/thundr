@@ -53,9 +53,9 @@ public class RequestHeaderBinder implements Binder {
 
 	public static <V> Map<String, V> normaliseKeysToJavaVarNames(Map<String, V> input) {
 		Map<String, V> results = new LinkedHashMap<>();
-		input.forEach((name, values) -> {
-			results.put(normaliseToJavaVarName(name), values);
-		});
+		for (Map.Entry<String, V> entry : input.entrySet()) {
+			results.put(normaliseToJavaVarName(entry.getKey()), entry.getValue());
+		}
 		return results;
 	}
 

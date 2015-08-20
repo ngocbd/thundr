@@ -20,12 +20,12 @@ package com.threewks.thundr.request;
 import static com.atomicleopard.expressive.Expressive.isEmpty;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.atomicleopard.expressive.Cast;
 import com.atomicleopard.expressive.ETransformer;
@@ -99,17 +99,20 @@ public abstract class BaseResponse implements Response {
 
 	@Override
 	public Response withHeaders(Map<String, Object> headers) {
-		headers.forEach(this::withHeader);
+		for (Map.Entry<String, Object> entry : headers.entrySet()) {
+			withHeader(entry.getKey(), entry.getValue());
+		}
 		return this;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response withHeader(String header, Collection<Object> values) {
-		List<String> stringValues = values.stream().map(value -> {
+		List<String> stringValues = new ArrayList<>(values.size());
+		for (Object value : values) {
 			ETransformer<Object, String> transformer = (ETransformer<Object, String>) transformerManager.getBestTransformer(value.getClass(), String.class);
-			return transformer.from(value);
-		}).collect(Collectors.toList());
+			stringValues.add(transformer.from(value));
+		}
 		setHeaderInternal(header, stringValues);
 		return this;
 	}

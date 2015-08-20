@@ -68,7 +68,7 @@ public class CollectionParameterBinderTest {
 		RequestDataMap pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(nullValue()));
 
-		data = Collections.singletonMap("paramName", Collections.emptyList());
+		data = Collections.singletonMap("paramName", Collections.<String>emptyList());
 		pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(nullValue()));
 
@@ -88,7 +88,7 @@ public class CollectionParameterBinderTest {
 		RequestDataMap pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(nullValue()));
 
-		data = Collections.singletonMap("paramName[0]", Collections.emptyList());
+		data = Collections.singletonMap("paramName[0]", Collections.<String>emptyList());
 		pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(nullValue()));
 
@@ -108,7 +108,7 @@ public class CollectionParameterBinderTest {
 		RequestDataMap pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(nullValue()));
 
-		data = Collections.singletonMap("paramName[]", Collections.emptyList());
+		data = Collections.singletonMap("paramName[]", Collections.<String>emptyList());
 		pathMap = new RequestDataMap(data);
 		assertThat(listParameterBinder.bind(binders, parameterDescription, pathMap, transformerManager), is(nullValue()));
 

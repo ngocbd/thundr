@@ -30,25 +30,20 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.threewks.thundr.http.ContentType;
-import com.threewks.thundr.http.RequestThreadLocal;
-import com.threewks.thundr.test.mock.servlet.MockHttpServletRequest;
 import com.threewks.thundr.view.file.FileView;
 
 public class MailBuilderImplTest {
 
 	private Mailer mailer = mock(Mailer.class);
-	private MockHttpServletRequest req = new MockHttpServletRequest();
 	private MailBuilderImpl builder = new MailBuilderImpl(mailer);
 	private MailBuilderImpl originalInstance = builder;
 
 	@Before
 	public void before() {
-		RequestThreadLocal.set(req, null);
 	}
 
 	@After
 	public void after() {
-		RequestThreadLocal.clear();
 	}
 
 	@Test

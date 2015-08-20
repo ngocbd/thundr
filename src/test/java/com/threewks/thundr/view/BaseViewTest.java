@@ -47,8 +47,8 @@ public class BaseViewTest {
 	@Test
 	public void shouldRetainHeader() {
 		assertThat(view.withHeader("header", "value"), is(view));
-		assertThat(view.getHeader("header"), is("value"));
-		assertThat(view.getHeaders(), hasEntry("header", "value"));
+		assertThat(view.getHeader("header"), is((Object) "value"));
+		assertThat(view.getHeaders(), hasEntry((Object) "header", (Object) "value"));
 	}
 
 	@Test

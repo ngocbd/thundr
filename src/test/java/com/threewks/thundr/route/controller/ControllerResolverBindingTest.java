@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -77,7 +78,7 @@ public class ControllerResolverBindingTest {
 	public void shouldInvokeSingleString() throws Exception {
 		Controller method = controller("methodSingleString");
 		assertThat(resolver.bindArguments(method, request, null, emptyMap), is(list(nullObject)));
-		assertThat(resolver.bindArguments(method, request("argument1", "value1"), null, emptyMap), is(list("value1")));
+		assertThat(resolver.bindArguments(method, request("argument1", "value1"), null, emptyMap), Matchers.<Object> contains("value1"));
 	}
 
 	@Test
@@ -90,9 +91,9 @@ public class ControllerResolverBindingTest {
 
 		Controller method = controller("methodDoubleString");
 		assertThat(resolver.bindArguments(method, request, null, emptyMap), is(list(nullObject, nullObject)));
-		assertThat(resolver.bindArguments(method, request("argument1", "value1", "argument2", "value2"), null, emptyMap), is(list("value1", "value2")));
-		assertThat(resolver.bindArguments(method, request("argument1", "value1"), null, emptyMap), is(list("value1", null)));
-		assertThat(resolver.bindArguments(method, request("argument2", "value2"), null, emptyMap), is(list(null, "value2")));
+		assertThat(resolver.bindArguments(method, request("argument1", "value1", "argument2", "value2"), null, emptyMap), Matchers.<Object> contains("value1", "value2"));
+		assertThat(resolver.bindArguments(method, request("argument1", "value1"), null, emptyMap), Matchers.<Object> contains("value1", null));
+		assertThat(resolver.bindArguments(method, request("argument2", "value2"), null, emptyMap), Matchers.<Object> contains(null, "value2"));
 	}
 
 	@Test
@@ -100,13 +101,14 @@ public class ControllerResolverBindingTest {
 		Controller method = controller("methodStringList");
 		assertThat(resolver.bindArguments(method, request, null, emptyMap).size(), is(1));
 		assertThat(resolver.bindArguments(method, request, null, emptyMap), is(list(nullObject)));
-		assertThat(resolver.bindArguments(method, request("argument1[0]", "value1"), null, emptyMap), is(list(list("value1"))));
+		assertThat(resolver.bindArguments(method, request("argument1[0]", "value1"), null, emptyMap), Matchers.<Object> contains(list("value1")));
 		assertThat(resolver.bindArguments(method, request("argument1[0]", "value1", "argument1[1]", "value2", "argument1[3]", "value3"), null, emptyMap),
-				is(list(list("value1", "value2", null, "value3"))));
-		assertThat(resolver.bindArguments(method, request("argument1[0]", "", "argument1[1]", "value2", "argument1[3]", "value3"), null, emptyMap), is(list(list("", "value2", null, "value3"))));
-		assertThat(resolver.bindArguments(method, request("argument1", new String[] { "value1", "value2" }), null, emptyMap), is(list(list("value1", "value2"))));
-		assertThat(resolver.bindArguments(method, request("argument1", null), null, emptyMap), is(list(nullObject)));
-		assertThat(resolver.bindArguments(method, request("argument1", ""), null, emptyMap), is(list(nullObject)));
+				Matchers.<Object> contains(list("value1", "value2", null, "value3")));
+		assertThat(resolver.bindArguments(method, request("argument1[0]", "", "argument1[1]", "value2", "argument1[3]", "value3"), null, emptyMap),
+				Matchers.<Object> contains(list("", "value2", null, "value3")));
+		assertThat(resolver.bindArguments(method, request("argument1", new String[] { "value1", "value2" }), null, emptyMap), Matchers.<Object> contains(list("value1", "value2")));
+		assertThat(resolver.bindArguments(method, request("argument1", null), null, emptyMap), Matchers.<Object> contains(nullObject));
+		assertThat(resolver.bindArguments(method, request("argument1", ""), null, emptyMap), Matchers.<Object> contains(nullObject));
 	}
 
 	@Test
@@ -114,11 +116,11 @@ public class ControllerResolverBindingTest {
 		Controller method = controller("methodMap");
 		assertThat(resolver.bindArguments(method, request, null, emptyMap).size(), is(1));
 		assertThat(resolver.bindArguments(method, request, null, emptyMap), is(list(nullObject)));
-		assertThat(resolver.bindArguments(method, request("argument1[0]", "value1"), null, emptyMap), is(list(map("0", list("value1")))));
+		assertThat(resolver.bindArguments(method, request("argument1[0]", "value1"), null, emptyMap), Matchers.<Object> contains(map("0", list("value1"))));
 		assertThat(resolver.bindArguments(method, request("argument1[first]", "value1", "argument1[second]", "value2", "argument1[third]", "value3"), null, emptyMap),
-				is(list(map("first", list("value1"), "second", list("value2"), "third", list("value3")))));
+				Matchers.<Object> contains(map("first", list("value1"), "second", list("value2"), "third", list("value3"))));
 		assertThat(resolver.bindArguments(method, request("argument1[first]", "", "argument1[second_second]", "value2", "argument1[THIRD]", "value3", "argument1[fourth]", null), null, emptyMap),
-				is(list(map("first", null, "second_second", list("value2"), "THIRD", list("value3"), "fourth", null))));
+				Matchers.<Object> contains(map("first", null, "second_second", list("value2"), "THIRD", list("value3"), "fourth", null)));
 		// TODO - Implicit map - what would an unindexed map posted look like?
 		// assertThat(resolver.bindArguments(method("methodMap"), request("argument1", new String[] { "value1", "value2" }), null, emptyMap), is(list(map("value1", "value2"))));
 	}
@@ -164,15 +166,15 @@ public class ControllerResolverBindingTest {
 		Controller method = controller("methodJavaBean");
 		assertThat(resolver.bindArguments(method, request, null, emptyMap).size(), is(1));
 		assertThat(resolver.bindArguments(method, request, null, emptyMap), is(list(nullObject)));
-		assertThat(resolver.bindArguments(method, request("argument1.name", "myname"), null, emptyMap), is(list(new JavaBean("myname", null))));
-		assertThat(resolver.bindArguments(method, request("argument1.name", "myname", "argument1.value", "my value"), null, emptyMap), is(list(new JavaBean("myname", "my value"))));
-		assertThat(resolver.bindArguments(method, request("argument1.value", "my value"), null, emptyMap), is(list(new JavaBean(null, "my value"))));
-		assertThat(resolver.bindArguments(method, request("argument1.name", null), null, emptyMap), is(list(new JavaBean(null, null))));
-		assertThat(resolver.bindArguments(method, request("argument1.name", ""), null, emptyMap), is(list(new JavaBean("", null))));
-		assertThat(resolver.bindArguments(method, request("argument1.name", "multiline\ncontent"), null, emptyMap), is(list(new JavaBean("multiline\ncontent", null))));
-		assertThat(resolver.bindArguments(method, request("argument1", null), null, emptyMap), is(list(nullObject)));
-		assertThat(resolver.bindArguments(method, request("argument1", ""), null, emptyMap), is(list(nullObject)));
-		assertThat(resolver.bindArguments(method, request("argument1.name", new String[] { "value1", "value2" }), null, emptyMap), is(list(new JavaBean(null, null))));
+		assertThat(resolver.bindArguments(method, request("argument1.name", "myname"), null, emptyMap), Matchers.<Object> contains(new JavaBean("myname", null)));
+		assertThat(resolver.bindArguments(method, request("argument1.name", "myname", "argument1.value", "my value"), null, emptyMap), Matchers.<Object> contains(new JavaBean("myname", "my value")));
+		assertThat(resolver.bindArguments(method, request("argument1.value", "my value"), null, emptyMap), Matchers.<Object> contains(new JavaBean(null, "my value")));
+		assertThat(resolver.bindArguments(method, request("argument1.name", null), null, emptyMap), Matchers.<Object> contains(new JavaBean(null, null)));
+		assertThat(resolver.bindArguments(method, request("argument1.name", ""), null, emptyMap), Matchers.<Object> contains(new JavaBean("", null)));
+		assertThat(resolver.bindArguments(method, request("argument1.name", "multiline\ncontent"), null, emptyMap), Matchers.<Object> contains(new JavaBean("multiline\ncontent", null)));
+		assertThat(resolver.bindArguments(method, request("argument1", null), null, emptyMap), Matchers.<Object> contains(nullObject));
+		assertThat(resolver.bindArguments(method, request("argument1", ""), null, emptyMap), Matchers.<Object> contains(nullObject));
+		assertThat(resolver.bindArguments(method, request("argument1.name", new String[] { "value1", "value2" }), null, emptyMap), Matchers.<Object> contains(new JavaBean(null, null)));
 	}
 
 	@Test
@@ -180,15 +182,15 @@ public class ControllerResolverBindingTest {
 		Controller method = controller("methodDeepJavaBean");
 		assertThat(resolver.bindArguments(method, request, null, emptyMap).size(), is(1));
 		assertThat(resolver.bindArguments(method, request, null, emptyMap), is(list(nullObject)));
-		assertThat(resolver.bindArguments(method, request("argument1.name", "myname"), null, emptyMap), is(list(new DeepJavaBean("myname", null))));
-		assertThat(resolver.bindArguments(method, request("argument1.name", "myname", "argument1.beans[0].name", "some name"), null, emptyMap), is(list(new DeepJavaBean("myname", list(new JavaBean(
-				"some name", null))))));
+		assertThat(resolver.bindArguments(method, request("argument1.name", "myname"), null, emptyMap), Matchers.<Object> contains(new DeepJavaBean("myname", null)));
+		assertThat(resolver.bindArguments(method, request("argument1.name", "myname", "argument1.beans[0].name", "some name"), null, emptyMap),
+				Matchers.<Object> contains(new DeepJavaBean("myname", list(new JavaBean("some name", null)))));
 		assertThat(resolver.bindArguments(method, request("argument1.name", "myname", "argument1.beans[0].name", "some name", "argument1.beans[1].name", "some other"), null, emptyMap),
-				is(list(new DeepJavaBean("myname", list(new JavaBean("some name", null), new JavaBean("some other", null))))));
+				Matchers.<Object> contains(new DeepJavaBean("myname", list(new JavaBean("some name", null), new JavaBean("some other", null)))));
 		assertThat(resolver.bindArguments(method, request("argument1.name", "myname", "argument1.beans[1].name", "some name"), null, emptyMap),
-				is(list(new DeepJavaBean("myname", list(null, new JavaBean("some name", null))))));
-		assertThat(resolver.bindArguments(method, request("argument1", null), null, emptyMap), is(list(nullObject)));
-		assertThat(resolver.bindArguments(method, request("argument1", ""), null, emptyMap), is(list(nullObject)));
+				Matchers.<Object> contains(new DeepJavaBean("myname", list(null, new JavaBean("some name", null)))));
+		assertThat(resolver.bindArguments(method, request("argument1", null), null, emptyMap), Matchers.<Object> contains(nullObject));
+		assertThat(resolver.bindArguments(method, request("argument1", ""), null, emptyMap), Matchers.<Object> contains(nullObject));
 	}
 
 	private Request request(String... args) {

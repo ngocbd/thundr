@@ -26,14 +26,13 @@ import com.threewks.thundr.request.Response;
 import com.threewks.thundr.route.HttpMethod;
 import com.threewks.thundr.route.RouteResolver;
 import com.threewks.thundr.route.RouteResolverException;
-import com.threewks.thundr.view.redirect.RedirectView;
 
 public class RedirectRouteResolver implements RouteResolver<Redirect> {
 	@Override
-	public Object resolve(Redirect action, HttpMethod method, Request req, Response resp, Map<String, String> pathVars) throws RouteResolverException {
-		String redirectTo = action.getRedirectTo(pathVars);
+	public Object resolve(Redirect redirect, HttpMethod method, Request req, Response resp, Map<String, String> pathVars) throws RouteResolverException {
+		String redirectTo = redirect.getRedirectTo(pathVars);
 		try {
-			resp.withStatusCode(StatusCode.TemporaryRedirect).withHeader(Header.Location, redirectTo);
+			resp.withStatusCode(StatusCode.Found).withHeader(Header.Location, redirectTo);
 			return null;
 		} catch (Exception e) {
 			throw new RouteResolverException(e, "Failed to redirect %s to %s: %s", req.getRequestPath(), redirectTo, e.getMessage());

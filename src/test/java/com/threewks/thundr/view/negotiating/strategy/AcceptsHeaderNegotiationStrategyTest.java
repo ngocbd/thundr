@@ -38,8 +38,11 @@ public class AcceptsHeaderNegotiationStrategyTest {
 	private NegotiatingView view;
 	private ViewNegotiatorRegistry viewNegotiatorRegistry;
 	private AcceptsHeaderNegotiationStrategy strategy;
-	private Negotiator<?> jsonNegotiator;
-	private Negotiator<?> jsonpNegotiator;
+	// I'm not sure why, but hamcrest is getting really stuck on capture-of-? generics, so i', removing them for now.
+	@SuppressWarnings("rawtypes")
+	private Negotiator jsonNegotiator;
+	@SuppressWarnings("rawtypes")
+	private Negotiator jsonpNegotiator;
 
 	@Before
 	public void before() {
@@ -58,6 +61,7 @@ public class AcceptsHeaderNegotiationStrategyTest {
 		req.withHeader(Header.Accept, "application/json");
 
 		Negotiator<?> result = strategy.findNegotiator(req, view, viewNegotiatorRegistry);
+		
 		assertThat(result, is(jsonNegotiator));
 	}
 

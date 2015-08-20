@@ -17,17 +17,18 @@
  */
 package com.threewks.thundr.aop;
 
-import static com.atomicleopard.expressive.Expressive.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 
+import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.introspection.ClassIntrospector;
 import com.threewks.thundr.introspection.MethodIntrospector;
 
@@ -42,9 +43,9 @@ public class ArgumentsImplTest {
 
 	@Test
 	public void shouldGetArgumentByName() {
-		assertThat(arguments.getArgument("string"), is("string-val"));
-		assertThat(arguments.getArgument("integer"), is(1));
-		assertThat(arguments.getArgument("longer"), is(2l));
+		assertThat(arguments.<String> getArgument("string"), is("string-val"));
+		assertThat(arguments.<Integer> getArgument("integer"), is(1));
+		assertThat(arguments.<Long> getArgument("longer"), is(2l));
 		assertThat(arguments.getArgument("other"), is(nullValue()));
 	}
 
@@ -73,28 +74,26 @@ public class ArgumentsImplTest {
 
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void shouldGetArgumentsAsList() {
-		assertThat(arguments.getArguments(), is(list("string-val", 1, 2l)));
+		assertThat(arguments.getArguments(), Matchers.<Object> contains("string-val", 1, 2l));
 
 		arguments.getArguments().set(0, "other");
 
-		assertThat(arguments.getArguments(), is(list("other", 1, 2l)));
+		assertThat(arguments.getArguments(), Matchers.<Object> contains("other", 1, 2l));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void shouldGetArgumentsAsObjectArray() {
-		assertThat(arguments.toArgs(), is(array("string-val", 1, 2l)));
+		assertThat(arguments.toArgs(), is(Expressive.<Object> array("string-val", 1, 2l)));
 	}
 
 	@Test
 	public void shouldReplaceArgumentsByName() {
 		arguments.replaceArgument("string", "newString");
-		assertThat(arguments.getArgument("string"), is("newString"));
+		assertThat(arguments.<String> getArgument("string"), is("newString"));
 		arguments.replaceArgument("integer", 123);
-		assertThat(arguments.getArgument("integer"), is(123));
+		assertThat(arguments.<Integer> getArgument("integer"), is(123));
 		arguments.replaceArgument("longer", null);
 		assertThat(arguments.getArgument("longer"), is(nullValue()));
 	}
@@ -143,12 +142,12 @@ public class ArgumentsImplTest {
 		arguments.replaceArgument(Integer.class, 2);
 		assertThat(arguments.getArgument(Integer.class), is(2));
 		assertThat(arguments.getArgument(int.class), is(2));
-		assertThat(arguments.getArgument("integer"), is(2));
+		assertThat(arguments.<Integer> getArgument("integer"), is(2));
 
 		arguments.replaceArgument(int.class, 3);
 		assertThat(arguments.getArgument(Integer.class), is(3));
 		assertThat(arguments.getArgument(int.class), is(3));
-		assertThat(arguments.getArgument("integer"), is(3));
+		assertThat(arguments.<Integer> getArgument("integer"), is(3));
 
 		arguments.replaceArgument(long.class, 1l);
 		assertThat(arguments.getArgument(long.class), is(1l));
@@ -156,12 +155,12 @@ public class ArgumentsImplTest {
 		arguments.replaceArgument(Long.class, 2l);
 		assertThat(arguments.getArgument(Long.class), is(2l));
 		assertThat(arguments.getArgument(long.class), is(2l));
-		assertThat(arguments.getArgument("longer"), is(2l));
+		assertThat(arguments.<Long> getArgument("longer"), is(2l));
 
 		arguments.replaceArgument(long.class, 3l);
 		assertThat(arguments.getArgument(Long.class), is(3l));
 		assertThat(arguments.getArgument(long.class), is(3l));
-		assertThat(arguments.getArgument("longer"), is(3l));
+		assertThat(arguments.<Long> getArgument("longer"), is(3l));
 	}
 
 	@Test
