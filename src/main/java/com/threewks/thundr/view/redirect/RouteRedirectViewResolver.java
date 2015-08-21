@@ -47,7 +47,6 @@ public class RouteRedirectViewResolver implements ViewResolver<RouteRedirectView
 		// @formatter:off
 		resp.withStatusCode(StatusCode.Found)
 			.withHeader(Header.Location, reverseRoute + queryString);
-		// TODO - v3 - does this require a content length?
 		// @formatter:on
 	}
 

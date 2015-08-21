@@ -26,7 +26,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -65,11 +64,9 @@ public class MultipartHttpBinderTest {
 	private MultipartHttpBinder binder;
 	private MockRequest request;
 	private MockResponse response = new MockResponse();
-	private Map<String, String> pathVariables;
 	private Map<ParameterDescription, Object> parameterDescriptions;
 	private ArrayList<FileItemStream> multipartData;
 	private ParameterBinderRegistry parameterBinderRegistry;
-
 
 	@Before
 	public void before() throws FileUploadException, IOException {
@@ -81,10 +78,9 @@ public class MultipartHttpBinderTest {
 		ParameterBinderRegistry.addDefaultBinders(parameterBinderRegistry);
 		binder = new MultipartHttpBinder(parameterBinderRegistry);
 		parameterDescriptions = new LinkedHashMap<ParameterDescription, Object>();
-		pathVariables = new HashMap<String, String>();
 
 		multipartData = new ArrayList<FileItemStream>();
-		FileUpload mockUpload = new FileUpload(){
+		FileUpload mockUpload = new FileUpload() {
 			@Override
 			public FileItemIterator getItemIterator(RequestContext ctx) throws FileUploadException, IOException {
 				return new FileItemIterator() {
@@ -116,12 +112,12 @@ public class MultipartHttpBinderTest {
 		parameterDescriptions.put(field1, null);
 		parameterDescriptions.put(field2, null);
 
-		binder.bindAll(parameterDescriptions, request, response, pathVariables);
+		binder.bindAll(parameterDescriptions, request, response);
 		assertThat(parameterDescriptions.get(field1), is(nullValue()));
 		assertThat(parameterDescriptions.get(field2), is(nullValue()));
 
 		request.withContentType(ContentType.MultipartFormData);
-		binder.bindAll(parameterDescriptions, request, response, pathVariables);
+		binder.bindAll(parameterDescriptions, request, response);
 		assertThat(parameterDescriptions.get(field1), is(notNullValue()));
 		assertThat(parameterDescriptions.get(field2), is(notNullValue()));
 	}
@@ -136,7 +132,7 @@ public class MultipartHttpBinderTest {
 		parameterDescriptions.put(field1, null);
 		parameterDescriptions.put(field2, null);
 
-		binder.bindAll(parameterDescriptions, request, response, pathVariables);
+		binder.bindAll(parameterDescriptions, request, response);
 
 		assertThat(parameterDescriptions.get(field1), is((Object) "value1"));
 		assertThat(parameterDescriptions.get(field2), is((Object) "value2"));
@@ -155,7 +151,7 @@ public class MultipartHttpBinderTest {
 		parameterDescriptions.put(field2, null);
 		parameterDescriptions.put(data, null);
 
-		binder.bindAll(parameterDescriptions, request, response, pathVariables);
+		binder.bindAll(parameterDescriptions, request, response);
 
 		assertThat(parameterDescriptions.get(field1), is((Object) "value1"));
 		assertThat(parameterDescriptions.get(field2), is((Object) "value2"));
@@ -175,7 +171,7 @@ public class MultipartHttpBinderTest {
 		parameterDescriptions.put(field2, null);
 		parameterDescriptions.put(data, null);
 
-		binder.bindAll(parameterDescriptions, request, response, pathVariables);
+		binder.bindAll(parameterDescriptions, request, response);
 
 		assertThat(parameterDescriptions.get(field1), is((Object) "value1"));
 		assertThat(parameterDescriptions.get(field2), is((Object) "value2"));
@@ -201,7 +197,7 @@ public class MultipartHttpBinderTest {
 		parameterDescriptions.put(cookie, "cookie-value");
 
 		binder = spy(binder);
-		binder.bindAll(parameterDescriptions, request, response, pathVariables);
+		binder.bindAll(parameterDescriptions, request, response);
 
 		verify(binder, times(0)).extractParameters(Mockito.any(Request.class), Mockito.anyMap(), Mockito.anyMapOf(String.class, MultipartFile.class));
 
@@ -216,7 +212,7 @@ public class MultipartHttpBinderTest {
 		addFileField("data", new byte[] { 1, 2, 3 });
 
 		binder = spy(binder);
-		binder.bindAll(parameterDescriptions, request, response, pathVariables);
+		binder.bindAll(parameterDescriptions, request, response);
 
 		verify(binder, times(0)).extractParameters(Mockito.any(Request.class), Mockito.anyMap(), Mockito.anyMapOf(String.class, MultipartFile.class));
 
@@ -237,7 +233,7 @@ public class MultipartHttpBinderTest {
 		addFileField("data", null);
 		parameterDescriptions.put(data, null);
 
-		binder.bindAll(parameterDescriptions, request, response, pathVariables);
+		binder.bindAll(parameterDescriptions, request, response);
 	}
 
 	private void addFormField(final String name, final String value) {

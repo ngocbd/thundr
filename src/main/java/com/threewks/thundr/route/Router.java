@@ -152,6 +152,10 @@ public class Router {
 		return getNamedRoute(name) != null;
 	}
 
+	public boolean isEmpty() {
+		return actionsForRoutes.isEmpty();
+	}
+
 	public <T extends RouteResult> Router add(HttpMethod httpMethod, String routePath, T action, String name) {
 		Route route = new Route(httpMethod, routePath, name);
 		String path = route.getRouteMatchRegex();
@@ -179,20 +183,18 @@ public class Router {
 		return namedRoutes.get(name);
 	}
 
-	public Object invoke(Request req, Response resp) {
-		String routePath = req.getRequestPath();
-		HttpMethod httpMethod = req.getMethod();
-		Logger.debug("Request %s: %s %s", req.getId(), httpMethod, routePath);
-		Route route = findMatchingRoute(routePath, httpMethod);
+	public Object resolve(Request req, Response resp) {
+		Logger.debug("Request %s: %s %s", req.getId(), req.getMethod(), req.getRequestPath());
+		Route route = req.getRoute();
 		if (route != null) {
 			RouteResult action = actionsForRoutes.get(route);
-			return resolveAction(routePath, httpMethod, req, resp, route, action);
+			return resolve(action, req, resp);
 		}
 		String debugString = debug ? listRoutes() : "";
-		throw new RouteNotFoundException("No route matching the request %s %s\n%s", httpMethod, routePath, debugString);
+		throw new RouteNotFoundException("No route matching the request %s %s\n%s", req.getMethod(), req.getRequestPath(), debugString);
 	}
 
-	public Route findMatchingRoute(String routePath, HttpMethod method) {
+	public Route findMatchingRoute(HttpMethod method, String routePath) {
 		Map<String, Route> routesForMethod = routes.get(method);
 		for (Route route : routesForMethod.values()) {
 			if (route.matches(routePath)) {
@@ -203,15 +205,9 @@ public class Router {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends RouteResult> Object resolveAction(final String routePath, final HttpMethod method, final Request req, final Response resp, final Route route, final T action) {
-		Map<String, String> pathVars = route.getPathVars(routePath);
+	private <T extends RouteResult> Object resolve(final T action, final Request req, final Response resp) {
 		RouteResolver<T> actionResolver = (RouteResolver<T>) actionResolvers.get(action.getClass());
-		Object resolve = actionResolver.resolve(action, method, req, resp, pathVars);
-		return resolve;
-	}
-
-	public boolean isEmpty() {
-		return actionsForRoutes.isEmpty();
+		return actionResolver.resolve(action, req, resp);
 	}
 
 	private static final String routeDisplayFormat = "%s: %s\n";

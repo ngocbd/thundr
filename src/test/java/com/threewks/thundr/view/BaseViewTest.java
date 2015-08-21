@@ -20,6 +20,9 @@ package com.threewks.thundr.view;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,7 +30,9 @@ import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.Cookie;
 import com.threewks.thundr.http.Cookie.CookieBuilder;
 import com.threewks.thundr.http.StatusCode;
+import com.threewks.thundr.request.mock.MockRequest;
 import com.threewks.thundr.request.mock.MockResponse;
+import com.threewks.thundr.route.HttpMethod;
 
 public class BaseViewTest {
 
@@ -123,36 +128,6 @@ public class BaseViewTest {
 		assertThat(resp.isCommitted(), is(false));
 		assertThat(resp.getStatusCode(), is(StatusCode.AlreadyReported));
 	}
-
-	/*
-	 * TODO - v3 - This code got moved - need to identify where and move these tests
-	 * 
-	 * 
-	 * @Test
-	 * public void shouldIncludeModelInRequest() {
-	 * MockRequest req = new MockRequest(HttpMethod.GET, "/path");
-	 * Map<String, Object> model = new HashMap<String, Object>();
-	 * model.put("attr1", "value1");
-	 * model.put("attr2", 2);
-	 * BaseView.includeModelInRequest(req, model);
-	 * assertThat(req.getAttribute("attr1"), is((Object) "value1"));
-	 * assertThat(req.getAttribute("attr2"), is((Object) 2));
-	 * }
-	 * 
-	 * @Test
-	 * public void shouldIncludeModelInRequestReplacingExitingValues() {
-	 * MockHttpServletRequest req = new MockHttpServletRequest();
-	 * req.attribute("attr1", "old");
-	 * req.attribute("attr2", "old");
-	 * 
-	 * Map<String, Object> model = new HashMap<String, Object>();
-	 * model.put("attr1", "value1");
-	 * model.put("attr2", 2);
-	 * BaseView.includeModelInRequest(req, model);
-	 * assertThat(req.getAttribute("attr1"), is((Object) "value1"));
-	 * assertThat(req.getAttribute("attr2"), is((Object) 2));
-	 * }
-	 */
 
 	private static class TestView extends BaseView<TestView> {
 

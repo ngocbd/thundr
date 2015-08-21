@@ -17,6 +17,8 @@
  */
 package com.threewks.thundr.bind.path;
 
+import static com.atomicleopard.expressive.Expressive.isNotEmpty;
+
 import java.lang.reflect.Type;
 import java.util.Map;
 
@@ -26,6 +28,7 @@ import com.threewks.thundr.bind.Binder;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.Response;
+import com.threewks.thundr.route.Route;
 import com.threewks.thundr.transformer.TransformerManager;
 
 public class PathVariableBinder implements Binder {
@@ -37,12 +40,16 @@ public class PathVariableBinder implements Binder {
 	}
 
 	@Override
-	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp, Map<String, String> pathVariables) {
-		for (ParameterDescription parameterDescription : bindings.keySet()) {
-			if (bindings.get(parameterDescription) == null) {
-				if (canBindFromPathVariable(parameterDescription)) {
-					Object value = bind(parameterDescription, pathVariables);
-					bindings.put(parameterDescription, value);
+	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp) {
+		Route route = req.getRoute();
+		Map<String, String> pathVars = route == null ? null : route.getPathVars(req.getRequestPath());
+		if (isNotEmpty(pathVars)) {
+			for (ParameterDescription parameterDescription : bindings.keySet()) {
+				if (bindings.get(parameterDescription) == null) {
+					if (canBindFromPathVariable(parameterDescription)) {
+						Object value = bind(parameterDescription, pathVars);
+						bindings.put(parameterDescription, value);
+					}
 				}
 			}
 		}

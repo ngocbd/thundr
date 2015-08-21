@@ -17,11 +17,9 @@
  */
 package com.threewks.thundr.route;
 
-import java.util.Map;
-
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.Response;
 
 public interface RouteResolver<T extends RouteResult> {
-	public Object resolve(T action, HttpMethod method, Request req, Response resp, Map<String, String> pathVars) throws RouteResolverException;
+	public Object resolve(T action, Request req, Response resp) throws RouteResolverException;
 }

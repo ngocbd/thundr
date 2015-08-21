@@ -46,8 +46,14 @@ public interface FilterRegistry {
 	 * @param path
 	 * @param filter
 	 */
-	// TODO - removing a filter by type is probably more useful than requiring the specific instance
 	public void remove(String path, Filter filter);
+	/**
+	 * Remove filters of the given type from the given path.
+	 * 
+	 * @param path
+	 * @param filter
+	 */
+	public void remove(String path, Class<? extends Filter> filter);
 
 	/**
 	 * Remove the given filter from any paths it was previously added for
@@ -55,14 +61,27 @@ public interface FilterRegistry {
 	 * @param filter
 	 */
 	public void remove(Filter filter);
+	/**
+	 * Remove the filters of the given path from any paths previously added
+	 * 
+	 * @param filter
+	 */
+	public void remove(Class<? extends Filter> filter);
 
 	/**
 	 * @param path
 	 * @param filter
 	 * @return true if the given filter has already been added on the given path
 	 */
-	// TODO - has by type is probably useful
 	public boolean has(String path, Filter filter);
+	
+	/**
+	 * 
+	 * @param path
+	 * @param filter
+	 * @return true if a filter with the given type has already been added on the given path
+	 */
+	public boolean has(String path, Class<? extends Filter> filter);
 
 	/**
 	 * Used by the framework at runtime, you should not need to invoke this method directly.

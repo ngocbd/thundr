@@ -41,7 +41,7 @@ public class RequestHeaderBinder implements Binder {
 	}
 
 	@Override
-	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp, Map<String, String> pathVariables) {
+	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp) {
 		Map<String, List<String>> parameterMap = createNormalisedHeaderMap(req);
 		parameterBinderRegistry.bind(bindings, parameterMap, null);
 	}

@@ -36,7 +36,6 @@ import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.logger.Logger;
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.Response;
-import com.threewks.thundr.route.HttpMethod;
 import com.threewks.thundr.route.RouteResolver;
 import com.threewks.thundr.route.RouteResolverException;
 
@@ -57,13 +56,13 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Inter
 	}
 
 	@Override
-	public Object resolve(Controller action, HttpMethod method, Request req, Response resp, Map<String, String> pathVars) throws RouteResolverException {
+	public Object resolve(Controller action, Request req, Response resp) throws RouteResolverException {
 		Object controller = getOrCreateController(action);
 		Map<Annotation, Interceptor<Annotation>> interceptors = getInterceptors(action);
 		Object result = beforeFilters(req, resp);
 		try {
 			result = beforeInterceptors(interceptors, req, resp, result);
-			result = invokeAction(action, req, resp, pathVars, controller, result);
+			result = invokeAction(action, req, resp, controller, result);
 			result = afterInterceptors(result, interceptors, req, resp);
 			result = afterFilters(req, resp, result);
 		} catch (Exception e) {
@@ -77,12 +76,12 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Inter
 		return result;
 	}
 
-	private Object invokeAction(Controller action, Request req, Response resp, Map<String, String> pathVars, Object controller, Object existingResult) throws Exception {
+	private Object invokeAction(Controller action, Request req, Response resp, Object controller, Object existingResult) throws Exception {
 		if (existingResult != null) {
 			return existingResult;
 		}
 		try {
-			List<?> arguments = bindArguments(action, req, resp, pathVars);
+			List<?> arguments = bindArguments(action, req, resp);
 			return action.invoke(controller, arguments);
 		} catch (InvocationTargetException e) {
 			// we need to unwrap InvocationTargetExceptions to get at the real exception
@@ -125,14 +124,14 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Inter
 		return results;
 	}
 
-	List<Object> bindArguments(Controller action, Request req, Response resp, Map<String, String> pathVars) {
+	List<Object> bindArguments(Controller action, Request req, Response resp) {
 		Map<ParameterDescription, Object> boundParameters = new LinkedHashMap<ParameterDescription, Object>();
 		for (ParameterDescription parameterDescription : action.parameters()) {
 			boundParameters.put(parameterDescription, null);
 		}
 		if (!boundParameters.isEmpty()) {
-			for (Binder binder : binderRegistry.getRegisteredBinders()) {
-				binder.bindAll(boundParameters, req, resp, pathVars);
+			for (Binder binder : binderRegistry.list()) {
+				binder.bindAll(boundParameters, req, resp);
 			}
 		}
 		return new ArrayList<Object>(boundParameters.values());

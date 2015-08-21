@@ -17,8 +17,16 @@
  */
 package com.threewks.thundr.bind;
 
+import com.threewks.thundr.bind.http.HttpBinder;
+import com.threewks.thundr.bind.http.MultipartHttpBinder;
+import com.threewks.thundr.bind.http.request.CookieBinder;
+import com.threewks.thundr.bind.http.request.RequestClassBinder;
+import com.threewks.thundr.bind.http.request.RequestDataBinder;
+import com.threewks.thundr.bind.http.request.RequestHeaderBinder;
+import com.threewks.thundr.bind.json.GsonBinder;
 import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.bind.parameter.ParameterBindingModule;
+import com.threewks.thundr.bind.path.PathVariableBinder;
 import com.threewks.thundr.injection.BaseModule;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.module.DependencyRegistry;
@@ -38,17 +46,34 @@ public class BinderModule extends BaseModule {
 		super.initialise(injectionContext);
 		BinderRegistry binderRegistry = new BinderRegistry();
 		injectionContext.inject(binderRegistry).as(BinderRegistry.class);
+
+		ParameterBinderRegistry parameterBinderRegistry = injectionContext.get(ParameterBinderRegistry.class);
+		TransformerManager transformerManager = injectionContext.get(TransformerManager.class);
+
+		addDefaultBinders(binderRegistry, parameterBinderRegistry, transformerManager);
 	}
 
 	@Override
 	public void configure(UpdatableInjectionContext injectionContext) {
 		super.configure(injectionContext);
 
-		TransformerManager transformerManager = injectionContext.get(TransformerManager.class);
 		ParameterBinderRegistry parameterBinderRegistry = injectionContext.get(ParameterBinderRegistry.class);
 		BinderRegistry binderRegistry = injectionContext.get(BinderRegistry.class);
+		addBodyConsumingBinders(binderRegistry, parameterBinderRegistry);
+	}
 
-		BinderRegistry.registerDefaultBinders(binderRegistry, parameterBinderRegistry, transformerManager);
+	public static BinderRegistry addDefaultBinders(BinderRegistry binderRegistry, ParameterBinderRegistry parameterBinderRegistry, TransformerManager transformerManager) {
+		binderRegistry.add(new PathVariableBinder(transformerManager));
+		binderRegistry.add(new RequestClassBinder());
+		binderRegistry.add(new HttpBinder(parameterBinderRegistry));
+		binderRegistry.add(new RequestDataBinder(parameterBinderRegistry));
+		binderRegistry.add(new RequestHeaderBinder(parameterBinderRegistry));
+		binderRegistry.add(new CookieBinder(parameterBinderRegistry));
+		return binderRegistry;
+	}
 
+	public static void addBodyConsumingBinders(BinderRegistry binderRegistry, ParameterBinderRegistry parameterBinderRegistry) {
+		binderRegistry.add(new GsonBinder());
+		binderRegistry.add(new MultipartHttpBinder(parameterBinderRegistry));
 	}
 }

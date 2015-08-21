@@ -20,6 +20,8 @@ package com.threewks.thundr.bind;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
+import java.util.Iterator;
+
 import org.junit.Test;
 
 import com.atomicleopard.expressive.EList;
@@ -64,14 +66,14 @@ public class BinderModuleTest {
 	@Test
 	public void shouldConfigureBinderRegistryWithBasicBinders() {
 		UpdatableInjectionContext injectionContext = new InjectionContextImpl();
-		BinderRegistry binderRegistry = new BinderRegistry();
-		injectionContext.inject(binderRegistry).as(BinderRegistry.class);
 		injectionContext.inject(TransformerManager.createWithDefaults()).as(TransformerManager.class);
 		injectionContext.inject(ParameterBinderRegistry.class).as(ParameterBinderRegistry.class);
-				
+
+		binderModule.initialise(injectionContext);
 		binderModule.configure(injectionContext);
 
-		Iterable<Binder> binders = binderRegistry.getRegisteredBinders();
+		BinderRegistry binderRegistry = injectionContext.get(BinderRegistry.class);
+		Iterable<Binder> binders = binderRegistry.list();
 		EList<Class<? extends Binder>> types = Expressive.Transformers.transformAllUsing(new ToClass<Binder>()).from(binders);
 
 		assertThat(types, hasItem(PathVariableBinder.class));
@@ -84,12 +86,41 @@ public class BinderModuleTest {
 		assertThat(types, hasItem(MultipartHttpBinder.class));
 	}
 
+	@Test
+	public void shouldRegisterDefaultBindersInOrder() {
+		UpdatableInjectionContext injectionContext = new InjectionContextImpl();
+		binderModule.initialise(injectionContext);
+		BinderRegistry binderRegistry = injectionContext.get(BinderRegistry.class);
+
+		Iterator<Binder> iterator = binderRegistry.list().iterator();
+		assertThat(iterator.hasNext(), is(true));
+		assertThat(iterator.next() instanceof PathVariableBinder, is(true));
+		assertThat(iterator.next() instanceof RequestClassBinder, is(true));
+		assertThat(iterator.next() instanceof HttpBinder, is(true));
+		assertThat(iterator.next() instanceof RequestDataBinder, is(true));
+		assertThat(iterator.next() instanceof RequestHeaderBinder, is(true));
+		assertThat(iterator.next() instanceof CookieBinder, is(true));
+		assertThat(iterator.hasNext(), is(false));
+
+		binderModule.configure(injectionContext);
+		iterator = binderRegistry.list().iterator();
+		assertThat(iterator.hasNext(), is(true));
+		assertThat(iterator.next() instanceof PathVariableBinder, is(true));
+		assertThat(iterator.next() instanceof RequestClassBinder, is(true));
+		assertThat(iterator.next() instanceof HttpBinder, is(true));
+		assertThat(iterator.next() instanceof RequestDataBinder, is(true));
+		assertThat(iterator.next() instanceof RequestHeaderBinder, is(true));
+		assertThat(iterator.next() instanceof CookieBinder, is(true));
+		assertThat(iterator.next() instanceof GsonBinder, is(true));
+		assertThat(iterator.next() instanceof MultipartHttpBinder, is(true));
+		assertThat(iterator.hasNext(), is(false));
+	}
+
 	@SuppressWarnings("unchecked")
 	private static final class ToClass<T> implements ETransformer<T, Class<? extends T>> {
 		@Override
 		public Class<T> from(T from) {
 			return (Class<T>) from.getClass();
 		}
-
 	}
 }

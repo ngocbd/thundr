@@ -24,23 +24,24 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.threewks.thundr.introspection.ClassIntrospector;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.route.RouteResolverException;
 import com.threewks.thundr.route.RouteResult;
 
 import jodd.paramo.MethodParameter;
 import jodd.paramo.Paramo;
-import jodd.util.ReflectUtil;
 
 public class Controller implements RouteResult {
 	private Class<?> class1;
+	private ClassIntrospector classIntrospector = new ClassIntrospector();
 	private Method method;
 
 	private List<ParameterDescription> parameters = new ArrayList<ParameterDescription>();
 
 	public Controller(Class<?> class1, String methodName) {
 		this.class1 = class1;
-		this.method = ReflectUtil.findMethod(class1, methodName);
+		this.method = classIntrospector.getMethod(class1, methodName);
 		if (this.method == null) {
 			throw new RouteResolverException("Unable to create %s - the method %s.%s does not exist", getClass().getSimpleName(), class1.getName(), methodName);
 		}

@@ -37,7 +37,6 @@ public class Route {
 	public static final String AcceptablePathCharacters = "\\w%:@&=+$,!~*'()\\.\\-";
 	public static final String AcceptableMultiPathCharacters = AcceptablePathCharacters + "/";
 
-	// TODO - Binding path segment request parameters
 	// The spec allows for request parameters to be encoded in the format /url/url2/url3;key=value;key2=value2
 	// This seems to only happen in jetty and tomcat (some versions) when redirects are invoked, particularly if the server
 	// hasn't confirmed that the client supports cookies. i.e. redirect -> /go/here;jsessionid=12345678

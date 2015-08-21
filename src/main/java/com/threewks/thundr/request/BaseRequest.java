@@ -22,14 +22,17 @@ import java.util.UUID;
 import com.atomicleopard.expressive.Cast;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.route.HttpMethod;
+import com.threewks.thundr.route.Route;
 
 public abstract class BaseRequest implements Request {
 	protected HttpMethod httpMethod;
 	protected UUID id;
+	protected Route route;
 
-	public BaseRequest(HttpMethod httpMethod) {
+	public BaseRequest(HttpMethod httpMethod, Route route) {
 		this.id = UUID.randomUUID();
 		this.httpMethod = httpMethod;
+		this.route = route;
 	}
 
 	protected abstract Object getRawRequest();
@@ -57,5 +60,10 @@ public abstract class BaseRequest implements Request {
 	@Override
 	public boolean isA(HttpMethod method) {
 		return httpMethod == method;
+	}
+
+	@Override
+	public Route getRoute() {
+		return route;
 	}
 }

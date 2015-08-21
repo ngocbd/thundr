@@ -19,6 +19,7 @@ package com.threewks.thundr.route.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -85,6 +86,34 @@ public class FilterRegistryImpl implements FilterRegistry {
 		}
 	}
 
+	@Override
+	public void remove(Class<? extends Filter> filter) {
+		for (List<Filter> fs : filters.values()) {
+			Iterator<Filter> iterator = fs.iterator();
+			while (iterator.hasNext()) {
+				Filter f = iterator.next();
+				if (f.getClass().equals(filter)) {
+					iterator.remove();
+				}
+			}
+		}
+	}
+
+	@Override
+	public void remove(String path, Class<? extends Filter> filter) {
+		String regex = convertPathStringToRegex(path);
+		List<Filter> existing = filters.get(regex);
+		if (existing != null) {
+			Iterator<Filter> iterator = existing.iterator();
+			while (iterator.hasNext()) {
+				Filter f = iterator.next();
+				if (f.getClass().equals(filter)) {
+					iterator.remove();
+				}
+			}
+		}
+	}
+
 	/**
 	 * @param path
 	 * @param filter
@@ -94,6 +123,19 @@ public class FilterRegistryImpl implements FilterRegistry {
 	public boolean has(String path, Filter filter) {
 		List<Filter> filtersForPath = filters.get(convertPathStringToRegex(path));
 		return filtersForPath == null ? false : filtersForPath.contains(filter);
+	}
+
+	@Override
+	public boolean has(String path, Class<? extends Filter> filter) {
+		List<Filter> filtersForPath = filters.get(convertPathStringToRegex(path));
+		if (filtersForPath != null) {
+			for (Filter f : filtersForPath) {
+				if (f.getClass().equals(filter)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**

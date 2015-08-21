@@ -40,7 +40,8 @@ import com.threewks.thundr.route.Router;
 import com.threewks.thundr.view.ViewResolutionException;
 
 public class RouteRedirectViewResolverTest {
-	@Rule public ExpectedException thrown = ExpectedException.none();
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	private Router router;
 	private RouteRedirectViewResolver resolver;
@@ -73,6 +74,7 @@ public class RouteRedirectViewResolverTest {
 		assertThat(resp.getStatusCode(), is(StatusCode.Found));
 		assertThat(resp.getHeader(Header.Location), is("/route/expected"));
 	}
+
 	@Test
 	public void shouldRedirectToNamedRouteWithQueryParameters() throws IOException {
 		RouteRedirectView viewResult = new RouteRedirectView("route2", Expressive.<String, Object> map("var", "expected"), Expressive.<String, Object> map("q1", "v1", "q2", "v2"));
@@ -88,20 +90,6 @@ public class RouteRedirectViewResolverTest {
 		assertThat(resp.getStatusCode(), is(StatusCode.Found));
 		assertThat(resp.getHeader(Header.Location), is("/route/expected"));
 	}
-
-	/*
-	 * TODO - v3 - check this with redirect/sendError handling
-	@Test
-	public void shouldThrowViewResolutionExceptionWhenRedirectFails() throws IOException {
-		thrown.expect(ViewResolutionException.class);
-		thrown.expectMessage("Failed to redirect to route 'route1' (/route/1): BOOM");
-
-		doThrow(new IOException("BOOM")).when(resp).sendRedirect(anyString());
-
-		RouteRedirectView viewResult = new RouteRedirectView("route1");
-		resolver.resolve(req, resp, viewResult);
-	}
-	*/
 
 	@Test
 	public void shouldThrowViewResolutionExceptionWhenRedirectToNonexistantRoute() throws IOException {

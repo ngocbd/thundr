@@ -43,6 +43,7 @@ import com.threewks.thundr.request.Response;
 import com.threewks.thundr.request.ThreadLocalRequestContainer;
 import com.threewks.thundr.request.mock.MockRequest;
 import com.threewks.thundr.route.HttpMethod;
+import com.threewks.thundr.route.Route;
 import com.threewks.thundr.route.RouteResolverException;
 import com.threewks.thundr.route.Router;
 import com.threewks.thundr.route.RouterModule;
@@ -74,7 +75,7 @@ public class ThundrTest {
 		injectionContext = new InjectionContextImpl();
 		thundr.injectionContext = injectionContext;
 
-		when(router.invoke(Mockito.any(Request.class), Mockito.any(Response.class))).thenReturn("View Name");
+		when(router.resolve(Mockito.any(Request.class), Mockito.any(Response.class))).thenReturn("View Name");
 		injectionContext.inject(router).as(Router.class);
 
 		viewResolverRegistry = new ViewResolverRegistry();
@@ -122,6 +123,13 @@ public class ThundrTest {
 	}
 
 	@Test
+	public void shouldFindRouteDelegatingToRouter() {
+		Route route = mock(Route.class);
+		when(router.findMatchingRoute(HttpMethod.PATCH, "/a/b/c")).thenReturn(route);
+		assertThat(thundr.findRoute(HttpMethod.PATCH, "/a/b/c"), is(route));
+	}
+
+	@Test
 	public void shouldFindViewForResolvedRoute() {
 		viewResolverRegistry.addResolver(String.class, new ViewResolver<String>() {
 			@Override
@@ -130,13 +138,13 @@ public class ThundrTest {
 			}
 		});
 
-		thundr.applyRoute(req, resp, viewRenderer);
+		thundr.resolve(req, resp, viewRenderer);
 		verify(resp).withStatusCode(StatusCode.ImATeapot);
 	}
 
 	@Test
 	public void shouldNotResolveViewWhenNullViewResultReturned() {
-		when(router.invoke(Mockito.any(Request.class), Mockito.any(Response.class))).thenReturn(null);
+		when(router.resolve(Mockito.any(Request.class), Mockito.any(Response.class))).thenReturn(null);
 
 		viewResolverRegistry.addResolver(Object.class, new ViewResolver<Object>() {
 			@Override
@@ -145,13 +153,13 @@ public class ThundrTest {
 			}
 		});
 
-		thundr.applyRoute(req, resp, viewRenderer);
+		thundr.resolve(req, resp, viewRenderer);
 		verify(resp, never()).withStatusCode(Mockito.any(StatusCode.class));
 	}
 
 	@Test
 	public void shouldCatchExceptionsFromViewResolversAndResolveExceptionWithExceptionView() {
-		when(router.invoke(Mockito.any(Request.class), Mockito.any(Response.class))).thenReturn("View Name");
+		when(router.resolve(Mockito.any(Request.class), Mockito.any(Response.class))).thenReturn("View Name");
 
 		viewResolverRegistry.addResolver(String.class, new ViewResolver<String>() {
 			@Override
@@ -166,13 +174,13 @@ public class ThundrTest {
 			}
 		});
 
-		thundr.applyRoute(req, resp, viewRenderer);
+		thundr.resolve(req, resp, viewRenderer);
 		verify(resp).withStatusCode(StatusCode.ImATeapot);
 	}
 
 	@Test
 	public void shouldCatchActionExceptionsFromViewResolversAndUnwrapThemBeforeResolvoingWithExceptionView() {
-		when(router.invoke(Mockito.any(Request.class), Mockito.any(Response.class))).thenReturn("View Name");
+		when(router.resolve(Mockito.any(Request.class), Mockito.any(Response.class))).thenReturn("View Name");
 
 		viewResolverRegistry.addResolver(String.class, new ViewResolver<String>() {
 			@Override
@@ -187,13 +195,13 @@ public class ThundrTest {
 			}
 		});
 
-		thundr.applyRoute(req, resp, viewRenderer);
+		thundr.resolve(req, resp, viewRenderer);
 		verify(resp).withStatusCode(StatusCode.ImATeapot);
 	}
 
 	@Test
 	public void shouldCatchExceptionsFromViewResolversButDoNothingWhenResponseAlreadyCommitted() {
-		when(router.invoke(Mockito.any(Request.class), Mockito.any(Response.class))).thenThrow(new RuntimeException("Expected exception"));
+		when(router.resolve(Mockito.any(Request.class), Mockito.any(Response.class))).thenThrow(new RuntimeException("Expected exception"));
 
 		viewResolverRegistry.addResolver(Exception.class, new ViewResolver<Exception>() {
 			@Override
@@ -203,7 +211,7 @@ public class ThundrTest {
 		});
 
 		when(resp.isUncommitted()).thenReturn(false);
-		thundr.applyRoute(req, resp, viewRenderer);
+		thundr.resolve(req, resp, viewRenderer);
 		verify(resp, never()).withStatusCode(Mockito.any(StatusCode.class));
 	}
 
@@ -211,9 +219,9 @@ public class ThundrTest {
 	public void shouldThrowViewResolverNotFoundIfNoMatchingViewResolverExists() {
 		thrown.expect(ViewResolverNotFoundException.class);
 
-		when(router.invoke(Mockito.any(Request.class), Mockito.any(Response.class))).thenReturn(false);
+		when(router.resolve(Mockito.any(Request.class), Mockito.any(Response.class))).thenReturn(false);
 
-		thundr.applyRoute(req, resp, viewRenderer);
+		thundr.resolve(req, resp, viewRenderer);
 	}
 
 	@Test

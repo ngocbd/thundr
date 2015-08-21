@@ -53,7 +53,7 @@ public class MultipartHttpBinder implements Binder {
 	}
 
 	@Override
-	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp, Map<String, String> pathVariables) {
+	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp) {
 		boolean supported = supportedContentTypes.contains(req.getContentType());
 		if (supported && shouldTryToBind(bindings)) {
 			Map<String, List<String>> formFields = new HashMap<String, List<String>>();
@@ -120,7 +120,7 @@ public class MultipartHttpBinder implements Binder {
 
 		@Override
 		public int getContentLength() {
-			return req.getContentLength();
+			return (int) req.getContentLength();
 		}
 
 		@Override

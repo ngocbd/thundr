@@ -30,7 +30,7 @@ public class RequestClassBinder implements Binder {
 	public static final List<Class<?>> BoundTypes = Expressive.<Class<?>> list(Request.class, Response.class);
 
 	@Override
-	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp, Map<String, String> pathVariables) {
+	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp) {
 		for (Map.Entry<ParameterDescription, Object> binding : bindings.entrySet()) {
 			if (binding.getValue() == null) {
 				ParameterDescription parameterDescription = binding.getKey();

@@ -26,7 +26,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -42,7 +41,6 @@ import com.threewks.thundr.transformer.TransformerManager;
 
 public class RequestHeaderBinderTest {
 	private Map<ParameterDescription, Object> parameterDescriptions;
-	private HashMap<String, String> pathVariables;
 	private MockRequest request = new MockRequest();
 	private MockResponse response = new MockResponse();
 	private ParameterBinderRegistry parameterBinderRegistry;
@@ -54,7 +52,6 @@ public class RequestHeaderBinderTest {
 		ParameterBinderRegistry.addDefaultBinders(parameterBinderRegistry);
 		binder = new RequestHeaderBinder(parameterBinderRegistry);
 		parameterDescriptions = new LinkedHashMap<ParameterDescription, Object>();
-		pathVariables = new HashMap<String, String>();
 	}
 
 	@Test
@@ -101,7 +98,7 @@ public class RequestHeaderBinderTest {
 		request.withHeader("param12", "12.00");
 		request.withHeader("param13", "13");
 
-		binder.bindAll(parameterDescriptions, request, response, pathVariables);
+		binder.bindAll(parameterDescriptions, request, response);
 
 		assertThat(parameterDescriptions.get(param1), is((Object) "string-value"));
 		assertThat(parameterDescriptions.get(param2), is((Object) 2));
@@ -131,7 +128,7 @@ public class RequestHeaderBinderTest {
 		request.withHeader("param2", Color.BLACK.toString());
 		request.withHeader("param3", "3");
 
-		binder.bindAll(parameterDescriptions, request, response, pathVariables);
+		binder.bindAll(parameterDescriptions, request, response);
 
 		assertThat(parameterDescriptions.get(param1), is((Object) "string-value"));
 		assertThat(parameterDescriptions.get(param2), is(nullValue()));
@@ -156,7 +153,7 @@ public class RequestHeaderBinderTest {
 		request.withHeader("param2", "2", "22");
 		request.withHeader("param3", "3", "three");
 
-		binder.bindAll(parameterDescriptions, request, response, pathVariables);
+		binder.bindAll(parameterDescriptions, request, response);
 
 		assertThat(parameterDescriptions.get(param1), is((Object) list("1", "one")));
 		assertThat(parameterDescriptions.get(param2), is((Object) set(2, 22)));
@@ -207,7 +204,7 @@ public class RequestHeaderBinderTest {
 		request.withHeader("X-Http-Header-Param12", "12.00");
 		request.withHeader("X-Http-Header-Param13", "13");
 
-		binder.bindAll(parameterDescriptions, request, response, pathVariables);
+		binder.bindAll(parameterDescriptions, request, response);
 
 		assertThat(parameterDescriptions.get(param1), is((Object) "string-value"));
 		assertThat(parameterDescriptions.get(param2), is((Object) 2));

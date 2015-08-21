@@ -19,7 +19,8 @@ package com.threewks.thundr.bind.path;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 import java.awt.Color;
 import java.math.BigDecimal;
@@ -37,6 +38,7 @@ import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.Response;
 import com.threewks.thundr.route.HttpMethod;
+import com.threewks.thundr.route.Route;
 import com.threewks.thundr.route.controller.TestAnnotation;
 import com.threewks.thundr.transformer.TransformerManager;
 
@@ -47,6 +49,7 @@ public class PathVariableBinderTest {
 	private HashMap<String, String> pathVariables;
 	private Request request;
 	private Response response;
+	private Route route;
 
 	@Before
 	public void before() {
@@ -55,6 +58,9 @@ public class PathVariableBinderTest {
 		pathVariables = new HashMap<String, String>();
 		request = mock(Request.class);
 		response = mock(Response.class);
+		route = mock(Route.class);
+		when(route.getPathVars(anyString())).thenReturn(pathVariables);
+		when(request.getRoute()).thenReturn(route);
 	}
 
 	@Test
@@ -112,7 +118,7 @@ public class PathVariableBinderTest {
 		pathVariables.put("param15", dateTime.toString());
 		pathVariables.put("param16", "POST");
 
-		pathVariableBinder.bindAll(parameterDescriptions, request, response, pathVariables);
+		pathVariableBinder.bindAll(parameterDescriptions, request, response);
 
 		assertThat(parameterDescriptions.get(param1), is((Object) "string-value"));
 		assertThat(parameterDescriptions.get(param2), is((Object) 2));
@@ -150,7 +156,7 @@ public class PathVariableBinderTest {
 		pathVariables.put("param3", "3");
 		pathVariables.put("param4", "something");
 
-		pathVariableBinder.bindAll(parameterDescriptions, request, response, pathVariables);
+		pathVariableBinder.bindAll(parameterDescriptions, request, response);
 
 		assertThat(parameterDescriptions.get(param1), is((Object) "string-value"));
 		assertThat(parameterDescriptions.get(param2), is(nullValue()));

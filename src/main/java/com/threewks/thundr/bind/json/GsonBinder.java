@@ -48,8 +48,6 @@ public class GsonBinder implements Binder {
 	 * When trying to bind to the individual parameters of the json body, there are parameters that imply the controller wants to handle the request body itself and mean this binder shouldnt consume
 	 * the input stream.
 	 */
-	// TODO - v3 - can this be shared somewhere, so that other modules can register against them (for HttpServletRequest)
-	public static final List<Class<?>> TypesIndicatingBindingShouldBeSkipped = Expressive.<Class<?>> list(Request.class);
 
 	private GsonBuilder gsonBuilder;
 
@@ -75,7 +73,7 @@ public class GsonBinder implements Binder {
 	}
 
 	@Override
-	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp, Map<String, String> pathVariables) {
+	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp) {
 		if (!bindings.isEmpty() && bindings.containsValue(null)) {
 			if (canBind(req.getContentType())) {
 				ParameterDescription jsonParameterDescription = findParameterDescriptionForJsonParameter(bindings);
@@ -121,7 +119,7 @@ public class GsonBinder implements Binder {
 
 	protected boolean shouldBindToUnboundParameters(Map<ParameterDescription, Object> bindings) {
 		for (ParameterDescription parameterDescription : bindings.keySet()) {
-			if (TypesIndicatingBindingShouldBeSkipped.contains(parameterDescription.classType())) {
+			if (RequestBodyConsumingTypes.contains(parameterDescription.classType())) {
 				return false;
 			}
 		}

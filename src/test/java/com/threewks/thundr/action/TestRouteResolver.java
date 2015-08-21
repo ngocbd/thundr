@@ -17,17 +17,14 @@
  */
 package com.threewks.thundr.action;
 
-import java.util.Map;
-
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.Response;
-import com.threewks.thundr.route.HttpMethod;
 import com.threewks.thundr.route.RouteResolver;
 import com.threewks.thundr.route.RouteResolverException;
 
 public class TestRouteResolver implements RouteResolver<TestAction> {
 	@Override
-	public Object resolve(TestAction action, HttpMethod method, Request req, Response resp, Map<String, String> pathVars) throws RouteResolverException {
+	public Object resolve(TestAction action, Request req, Response resp) throws RouteResolverException {
 		return null;
 	}
 }

@@ -30,16 +30,14 @@ public class ParameterBindingModule extends BaseModule {
 		super.requires(dependencyRegistry);
 		dependencyRegistry.addDependency(TransformerModule.class);
 	}
-
+	
 	@Override
-	public void configure(UpdatableInjectionContext injectionContext) {
-		super.configure(injectionContext);
+	public void initialise(UpdatableInjectionContext injectionContext) {
+		super.initialise(injectionContext);
 		TransformerManager transformerManager = injectionContext.get(TransformerManager.class);
 		ParameterBinderRegistry registry = new ParameterBinderRegistry(transformerManager);
 
 		ParameterBinderRegistry.addDefaultBinders(registry);
-
 		injectionContext.inject(registry).as(ParameterBinderRegistry.class);
 	}
-
 }

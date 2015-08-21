@@ -23,13 +23,15 @@ import com.threewks.thundr.http.Header;
 import com.threewks.thundr.http.StatusCode;
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.Response;
-import com.threewks.thundr.route.HttpMethod;
+import com.threewks.thundr.route.Route;
 import com.threewks.thundr.route.RouteResolver;
 import com.threewks.thundr.route.RouteResolverException;
 
 public class RedirectRouteResolver implements RouteResolver<Redirect> {
 	@Override
-	public Object resolve(Redirect redirect, HttpMethod method, Request req, Response resp, Map<String, String> pathVars) throws RouteResolverException {
+	public Object resolve(Redirect redirect, Request req, Response resp) throws RouteResolverException {
+		Route route = req.getRoute();
+		Map<String, String> pathVars = route.getPathVars(req.getRequestPath());
 		String redirectTo = redirect.getRedirectTo(pathVars);
 		try {
 			resp.withStatusCode(StatusCode.Found).withHeader(Header.Location, redirectTo);

@@ -17,7 +17,6 @@
  */
 package com.threewks.thundr.bind.http;
 
-import java.util.List;
 import java.util.Map;
 
 import com.threewks.thundr.bind.Binder;
@@ -35,8 +34,7 @@ public class HttpBinder implements Binder {
 	}
 
 	@Override
-	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp, Map<String, String> pathVariables) {
-		Map<String, List<String>> parameterMap = req.getAllParameters();
-		parameterBinderRegistry.bind(bindings, parameterMap, null);
+	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp) {
+		parameterBinderRegistry.bind(bindings, req.getAllParameters(), null);
 	}
 }

@@ -17,8 +17,10 @@
  */
 package com.threewks.thundr.bind;
 
+import java.util.List;
 import java.util.Map;
 
+import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.bind.parameter.ParameterBinder;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.request.Request;
@@ -35,14 +37,19 @@ import com.threewks.thundr.request.Response;
  */
 public interface Binder {
 	/**
+	 * The entries in this list represent types which indicate that the receiving controller may want to consume, or 'own'
+	 * the request input stream. Their presence can control whether specific {@link Binder} implementations wish
+	 * to skip consuming the request body to prevent causing errors.
+	 */
+	public static final List<Class<?>> RequestBodyConsumingTypes = Expressive.<Class<?>> list(Request.class);
+
+	/**
 	 * When invoked, implementors can bind any of the given bindings whose value is null (that is those parameters that are not already bound).
 	 * Data available to be bound can be retrieved from the request, the response or the pathVariables parameter.
 	 * 
 	 * @param bindings
 	 * @param req
 	 * @param resp
-	 * @param pathVariables
 	 */
-	// TODO - v3 - It makes sense to include the pathvars in the request object itself
-	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp, Map<String, String> pathVariables);
+	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp);
 }

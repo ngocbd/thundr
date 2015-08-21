@@ -24,13 +24,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.threewks.thundr.http.Cookie;
-
+// TODO - v3 - this can be deleted if not used
 public class ReadOnlyRequest extends BaseRequest {
 	private Request request;
 	protected Map<String, Object> data = new LinkedHashMap<>();
 
 	public ReadOnlyRequest(Request request) {
-		super(request.getMethod());
+		super(request.getMethod(), null);
 		this.request = request;
 	}
 
@@ -103,7 +103,7 @@ public class ReadOnlyRequest extends BaseRequest {
 	}
 
 	@Override
-	public int getContentLength() {
+	public long getContentLength() {
 		return request.getContentLength();
 	}
 

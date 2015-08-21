@@ -25,6 +25,7 @@ import static org.mockito.Mockito.*;
 import java.io.IOException;
 import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -36,6 +37,7 @@ import com.threewks.thundr.request.Response;
 import com.threewks.thundr.request.mock.MockRequest;
 import com.threewks.thundr.request.mock.MockResponse;
 import com.threewks.thundr.route.HttpMethod;
+import com.threewks.thundr.route.Route;
 import com.threewks.thundr.route.RouteResolverException;
 
 public class RedirectActionResolverTest {
@@ -43,15 +45,22 @@ public class RedirectActionResolverTest {
 	public ExpectedException thrown = ExpectedException.none();
 
 	private RedirectRouteResolver resolver = new RedirectRouteResolver();
+	private Route route;
+	
+	@Before
+	public void before() {
+		route = mock(Route.class);
+	}
 
 	@Test
 	public void shouldSendRedirectToClient() throws IOException {
 		Redirect action = new Redirect("/redirect/{to}");
 		HttpMethod method = HttpMethod.POST;
-		Request req = new MockRequest(method, "/request");
-		MockResponse resp = new MockResponse();
 		Map<String, String> pathVars = map("to", "new");
-		resolver.resolve(action, method, req, resp, pathVars);
+		when(route.getPathVars(anyString())).thenReturn(pathVars);
+		Request req = new MockRequest(method, "/request", route);
+		MockResponse resp = new MockResponse();
+		resolver.resolve(action, req, resp);
 
 		assertThat(resp.getStatusCode(), is(StatusCode.Found));
 		assertThat(resp.getHeader("Location"), is("/redirect/new"));
@@ -64,11 +73,12 @@ public class RedirectActionResolverTest {
 
 		Redirect action = new Redirect("/redirect/{to}");
 		HttpMethod method = HttpMethod.POST;
-		Request req = new MockRequest(method, "/requested/path");
+		Map<String, String> pathVars = map("to", "new");
+		when(route.getPathVars(anyString())).thenReturn(pathVars);
+		Request req = new MockRequest(method, "/requested/path", route);
 		Response resp = mock(Response.class);
 		when(resp.withStatusCode(Mockito.any(StatusCode.class))).thenThrow(new RuntimeException("Intentional"));
-		
-		Map<String, String> pathVars = map("to", "new");
-		resolver.resolve(action, method, req, resp, pathVars);
+
+		resolver.resolve(action, req, resp);
 	}
 }

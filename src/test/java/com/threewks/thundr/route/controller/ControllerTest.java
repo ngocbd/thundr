@@ -28,10 +28,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.threewks.thundr.introspection.ClassIntrospector;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.route.RouteResolverException;
-
-import jodd.util.ReflectUtil;
 
 public class ControllerTest {
 	@Rule
@@ -41,7 +40,7 @@ public class ControllerTest {
 	public void shouldFindClassAndMethod() {
 		Controller methodAction = new Controller(FakeController.class, "methodOne");
 		assertThat(methodAction.type().equals(FakeController.class), is(true));
-		Method expectedMethod = ReflectUtil.findMethod(FakeController.class, "methodOne");
+		Method expectedMethod = new ClassIntrospector().getMethod(FakeController.class, "methodOne");
 		assertThat(methodAction.method(), is(expectedMethod));
 	}
 

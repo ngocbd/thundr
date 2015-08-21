@@ -20,7 +20,6 @@ package com.threewks.thundr.bind.http.request;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -37,14 +36,12 @@ public class RequestClassBinderTest {
 	private RequestClassBinder binder;
 	private MockRequest request = new MockRequest();
 	private MockResponse response = new MockResponse();
-	private Map<String, String> pathVariables;
 	private Map<ParameterDescription, Object> parameterDescriptions;
 
 	@Before
 	public void before() {
 		binder = new RequestClassBinder();
 		parameterDescriptions = new LinkedHashMap<ParameterDescription, Object>();
-		pathVariables = new HashMap<String, String>();
 	}
 
 	@Test
@@ -52,7 +49,7 @@ public class RequestClassBinderTest {
 		ParameterDescription requestParameter = new ParameterDescription("request", Request.class);
 		parameterDescriptions.put(requestParameter, null);
 
-		binder.bindAll(parameterDescriptions, request, response, pathVariables);
+		binder.bindAll(parameterDescriptions, request, response);
 		assertThat(parameterDescriptions.get(requestParameter), is((Object) request));
 	}
 
@@ -61,7 +58,7 @@ public class RequestClassBinderTest {
 		ParameterDescription responseParameter = new ParameterDescription("response", Response.class);
 		parameterDescriptions.put(responseParameter, null);
 
-		binder.bindAll(parameterDescriptions, request, response, pathVariables);
+		binder.bindAll(parameterDescriptions, request, response);
 		assertThat(parameterDescriptions.get(responseParameter), is((Object) response));
 	}
 
@@ -73,7 +70,7 @@ public class RequestClassBinderTest {
 		parameterDescriptions.put(requestParameter, "string");
 		parameterDescriptions.put(responseParameter, "string");
 
-		binder.bindAll(parameterDescriptions, request, response, pathVariables);
+		binder.bindAll(parameterDescriptions, request, response);
 		assertThat(parameterDescriptions.get(requestParameter), is((Object) "string"));
 		assertThat(parameterDescriptions.get(responseParameter), is((Object) "string"));
 	}

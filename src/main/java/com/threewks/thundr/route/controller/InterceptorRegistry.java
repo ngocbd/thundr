@@ -20,6 +20,5 @@ package com.threewks.thundr.route.controller;
 import java.lang.annotation.Annotation;
 
 public interface InterceptorRegistry {
-	// TODO - NAO - Rename this to add() - It seems like the naming between interceptors, filters and aspects should be consistent.
 	public <A extends Annotation> void registerInterceptor(Class<A> annotation, Interceptor<A> interceptor);
 }

@@ -48,20 +48,6 @@ public class RedirectViewResolverTest {
 		assertThat(resp.getHeader(Header.Location), is("/redirect/to"));
 	}
 
-	/*
-	 * TODO - v3 - is this still a possibility?
-	 * 
-	 * @Test
-	 * public void shouldThrowViewResolutionExceptionWhenRedirectFails() throws IOException {
-	 * thrown.expect(ViewResolutionException.class);
-	 * thrown.expectMessage("Failed to redirect to /redirect/to: BOOM");
-	 * 
-	 * doThrow(new IOException("BOOM")).when(resp).sendRedirect(anyString());
-	 * 
-	 * RedirectView viewResult = new RedirectView("/redirect/to");
-	 * resolver.resolve(req, resp, viewResult);
-	 * }
-	 */
 	@Test
 	public void shouldReturnClassNameForToString() {
 		assertThat(new RedirectViewResolver().toString(), is("RedirectViewResolver"));

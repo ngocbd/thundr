@@ -17,6 +17,9 @@
  */
 package com.threewks.thundr.request.mock;
 
+
+import static com.atomicleopard.expressive.Expressive.isEmpty;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Reader;
@@ -24,6 +27,7 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,25 +40,30 @@ import com.threewks.thundr.http.Cookie;
 import com.threewks.thundr.request.BaseRequest;
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.route.HttpMethod;
+import com.threewks.thundr.route.Route;
 
 public class MockRequest extends BaseRequest implements Request {
-	private static final ETransformer<Collection<Cookie>, Map<String, List<Cookie>>> ToCookieLookup = Expressive.Transformers.toBeanLookup("name", Cookie.class);
-	private String path;
-	private String contentType;
-	private Map<String, List<String>> headers = new LinkedHashMap<>();
-	private Map<String, List<String>> parameters = new LinkedHashMap<>();
-	private Map<String, Object> data = new LinkedHashMap<>();
-	private Object rawRequest;
-	private List<Cookie> cookies = new ArrayList<>();
-	private String encoding = "UTF-8";
-	private String content;
+	protected static final ETransformer<Collection<Cookie>, Map<String, List<Cookie>>> ToCookieLookup = Expressive.Transformers.toBeanLookup("name", Cookie.class);
+	protected String path;
+	protected String contentType;
+	protected Map<String, List<String>> headers = new LinkedHashMap<>();
+	protected Map<String, List<String>> parameters = new LinkedHashMap<>();
+	protected Map<String, Object> data = new LinkedHashMap<>();
+	protected Object rawRequest;
+	protected List<Cookie> cookies = new ArrayList<>();
+	protected String encoding = "UTF-8";
+	protected String content;
 
 	public MockRequest() {
-		this(HttpMethod.GET, "/path");
+		this(HttpMethod.GET, "/path", null);
 	}
 
 	public MockRequest(HttpMethod httpMethod, String path) {
-		super(httpMethod);
+		this(httpMethod, path, null);
+	}
+
+	public MockRequest(HttpMethod httpMethod, String path, Route route) {
+		super(httpMethod, route);
 		this.path = path;
 	}
 
@@ -76,18 +85,23 @@ public class MockRequest extends BaseRequest implements Request {
 
 	@Override
 	public String getHeader(String name) {
-		List<String> list = headers.get(name);
-		return list == null ? null : list.get(0);
+		List<String> list = getHeaders(name);
+		return isEmpty(list)? null : list.get(0);
 	}
 
 	@Override
 	public List<String> getHeaders(String name) {
-		return headers.get(name);
+		for (Map.Entry<String, List<String>> entry : this.headers.entrySet()) {
+			if (entry.getKey().equalsIgnoreCase(name)) {
+				return Collections.unmodifiableList(entry.getValue());
+			}
+		}
+		return Collections.emptyList();
 	}
 
 	@Override
 	public Map<String, List<String>> getAllHeaders() {
-		return headers;
+		return Collections.unmodifiableMap(headers);
 	}
 
 	@Override
@@ -107,7 +121,7 @@ public class MockRequest extends BaseRequest implements Request {
 	}
 
 	@Override
-	public int getContentLength() {
+	public long getContentLength() {
 		return 0;
 	}
 

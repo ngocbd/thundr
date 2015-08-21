@@ -30,7 +30,6 @@ public class RedirectViewResolver implements ViewResolver<RedirectView> {
 		// @formatter:off
 		resp.withStatusCode(StatusCode.Found)
 			.withHeader(Header.Location, viewResult.getRedirect());
-		// TODO - v3 - does this require a content length?
 		// @formatter:on
 	}
 

@@ -21,8 +21,6 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
-import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,7 +35,6 @@ public class RouterTest {
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
 	private Router router;
-
 	private Request req = new MockRequest(HttpMethod.GET, "/path");
 	private Response resp = mock(Response.class);
 
@@ -63,9 +60,9 @@ public class RouterTest {
 		router.addResolver(TestResolve.class, new TestRouteResolver());
 		router.add(HttpMethod.GET, "/path/*.jpg", new TestResolve(null), null);
 
-		assertThat(router.findMatchingRoute("/path/image.jpg", HttpMethod.GET), is(notNullValue()));
-		assertThat(router.findMatchingRoute("/path/image.jpg", HttpMethod.POST), is(nullValue()));
-		assertThat(router.findMatchingRoute("/path/image.jpeg", HttpMethod.GET), is(nullValue()));
+		assertThat(router.findMatchingRoute(HttpMethod.GET, "/path/image.jpg"), is(notNullValue()));
+		assertThat(router.findMatchingRoute(HttpMethod.POST, "/path/image.jpg"), is(nullValue()));
+		assertThat(router.findMatchingRoute(HttpMethod.GET, "/path/image.jpeg"), is(nullValue()));
 	}
 
 	@Test
@@ -96,9 +93,10 @@ public class RouterTest {
 	@Test
 	public void shouldInvokeRouteByReturningTheResultOfTheAction() {
 		router.add(HttpMethod.GET, "/route", new TestResolve("actionName"), null);
-		req = new MockRequest(HttpMethod.GET, "/route");
-		
-		Object result = router.invoke(req, resp);
+		Route route = router.findMatchingRoute(HttpMethod.GET, "/route");
+		req = new MockRequest(HttpMethod.GET, "/route", route);
+
+		Object result = router.resolve(req, resp);
 		assertThat(result, is(notNullValue()));
 		assertThat(result instanceof TestResolve, is(true));
 	}
@@ -107,7 +105,7 @@ public class RouterTest {
 	public void shouldThrowRouteNotFoundExceptionWhenRouteIsntMatched() {
 		thrown.expect(RouteNotFoundException.class);
 		thrown.expectMessage("No route matching the request GET /path\n");
-		router.invoke(req, resp);
+		router.resolve(req, resp);
 	}
 
 	@Test
@@ -295,7 +293,7 @@ public class RouterTest {
 
 	private static class TestRouteResolver implements RouteResolver<TestResolve> {
 		@Override
-		public TestResolve resolve(TestResolve action, HttpMethod method, Request req, Response resp, Map<String, String> pathVars) throws RouteResolverException {
+		public TestResolve resolve(TestResolve action, Request req, Response resp) throws RouteResolverException {
 			return action;
 		}
 	}

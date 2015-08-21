@@ -31,6 +31,8 @@ import com.threewks.thundr.module.ModulesModule;
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.RequestModule;
 import com.threewks.thundr.request.Response;
+import com.threewks.thundr.route.HttpMethod;
+import com.threewks.thundr.route.Route;
 import com.threewks.thundr.route.RouteResolverException;
 import com.threewks.thundr.route.Router;
 import com.threewks.thundr.route.RouterModule;
@@ -111,10 +113,22 @@ public class Thundr {
 		return baseModules;
 	}
 
-	public void applyRoute(final Request req, final Response resp, final ViewRenderer viewRenderer) {
+	public Route findRoute(HttpMethod method, String routePath) {
+		Router router = injectionContext.get(Router.class);
+		return router.findMatchingRoute(method, routePath);
+	}
+
+	/**
+	 * Resolves the given request into the given response.
+	 * 
+	 * @param req
+	 * @param resp
+	 * @param viewRenderer
+	 */
+	public void resolve(Request req, Response resp, ViewRenderer viewRenderer) {
 		try {
 			Router router = injectionContext.get(Router.class);
-			final Object viewResult = router.invoke(req, resp);
+			final Object viewResult = router.resolve(req, resp);
 			if (viewResult != null) {
 				viewRenderer.render(req, resp, viewResult);
 			}
@@ -136,4 +150,5 @@ public class Thundr {
 			}
 		}
 	}
+
 }

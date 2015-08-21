@@ -39,7 +39,6 @@ public class CookieBinderTest {
 	private CookieBinder binder;
 	private MockRequest req = new MockRequest();
 	private MockResponse resp = new MockResponse();
-	private Map<String, String> pathVariables = map();
 	Map<ParameterDescription, Object> bindings = map();
 	private ParameterBinderRegistry parameterBinderRegistry;
 
@@ -55,7 +54,7 @@ public class CookieBinderTest {
 		ParameterDescription varParam = new ParameterDescription("var", String.class);
 		bindings.put(varParam, null);
 		req.withCookie("var", "expected");
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, req, resp);
 
 		assertThat(bindings.get(varParam), is((Object) "expected"));
 	}
@@ -65,7 +64,7 @@ public class CookieBinderTest {
 		ParameterDescription varParam = new ParameterDescription("var", String.class);
 		bindings.put(varParam, "original");
 		req.withCookie("var", "overridden");
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, req, resp);
 
 		assertThat(bindings.get(varParam), is((Object) "original"));
 	}
@@ -75,7 +74,7 @@ public class CookieBinderTest {
 		ParameterDescription varParam = new ParameterDescription("var", Integer.class);
 		bindings.put(varParam, null);
 		req.withCookie("var", "123");
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, req, resp);
 
 		assertThat(bindings.get(varParam), is((Object) 123));
 	}
@@ -91,7 +90,7 @@ public class CookieBinderTest {
 		req.withCookie("var1", "first");
 		req.withCookie("var2", "second");
 		req.withCookie("var3", "third");
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, req, resp);
 
 		assertThat(bindings.get(varParam1), is((Object) "first"));
 		assertThat(bindings.get(varParam2), is((Object) "second"));
@@ -105,7 +104,7 @@ public class CookieBinderTest {
 		req.withCookie("var", "first");
 		req.withCookie("var", "second");
 		req.withCookie("var", "third");
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, req, resp);
 
 		assertThat(bindings.get(varParam), is((Object) "first"));
 	}
@@ -118,7 +117,7 @@ public class CookieBinderTest {
 		Cookie expected = new Cookie("var", "expected");
 		req.withCookie(expected);
 
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, req, resp);
 
 		assertThat(bindings.get(varParam), is(sameInstance((Object) expected)));
 	}
@@ -130,7 +129,7 @@ public class CookieBinderTest {
 		bindings.put(varParam1, null);
 		bindings.put(varParam2, null);
 
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, req, resp);
 
 		assertThat(bindings.get(varParam1), is(nullValue()));
 		assertThat(bindings.get(varParam2), is(nullValue()));
@@ -149,7 +148,7 @@ public class CookieBinderTest {
 		req.withCookie(requestCookie);
 		req.withCookie(requestCookieValue);
 
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, req, resp);
 
 		assertThat(bindings.get(varParam1), is((Object) existingCookie));
 		assertThat(bindings.get(varParam2), is((Object) "existingValue2"));
@@ -162,7 +161,7 @@ public class CookieBinderTest {
 		bindings.put(varParam1, null);
 		bindings.put(varParam2, null);
 
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, req, resp);
 
 		assertThat(bindings.get(varParam1), is(nullValue()));
 		assertThat(bindings.get(varParam2), is(nullValue()));
@@ -181,7 +180,7 @@ public class CookieBinderTest {
 		req.withCookie(requestCookie);
 		req.withCookie(requestCookieValue);
 
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, req, resp);
 
 		assertThat(bindings.get(varParam1), is((Object) existingCookie));
 		assertThat(bindings.get(varParam2), is((Object) "newValue2"));
@@ -232,7 +231,7 @@ public class CookieBinderTest {
 		req.withCookie("param12", "12.00");
 		req.withCookie("param13", "13");
 
-		binder.bindAll(parameterDescriptions, req, resp, pathVariables);
+		binder.bindAll(parameterDescriptions, req, resp);
 
 		assertThat(parameterDescriptions.get(param1), is((Object) "string-value"));
 		assertThat(parameterDescriptions.get(param2), is((Object) 2));

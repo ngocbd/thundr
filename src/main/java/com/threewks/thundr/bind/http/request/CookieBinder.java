@@ -33,7 +33,6 @@ import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.Response;
 
-// TODO - v3 - need a http.Cookie binder too
 public class CookieBinder implements Binder {
 	public static final List<Class<?>> BoundTypes = Expressive.<Class<?>> list(Cookie.class);
 	private static final ETransformer<Cookie, String> ToCookeValue = Expressive.Transformers.toProperty("value", Cookie.class);
@@ -46,7 +45,7 @@ public class CookieBinder implements Binder {
 	}
 
 	@Override
-	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp, Map<String, String> pathVariables) {
+	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp) {
 		Map<String, List<Cookie>> cookies = req.getAllCookies();
 		if (isNotEmpty(cookies) && bindings.values().contains(null)) {
 			Map<String, List<String>> cookieValues = getCookieValues(cookies);

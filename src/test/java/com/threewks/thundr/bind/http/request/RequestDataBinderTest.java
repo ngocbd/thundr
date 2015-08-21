@@ -38,7 +38,6 @@ import com.threewks.thundr.transformer.TransformerManager;
 public class RequestDataBinderTest {
 	private MockRequest req = new MockRequest();
 	private MockResponse resp = new MockResponse();
-	private Map<String, String> pathVariables = map();
 	private Map<ParameterDescription, Object> bindings = map();
 	private ParameterBinderRegistry parameterBinderRegistry;
 	private RequestDataBinder binder;
@@ -55,7 +54,7 @@ public class RequestDataBinderTest {
 		ParameterDescription varParam = new ParameterDescription("var", String.class);
 		bindings.put(varParam, null);
 		req.putData("var", "expected");
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, req, resp);
 
 		assertThat(bindings.get(varParam), is((Object) "expected"));
 	}
@@ -65,7 +64,7 @@ public class RequestDataBinderTest {
 		ParameterDescription varParam = new ParameterDescription("var", String.class);
 		bindings.put(varParam, "original");
 		req.putData("var", "overridden");
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, req, resp);
 
 		assertThat(bindings.get(varParam), is((Object) "original"));
 	}
@@ -75,7 +74,7 @@ public class RequestDataBinderTest {
 		ParameterDescription varParam = new ParameterDescription("var", Integer.class);
 		bindings.put(varParam, null);
 		req.putData("var", "123");
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, req, resp);
 
 		assertThat(bindings.get(varParam), is((Object) 123));
 	}
@@ -91,7 +90,7 @@ public class RequestDataBinderTest {
 		req.putData("var1", "first");
 		req.putData("var2", "second");
 		req.putData("var3", "third");
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, req, resp);
 
 		assertThat(bindings.get(varParam1), is((Object) "first"));
 		assertThat(bindings.get(varParam2), is((Object) "second"));
@@ -109,7 +108,7 @@ public class RequestDataBinderTest {
 		req.putData("integer", 123);
 		req.putData("date", new Date(1));
 		req.putData("string", "stringVal");
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, req, resp);
 
 		assertThat(bindings.get(varParam1), is((Object) 123));
 		assertThat(bindings.get(varParam2), is((Object) new Date(1)));
@@ -161,7 +160,7 @@ public class RequestDataBinderTest {
 		req.putData("param12", "12.00");
 		req.putData("param13", "13");
 
-		binder.bindAll(parameterDescriptions, req, resp, pathVariables);
+		binder.bindAll(parameterDescriptions, req, resp);
 
 		assertThat(parameterDescriptions.get(param1), is((Object) "string-value"));
 		assertThat(parameterDescriptions.get(param2), is((Object) 2));
@@ -183,7 +182,7 @@ public class RequestDataBinderTest {
 		ParameterDescription varParam = new ParameterDescription("varName", String.class);
 		req.putData("var-name", "value");
 		bindings.put(varParam, null);
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, req, resp);
 
 		assertThat(bindings.get(varParam), is((Object) "value"));
 	}
@@ -193,7 +192,7 @@ public class RequestDataBinderTest {
 		ParameterDescription varParam = new ParameterDescription("_3VarName", String.class);
 		req.putData("3-var-name", "value");
 		bindings.put(varParam, null);
-		binder.bindAll(bindings, req, resp, pathVariables);
+		binder.bindAll(bindings, req, resp);
 
 		assertThat(bindings.get(varParam), is((Object) "value"));
 	}

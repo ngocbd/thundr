@@ -26,14 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.threewks.thundr.bind.http.HttpBinder;
-import com.threewks.thundr.bind.http.MultipartHttpBinder;
-import com.threewks.thundr.bind.http.request.CookieBinder;
-import com.threewks.thundr.bind.http.request.RequestClassBinder;
-import com.threewks.thundr.bind.http.request.RequestDataBinder;
-import com.threewks.thundr.bind.http.request.RequestHeaderBinder;
-import com.threewks.thundr.bind.json.GsonBinder;
 import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
-import com.threewks.thundr.bind.path.PathVariableBinder;
 import com.threewks.thundr.transformer.TransformerManager;
 
 public class BinderRegistryTest {
@@ -49,40 +42,18 @@ public class BinderRegistryTest {
 	}
 
 	@Test
-	public void shouldRegisterDefaultBindersInOrder() {
-		BinderRegistry binderRegistry = new BinderRegistry();
-
-		Iterator<Binder> iterator = binderRegistry.getRegisteredBinders().iterator();
-		assertThat(iterator.hasNext(), is(false));
-
-		BinderRegistry.registerDefaultBinders(binderRegistry, parameterBinderRegistry, transformerManager);
-
-		iterator = binderRegistry.getRegisteredBinders().iterator();
-		assertThat(iterator.hasNext(), is(true));
-		assertThat(iterator.next() instanceof PathVariableBinder, is(true));
-		assertThat(iterator.next() instanceof RequestClassBinder, is(true));
-		assertThat(iterator.next() instanceof HttpBinder, is(true));
-		assertThat(iterator.next() instanceof RequestDataBinder, is(true));
-		assertThat(iterator.next() instanceof RequestHeaderBinder, is(true));
-		assertThat(iterator.next() instanceof CookieBinder, is(true));
-		assertThat(iterator.next() instanceof GsonBinder, is(true));
-		assertThat(iterator.next() instanceof MultipartHttpBinder, is(true));
-		assertThat(iterator.hasNext(), is(false));
-	}
-
-	@Test
 	public void shouldAllowRegistrationOfBinder() {
 
 		BinderRegistry binderRegistry = new BinderRegistry();
-		Iterator<Binder> iterator = binderRegistry.getRegisteredBinders().iterator();
+		Iterator<Binder> iterator = binderRegistry.list().iterator();
 		assertThat(iterator.hasNext(), is(false));
-		assertThat(binderRegistry.hasBinder(HttpBinder.class), is(false));
+		assertThat(binderRegistry.contains(HttpBinder.class), is(false));
 
-		binderRegistry.registerBinder(new HttpBinder(parameterBinderRegistry));
+		binderRegistry.add(new HttpBinder(parameterBinderRegistry));
 
-		assertThat(binderRegistry.hasBinder(HttpBinder.class), is(true));
+		assertThat(binderRegistry.contains(HttpBinder.class), is(true));
 
-		iterator = binderRegistry.getRegisteredBinders().iterator();
+		iterator = binderRegistry.list().iterator();
 		assertThat(iterator.hasNext(), is(true));
 		assertThat(iterator.next() instanceof HttpBinder, is(true));
 		assertThat(iterator.hasNext(), is(false));
@@ -92,16 +63,16 @@ public class BinderRegistryTest {
 	public void shouldAllowDeregistrationOfBinder() {
 		BinderRegistry binderRegistry = new BinderRegistry();
 
-		binderRegistry.registerBinder(new HttpBinder(parameterBinderRegistry));
-		Iterator<Binder> iterator = binderRegistry.getRegisteredBinders().iterator();
+		binderRegistry.add(new HttpBinder(parameterBinderRegistry));
+		Iterator<Binder> iterator = binderRegistry.list().iterator();
 		assertThat(iterator.next() instanceof HttpBinder, is(true));
 
-		assertThat(binderRegistry.hasBinder(HttpBinder.class), is(true));
+		assertThat(binderRegistry.contains(HttpBinder.class), is(true));
 
-		binderRegistry.deregisterBinder(HttpBinder.class);
+		binderRegistry.remove(HttpBinder.class);
 
-		assertThat(binderRegistry.hasBinder(HttpBinder.class), is(false));
-		iterator = binderRegistry.getRegisteredBinders().iterator();
+		assertThat(binderRegistry.contains(HttpBinder.class), is(false));
+		iterator = binderRegistry.list().iterator();
 		assertThat(iterator.hasNext(), is(false));
 	}
 }

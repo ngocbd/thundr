@@ -26,6 +26,7 @@ import java.util.UUID;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.Cookie;
 import com.threewks.thundr.route.HttpMethod;
+import com.threewks.thundr.route.Route;
 
 // TODO - NAO - v3 - Need to be able to get request info: issecure, protocol, domain, ip, port, path, route, method
 public interface Request {
@@ -49,10 +50,20 @@ public interface Request {
 
 	public String getCharacterEncoding();
 
-	// TODO - v3 - header names should be case insensitive
+	/**
+	 * Return the first (or only) value for the given header. Header names are case-insensitive.
+	 * 
+	 * @param name
+	 * @return
+	 */
 	public String getHeader(String name);
 
-	// TODO - v3 - header names should be case insensitive - should return empty list if none exist
+	/**
+	 * Return the all values for the given header, or an empty list if none. Header names are case-insensitive.
+	 * 
+	 * @param name
+	 * @return
+	 */
 	public List<String> getHeaders(String name);
 
 	public Map<String, List<String>> getAllHeaders();
@@ -77,9 +88,10 @@ public interface Request {
 	 * @param values
 	 */
 	public void putData(Map<String, Object> values);
-	
+
 	/**
 	 * Get all data set on the request scope
+	 * 
 	 * @return
 	 */
 	public Map<String, Object> getAllData();
@@ -92,8 +104,7 @@ public interface Request {
 	 */
 	public <T> T getData(String key);
 
-	// TODO - v3 - This should be a long
-	public int getContentLength();
+	public long getContentLength();
 
 	public HttpMethod getMethod();
 
@@ -108,43 +119,21 @@ public interface Request {
 	 * @return
 	 */
 	public String getRequestPath();
-	
+
+	/**
+	 * Returns the route this request matches to, if any
+	 * 
+	 * @return
+	 */
+	public Route getRoute();
 
 	public Cookie getCookie(String name);
 
 	public Map<String, List<Cookie>> getAllCookies();
 
-	// TODO - v3 - how should you be able to read the content, reader, channel, stream?
-	// TODO - v3 - I can't see how this could ever work without at least a get bytes/inputstream option
 	public Reader getReader();
+
 	public InputStream getInputStream();
+
 	public boolean isSecure();
-
-	
-
-	// TODO - v3 - it makes sense for this stuff to be in the request itself, but requires some
-	// re-engineering.
-	/**
-	 * Get the route for this request
-	 * 
-	 * @return
-	 * 
-	 *         public Route getRoute();
-	 * 
-	 * 
-	 *         Path variables are the dynamic portion of the request path as defined in a thundr route.
-	 *         This method will return the value of the given path variable for this request.
-	 * 
-	 * @param name
-	 * @return
-	 *         public String getPathVariable(String name);
-	 * 
-	 *         Path variables are the dynamic portion of the request path as defined in a thundr route.
-	 *         This method will return all the path variables as a map.
-	 * 
-	 * @param name
-	 * @return
-	 *         public Map<String, String> getAllPathVariables();
-	 */
-
 }

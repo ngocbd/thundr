@@ -42,11 +42,11 @@ public class InMemoryRequest extends BaseRequest {
 	protected byte[] requestData;
 
 	public InMemoryRequest() {
-		super(null);
+		super(null, null);
 	}
 
 	public InMemoryRequest(HttpMethod httpMethod, String path) {
-		super(httpMethod);
+		super(httpMethod, null);
 		this.path = path;
 	}
 
@@ -61,7 +61,7 @@ public class InMemoryRequest extends BaseRequest {
 	}
 
 	@Override
-	public int getContentLength() {
+	public long getContentLength() {
 		return this.requestData == null ? 0 : this.requestData.length;
 	}
 

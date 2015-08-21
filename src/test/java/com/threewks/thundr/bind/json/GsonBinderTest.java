@@ -61,7 +61,6 @@ public class GsonBinderTest {
 	private GsonBinder gsonBinder = new GsonBinder();
 	private MockRequest req = new MockRequest().withContentType(ContentType.ApplicationJson);
 	private MockResponse resp = new MockResponse();
-	private Map<String, String> pathVariables = Collections.emptyMap();
 
 	@Test
 	public void shouldMakeGsonBuilderAvailable() {
@@ -83,7 +82,7 @@ public class GsonBinderTest {
 		Map<ParameterDescription, Object> bindings = map(parameterDescription, null);
 		req.withBody("{ \"name\": \"pojo name\", \"value\": 5 }");
 
-		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+		gsonBinder.bindAll(bindings, req, resp);
 
 		Object boundValue = bindings.get(parameterDescription);
 		assertThat(boundValue, is(notNullValue()));
@@ -109,7 +108,7 @@ public class GsonBinderTest {
 
 		req.withBody("{ \"name\": \"pojo name\", \"value\": 5 }");
 
-		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+		gsonBinder.bindAll(bindings, req, resp);
 
 		Object boundValue = bindings.get(pojoParameterDescription);
 		assertThat(boundValue, is(notNullValue()));
@@ -132,7 +131,7 @@ public class GsonBinderTest {
 		Map<ParameterDescription, Object> bindings = mapKeys(requestParameterDescription, intParameterDescription, stringParameterDescription).to(null, null, null, null);
 		req.withBody("{ \"name\": \"pojo name\", \"value\": 5 }");
 
-		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+		gsonBinder.bindAll(bindings, req, resp);
 
 		Object stringValue = bindings.get(stringParameterDescription);
 		Object intValue = bindings.get(intParameterDescription);
@@ -149,7 +148,7 @@ public class GsonBinderTest {
 		Map<ParameterDescription, Object> bindings = mapKeys(intParameterDescription, stringParameterDescription).to(null, null, null);
 		req.withBody("{ \"name\": \"pojo name\", \"value\": 5 }");
 
-		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+		gsonBinder.bindAll(bindings, req, resp);
 
 		Object stringValue = bindings.get(stringParameterDescription);
 		assertThat(stringValue, is(notNullValue()));
@@ -166,7 +165,7 @@ public class GsonBinderTest {
 		Map<ParameterDescription, Object> bindings = mapKeys(intParameterDescription, stringParameterDescription).to(null, null, null);
 		req.withContentType(ContentType.ApplicationJson);
 
-		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+		gsonBinder.bindAll(bindings, req, resp);
 
 		Object stringValue = bindings.get(stringParameterDescription);
 		Object intValue = bindings.get(intParameterDescription);
@@ -184,7 +183,7 @@ public class GsonBinderTest {
 			.withContentType(ContentType.ApplicationJson);
 		// @formatter:on
 
-		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+		gsonBinder.bindAll(bindings, req, resp);
 
 		Object boundValue = bindings.get(parameterDescription);
 		assertThat(boundValue, is(nullValue()));
@@ -198,7 +197,7 @@ public class GsonBinderTest {
 
 		req.withBody("{ \"name\": \"pojo name\", \"value\": 5 }");
 
-		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+		gsonBinder.bindAll(bindings, req, resp);
 
 		Object stringValue = bindings.get(stringParameterDescription);
 		assertThat(stringValue, is(notNullValue()));
@@ -224,7 +223,7 @@ public class GsonBinderTest {
 
 		req.withBody("{ \"name\": \"pojo name\", \"value\": 5 }");
 
-		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+		gsonBinder.bindAll(bindings, req, resp);
 
 		Object boundValue = bindings.get(pojo2ParameterDescription);
 		assertThat(boundValue, is(notNullValue()));
@@ -258,7 +257,7 @@ public class GsonBinderTest {
 
 		req.withBody("[{\"name\": \"pojo name\", \"value\": 5 }]");
 
-		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+		gsonBinder.bindAll(bindings, req, resp);
 
 		Object value = bindings.get(parameterDescription);
 		assertThat(value, is(notNullValue()));
@@ -280,7 +279,7 @@ public class GsonBinderTest {
 
 		req.withBody("{ \"name\": \"pojo name\"");
 
-		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+		gsonBinder.bindAll(bindings, req, resp);
 	}
 
 	@Test
@@ -294,7 +293,7 @@ public class GsonBinderTest {
 
 		req.withBody("{ \"name\": \"pojo name\", \"value\": \"not a number\" }");
 
-		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+		gsonBinder.bindAll(bindings, req, resp);
 	}
 
 	@Test
@@ -308,7 +307,7 @@ public class GsonBinderTest {
 
 		req.withBody("{ \"name\": \"pojo name\", \"value\": \"5.0\"");
 
-		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+		gsonBinder.bindAll(bindings, req, resp);
 	}
 
 	@Test
@@ -320,7 +319,7 @@ public class GsonBinderTest {
 		req.withBody("{ \"name\": \"pojo name\", \"value\": 12 }");
 
 		req = spy(req);
-		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+		gsonBinder.bindAll(bindings, req, resp);
 
 		Object intValue = bindings.get(intParameterDescription);
 		Object stringValue = bindings.get(stringParameterDescription);
@@ -337,7 +336,7 @@ public class GsonBinderTest {
 		req.withBody("{ \"name\": \"pojo name\", \"value\": 12 }");
 
 		req = spy(req);
-		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+		gsonBinder.bindAll(bindings, req, resp);
 
 		verify(req, never()).getReader();
 	}
@@ -352,7 +351,7 @@ public class GsonBinderTest {
 		req.withContentType(ContentType.ApplicationFormUrlEncoded);
 
 		req = spy(req);
-		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+		gsonBinder.bindAll(bindings, req, resp);
 
 		verify(req, never()).getReader();
 	}
@@ -386,7 +385,7 @@ public class GsonBinderTest {
 		Map<ParameterDescription, Object> bindings = map(parameterDescription, null);
 		req.withBody("[\"first\", \"second\"]");
 
-		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+		gsonBinder.bindAll(bindings, req, resp);
 
 		Object boundValue = bindings.get(parameterDescription);
 		assertThat(boundValue, is(notNullValue()));
@@ -404,7 +403,7 @@ public class GsonBinderTest {
 		Map<ParameterDescription, Object> bindings = map(parameterDescription, null);
 		req.withBody("{ \"name\": \"pojo name\", \"value\": 5 }");
 
-		gsonBinder.bindAll(bindings, req, resp, pathVariables);
+		gsonBinder.bindAll(bindings, req, resp);
 
 		Object boundValue = bindings.get(parameterDescription);
 		assertThat(boundValue, is(notNullValue()));

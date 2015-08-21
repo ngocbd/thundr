@@ -18,6 +18,8 @@
 package com.threewks.thundr.test;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 
 import jodd.util.ReflectUtil;
 
@@ -55,6 +57,28 @@ public class TestSupport {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * This method extracts the internal state of the given request so we can
+	 * validate that no operations change the internal state - making testing
+	 * of the immutability guarantee easier
+	 * 
+	 * @param initial
+	 * @return
+	 */
+	public static <T> Map<String, Object> extractState(T target) {
+		try {
+			Field[] fields = ReflectUtil.getSupportedFields(target.getClass());
+			Map<String, Object> results = new HashMap<>();
+			for (Field field : fields) {
+				field.setAccessible(true);
+				results.put(field.getName(), field.get(target));
+			}
+			return results;
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private static <T> Class<? extends Object> getClass(T targetObject) {

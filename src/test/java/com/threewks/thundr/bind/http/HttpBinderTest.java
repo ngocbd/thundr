@@ -21,7 +21,6 @@ import static com.atomicleopard.expressive.Expressive.map;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -42,7 +41,6 @@ public class HttpBinderTest {
 	private HttpBinder binder;
 	private MockRequest request = new MockRequest(HttpMethod.GET, "/path");
 	private MockResponse response = new MockResponse(TransformerManager.createWithDefaults());
-	private Map<String, String> pathVariables;
 	private Map<ParameterDescription, Object> parameterDescriptions;
 	private ParameterBinderRegistry parameterBinderRegistry;
 
@@ -53,7 +51,6 @@ public class HttpBinderTest {
 		binder = new HttpBinder(parameterBinderRegistry);
 
 		parameterDescriptions = new LinkedHashMap<ParameterDescription, Object>();
-		pathVariables = new HashMap<String, String>();
 	}
 
 	@Test
@@ -65,7 +62,7 @@ public class HttpBinderTest {
 
 		request.withContentTypeString(null);
 		parameterDescriptions = map(param1, null);
-		binder.bindAll(parameterDescriptions, request, response, pathVariables);
+		binder.bindAll(parameterDescriptions, request, response);
 		assertThat(parameterDescriptions.get(param1), is((Object) 1));
 	}
 
@@ -79,7 +76,7 @@ public class HttpBinderTest {
 		for (ContentType contentType : ContentType.values()) {
 			request.withContentType(contentType);
 			parameterDescriptions = map(param1, null);
-			binder.bindAll(parameterDescriptions, request, response, pathVariables);
+			binder.bindAll(parameterDescriptions, request, response);
 			assertThat(parameterDescriptions.get(param1), is((Object) 1));
 		}
 	}
@@ -99,7 +96,7 @@ public class HttpBinderTest {
 		parameterDescriptions.put(param2, null);
 		parameterDescriptions.put(param3, null);
 
-		binder.bindAll(parameterDescriptions, request, response, pathVariables);
+		binder.bindAll(parameterDescriptions, request, response);
 		assertThat(parameterDescriptions.get(param1), is((Object) 1));
 		assertThat(parameterDescriptions.get(param2), is((Object) "2"));
 		assertThat(parameterDescriptions.get(param3), is((Object) new TestBean("3", "three")));

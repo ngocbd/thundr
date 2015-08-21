@@ -41,7 +41,7 @@ public class ParameterBindingModuleTest {
 	public void shouldProvideParameterBinderRegistryWithDefaultsConfigured() {
 
 		UpdatableInjectionContext injectionContext = new InjectionContextImpl();
-		module.configure(injectionContext);
+		module.initialise(injectionContext);
 
 		ParameterBinderRegistry parameterBinderRegistry = injectionContext.get(ParameterBinderRegistry.class);
 		assertThat(parameterBinderRegistry, is(notNullValue()));
