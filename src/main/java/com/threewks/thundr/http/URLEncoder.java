@@ -68,7 +68,7 @@ public class URLEncoder {
 	}
 
 	/**
-	 * Encodes the given query parameters into the query string such that it returns <code>?param1=value1&param2=value2&....</code>.
+	 * Encodes the given query parameters into the query string such that it returns &lt;code&gt;?param1=value1&amp;param2=value2&amp;....&lt;/code&gt;.
 	 * 
 	 * Uses toString on parameters to determine their string representation.
 	 * Returns an empty string if no parameters are provided.
@@ -90,7 +90,7 @@ public class URLEncoder {
 	}
 
 	/**
-	 * Encodes the given query parameters into the query string such that it returns <code>?param1=value1&param2=value2&....</code>.
+	 * Encodes the given query parameters into the query string such that it returns &lt;code&gt;?param1=value1&amp;param2=value2&amp;....&lt;/code&gt;.
 	 * 
 	 * Uses the given {@link TransformerManager} on parameters to determine their string representation.
 	 * Returns an empty string if no parameters are provided.

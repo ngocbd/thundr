@@ -141,7 +141,6 @@ public class FilterRegistryImpl implements FilterRegistry {
 	/**
 	 * Used by the framework at runtime, you should not need to invoke this method directly.
 	 * 
-	 * @param method
 	 * @param req
 	 * @param resp
 	 * @return a view to use instead of calling through to the controller method, or null if execution should continue
@@ -161,7 +160,6 @@ public class FilterRegistryImpl implements FilterRegistry {
 	/**
 	 * Used by the framework at runtime, you should not need to invoke this method directly.
 	 * 
-	 * @param method
 	 * @param view
 	 * @param req
 	 * @param resp
@@ -183,7 +181,6 @@ public class FilterRegistryImpl implements FilterRegistry {
 	/**
 	 * Used by the framework at runtime, you should not need to invoke this method directly.
 	 * 
-	 * @param method
 	 * @param e
 	 * @param req
 	 * @param resp

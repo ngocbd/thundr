@@ -20,9 +20,6 @@ package com.threewks.thundr.view;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,9 +27,7 @@ import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.Cookie;
 import com.threewks.thundr.http.Cookie.CookieBuilder;
 import com.threewks.thundr.http.StatusCode;
-import com.threewks.thundr.request.mock.MockRequest;
 import com.threewks.thundr.request.mock.MockResponse;
-import com.threewks.thundr.route.HttpMethod;
 
 public class BaseViewTest {
 

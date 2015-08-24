@@ -66,7 +66,7 @@ public interface Response {
 	 * 
 	 * @param header
 	 * @param value
-	 * @param omit
+	 * @param include
 	 * @return
 	 */
 

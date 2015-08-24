@@ -24,15 +24,15 @@ import com.threewks.thundr.module.DependencyRegistry;
  * 
  * When an application begins, the following lifecycle is followed:
  * <ol>
- *  <li>{@link #requires() is invoked in dependency order on all added modules - this allows modules to express a dependency on an load other modules programatically. Dependency order is adhered to by the other lifecycle methods</li>
+ *  <li>{@link #requires(DependencyRegistry)} is invoked in dependency order on all added modules - this allows modules to express a dependency on an load other modules programatically. Dependency order is adhered to by the other lifecycle methods</li>
  * 	<li>{@link #initialise(UpdatableInjectionContext)} is invoked in dependency order on all modules - modules can provide configuration and implementations that have no dependencies here by injecting them into the InjectionContext</li>
- * 	<li>{@link #configure(UpdatableInjectionContext) is invoked in dependency order on all modules - modules complete configuration of provided classes here  - any dependent interfaces or configuration should already have been provided</li>
- * 	<li>{@link #start(UpdatableInjectionContext) is invoked in dependency order on all modules - modules that need to execute logic on startup, start services or thread pools etc can do this here - all configuration should already have been provided</li>
+ * 	<li>{@link #configure(UpdatableInjectionContext)} is invoked in dependency order on all modules - modules complete configuration of provided classes here  - any dependent interfaces or configuration should already have been provided</li>
+ * 	<li>{@link #start(UpdatableInjectionContext)} is invoked in dependency order on all modules - modules that need to execute logic on startup, start services or thread pools etc can do this here - all configuration should already have been provided</li>
  * </ol>
  * 
  * Likewise, when an application is stopped, the following lifecylce is followed:
  * <ol>
- * <li>{@link #stop(UpdatableInjectionContext) is invoked in reverse dependency order on all modules - modules that need to execute logic on stopping, stop services or clean up can do this here</li>
+ * <li>{@link #stop(InjectionContext)} is invoked in reverse dependency order on all modules - modules that need to execute logic on stopping, stop services or clean up can do this here</li>
  * </ol>
  * 
  * @author nick

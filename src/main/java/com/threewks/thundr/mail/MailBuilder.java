@@ -180,8 +180,6 @@ public interface MailBuilder {
 
 	/**
 	 * Add the given map of email address to names to the 'bcc' recipients of the email
-	 * 
-	 * @param email
 	 * @return
 	 */
 	public MailBuilder bcc(Map<String, String> bcc);

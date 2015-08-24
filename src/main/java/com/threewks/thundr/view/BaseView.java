@@ -35,7 +35,7 @@ import com.threewks.thundr.view.redirect.RouteRedirectView;
  * Varying {@link ViewResolver} implementations may choose to ignore some values if they do
  * not make sense.
  * 
- * For advanced usages, you may need to receive the {@link HttpServletResponse} directly in your
+ * For advanced usages, you may need to receive a {@link Response} directly in your
  * controller method and manipulate it directly.
  */
 public abstract class BaseView<Self extends BaseView<Self>> implements View {
@@ -96,7 +96,7 @@ public abstract class BaseView<Self extends BaseView<Self>> implements View {
 	 * 
 	 * @param cookie
 	 * @return this view
-	 * @see Cookies for convenient cookie builder
+	 * @see Cookie for convenient cookie builder
 	 */
 	public Self withCookie(Cookie cookie) {
 		cookies.put(cookie.getName(), cookie);
@@ -133,7 +133,7 @@ public abstract class BaseView<Self extends BaseView<Self>> implements View {
 	 * 
 	 * To send an error:
 	 * <ul>
-	 * <li>To use the containers configured error page, throw {@link HttpStatusException} or setting {@link HttpServletResponse#sendError(int)}</li>
+	 * <li>To use the containers configured error page, throw {@link HttpStatusException}</li>
 	 * <li>To send an error with your view as content, use this method and set an error status code</li>
 	 * </ul>
 	 * 

@@ -73,9 +73,9 @@ public enum ContentType {
 	 * Removes extraneous information from the content-type header, such as encoding etc.
 	 * If this is not recognised as a content type, returns the input.
 	 * 
-	 * @see http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7
 	 * @param rawContentType
 	 * @return
+	 * @see <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7">http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.7</a>
 	 */
 	public static String cleanContentType(String rawContentType) {
 		if (rawContentType != null) {

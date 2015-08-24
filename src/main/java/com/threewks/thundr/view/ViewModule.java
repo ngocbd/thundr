@@ -50,7 +50,6 @@ public class ViewModule extends BaseModule {
 	@Override
 	public void initialise(UpdatableInjectionContext injectionContext) {
 		injectionContext.inject(ViewResolverRegistry.class).as(ViewResolverRegistry.class);
-		injectionContext.inject(BasicViewRenderer.class).as(ViewRenderer.class);
 		injectionContext.inject(ViewNegotiatorRegistryImpl.class).as(ViewNegotiatorRegistry.class);
 		injectionContext.inject(GlobalModel.class).as(GlobalModel.class);
 	}

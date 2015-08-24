@@ -26,6 +26,8 @@ import java.util.WeakHashMap;
 
 import com.threewks.thundr.introspection.ClassIntrospector;
 import com.threewks.thundr.logger.Logger;
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 
 public class ViewResolverRegistry {
 	private Map<Class<?>, ViewResolver<?>> resolvers = new HashMap<Class<?>, ViewResolver<?>>();
@@ -91,5 +93,14 @@ public class ViewResolverRegistry {
 	private <T> Class<?> getViewResultType(T viewResult) {
 		Class<?> type = viewResult == null ? null : viewResult.getClass();
 		return type;
+	}
+
+	public <R extends Response> R resolve(Request request, R response, Object view) {
+		ViewResolver<Object> viewResolver = findViewResolver(view);
+		if (viewResolver == null) {
+			throw new ViewResolverNotFoundException("No %s is registered for the view result %s - %s", ViewResolver.class.getSimpleName(), view.getClass().getSimpleName(), view);
+		}
+		viewResolver.resolve(request, response, view);
+		return response;
 	}
 }

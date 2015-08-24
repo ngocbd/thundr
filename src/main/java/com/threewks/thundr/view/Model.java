@@ -41,11 +41,7 @@ public class Model extends LinkedHashMap<String, Object> {
 	}
 
 	/**
-	 * Returns a new model which overlays the given model on top of this one.
-	 * This will not change the contents of this model.
-	 * 
-	 * @param model
-	 * @return
+	 * Returns a new model which overlays the given models on top of eachther, with later models taking precendence.
 	 */
 	@SafeVarargs
 	public static <M extends Map<String, Object>> Model combine(M... models) {

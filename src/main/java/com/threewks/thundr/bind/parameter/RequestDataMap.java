@@ -108,10 +108,10 @@ public class RequestDataMap {
 	 * }
 	 * 
 	 * would look like this:
-	 * object.a -> value A
-	 * object.b -> value B
+	 * object.a -&gt; value A
+	 * object.b -&gt; value B
 	 * 
-	 * The returned map is a map of String -> String, or if multiple values exist, String -> List<String>
+	 * The returned map is a map of String -&gt; String, or if multiple values exist, String -&gt; List&lt;String&gt;
 	 */
 	public Map<String, Object> toStringMap(String pathElement) {
 		Map<String, Object> stringMap = new HashMap<String, Object>();
@@ -149,8 +149,8 @@ public class RequestDataMap {
 	 * }
 	 * 
 	 * would look like this:
-	 * a -> value A
-	 * b -> value B
+	 * a -&gt; value A
+	 * b -&gt; value B
 	 */
 	public Map<String, List<String>> toStringMap() {
 		Map<String, List<String>> stringMap = new HashMap<String, List<String>>();

@@ -25,7 +25,6 @@ import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.request.InMemoryResponse;
 import com.threewks.thundr.request.RequestContainer;
 import com.threewks.thundr.transformer.TransformerManager;
-import com.threewks.thundr.view.BasicViewRenderer;
 import com.threewks.thundr.view.ViewResolverRegistry;
 
 public abstract class BaseMailer implements Mailer {
@@ -65,10 +64,7 @@ public abstract class BaseMailer implements Mailer {
 
 	protected InMemoryResponse render(Object view) {
 		try {
-			BasicViewRenderer basicViewRenderer = new BasicViewRenderer(viewResolverRegistry);
-			InMemoryResponse response = new InMemoryResponse(getTransformerManager());
-			basicViewRenderer.render(requestContainer.getRequest(), response, view);
-			return response;
+			return viewResolverRegistry.resolve(requestContainer.getRequest(), new InMemoryResponse(getTransformerManager()), view);
 		} catch (Exception e) {
 			throw new MailException(e, "Failed to render email part: %s", e.getMessage());
 		}

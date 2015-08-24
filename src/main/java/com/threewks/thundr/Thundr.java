@@ -28,6 +28,7 @@ import com.threewks.thundr.injection.UpdatableInjectionContext;
 import com.threewks.thundr.logger.Logger;
 import com.threewks.thundr.module.Modules;
 import com.threewks.thundr.module.ModulesModule;
+import com.threewks.thundr.request.MutableRequestContainer;
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.RequestModule;
 import com.threewks.thundr.request.Response;
@@ -37,8 +38,8 @@ import com.threewks.thundr.route.RouteResolverException;
 import com.threewks.thundr.route.Router;
 import com.threewks.thundr.route.RouterModule;
 import com.threewks.thundr.transformer.TransformerModule;
-import com.threewks.thundr.view.ViewRenderer;
 import com.threewks.thundr.view.ViewResolverNotFoundException;
+import com.threewks.thundr.view.ViewResolverRegistry;
 
 /**
  *
@@ -123,14 +124,17 @@ public class Thundr {
 	 * 
 	 * @param req
 	 * @param resp
-	 * @param viewRenderer
 	 */
-	public void resolve(Request req, Response resp, ViewRenderer viewRenderer) {
+	public void resolve(Request req, Response resp) {
+		MutableRequestContainer requestContainer = injectionContext.get(MutableRequestContainer.class);
+		ViewResolverRegistry viewResolverRegistry = injectionContext.get(ViewResolverRegistry.class);
+		Router router = injectionContext.get(Router.class);
+
 		try {
-			Router router = injectionContext.get(Router.class);
-			final Object viewResult = router.resolve(req, resp);
-			if (viewResult != null) {
-				viewRenderer.render(req, resp, viewResult);
+			requestContainer.set(req, resp);
+			Object view = router.resolve(req, resp);
+			if (view != null) {
+				viewResolverRegistry.resolve(req, resp, view);
 			}
 		} catch (RuntimeException e) {
 			if (Cast.is(e, RouteResolverException.class)) {
@@ -143,11 +147,13 @@ public class Thundr {
 			}
 			if (resp.isUncommitted()) {
 				try {
-					viewRenderer.render(req, resp, e);
+					viewResolverRegistry.resolve(req, resp, e);
 				} catch (ViewResolverNotFoundException exceptionViewNotFound) {
 					throw e;
 				}
 			}
+		} finally {
+			requestContainer.clear();
 		}
 	}
 

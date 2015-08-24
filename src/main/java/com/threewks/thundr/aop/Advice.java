@@ -53,7 +53,6 @@ public interface Advice<A extends Annotation, T> {
 	 * @param annotation
 	 * @param arguments
 	 * @return
-	 * @throws Exception
 	 */
 	public T exception(Exception e, A annotation, Arguments arguments);
 }

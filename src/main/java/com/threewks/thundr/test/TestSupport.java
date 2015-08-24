@@ -64,7 +64,6 @@ public class TestSupport {
 	 * validate that no operations change the internal state - making testing
 	 * of the immutability guarantee easier
 	 * 
-	 * @param initial
 	 * @return
 	 */
 	public static <T> Map<String, Object> extractState(T target) {

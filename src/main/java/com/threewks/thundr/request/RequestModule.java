@@ -20,11 +20,11 @@ package com.threewks.thundr.request;
 import com.threewks.thundr.injection.BaseModule;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 
-public class RequestModule extends BaseModule{
+public class RequestModule extends BaseModule {
 
 	@Override
 	public void configure(UpdatableInjectionContext injectionContext) {
-		if(!injectionContext.contains(RequestContainer.class) || !injectionContext.contains(MutableRequestContainer.class)){
+		if (!injectionContext.contains(RequestContainer.class) || !injectionContext.contains(MutableRequestContainer.class)) {
 			ThreadLocalRequestContainer requestContainer = new ThreadLocalRequestContainer();
 			injectionContext.inject(requestContainer).as(RequestContainer.class, MutableRequestContainer.class);
 		}

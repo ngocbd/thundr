@@ -67,7 +67,7 @@ public class Attachment {
 
 	/**
 	 * Get the content ID for inline attachments. This is simply `name`
-	 * surrounded with angle brackets (i.e. <name>) as it required for content IDs.
+	 * surrounded with angle brackets (i.e. &lt;name&gt;) as it required for content IDs.
 	 * 
 	 * @return the content ID;
 	 */
