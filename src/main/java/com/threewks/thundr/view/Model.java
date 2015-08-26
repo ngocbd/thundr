@@ -40,6 +40,10 @@ public class Model extends LinkedHashMap<String, Object> {
 		super(Expressive.<String, Object> map(args));
 	}
 
+	public Model with(String key, Object value){
+		this.put(key, value);
+		return this;
+	}
 	/**
 	 * Returns a new model which overlays the given models on top of eachther, with later models taking precendence.
 	 */

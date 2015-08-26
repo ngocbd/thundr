@@ -17,12 +17,30 @@
  */
 package com.threewks.thundr.http;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.threewks.thundr.request.Request;
+import com.threewks.thundr.request.Response;
 import com.threewks.thundr.util.Encoder;
 
 public class Authorization {
 	public static final String Basic = "Basic";
+	public static final String Bearer = "Bearer";
 
 	public static String createBasicHeader(String username, String password) {
 		return Basic + " " + new Encoder(username + ":" + password).base64().string();
+	}
+
+	public static String createBearerHeader(String token) {
+		return Bearer + " " + token;
+	}
+
+	public static void writeBearerHeader(Response resp, String token) {
+		resp.withHeader(Header.Authorization, createBearerHeader(token));
+	}
+
+	public static String readBearerHeader(Request req) {
+		String header = req.getHeader(Header.Authorization);
+		return StringUtils.removeStartIgnoreCase(header, "Bearer ");
 	}
 }

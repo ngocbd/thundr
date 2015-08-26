@@ -46,18 +46,20 @@ public class CookieBinder implements Binder {
 
 	@Override
 	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp) {
-		Map<String, List<Cookie>> cookies = req.getAllCookies();
-		if (isNotEmpty(cookies) && bindings.values().contains(null)) {
-			Map<String, List<String>> cookieValues = getCookieValues(cookies);
-			parameterBinderRegistry.bind(bindings, cookieValues, null);
+		if (bindings.values().contains(null)) {
+			Map<String, List<Cookie>> cookies = req.getAllCookies();
+			if (isNotEmpty(cookies)) {
+				Map<String, List<String>> cookieValues = getCookieValues(cookies);
+				parameterBinderRegistry.bind(bindings, cookieValues, null);
 
-			for (Map.Entry<ParameterDescription, Object> binding : bindings.entrySet()) {
-				ParameterDescription key = binding.getKey();
-				if (binding.getValue() == null && key.isA(Cookie.class)) {
-					String name = key.name();
-					List<Cookie> namedCookies = cookies.get(name);
-					Cookie cookie = isNotEmpty(namedCookies) ? namedCookies.get(0) : null;
-					bindings.put(key, cookie);
+				for (Map.Entry<ParameterDescription, Object> binding : bindings.entrySet()) {
+					ParameterDescription key = binding.getKey();
+					if (binding.getValue() == null && key.isA(Cookie.class)) {
+						String name = key.name();
+						List<Cookie> namedCookies = cookies.get(name);
+						Cookie cookie = isNotEmpty(namedCookies) ? namedCookies.get(0) : null;
+						bindings.put(key, cookie);
+					}
 				}
 			}
 		}

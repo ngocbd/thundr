@@ -28,6 +28,7 @@ import java.util.Map;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUpload;
+import org.apache.commons.fileupload.MultipartStream.MalformedStreamException;
 import org.apache.commons.fileupload.RequestContext;
 import org.apache.commons.fileupload.UploadContext;
 
@@ -37,6 +38,7 @@ import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.MultipartFile;
 import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.logger.Logger;
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.Response;
 import com.threewks.thundr.util.Streams;
@@ -93,8 +95,10 @@ public class MultipartHttpBinder implements Binder {
 					MultipartFile file = new MultipartFile(item.getName(), Streams.readBytes(stream), item.getContentType());
 					fileFields.put(fieldName, file);
 				}
-				//stream.close();
+				// stream.close();
 			}
+		} catch (MalformedStreamException e) {
+			Logger.warn("Recieved a malformed multipart stream - data may be missing or unbound, continuing with the request anyway. Error message: %s", e.getMessage());
 		} catch (Exception e) {
 			throw new BindException(e, "Failed to bind multipart form data: %s", e.getMessage());
 		}
