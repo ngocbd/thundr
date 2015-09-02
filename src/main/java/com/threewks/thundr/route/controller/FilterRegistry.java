@@ -31,29 +31,26 @@ import com.threewks.thundr.request.Response;
  */
 public interface FilterRegistry {
 	/**
-	 * Add the given filter for all controller methods on the given path.
+	 * Add the given filter for all controller methods on the given paths.
 	 * Allows wildcards in the form of * and **.
 	 * e.g. <code>/**</code> - all methods <code>/path/**</code> any methods invoked on /path/ and any number of subpaths <code>/path/*</code> any methods invoked on an subpath of path.
-	 * 
-	 * @param path
 	 * @param filter
+	 * @param paths
 	 */
-	public void add(String path, Filter filter);
+	public void add(Filter filter, String...paths);
 
 	/**
 	 * Remove the given filter from the given path.
-	 * 
-	 * @param path
 	 * @param filter
+	 * @param paths
 	 */
-	public void remove(String path, Filter filter);
+	public void remove(Filter filter, String...paths);
 	/**
 	 * Remove filters of the given type from the given path.
-	 * 
-	 * @param path
 	 * @param filter
+	 * @param paths
 	 */
-	public void remove(String path, Class<? extends Filter> filter);
+	public void remove(Class<? extends Filter> filter, String...paths);
 
 	/**
 	 * Remove the given filter from any paths it was previously added for
@@ -69,19 +66,19 @@ public interface FilterRegistry {
 	public void remove(Class<? extends Filter> filter);
 
 	/**
-	 * @param path
 	 * @param filter
+	 * @param path
 	 * @return true if the given filter has already been added on the given path
 	 */
-	public boolean has(String path, Filter filter);
+	public boolean has(Filter filter, String path);
 	
 	/**
 	 * 
-	 * @param path
 	 * @param filter
+	 * @param path
 	 * @return true if a filter with the given type has already been added on the given path
 	 */
-	public boolean has(String path, Class<? extends Filter> filter);
+	public boolean has(Class<? extends Filter> filter, String path);
 
 	/**
 	 * Used by the framework at runtime, you should not need to invoke this method directly.

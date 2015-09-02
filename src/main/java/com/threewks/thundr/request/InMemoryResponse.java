@@ -191,4 +191,8 @@ public class InMemoryResponse extends BaseResponse implements Response {
 		return Collections.unmodifiableList(this.cookies);
 	}
 
+	@Override
+	public void finaliseResponse() {
+	}
+
 }

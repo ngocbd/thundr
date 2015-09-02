@@ -33,7 +33,7 @@ public class Cookie {
 	protected Boolean secure;
 
 	public Cookie(String name, String value) {
-		this(name, value, null, null, null, null, null, null);
+		this(name, value, "/", null, null, null, null, null);
 	}
 
 	protected Cookie() {
@@ -104,7 +104,7 @@ public class Cookie {
 
 	public static class CookieBuilder extends Cookie {
 		public CookieBuilder() {
-
+			super();
 		}
 
 		public CookieBuilder(String name, String value, String path, String domain, Duration maxAge, String comment, Integer version, Boolean secure) {
@@ -112,7 +112,7 @@ public class Cookie {
 		}
 
 		public CookieBuilder(String name) {
-			this.name = name;
+			super(name, null);
 		}
 
 		public CookieBuilder withName(String name) {

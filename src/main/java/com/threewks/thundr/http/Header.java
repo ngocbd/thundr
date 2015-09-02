@@ -45,4 +45,5 @@ public class Header {
 	public static final String UserAgent = "User-Agent";
 	public static final String Vary = "Vary";
 	public static final String XHttpMethodOverride = "X-HTTP-Method-Override";
+	public static final String XXsrfToken = "X-XSRF-TOKEN";
 }

@@ -24,8 +24,6 @@ import static org.mockito.Mockito.*;
 import java.io.IOException;
 import java.util.Collections;
 
-import javax.servlet.ServletException;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -227,7 +225,7 @@ public class ThundrTest {
 	}
 
 	@Test
-	public void shouldSetAndClearRequestAndResponseIntoRequestScope() throws ServletException, IOException {
+	public void shouldSetAndClearRequestAndResponseIntoRequestScope() throws IOException {
 		final MutableRequestContainer requestContainer = injectionContext.get(MutableRequestContainer.class);
 		assertThat(requestContainer, is(notNullValue()));
 
@@ -248,7 +246,7 @@ public class ThundrTest {
 	}
 
 	@Test
-	public void shouldSetAndClearRequestAndResponseIntoRequestScopeOnException() throws ServletException, IOException {
+	public void shouldSetAndClearRequestAndResponseIntoRequestScopeOnException() throws IOException {
 		final MutableRequestContainer requestContainer = injectionContext.get(MutableRequestContainer.class);
 		assertThat(requestContainer, is(notNullValue()));
 

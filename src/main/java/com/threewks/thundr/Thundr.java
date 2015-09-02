@@ -135,6 +135,7 @@ public class Thundr {
 			Object view = router.resolve(req, resp);
 			if (view != null) {
 				viewResolverRegistry.resolve(req, resp, view);
+				resp.finaliseResponse();
 			}
 		} catch (RuntimeException e) {
 			if (Cast.is(e, RouteResolverException.class)) {
@@ -148,6 +149,7 @@ public class Thundr {
 			if (resp.isUncommitted()) {
 				try {
 					viewResolverRegistry.resolve(req, resp, e);
+					resp.finaliseResponse();
 				} catch (ViewResolverNotFoundException exceptionViewNotFound) {
 					throw e;
 				}

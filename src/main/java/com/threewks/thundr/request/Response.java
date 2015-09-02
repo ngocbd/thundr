@@ -137,4 +137,10 @@ public interface Response {
 	Cookie getCookie(String name);
 
 	List<Cookie> getAllCookies();
+	
+	/**
+	 * Called by the framework to finalise the underlying response, 
+	 * sending any required data in the order required.
+	 */
+	void finaliseResponse();
 }

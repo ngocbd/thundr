@@ -18,6 +18,8 @@
 package com.threewks.thundr.route.controller;
 
 import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -212,6 +214,7 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Inter
 
 	@Override
 	public <A extends Annotation> void registerInterceptor(Class<A> annotation, Interceptor<A> interceptor) {
+		verifyHasRetentionRuntime(annotation);
 		actionInterceptors.put(annotation, interceptor);
 		Logger.info("Added ActionInterceptor %s for methods annotated with %s", interceptor, annotation);
 	}
@@ -223,5 +226,18 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Inter
 
 	public BinderRegistry getBinderRegistry() {
 		return binderRegistry;
+	}
+
+	private void verifyHasRetentionRuntime(Class<? extends Annotation> a) {
+		boolean ok = false;
+		for (Annotation annotation : a.getAnnotations()) {
+			Retention r = Cast.as(annotation, Retention.class);
+			if (r != null && r.value() == RetentionPolicy.RUNTIME) {
+				ok = true;
+			}
+		}
+		if (!ok) {
+			throw new BaseException("Cannot register an interceptor for the annotation '%s' - you have not marked this annotation as @Retention(RetentionPolicy.RUNTIME)", a.getSimpleName());
+		}
 	}
 }

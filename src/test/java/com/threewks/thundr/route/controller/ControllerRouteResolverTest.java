@@ -106,7 +106,7 @@ public class ControllerRouteResolverTest {
 	@Test
 	public void shouldInvokeFilterBeforeActionMethod() {
 		Filter filter = mock(Filter.class);
-		filterRegistry.add("/*", filter);
+		filterRegistry.add(filter, "/*");
 		TestActionInterceptor registeredInterceptor = new TestActionInterceptor(null, null, null);
 		Controller action = prepareActionMethod("intercept", registeredInterceptor);
 
@@ -121,7 +121,7 @@ public class ControllerRouteResolverTest {
 	@Test
 	public void shouldReturnViewFromFilterAndSkipControllerInterceptorsAndOtherFilters() {
 		Filter filter = mock(Filter.class);
-		filterRegistry.add("/*", filter);
+		filterRegistry.add(filter, "/*");
 		when(filter.before(req, resp)).thenReturn("Filter Result");
 
 		TestActionInterceptor registeredInterceptor = new TestActionInterceptor(null, null, null);
@@ -190,7 +190,7 @@ public class ControllerRouteResolverTest {
 	@Test
 	public void shouldInvokeFilterAfterActionMethodAndInterceptors() {
 		Filter filter = mock(Filter.class);
-		filterRegistry.add("/*", filter);
+		filterRegistry.add(filter, "/*");
 		TestActionInterceptor registeredInterceptor = new TestActionInterceptor(null, null, null);
 		Controller action = prepareActionMethod("intercept", registeredInterceptor);
 
@@ -205,7 +205,7 @@ public class ControllerRouteResolverTest {
 	@Test
 	public void shouldReturnViewFromAfterFilterAfterRunningInterceptors() {
 		Filter filter = mock(Filter.class);
-		filterRegistry.add("/*", filter);
+		filterRegistry.add(filter, "/*");
 		when(filter.after(null, req, resp)).thenReturn("Filter Result");
 
 		TestActionInterceptor registeredInterceptor = new TestActionInterceptor(null, null, null);
@@ -245,7 +245,7 @@ public class ControllerRouteResolverTest {
 	@Test
 	public void shouldInvokeAfterFiltersPassingTheResultOfAfterInterceptors() {
 		Filter filter = mock(Filter.class);
-		filterRegistry.add("/*", filter);
+		filterRegistry.add(filter, "/*");
 
 		TestActionInterceptor registeredInterceptor = new TestActionInterceptor(null, "Expected After", null);
 		Controller action = prepareActionMethod("intercept", registeredInterceptor);
@@ -262,7 +262,7 @@ public class ControllerRouteResolverTest {
 	@Test
 	public void shouldInvokeFilterOnException() {
 		Filter filter = mock(Filter.class);
-		filterRegistry.add("/*", filter);
+		filterRegistry.add(filter, "/*");
 		TestActionInterceptor registeredInterceptor = new TestActionInterceptor(null, null, "invoked");
 		Controller action = prepareActionMethod("interceptException", registeredInterceptor);
 
@@ -278,7 +278,7 @@ public class ControllerRouteResolverTest {
 	@Test
 	public void shouldReturnViewFromExceptionFilterAfterRunningInterceptors() {
 		Filter filter = mock(Filter.class);
-		filterRegistry.add("/*", filter);
+		filterRegistry.add(filter, "/*");
 		when(filter.exception(Mockito.any(Exception.class), eq(req), eq(resp))).thenReturn("Filter Result");
 
 		TestActionInterceptor registeredInterceptor = new TestActionInterceptor(null, null, "invoked");

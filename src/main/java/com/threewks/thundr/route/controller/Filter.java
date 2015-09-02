@@ -25,7 +25,7 @@ import com.threewks.thundr.request.Response;
  * Filters allow a before, after and exception cutpoint on controller methods invoked based on the
  * request url.
  * 
- * They can be added in your {@link Module} by calling {@link FilterRegistry#add(String, Filter)}.
+ * They can be added in your {@link Module} by calling {@link FilterRegistry#add(Filter, String)}.
  */
 public interface Filter {
 	/**

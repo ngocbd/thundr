@@ -29,7 +29,10 @@ public class HttpStatusExceptionViewResolver implements ViewResolver<HttpStatusE
 		try {
 			// TODO - v3 - send error delegates to the servlet container's error handling
 			// resp.sendError(viewResult.getStatus());
-			resp.withStatusCode(viewResult.getStatus());
+			// @formatter:off
+			resp.withStatusCode(viewResult.getStatus())
+				.withStatusMessage(viewResult.getMessage());
+			// @formatter:on
 		} catch (Exception e) {
 			throw new ViewResolutionException(e, "Failed to send error status %d", viewResult.getStatus());
 		}

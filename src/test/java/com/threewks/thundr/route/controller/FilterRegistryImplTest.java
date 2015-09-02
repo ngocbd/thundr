@@ -40,69 +40,69 @@ public class FilterRegistryImplTest {
 
 	@Test
 	public void shouldRetainGivenFilterAndMapping() {
-		registry.add("/**", filter1);
-		assertThat(registry.has("/**", filter1), is(true));
+		registry.add(filter1, "/**");
+		assertThat(registry.has(filter1, "/**"), is(true));
 	}
 
 	@Test
 	public void shouldAllowMultipleFiltersPerPath() {
-		registry.add("/**", filter1);
-		registry.add("/**", filter2);
-		assertThat(registry.has("/**", filter1), is(true));
-		assertThat(registry.has("/**", filter2), is(true));
+		registry.add(filter1, "/**");
+		registry.add(filter2, "/**");
+		assertThat(registry.has(filter1, "/**"), is(true));
+		assertThat(registry.has(filter2, "/**"), is(true));
 	}
 
 	@Test
 	public void shouldAllowAFilterToBePlacedOnManyPaths() {
-		registry.add("/a/**", filter1);
-		registry.add("/b/**", filter1);
-		assertThat(registry.has("/**", filter1), is(false));
-		assertThat(registry.has("/a/**", filter1), is(true));
-		assertThat(registry.has("/b/**", filter1), is(true));
+		registry.add(filter1, "/a/**");
+		registry.add(filter1, "/b/**");
+		assertThat(registry.has(filter1, "/**"), is(false));
+		assertThat(registry.has(filter1, "/a/**"), is(true));
+		assertThat(registry.has(filter1, "/b/**"), is(true));
 	}
 
 	@Test
 	public void shouldAllowRemovalOfFilterOnPath() {
-		registry.add("/a/**", filter1);
-		registry.add("/b/**", filter1);
+		registry.add(filter1, "/a/**");
+		registry.add(filter1, "/b/**");
 
-		assertThat(registry.has("/a/**", filter1), is(true));
-		assertThat(registry.has("/b/**", filter1), is(true));
+		assertThat(registry.has(filter1, "/a/**"), is(true));
+		assertThat(registry.has(filter1, "/b/**"), is(true));
 
-		registry.remove("/a/**", filter1);
+		registry.remove(filter1, "/a/**");
 
-		assertThat(registry.has("/a/**", filter1), is(false));
-		assertThat(registry.has("/b/**", filter1), is(true));
+		assertThat(registry.has(filter1, "/a/**"), is(false));
+		assertThat(registry.has(filter1, "/b/**"), is(true));
 	}
 
 	@Test
 	public void shouldNotFailRemovingFilterthatWasntAdded() {
-		assertThat(registry.has("/a/**", filter1), is(false));
+		assertThat(registry.has(filter1, "/a/**"), is(false));
 
-		registry.remove("/a/**", filter1);
+		registry.remove(filter1, "/a/**");
 
-		assertThat(registry.has("/a/**", filter1), is(false));
+		assertThat(registry.has(filter1, "/a/**"), is(false));
 	}
 
 	@Test
 	public void shouldAllowRemovalOfFilterFromAllPaths() {
-		registry.add("/a/**", filter1);
-		registry.add("/b/**", filter1);
+		registry.add(filter1, "/a/**");
+		registry.add(filter1, "/b/**");
 
-		assertThat(registry.has("/a/**", filter1), is(true));
-		assertThat(registry.has("/b/**", filter1), is(true));
+		assertThat(registry.has(filter1, "/a/**"), is(true));
+		assertThat(registry.has(filter1, "/b/**"), is(true));
 
 		registry.remove(filter1);
 
-		assertThat(registry.has("/a/**", filter1), is(false));
-		assertThat(registry.has("/b/**", filter1), is(false));
+		assertThat(registry.has(filter1, "/a/**"), is(false));
+		assertThat(registry.has(filter1, "/b/**"), is(false));
 	}
 
 	@Test
 	public void shouldRunBeforeOnAllFiltersMatchingPath() {
-		registry.add("/**", filter1);
-		registry.add("/sub/**", filter2);
-		registry.add("/other/**", filter3);
+		registry.add(filter1, "/**");
+		registry.add(filter2, "/sub/**");
+		registry.add(filter3, "/other/**");
 
 		req.withUrl("/sub/path/request");
 		Object result = registry.before(req, resp);
@@ -117,8 +117,8 @@ public class FilterRegistryImplTest {
 	@Test
 	public void shouldReturnViewAndSkipSubsequentBeforeFiltersWhenFilterReturnsNonNullValue() {
 		when(filter1.before(req, resp)).thenReturn("Result");
-		registry.add("/**", filter1);
-		registry.add("/sub/**", filter2);
+		registry.add(filter1, "/**");
+		registry.add(filter2, "/sub/**");
 
 		req.withUrl("/sub/path/request");
 		Object result = registry.before(req, resp);
@@ -130,9 +130,9 @@ public class FilterRegistryImplTest {
 
 	@Test
 	public void shouldRunAfterOnAllFiltersMatchingPath() {
-		registry.add("/**", filter1);
-		registry.add("/sub/**", filter2);
-		registry.add("/other/**", filter3);
+		registry.add(filter1, "/**");
+		registry.add(filter2, "/sub/**");
+		registry.add(filter3, "/other/**");
 
 		req.withUrl("/sub/path/request");
 		Object result = registry.after("View", req, resp);
@@ -146,8 +146,8 @@ public class FilterRegistryImplTest {
 	@Test
 	public void shouldReturnViewAndSkipSubsequentAfterFiltersWhenFilterReturnsNonNullValue() {
 		when(filter2.after("View", req, resp)).thenReturn("Result");
-		registry.add("/**", filter1);
-		registry.add("/sub/**", filter2);
+		registry.add(filter1, "/**");
+		registry.add(filter2, "/sub/**");
 
 		req.withUrl("/sub/path/request");
 		Object result = registry.after("View", req, resp);
@@ -159,9 +159,9 @@ public class FilterRegistryImplTest {
 
 	@Test
 	public void shouldRunExcpetionOnAllFiltersMatchingPath() {
-		registry.add("/**", filter1);
-		registry.add("/sub/**", filter2);
-		registry.add("/other/**", filter3);
+		registry.add(filter1, "/**");
+		registry.add(filter2, "/sub/**");
+		registry.add(filter3, "/other/**");
 
 		req.withUrl("/sub/path/request");
 		Object result = registry.exception(e, req, resp);
@@ -175,8 +175,8 @@ public class FilterRegistryImplTest {
 	@Test
 	public void shouldReturnViewAndSkipSubsequentExceptionFiltersWhenFilterReturnsNonNullValue() {
 		when(filter2.exception(e, req, resp)).thenReturn("Result");
-		registry.add("/**", filter1);
-		registry.add("/sub/**", filter2);
+		registry.add(filter1, "/**");
+		registry.add(filter2, "/sub/**");
 
 		req.withUrl("/sub/path/request");
 		Object result = registry.exception(e, req, resp);
@@ -188,8 +188,8 @@ public class FilterRegistryImplTest {
 
 	@Test
 	public void shouldRunAfterFiltersInReverseOrder() {
-		registry.add("/**", filter1);
-		registry.add("/sub/**", filter2);
+		registry.add(filter1, "/**");
+		registry.add(filter2, "/sub/**");
 
 		req.withUrl("/sub/path/request");
 		Object result = registry.after("View", req, resp);
@@ -203,8 +203,8 @@ public class FilterRegistryImplTest {
 
 	@Test
 	public void shouldRunExceptionFiltersInReverseOrder() {
-		registry.add("/**", filter1);
-		registry.add("/sub/**", filter2);
+		registry.add(filter1, "/**");
+		registry.add(filter2, "/sub/**");
 
 		req.withUrl("/sub/path/request");
 		Object result = registry.exception(e, req, resp);

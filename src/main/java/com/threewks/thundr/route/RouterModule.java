@@ -29,6 +29,9 @@ import com.threewks.thundr.route.controller.FilterRegistryImpl;
 import com.threewks.thundr.route.controller.InterceptorRegistry;
 import com.threewks.thundr.route.redirect.Redirect;
 import com.threewks.thundr.route.redirect.RedirectRouteResolver;
+import com.threewks.thundr.route.xsrf.Xsrf;
+import com.threewks.thundr.route.xsrf.XsrfFilter;
+import com.threewks.thundr.route.xsrf.XsrfInterceptor;
 import com.threewks.thundr.view.ViewModule;
 
 public class RouterModule extends BaseModule {
@@ -57,5 +60,8 @@ public class RouterModule extends BaseModule {
 
 		router.addResolver(Redirect.class, new RedirectRouteResolver());
 		router.addResolver(Controller.class, controllerRouteResolver);
+
+		controllerRouteResolver.registerInterceptor(Xsrf.class, new XsrfInterceptor());
+		
 	}
 }

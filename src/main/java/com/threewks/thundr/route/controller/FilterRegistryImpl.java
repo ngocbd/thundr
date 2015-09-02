@@ -45,32 +45,36 @@ public class FilterRegistryImpl implements FilterRegistry {
 	 * Allows wildcards in the form of * and **.
 	 * e.g. <code>/**</code> - all methods <code>/path/**</code> any methods invoked on /path/ and any number of subpaths <code>/path/*</code> any methods invoked on an subpath of path.
 	 * 
-	 * @param path
 	 * @param filter
+	 * @param paths
 	 */
 	@Override
-	public void add(String path, Filter filter) {
-		String regex = convertPathStringToRegex(path);
-		List<Filter> existing = filters.get(regex);
-		if (existing == null) {
-			existing = new ArrayList<Filter>();
-			filters.put(regex, existing);
+	public void add(Filter filter, String... paths) {
+		for (String path : paths) {
+			String regex = convertPathStringToRegex(path);
+			List<Filter> existing = filters.get(regex);
+			if (existing == null) {
+				existing = new ArrayList<Filter>();
+				filters.put(regex, existing);
+			}
+			existing.add(filter);
 		}
-		existing.add(filter);
 	}
 
 	/**
 	 * Remove the given filter from the given path.
 	 * 
-	 * @param path
 	 * @param filter
+	 * @param paths
 	 */
 	@Override
-	public void remove(String path, Filter filter) {
-		String regex = convertPathStringToRegex(path);
-		List<Filter> existing = filters.get(regex);
-		if (existing != null) {
-			existing.remove(filter);
+	public void remove(Filter filter, String... paths) {
+		for (String path : paths) {
+			String regex = convertPathStringToRegex(path);
+			List<Filter> existing = filters.get(regex);
+			if (existing != null) {
+				existing.remove(filter);
+			}
 		}
 	}
 
@@ -100,33 +104,35 @@ public class FilterRegistryImpl implements FilterRegistry {
 	}
 
 	@Override
-	public void remove(String path, Class<? extends Filter> filter) {
-		String regex = convertPathStringToRegex(path);
-		List<Filter> existing = filters.get(regex);
-		if (existing != null) {
-			Iterator<Filter> iterator = existing.iterator();
-			while (iterator.hasNext()) {
-				Filter f = iterator.next();
-				if (f.getClass().equals(filter)) {
-					iterator.remove();
+	public void remove(Class<? extends Filter> filter, String... paths) {
+		for (String path : paths) {
+			String regex = convertPathStringToRegex(path);
+			List<Filter> existing = filters.get(regex);
+			if (existing != null) {
+				Iterator<Filter> iterator = existing.iterator();
+				while (iterator.hasNext()) {
+					Filter f = iterator.next();
+					if (f.getClass().equals(filter)) {
+						iterator.remove();
+					}
 				}
 			}
 		}
 	}
 
 	/**
-	 * @param path
 	 * @param filter
+	 * @param path
 	 * @return true if the given filter has already been added on the given path
 	 */
 	@Override
-	public boolean has(String path, Filter filter) {
+	public boolean has(Filter filter, String path) {
 		List<Filter> filtersForPath = filters.get(convertPathStringToRegex(path));
 		return filtersForPath == null ? false : filtersForPath.contains(filter);
 	}
 
 	@Override
-	public boolean has(String path, Class<? extends Filter> filter) {
+	public boolean has(Class<? extends Filter> filter, String path) {
 		List<Filter> filtersForPath = filters.get(convertPathStringToRegex(path));
 		if (filtersForPath != null) {
 			for (Filter f : filtersForPath) {
