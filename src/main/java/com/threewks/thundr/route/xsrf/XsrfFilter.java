@@ -17,9 +17,14 @@
  */
 package com.threewks.thundr.route.xsrf;
 
+import java.security.SecureRandom;
+import java.util.Random;
+
 import org.apache.commons.lang3.RandomStringUtils;
+import org.joda.time.Duration;
 
 import com.threewks.thundr.http.Cookie;
+import com.threewks.thundr.http.Cookie.CookieBuilder;
 import com.threewks.thundr.http.Header;
 import com.threewks.thundr.http.StatusCode;
 import com.threewks.thundr.http.exception.HttpStatusException;
@@ -47,6 +52,7 @@ import com.threewks.thundr.route.controller.BaseFilter;
  * </code>
  */
 public class XsrfFilter extends BaseFilter {
+	protected Random random = new SecureRandom();
 	protected String cookieName = "XSRF-TOKEN";
 	protected String headerName = Header.XXsrfToken;
 	protected String requestPropertyName = "xsrf";
@@ -59,7 +65,7 @@ public class XsrfFilter extends BaseFilter {
 			if (expectedXsrfToken == null) {
 				// Create an XSRF token, and put it in the cookie
 				expectedXsrfToken = createXsrfToken();
-				resp.withCookie(Cookie.build(cookieName).withValue(expectedXsrfToken));
+				resp.withCookie(createXsrfCookie(expectedXsrfToken));
 			}
 		} else {
 			String actualXsrfToken = getXsrfTokenFromRequest(req);
@@ -68,6 +74,10 @@ public class XsrfFilter extends BaseFilter {
 		}
 		req.putData(requestPropertyName, expectedXsrfToken);
 		return null;
+	}
+
+	protected CookieBuilder createXsrfCookie(String expectedXsrfToken) {
+		return Cookie.build(cookieName).withValue(expectedXsrfToken).withMaxAge(Duration.standardDays(1));
 	}
 
 	private boolean isANonMutatingRequest(Request req) {
@@ -101,6 +111,6 @@ public class XsrfFilter extends BaseFilter {
 	}
 
 	protected String createXsrfToken() {
-		return RandomStringUtils.randomAlphanumeric(32);
+		return RandomStringUtils.random(64, 0, 0, true, true, null, random);
 	}
 }
