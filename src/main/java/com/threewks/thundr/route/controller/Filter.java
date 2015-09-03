@@ -1,7 +1,7 @@
 /*
  * This file is a component of thundr, a software library from 3wks.
  * Read more: http://3wks.github.io/thundr/
- * Copyright (C) 2014 3wks, <thundr@3wks.com.au>
+ * Copyright (C) 2015 3wks, <thundr@3wks.com.au>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import com.threewks.thundr.request.Response;
  * Filters allow a before, after and exception cutpoint on controller methods invoked based on the
  * request url.
  * 
- * They can be added in your {@link Module} by calling {@link FilterRegistry#add(Filter, String)}.
+ * They can be added in your {@link Module} by calling {@link FilterRegistry#add(Filter, String...)}
  */
 public interface Filter {
 	/**

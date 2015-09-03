@@ -1,7 +1,7 @@
 /*
  * This file is a component of thundr, a software library from 3wks.
  * Read more: http://3wks.github.io/thundr/
- * Copyright (C) 2014 3wks, <thundr@3wks.com.au>
+ * Copyright (C) 2015 3wks, <thundr@3wks.com.au>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,8 +41,8 @@ import com.threewks.thundr.route.controller.BaseFilter;
  * 
  * The value of the token is placed in the request data as 'xsrf', making it available for
  * use in page templates (for example to include as a hidden field: <code>
- * &ltform ...%gt;
- *   &ltinput type="hidden" name="XSRF-TOKEN" value="${xsrf}"/&gt;
+ * &lt;form ...&gt;
+ *   &lt;input type="hidden" name="XSRF-TOKEN" value="${xsrf}"/&gt;
  *   ...
  * </code>
  */
