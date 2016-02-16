@@ -54,9 +54,8 @@ public class BinderModule extends BaseModule {
 	}
 
 	@Override
-	public void configure(UpdatableInjectionContext injectionContext) {
-		super.configure(injectionContext);
-
+	public void start(UpdatableInjectionContext injectionContext) {
+		super.start(injectionContext);
 		ParameterBinderRegistry parameterBinderRegistry = injectionContext.get(ParameterBinderRegistry.class);
 		BinderRegistry binderRegistry = injectionContext.get(BinderRegistry.class);
 		addBodyConsumingBinders(binderRegistry, parameterBinderRegistry);

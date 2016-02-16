@@ -52,6 +52,8 @@ public class ViewModule extends BaseModule {
 		injectionContext.inject(ViewResolverRegistry.class).as(ViewResolverRegistry.class);
 		injectionContext.inject(ViewNegotiatorRegistryImpl.class).as(ViewNegotiatorRegistry.class);
 		injectionContext.inject(GlobalModel.class).as(GlobalModel.class);
+		injectionContext.inject(ExceptionViewResolver.class).as(ExceptionViewResolver.class);
+		injectionContext.inject(HttpStatusExceptionViewResolver.class).as(HttpStatusExceptionViewResolver.class);
 	}
 
 	@Override
@@ -68,12 +70,10 @@ public class ViewModule extends BaseModule {
 		Router router = injectionContext.get(Router.class);
 		ViewNegotiatorRegistry viewNegotiatorRegistry = injectionContext.get(ViewNegotiatorRegistry.class);
 
-		ExceptionViewResolver exceptionViewResolver = new ExceptionViewResolver();
-		HttpStatusExceptionViewResolver statusViewResolver = new HttpStatusExceptionViewResolver();
-		NegotiatingViewResolver negotiatingViewResolver = new NegotiatingViewResolver(viewResolverRegistry, viewNegotiatorRegistry);
+		HttpStatusExceptionViewResolver statusViewResolver = injectionContext.get(HttpStatusExceptionViewResolver.class);
+		ExceptionViewResolver exceptionViewResolver = injectionContext.get(ExceptionViewResolver.class);
 
-		injectionContext.inject(exceptionViewResolver).as(ExceptionViewResolver.class);
-		injectionContext.inject(statusViewResolver).as(HttpStatusExceptionViewResolver.class);
+		NegotiatingViewResolver negotiatingViewResolver = new NegotiatingViewResolver(viewResolverRegistry, viewNegotiatorRegistry);
 		injectionContext.inject(negotiatingViewResolver).as(NegotiatingViewResolver.class);
 
 		// Register built in content negotiators

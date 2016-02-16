@@ -64,13 +64,12 @@ public class BinderModuleTest {
 	}
 
 	@Test
-	public void shouldConfigureBinderRegistryWithBasicBinders() {
+	public void shouldConfigureBinderRegistryWithBasicBindersAtInitialise() {
 		UpdatableInjectionContext injectionContext = new InjectionContextImpl();
 		injectionContext.inject(TransformerManager.createWithDefaults()).as(TransformerManager.class);
 		injectionContext.inject(ParameterBinderRegistry.class).as(ParameterBinderRegistry.class);
 
 		binderModule.initialise(injectionContext);
-		binderModule.configure(injectionContext);
 
 		BinderRegistry binderRegistry = injectionContext.get(BinderRegistry.class);
 		Iterable<Binder> binders = binderRegistry.list();
@@ -82,6 +81,22 @@ public class BinderModuleTest {
 		assertThat(types, hasItem(RequestHeaderBinder.class));
 		assertThat(types, hasItem(HttpBinder.class));
 		assertThat(types, hasItem(CookieBinder.class));
+		assertThat(types, not(hasItem(GsonBinder.class)));
+		assertThat(types, not(hasItem(MultipartHttpBinder.class)));
+	}
+	@Test
+	public void shouldConfigureBinderRegistryWithBodyConsumingBindersAtSTart() {
+		UpdatableInjectionContext injectionContext = new InjectionContextImpl();
+		injectionContext.inject(TransformerManager.createWithDefaults()).as(TransformerManager.class);
+		injectionContext.inject(ParameterBinderRegistry.class).as(ParameterBinderRegistry.class);
+		
+		binderModule.initialise(injectionContext);
+		binderModule.start(injectionContext);
+		
+		BinderRegistry binderRegistry = injectionContext.get(BinderRegistry.class);
+		Iterable<Binder> binders = binderRegistry.list();
+		EList<Class<? extends Binder>> types = Expressive.Transformers.transformAllUsing(new ToClass<Binder>()).from(binders);
+		
 		assertThat(types, hasItem(GsonBinder.class));
 		assertThat(types, hasItem(MultipartHttpBinder.class));
 	}
@@ -102,7 +117,7 @@ public class BinderModuleTest {
 		assertThat(iterator.next() instanceof CookieBinder, is(true));
 		assertThat(iterator.hasNext(), is(false));
 
-		binderModule.configure(injectionContext);
+		binderModule.start(injectionContext);
 		iterator = binderRegistry.list().iterator();
 		assertThat(iterator.hasNext(), is(true));
 		assertThat(iterator.next() instanceof PathVariableBinder, is(true));

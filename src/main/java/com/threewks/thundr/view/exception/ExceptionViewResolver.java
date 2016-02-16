@@ -17,11 +17,6 @@
  */
 package com.threewks.thundr.view.exception;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.threewks.thundr.http.StatusCode;
 import com.threewks.thundr.logger.Logger;
 import com.threewks.thundr.request.Request;
@@ -30,34 +25,34 @@ import com.threewks.thundr.view.ViewResolutionException;
 import com.threewks.thundr.view.ViewResolver;
 
 public class ExceptionViewResolver implements ViewResolver<Throwable> {
+
 	@Override
 	public void resolve(Request req, Response resp, Throwable viewResult) {
-		List<String> messages = new ArrayList<String>();
-		for (Throwable cause = viewResult; cause != null; cause = cause.getCause()) {
-			messages.add(cause.getMessage());
-		}
 		try {
-			Throwable exceptionOfInterest = viewResult;
-			if (viewResult instanceof ViewResolutionException && viewResult.getCause() != null) {
-				exceptionOfInterest = viewResult.getCause();
-			}
-			StringWriter stringWriter = new StringWriter();
-			PrintWriter writer = new PrintWriter(stringWriter);
-			for (String message : messages) {
-				writer.println(message);
-			}
-			exceptionOfInterest.printStackTrace(writer);
-			writer.flush();
-			// @formatter:off
-			resp.withStatusCode(StatusCode.InternalServerError)
-				.withStatusMessage(stringWriter.toString());
-			// @formatter:on
-			// TODO - v3 - does sendError trigger the servlet's error handling? If so this will behave differently
-			//resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, );
-			Logger.error(stringWriter.toString());
+			Throwable exceptionOfInterest = getException(viewResult);
+			logException(req, exceptionOfInterest);
+			renderException(resp, exceptionOfInterest);
 		} catch (Exception e) {
-			Logger.error("Failed to render an exception view because '%s' - original exception: %s", e.getMessage(), viewResult.getMessage());
-			viewResult.printStackTrace();
+			throw new ViewResolutionException(e, "Failed to render an exception view because '%s' - original exception: %s", e.getMessage(), viewResult.getMessage());
 		}
+	}
+
+	protected Throwable getException(Throwable viewResult) {
+		Throwable exceptionOfInterest = viewResult;
+		if (viewResult instanceof ViewResolutionException && viewResult.getCause() != null) {
+			exceptionOfInterest = viewResult.getCause();
+		}
+		return exceptionOfInterest;
+	}
+
+	protected void renderException(Response resp, Throwable exceptionOfInterest) {
+		// @formatter:off
+		resp.withStatusCode(StatusCode.InternalServerError)
+			.withStatusMessage(exceptionOfInterest.getMessage());
+		// @formatter:on
+	}
+
+	protected void logException(Request req, Throwable exceptionOfInterest) {
+		Logger.error(exceptionOfInterest, "Request %s resulted in an unhandled exception: %s", req.getId(), exceptionOfInterest.getMessage());
 	}
 }

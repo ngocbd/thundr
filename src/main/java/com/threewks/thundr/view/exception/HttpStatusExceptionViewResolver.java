@@ -18,23 +18,22 @@
 package com.threewks.thundr.view.exception;
 
 import com.threewks.thundr.http.exception.HttpStatusException;
+import com.threewks.thundr.logger.Logger;
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.Response;
-import com.threewks.thundr.view.ViewResolutionException;
 import com.threewks.thundr.view.ViewResolver;
 
 public class HttpStatusExceptionViewResolver implements ViewResolver<HttpStatusException> {
 	@Override
 	public void resolve(Request req, Response resp, HttpStatusException viewResult) {
-		try {
-			// TODO - v3 - send error delegates to the servlet container's error handling
-			// resp.sendError(viewResult.getStatus());
-			// @formatter:off
-			resp.withStatusCode(viewResult.getStatus())
-				.withStatusMessage(viewResult.getMessage());
-			// @formatter:on
-		} catch (Exception e) {
-			throw new ViewResolutionException(e, "Failed to send error status %d", viewResult.getStatus());
-		}
+		Logger.info("Request %s resulted in an exception %s (%s) %s", req.getId(), viewResult.getClass().getSimpleName(), viewResult.getStatus(), viewResult.getMessage());
+		sendError(resp, viewResult);
+	}
+
+	protected void sendError(Response resp, HttpStatusException viewResult) {
+		// @formatter:off
+		resp.withStatusCode(viewResult.getStatus())
+			.withStatusMessage(viewResult.getMessage());
+		// @formatter:on
 	}
 }

@@ -23,7 +23,9 @@ import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 import com.threewks.thundr.http.StatusCode;
@@ -32,6 +34,9 @@ import com.threewks.thundr.request.mock.MockResponse;
 import com.threewks.thundr.view.ViewResolutionException;
 
 public class ExceptionViewResolverTest {
+
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 	private ExceptionViewResolver resolver = new ExceptionViewResolver();
 	private Request req = mock(Request.class);
 	private MockResponse resp = new MockResponse();
@@ -46,7 +51,9 @@ public class ExceptionViewResolverTest {
 	}
 
 	@Test
-	public void shouldSwallowAnyExceptionsDuringViewResolution() throws IOException {
+	public void shouldRethrowAnyExceptionsAsViewResolutionException() throws IOException {
+		thrown.expect(ViewResolutionException.class);
+		thrown.expectMessage("Failed to render an exception view because 'intentional'");
 		resp = spy(resp);
 		ViewResolutionException viewResult = mock(ViewResolutionException.class);
 		doThrow(new RuntimeException("intentional")).when(resp).withStatusCode(Mockito.any(StatusCode.class));

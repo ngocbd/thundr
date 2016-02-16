@@ -49,6 +49,8 @@ import com.threewks.thundr.route.controller.Filter;
  * <strong>Note: For this filter to work, a controller route must be defined which accepts {@link HttpMethod#OPTIONS} requests for the path matching the filter. This is because
  * filters only run when controllers are being invoked.</strong>
  */
+// TODO - v3 - Needs to include 'Access-Control-Expose-Headers'
+// TODO - v3 - Should default to permit nothing, not permit everything
 public class CorsFilter implements Filter {
 	private final List<String> origins;
 	private final List<String> headers;

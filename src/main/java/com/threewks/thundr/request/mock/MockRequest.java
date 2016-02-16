@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -79,7 +80,6 @@ public class MockRequest extends BaseRequest implements Request {
 
 	@Override
 	public String getCharacterEncoding() {
-
 		return encoding;
 	}
 
@@ -128,6 +128,11 @@ public class MockRequest extends BaseRequest implements Request {
 	@Override
 	public String getRequestPath() {
 		return path;
+	}
+	
+	@Override
+	public URI getRequestUri() {
+		return URI.create(path);
 	}
 
 	@Override

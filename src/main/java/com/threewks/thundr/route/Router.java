@@ -42,7 +42,7 @@ public class Router {
 
 	private Map<Class<? extends RouteResult>, RouteResolver<?>> actionResolvers = new LinkedHashMap<Class<? extends RouteResult>, RouteResolver<?>>();
 
-	private boolean debug = true;
+	private boolean debug = false;
 
 	public Router get(String route, Class<?> controller, String controllerMethod) {
 		return this.get(route, controller, controllerMethod, null);

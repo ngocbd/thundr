@@ -72,13 +72,11 @@ public interface Response {
 
 	Response withHeader(String header, Object value, boolean include);
 
-	Response withHeader(String header, Object... values);
+	Response withHeaders(String header, Collection<?> values);
 
-	Response withHeader(String header, Collection<Object> values);
+	Response withHeaders(String header, Collection<?> values, boolean include);
 
-	Response withHeader(String header, Collection<Object> values, boolean include);
-
-	Response withHeaders(Map<String, Object> headers);
+	Response withHeaders(Map<String, ?> headers);
 
 	Response withStatusCode(StatusCode statusCode);
 

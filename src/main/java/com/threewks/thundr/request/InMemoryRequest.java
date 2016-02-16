@@ -22,12 +22,12 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.codec.Charsets;
 
 import com.threewks.thundr.exception.BaseException;
 import com.threewks.thundr.http.ContentType;
@@ -57,7 +57,7 @@ public class InMemoryRequest extends BaseRequest {
 	}
 
 	public InMemoryRequest(HttpMethod httpMethod, String path, String content, String contentType) {
-		this(httpMethod, path, content.getBytes(Charsets.UTF_8), contentType, "UTF-8");
+		this(httpMethod, path, content.getBytes(StandardCharsets.UTF_8), contentType, "UTF-8");
 	}
 
 	@Override
@@ -84,7 +84,7 @@ public class InMemoryRequest extends BaseRequest {
 			throw new BaseException(e);
 		}
 	}
-	
+
 	@Override
 	public InputStream getInputStream() {
 		return new ByteArrayInputStream(this.requestData);
@@ -143,6 +143,12 @@ public class InMemoryRequest extends BaseRequest {
 	@Override
 	public String getRequestPath() {
 		return this.path;
+	}
+
+	@Override
+	public URI getRequestUri() {
+		// TODO - test this doesn't throw an exception
+		return URI.create(path);
 	}
 
 	@Override

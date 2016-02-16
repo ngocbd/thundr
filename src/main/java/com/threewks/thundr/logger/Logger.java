@@ -19,6 +19,8 @@ package com.threewks.thundr.logger;
 
 import java.util.logging.Level;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
 public class Logger {
 	public static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger("thundr");
 
@@ -47,7 +49,7 @@ public class Logger {
 	 */
 	public static void debug(String format, Object... args) {
 		if (willDebug()) {
-			logger.fine(String.format(format, args));
+			logger.fine(format(format, args));
 		}
 	}
 
@@ -76,7 +78,7 @@ public class Logger {
 	 */
 	public static void info(String format, Object... args) {
 		if (willInfo()) {
-			logger.info(String.format(format, args));
+			logger.info(format(format, args));
 		}
 	}
 
@@ -105,7 +107,7 @@ public class Logger {
 	 */
 	public static void warn(String format, Object... args) {
 		if (willWarn()) {
-			logger.warning(String.format(format, args));
+			logger.warning(format(format, args));
 		}
 	}
 
@@ -123,6 +125,26 @@ public class Logger {
 	}
 
 	/**
+	 * Logs the given arguments formatted using the given string format at error level, followed by the
+	 * stack trace of the given {@link Throwable}
+	 * 
+	 * @param throwable
+	 *            the stacktrace for this throwable will be included in full
+	 * @param format
+	 *            String format, see {@link String#format(String, Object...)}
+	 * @param args
+	 *            the arguments to format
+	 * @see String#format(String, Object...)
+	 * @see #willError()
+	 */
+	public static void error(Throwable throwable, String format, Object... args) {
+		if (willError()) {
+			String stacktrace = throwable == null ? "" : "\n" + ExceptionUtils.getStackTrace(throwable);
+			logger.severe(format(format, args) + stacktrace);
+		}
+	}
+
+	/**
 	 * Logs the given arguments formatted using the given string format at error level
 	 * 
 	 * @param format
@@ -134,7 +156,7 @@ public class Logger {
 	 */
 	public static void error(String format, Object... args) {
 		if (willError()) {
-			logger.severe(String.format(format, args));
+			logger.severe(format(format, args));
 		}
 	}
 
@@ -164,5 +186,9 @@ public class Logger {
 	 */
 	public static boolean willError() {
 		return logger.isLoggable(Level.SEVERE);
+	}
+
+	private static String format(String format, Object... args) {
+		return args == null || args.length == 0 ? format : String.format(format, args);
 	}
 }

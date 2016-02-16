@@ -19,16 +19,17 @@ package com.threewks.thundr.request;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.threewks.thundr.Experimental;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.Cookie;
 import com.threewks.thundr.route.HttpMethod;
 import com.threewks.thundr.route.Route;
 
-// TODO - NAO - v3 - Need to be able to get request info: issecure, protocol, domain, ip, port, path, route, method
 public interface Request {
 
 	/**
@@ -110,6 +111,16 @@ public interface Request {
 
 	public boolean isA(HttpMethod method);
 
+	public boolean isSecure();
+
+	/**
+	 * Return a URI of the request the client made, callers can retrieve the individual components directly from the URI.
+	 * 
+	 * @return
+	 */
+	@Experimental
+	public URI getRequestUri();
+
 	/**
 	 * Returns the path of the request
 	 * 
@@ -134,6 +145,4 @@ public interface Request {
 	public Reader getReader();
 
 	public InputStream getInputStream();
-
-	public boolean isSecure();
 }

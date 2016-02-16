@@ -72,13 +72,8 @@ public abstract class BaseResponse implements Response {
 	}
 
 	@Override
-	public Response withHeader(String header, Object... values) {
-		return withHeader(header, Arrays.asList(values));
-	}
-
-	@Override
-	public Response withHeader(String header, Collection<Object> values, boolean include) {
-		return include ? withHeader(header, values) : this;
+	public Response withHeaders(String header, Collection<?> values, boolean include) {
+		return include ? withHeaders(header, values) : this;
 	}
 
 	@Override
@@ -98,16 +93,20 @@ public abstract class BaseResponse implements Response {
 	}
 
 	@Override
-	public Response withHeaders(Map<String, Object> headers) {
-		for (Map.Entry<String, Object> entry : headers.entrySet()) {
-			withHeader(entry.getKey(), entry.getValue());
+	public Response withHeaders(Map<String, ?> headers) {
+		for (Map.Entry<String, ?> entry : headers.entrySet()) {
+			if (Cast.is(entry.getValue(), Collection.class)) {
+				withHeader(entry.getKey(), (Collection<?>) entry.getValue());
+			} else {
+				withHeader(entry.getKey(), entry.getValue());
+			}
 		}
 		return this;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Response withHeader(String header, Collection<Object> values) {
+	public Response withHeaders(String header, Collection<?> values) {
 		List<String> stringValues = new ArrayList<>(values.size());
 		for (Object value : values) {
 			ETransformer<Object, String> transformer = (ETransformer<Object, String>) transformerManager.getBestTransformer(value.getClass(), String.class);
