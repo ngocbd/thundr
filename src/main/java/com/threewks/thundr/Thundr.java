@@ -18,6 +18,7 @@
 package com.threewks.thundr;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.atomicleopard.expressive.Cast;
@@ -45,14 +46,24 @@ import com.threewks.thundr.view.ViewResolverRegistry;
  *
  */
 public class Thundr {
+	@SuppressWarnings("unchecked")
+	private static final Class<? extends Module>[] None = new Class[0];
+
 	protected UpdatableInjectionContext injectionContext;
 	protected Modules modules;
 	protected boolean started = false;
 	protected boolean stopped = false;
+	protected List<Class<? extends Module>> coreModules = new ArrayList<>();
 
 	public Thundr() {
+		this(None);
+	}
+
+	@SafeVarargs
+	public Thundr( Class<? extends Module>... modules) {
 		this.injectionContext = new InjectionContextImpl();
 		this.modules = new Modules();
+		this.coreModules.addAll(Arrays.asList(modules));
 	}
 
 	public UpdatableInjectionContext getInjectionContext() {
@@ -111,6 +122,9 @@ public class Thundr {
 		baseModules.add(TransformerModule.class);
 		baseModules.add(RequestModule.class);
 		baseModules.add(RouterModule.class);
+		for (Class<? extends Module> module : coreModules) {
+			baseModules.add(module);
+		}
 		return baseModules;
 	}
 
@@ -158,5 +172,4 @@ public class Thundr {
 			requestContainer.clear();
 		}
 	}
-
 }

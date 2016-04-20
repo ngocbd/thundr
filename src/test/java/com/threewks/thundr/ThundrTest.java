@@ -17,6 +17,7 @@
  */
 package com.threewks.thundr;
 
+import static com.atomicleopard.expressive.Expressive.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -51,6 +52,7 @@ import com.threewks.thundr.route.RouteResolverException;
 import com.threewks.thundr.route.Router;
 import com.threewks.thundr.route.RouterModule;
 import com.threewks.thundr.transformer.TransformerModule;
+import com.threewks.thundr.view.ViewModule;
 import com.threewks.thundr.view.ViewResolver;
 import com.threewks.thundr.view.ViewResolverNotFoundException;
 import com.threewks.thundr.view.ViewResolverRegistry;
@@ -106,8 +108,12 @@ public class ThundrTest {
 	public void shouldInitModulesOnStart() {
 		thundr = spy(new Thundr());
 		when(thundr.getBaseModules()).thenReturn(Collections.<Class<? extends Module>> emptyList());
+
+		assertThat(thundr.isStarted(), is(false));
+
 		thundr.start();
 
+		assertThat(thundr.isStarted(), is(true));
 		verify(thundr).initModules(thundr.injectionContext, thundr.modules);
 	}
 
@@ -120,6 +126,33 @@ public class ThundrTest {
 		verify(modules).addModule(TransformerModule.class);
 		verify(modules).addModule(RouterModule.class);
 		verify(modules).runStartupLifecycle(injectionContext);
+	}
+
+	@Test
+	public void shouldDependOnGivenAdditionalBaseModulesAndStartThem() {
+		Modules modules = mock(Modules.class);
+		thundr = new Thundr(TestApplicationModule.class, ViewModule.class);
+		thundr.initModules(injectionContext, modules);
+		verify(modules).addModule(ConfigurationModule.class);
+		verify(modules).addModule(ModulesModule.class);
+		verify(modules).addModule(TransformerModule.class);
+		verify(modules).addModule(RouterModule.class);
+
+		// additional modules
+		verify(modules).addModule(TestApplicationModule.class);
+		verify(modules).addModule(ViewModule.class);
+
+		verify(modules).runStartupLifecycle(injectionContext);
+	}
+
+	@Test
+	public void shouldGetModules() {
+		assertThat(thundr.getModules(), is(notNullValue()));
+	}
+
+	@Test
+	public void shouldGetInjectionContext() {
+		assertThat(thundr.getInjectionContext(), is(notNullValue()));
 	}
 
 	@Test
@@ -273,8 +306,10 @@ public class ThundrTest {
 	@Test
 	public void shouldStopModulesOnStop() {
 		thundr.modules = mock(Modules.class);
+		assertThat(thundr.isStopped(), is(false));
 		thundr.stop();
 
+		assertThat(thundr.isStopped(), is(true));
 		verify(thundr.modules).runStopLifecycle(injectionContext);
 	}
 }
