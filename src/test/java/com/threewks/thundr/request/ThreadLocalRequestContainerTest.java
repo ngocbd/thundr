@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.http;
+package com.threewks.thundr.request;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
@@ -25,30 +25,27 @@ import org.junit.Test;
 import com.threewks.thundr.request.mock.MockRequest;
 import com.threewks.thundr.request.mock.MockResponse;
 
-public class AuthorizationTest {
-	@Test
-	public void shouldCreateBasicAuthHeaderValue() {
-		assertThat(Authorization.createBasicHeader("username", "password"), is("Basic dXNlcm5hbWU6cGFzc3dvcmQ="));
-	}
+public class ThreadLocalRequestContainerTest {
+	ThreadLocalRequestContainer container = new ThreadLocalRequestContainer();
 
 	@Test
-	public void shouldCreateBearerHeaderValue() {
-		assertThat(Authorization.createBearerHeader("token"), is("Bearer token"));
-	}
+	public void shouldStoreGivenRequestAndResponse() {
 
-	@Test
-	public void shouldWriteBearerHeader() {
-		MockResponse resp = new MockResponse();
-		Authorization.writeBearerHeader(resp, "token");
-		assertThat(resp.getHeader("Authorization"), is("Bearer token"));
-	}
+		assertThat(container.getRequest(), is(nullValue()));
+		assertThat(container.getResponse(), is(nullValue()));
+		assertThat(container.getId(), is(nullValue()));
 
-	@Test
-	public void shouldReadBearerHeader() {
-		MockRequest req = new MockRequest();
-		req.withHeader("Authorization", "token");
+		Response resp = new MockResponse();
+		Request req = new MockRequest();
+		container.set(req, resp);
 
-		assertThat(Authorization.readBearerHeader(req), is("token"));
+		assertThat(container.getRequest(), is(req));
+		assertThat(container.getResponse(), is(resp));
+		assertThat(container.getId(), is(req.getId()));
 
+		container.clear();
+		assertThat(container.getRequest(), is(nullValue()));
+		assertThat(container.getResponse(), is(nullValue()));
+		assertThat(container.getId(), is(nullValue()));
 	}
 }

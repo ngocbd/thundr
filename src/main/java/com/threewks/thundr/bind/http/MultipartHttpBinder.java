@@ -104,7 +104,7 @@ public class MultipartHttpBinder implements Binder {
 		}
 	}
 
-	private static class ThundrRequestContext implements RequestContext, UploadContext {
+	protected static class ThundrRequestContext implements RequestContext, UploadContext {
 		private Request req;
 
 		public ThundrRequestContext(Request req) {

@@ -34,9 +34,9 @@ You can read more about [thundr here](http://3wks.github.io/thundr/).
 
 ## Getting it
 
-To get started, pull in the latest version of thundr using maven, ivy or another build tool and follow these basic [configuration instructions](http://3wks.github.io/thundr/1.1/thundr/basics.html#applicationConfiguration).
+To get started, pull in the latest version of thundr using maven, ivy or another build tool and follow these basic [configuration instructions](http://3wks.github.io/thundr/3.0/thundr/basics.html).
 
 Alternatively, you can [clone one of the sample apps](https://github.com/3wks/thundr-sample) and hack on it to get moving straight away.
 
 --------------    
-thundr - Copyright (C) 2014 3wks
+thundr - Copyright (C) 2016 3wks

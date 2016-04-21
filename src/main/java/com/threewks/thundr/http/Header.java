@@ -24,6 +24,7 @@ public class Header {
 	public static final String AccessControlAllowHeaders = "Access-Control-Allow-Headers";
 	public static final String AccessControlAllowMethods = "Access-Control-Allow-Methods";
 	public static final String AccessControlAllowOrigin = "Access-Control-Allow-Origin";
+	public static final String AccessControlExposeHeaders = "Access-Control-Expose-Headers";
 	public static final String AccessControlRequestMethod = "Access-Control-Request-Method";
 	public static final String AccessControlRequestHeaders = "Access-Control-Request-Headers";
 	public static final String AcceptEncoding = "Accept-Encoding";
@@ -46,4 +47,5 @@ public class Header {
 	public static final String Vary = "Vary";
 	public static final String XHttpMethodOverride = "X-HTTP-Method-Override";
 	public static final String XXsrfToken = "X-XSRF-TOKEN";
+	
 }

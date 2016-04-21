@@ -17,7 +17,6 @@
  */
 package com.threewks.thundr;
 
-import static com.atomicleopard.expressive.Expressive.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;

@@ -70,7 +70,7 @@ public class XsrfFilter extends BaseFilter {
 		} else {
 			String actualXsrfToken = getXsrfTokenFromRequest(req);
 			rejectRequestIf(expectedXsrfToken == null, req, "XSRF rejected request on %s %s - XSRF data missing, perform a GET first.", req.getMethod(), req.getRequestPath());
-			rejectRequestIf(!expectedXsrfToken.equals(actualXsrfToken), req, "XSRF rejected request on %s %s - invalid '%s' XSRF token", req.getMethod(), req.getRequestPath(), headerName);
+			rejectRequestIf(!expectedXsrfToken.equals(actualXsrfToken), req, "XSRF rejected request on %s %s - invalid '%s' XSRF token.", req.getMethod(), req.getRequestPath(), headerName);
 		}
 		req.putData(requestPropertyName, expectedXsrfToken);
 		return null;

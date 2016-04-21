@@ -43,6 +43,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 import com.threewks.thundr.bind.BindException;
+import com.threewks.thundr.bind.http.MultipartHttpBinder.ThundrRequestContext;
 import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.MultipartFile;
@@ -310,5 +311,21 @@ public class MultipartHttpBinderTest {
 				return null;
 			}
 		});
+	}
+
+	@Test
+	public void shouldMapThundrRequestToRequestContext() throws IOException {
+		Request req = mock(Request.class);
+		when(req.getCharacterEncoding()).thenReturn("UTF-7");
+		when(req.getContentLength()).thenReturn(1234l);
+		when(req.getContentTypeString()).thenReturn("content/type");
+		when(req.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[] { 0, 1, 2 }));
+		
+		ThundrRequestContext requestContext = new ThundrRequestContext(req);
+		assertThat(requestContext.getCharacterEncoding(), is("UTF-7"));
+		assertThat(requestContext.getContentLength(), is(1234));
+		assertThat(requestContext.contentLength(), is(1234l));
+		assertThat(requestContext.getContentType(), is("content/type"));
+		assertThat(requestContext.getInputStream(), is(req.getInputStream()));
 	}
 }

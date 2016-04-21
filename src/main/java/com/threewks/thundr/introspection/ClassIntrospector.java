@@ -42,7 +42,6 @@ import jodd.util.ReflectUtil;
  *
  * @see TypeIntrospector
  */
-// TODO - v3 - NAO - It makes sense for MethodIntrospector and ClassIntrospector to behave the same in terms of being bound to a specific Class/Method or not
 public class ClassIntrospector {
 	public static final boolean supportsInjection = TypeIntrospector.classExists("javax.inject.Inject");
 

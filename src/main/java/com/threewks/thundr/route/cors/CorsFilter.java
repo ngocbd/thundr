@@ -42,58 +42,34 @@ import com.threewks.thundr.route.controller.Filter;
  * <ul>
  * <li>Origins: a list of domains which are permitted access using cors. If null is provided, all domains are permitted (i.e. '*'). Domains should not have a protocol prefixed, all protocols will be
  * accepted.</li>
- * <li>Headers: a list of headers which are permitted. If null is provided, all requested headers will be permitted. Headers are case insensitive.</li>
+ * <li>AllowHeaders: a list of headers which are permitted to be submitted. If null is provided, all requested headers will be permitted. Headers are case insensitive.</li>
+ * <li>ExposeHeaders: a list of headers which are exposed to the client. If null is provided, no response headers will be permitted. Headers are case insensitive.</li>
  * <li>WithCredentials: if set to false, Access-Control-Allow-Credentials will not be set (and cookies and basic auth will not be transmitted by clients). Defaults to true.</li>
  * </ul>
  * 
  * <strong>Note: For this filter to work, a controller route must be defined which accepts {@link HttpMethod#OPTIONS} requests for the path matching the filter. This is because
  * filters only run when controllers are being invoked.</strong>
  */
-// TODO - v3 - Needs to include 'Access-Control-Expose-Headers'
-// TODO - v3 - Should default to permit nothing, not permit everything
 public class CorsFilter implements Filter {
-	private final List<String> origins;
-	private final List<String> headers;
-	private boolean withCredentials;
-
-	/**
-	 * Creates a filter permitting all domains, any headers and allows credentials to be passed.
-	 */
-	public CorsFilter() {
-		this(null, null);
-	}
-
-	/**
-	 * Creates a filter permitting only the given domains, any headers and allows credentials to be if one or more domains are specified.
-	 * 
-	 * @param origins
-	 */
-	public CorsFilter(List<String> origins) {
-		this(origins, null);
-	}
-
-	/**
-	 * Creates a filter permitting only the given domains, only the given headers and allows credentials to be if one or more domains are specified.
-	 * 
-	 * @param origins
-	 * @param headers
-	 */
-	public CorsFilter(List<String> origins, List<String> headers) {
-		this(origins, headers, origins != null);
-	}
+	protected List<String> origins;
+	protected List<String> allowHeaders;
+	protected List<String> exposeHeaders;
+	protected boolean withCredentials;
 
 	/**
 	 * Creates a filter permitting only the given domains, only the given headers and allows credentials to be passed and only allows credentials
 	 * when withCredentials is true
 	 * 
-	 * @param origins
-	 * @param headers
-	 * @param withCredentials
+	 * @param origins Only the origins specified are permitted to make requests to this server by the client - you can pass "*" to allow all origins
+	 * @param allowHeaders Only the set of headers specified here can be transmitted by the client to the server during a CORS request, null for all requested headers
+	 * @param exposeHeaders The client can only read these headers from a CORS response
+	 * @param withCredentials controls if credentials can be sent in a CORS request (cookies, credentials during basic auth etc)
 	 */
-	public CorsFilter(List<String> origins, List<String> headers, boolean withCredentials) {
+	public CorsFilter(List<String> origins, List<String> allowHeaders, List<String> exposeHeaders, boolean withCredentials) {
 		super();
 		this.origins = origins;
-		this.headers = headers == null ? null : lowerCaseAll.from(headers);
+		this.allowHeaders = allowHeaders == null ? null : lowerCaseAll.from(allowHeaders);
+		this.exposeHeaders = exposeHeaders == null ? null : lowerCaseAll.from(exposeHeaders);
 		this.withCredentials = withCredentials;
 	}
 
@@ -102,12 +78,13 @@ public class CorsFilter implements Filter {
 		String origin = origins == null ? "*" : origin(req, origins);
 		resp.withHeader(Header.Vary, StringUtils.join(vary(), ", "));
 		if (origin != null) {
-			List<String> allowedHeaders = determineAllowedHeaders(headers, req);
+			List<String> allowHeaders = determineAllowedHeaders(this.allowHeaders, req);
 			String requestedMethod = req.getHeader(Header.AccessControlRequestMethod);
 			// @formatter:off
 			resp.withHeader(Header.AccessControlAllowOrigin, origin)
 				.withHeader(Header.AccessControlAllowCredentials, "true", withCredentials)
-				.withHeader(Header.AccessControlAllowHeaders, StringUtils.join(allowedHeaders, ", "), Expressive.isNotEmpty(allowedHeaders))
+				.withHeader(Header.AccessControlAllowHeaders, StringUtils.join(allowHeaders, ", "), Expressive.isNotEmpty(allowHeaders))
+				.withHeader(Header.AccessControlExposeHeaders, StringUtils.join(exposeHeaders, ", "), Expressive.isNotEmpty(exposeHeaders))
 				.withHeader(Header.AccessControlAllowMethods, requestedMethod, StringUtils.isNotBlank(requestedMethod));
 			// @formatter:on
 		}
@@ -162,7 +139,11 @@ public class CorsFilter implements Filter {
 	protected String origin(Request req, List<String> origins) {
 		String originHeader = req.getHeader(Header.Origin);
 		String origin = StringUtils.substringAfter(originHeader, "//");
-		return origins.contains(origin) ? originHeader : null;
+		String result = origins.contains(origin) ? originHeader : null;
+		if (result == null) {
+			result = origins.contains("*") ? "*" : null;
+		}
+		return result;
 	}
 
 	private static final ETransformer<String, String> lowerCase = new ETransformer<String, String>() {
@@ -178,7 +159,7 @@ public class CorsFilter implements Filter {
 	}
 
 	protected List<String> getHeaders() {
-		return headers;
+		return allowHeaders;
 	}
 
 	protected boolean isWithCredentials() {

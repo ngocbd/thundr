@@ -17,14 +17,26 @@
  */
 package com.threewks.thundr.request;
 
-import com.threewks.thundr.injection.BaseModule;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
+import org.junit.Test;
+
+import com.threewks.thundr.injection.InjectionContextImpl;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
 
-public class RequestModule extends BaseModule {
+public class RequestModuleTest {
+	private RequestModule module = new RequestModule();
+	private UpdatableInjectionContext injectionContext = new InjectionContextImpl();
 
-	@Override
-	public void initialise(UpdatableInjectionContext injectionContext) {
-		super.initialise(injectionContext);
-		injectionContext.inject(ThreadLocalRequestContainer.class).as(RequestContainer.class, MutableRequestContainer.class);
+	@Test
+	public void shouldProvideARequestContainerAtInitialise() {
+		module.initialise(injectionContext);
+
+		assertThat(injectionContext.contains(RequestContainer.class), is(true));
+		assertThat(injectionContext.contains(MutableRequestContainer.class), is(true));
+
+		RequestContainer requestContainer = injectionContext.get(RequestContainer.class);
+		assertThat(requestContainer instanceof ThreadLocalRequestContainer, is(true));
 	}
 }

@@ -32,12 +32,12 @@ public class Cookie {
 	protected Integer version;
 	protected Boolean secure;
 
-	public Cookie(String name, String value) {
-		this(name, value, "/", null, null, null, null, null);
-	}
-
 	protected Cookie() {
 		super();
+	}
+
+	public Cookie(String name, String value) {
+		this(name, value, "/", null, null, null, null, null);
 	}
 
 	public Cookie(String name, String value, String path, String domain, Duration maxAge, String comment, Integer version, Boolean secure) {
