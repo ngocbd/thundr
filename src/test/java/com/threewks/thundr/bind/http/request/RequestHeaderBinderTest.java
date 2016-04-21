@@ -33,7 +33,9 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.bind.parameter.ParameterBinderRegistry;
+import com.threewks.thundr.http.Header;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.request.mock.MockRequest;
 import com.threewks.thundr.request.mock.MockResponse;
@@ -219,6 +221,34 @@ public class RequestHeaderBinderTest {
 		assertThat(parameterDescriptions.get(param11), is((Object) 11L));
 		assertThat(parameterDescriptions.get(param12), is((Object) new BigDecimal("12.00")));
 		assertThat(parameterDescriptions.get(param13), is((Object) BigInteger.valueOf(13)));
-
+	}
+	
+	@Test
+	public void shouldNormaliseHeadersToJavaVars() {
+		assertThat(RequestHeaderBinder.normaliseToJavaVarName("Accept-Encoding"), is("acceptEncoding"));
+		assertThat(RequestHeaderBinder.normaliseToJavaVarName("User-Agent"), is("userAgent"));
+		assertThat(RequestHeaderBinder.normaliseToJavaVarName("Upgrade-Insecure-Requests"), is("upgradeInsecureRequests"));
+		assertThat(RequestHeaderBinder.normaliseToJavaVarName(Header.XHttpMethodOverride), is("xHttpMethodOverride"));
+		
+		assertThat(RequestHeaderBinder.normaliseToJavaVarName("__something"), is("__something"));
+		assertThat(RequestHeaderBinder.normaliseToJavaVarName("_something"), is("_something"));
+		assertThat(RequestHeaderBinder.normaliseToJavaVarName("someKey"), is("somekey"));
+		assertThat(RequestHeaderBinder.normaliseToJavaVarName("_someKey"), is("_somekey"));
+		assertThat(RequestHeaderBinder.normaliseToJavaVarName("_Somekey"), is("_somekey"));
+		
+		assertThat(RequestHeaderBinder.normaliseToJavaVarName("3wks-header"), is("_3wksHeader"));
+		assertThat(RequestHeaderBinder.normaliseToJavaVarName(" 3wks-header "), is("_3wksHeader"));
+		assertThat(RequestHeaderBinder.normaliseToJavaVarName(" 3wks-header "), is("_3wksHeader"));
+		assertThat(RequestHeaderBinder.normaliseToJavaVarName("  uSER-aGENT \t"), is("_userAgent"));
+		
+		assertThat(RequestHeaderBinder.normaliseToJavaVarName("valid¡™•¶Parts"), is("validParts"));
+		assertThat(RequestHeaderBinder.normaliseToJavaVarName("¡™≠valid-Parts"), is("_validParts"));
+	}
+	
+	@Test
+	public void shouldNormaliseKeysToJavaVarNames() {
+		Map<String, Object> input = map("Key one", "v1", "3", "3");
+		assertThat(RequestHeaderBinder.normaliseKeysToJavaVarNames(input), is(Expressive.<String, Object>map("keyOne", "v1", "_3", "3")));
+		
 	}
 }

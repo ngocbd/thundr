@@ -21,7 +21,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
 import com.threewks.thundr.bind.Binder;
@@ -61,15 +60,18 @@ public class RequestHeaderBinder implements Binder {
 
 	public static String normaliseToJavaVarName(String header) {
 		char[] chars = header.toCharArray();
+
+		// Replace all invalid java identifier chars with space
 		StringBuilder sb = new StringBuilder();
-		if (!Character.isJavaIdentifierStart(chars[0])) {
-			sb.append(StringPool.UNDERSCORE);
-		}
 		for (int i = 0; i < chars.length; i++) {
 			sb.append(Character.isJavaIdentifierPart(chars[i]) ? chars[i] : StringPool.SPACE);
 		}
-		String capitalised = WordUtils.capitalizeFully(sb.toString(), ' ');
-		String withoutSpaces = capitalised.replaceAll(StringPool.SPACE, StringPool.EMPTY);
-		return StringUtils.uncapitalize(withoutSpaces);
+		// determine if the first character is not valid
+		String prepend = Character.isJavaIdentifierStart(chars[0]) ? "" : StringPool.UNDERSCORE;
+
+		String javaTerm = WordUtils.capitalizeFully(sb.toString(), ' ');
+		javaTerm = javaTerm.replaceAll(StringPool.SPACE, StringPool.EMPTY);
+		javaTerm = WordUtils.uncapitalize(javaTerm);
+		return prepend + javaTerm;
 	}
 }

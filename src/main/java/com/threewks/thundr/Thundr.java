@@ -60,7 +60,7 @@ public class Thundr {
 	}
 
 	@SafeVarargs
-	public Thundr( Class<? extends Module>... modules) {
+	public Thundr(Class<? extends Module>... modules) {
 		this.injectionContext = new InjectionContextImpl();
 		this.modules = new Modules();
 		this.coreModules.addAll(Arrays.asList(modules));

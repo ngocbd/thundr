@@ -36,7 +36,6 @@ public class RequestDataBinder implements Binder {
 		this.parameterBinderRegistry = parameterBinderRegistry;
 	}
 
-	// TODO - NAO - v3 - a much more comprehensive test suite around the behaviour of normalising names is needed.
 	@Override
 	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp) {
 		Map<String, Object> requestData = req.getAllData();
