@@ -100,7 +100,7 @@ public interface Response {
 
 	Response withCharacterEncoding(String characterEncoding, boolean include);
 
-	Response withContentLength(int length);
+	Response withContentLength(long length);
 
 	Response withBody(String body);
 
@@ -108,24 +108,22 @@ public interface Response {
 
 	OutputStream getOutputStream() throws IOException;
 
-	// Response withContent(byte[] data) throws IOException;
-	//
-	// Response withContent(InputStream inputStream) throws IOException;
+	StatusCode getStatusCode();
 
-	/*
-	 * TODO - v3 - getters on the response? Makes it easier on testing, but is it right?
-	 * String getHeader(String name);
-	 * List<String> getHeaders(String name);
-	 * Map<String, List<String>> getAllHeaders();
-	 * StatusCode getStatusCode();
-	 * ContentType getContentType();
-	 * String getContentTypeString();
-	 * Cookie getCookie(String name);
-	 * List<Cookie> getCookies(String name);
-	 * List<Cookie> getAllCookies();
-	 * String getCharacterEncoding();
-	 * long getContentLength();
+	ContentType getContentType();
+
+	String getContentTypeString();
+
+	List<Cookie> getCookies(String name);
+
+	String getCharacterEncoding();
+
+	/**
+	 * Return the content length if previously specified, or null
+	 * @return
 	 */
+	Long getContentLength();
+
 	String getHeader(String name);
 
 	List<String> getHeaders(String name);
@@ -135,9 +133,9 @@ public interface Response {
 	Cookie getCookie(String name);
 
 	List<Cookie> getAllCookies();
-	
+
 	/**
-	 * Called by the framework to finalise the underlying response, 
+	 * Called by the framework to finalise the underlying response,
 	 * sending any required data in the order required.
 	 */
 	void finaliseResponse();

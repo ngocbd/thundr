@@ -53,7 +53,7 @@ public class JsonpViewResolverTest {
 		assertThat(resp.getStatusCode(), is(StatusCode.OK));
 		assertThat(resp.getBodyAsString(), is("callback({\"key\":\"value\"});"));
 		assertThat(resp.getCharacterEncoding(), is("UTF-8"));
-		assertThat(resp.getContentLength(), is(26));
+		assertThat(resp.getContentLength(), is(26l));
 	}
 
 	@Test
@@ -64,7 +64,7 @@ public class JsonpViewResolverTest {
 		assertThat(resp.getStatusCode(), is(StatusCode.OK));
 		assertThat(resp.getBodyAsString(), is("callback({\"key\":\"value\"});"));
 		assertThat(resp.getCharacterEncoding(), is("UTF-8"));
-		assertThat(resp.getContentLength(), is(26));
+		assertThat(resp.getContentLength(), is(26l));
 	}
 
 	@Test
@@ -75,7 +75,7 @@ public class JsonpViewResolverTest {
 		assertThat(resp.getStatusCode(), is(StatusCode.OK));
 		assertThat(resp.getBodyAsString(), is("abcdef({\"key\":\"value\"});"));
 		assertThat(resp.getCharacterEncoding(), is("UTF-8"));
-		assertThat(resp.getContentLength(), is(24));
+		assertThat(resp.getContentLength(), is(24l));
 	}
 
 	@Test

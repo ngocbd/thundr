@@ -54,7 +54,7 @@ public class JsonViewResolverTest {
 		assertThat(resp.getStatusCode(), is(StatusCode.OK));
 		assertThat(resp.getBodyAsString(), is("{\"key\":\"value\"}"));
 		assertThat(resp.getCharacterEncoding(), is("UTF-8"));
-		assertThat(resp.getContentLength(), is(15));
+		assertThat(resp.getContentLength(), is(15l));
 	}
 
 	@Test
@@ -65,7 +65,7 @@ public class JsonViewResolverTest {
 		assertThat(resp.getStatusCode(), is(StatusCode.OK));
 		assertThat(resp.getBodyAsString(), is("{\"key\":\"value\"}"));
 		assertThat(resp.getCharacterEncoding(), is("UTF-8"));
-		assertThat(resp.getContentLength(), is(15));
+		assertThat(resp.getContentLength(), is(15l));
 	}
 
 	@Test

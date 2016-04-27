@@ -44,7 +44,7 @@ import com.threewks.thundr.route.RouteResolverException;
 public class ControllerRouteResolver implements RouteResolver<Controller>, InterceptorRegistry {
 
 	private Map<Class<?>, Object> controllerInstances = new HashMap<Class<?>, Object>();
-	private Map<Class<? extends Annotation>, Interceptor<? extends Annotation>> actionInterceptors = new HashMap<Class<? extends Annotation>, Interceptor<? extends Annotation>>();
+	private Map<Class<? extends Annotation>, Interceptor<? extends Annotation>> interceptors = new HashMap<Class<? extends Annotation>, Interceptor<? extends Annotation>>();
 	private Map<Method, Map<Annotation, Interceptor<Annotation>>> interceptorCache = new WeakHashMap<Method, Map<Annotation, Interceptor<Annotation>>>();
 
 	private UpdatableInjectionContext injectionContext;
@@ -215,13 +215,13 @@ public class ControllerRouteResolver implements RouteResolver<Controller>, Inter
 	@Override
 	public <A extends Annotation> void registerInterceptor(Class<A> annotation, Interceptor<A> interceptor) {
 		verifyHasRetentionRuntime(annotation);
-		actionInterceptors.put(annotation, interceptor);
-		Logger.info("Added ActionInterceptor %s for methods annotated with %s", interceptor, annotation);
+		interceptors.put(annotation, interceptor);
+		Logger.info("Added Interceptor %s for methods annotated with %s", interceptor, annotation);
 	}
 
 	@SuppressWarnings("unchecked")
 	public Interceptor<Annotation> interceptor(Class<? extends Annotation> annotationType) {
-		return (Interceptor<Annotation>) actionInterceptors.get(annotationType);
+		return (Interceptor<Annotation>) interceptors.get(annotationType);
 	}
 
 	public BinderRegistry getBinderRegistry() {

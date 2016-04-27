@@ -67,6 +67,10 @@ public class ClassIntrospector {
 		return setters;
 	}
 
+	public <T> List<Field> listFields(Class<T> type) {
+		return Arrays.asList(ReflectUtil.getSupportedFields(type));
+	}
+
 	public <T> List<Field> listInjectionFields(Class<T> type) {
 		List<Field> injectionFields = new ArrayList<Field>();
 		if (supportsInjection) {

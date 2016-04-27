@@ -34,7 +34,9 @@ public class RedirectRouteResolver implements RouteResolver<Redirect> {
 		Map<String, String> pathVars = route.getPathVars(req.getRequestPath());
 		String redirectTo = redirect.getRedirectTo(pathVars);
 		try {
-			resp.withStatusCode(StatusCode.Found).withHeader(Header.Location, redirectTo);
+			resp
+				.withStatusCode(StatusCode.Found)
+				.withHeader(Header.Location, redirectTo);
 			return null;
 		} catch (Exception e) {
 			throw new RouteResolverException(e, "Failed to redirect %s to %s: %s", req.getRequestPath(), redirectTo, e.getMessage());

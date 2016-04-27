@@ -119,4 +119,9 @@ public class NegotiatingViewResolver implements ViewResolver<NegotiatingView> {
 		}
 		return null;
 	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName();
+	}
 }

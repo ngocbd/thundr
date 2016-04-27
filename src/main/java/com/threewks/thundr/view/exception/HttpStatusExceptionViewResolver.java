@@ -36,4 +36,9 @@ public class HttpStatusExceptionViewResolver implements ViewResolver<HttpStatusE
 			.withStatusMessage(viewResult.getMessage());
 		// @formatter:on
 	}
+	
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName();
+	}
 }

@@ -149,8 +149,8 @@ public class Thundr {
 			Object view = router.resolve(req, resp);
 			if (view != null) {
 				viewResolverRegistry.resolve(req, resp, view);
-				resp.finaliseResponse();
 			}
+			resp.finaliseResponse();
 		} catch (RuntimeException e) {
 			if (Cast.is(e, RouteResolverException.class)) {
 				// unwrap RouteResolverException if it is one

@@ -29,4 +29,9 @@ public class RouteNotFoundViewResolver implements ViewResolver<RouteNotFoundExce
 	public void resolve(Request req, Response resp, RouteNotFoundException viewResult) {
 		delegate.resolve(req, resp, viewResult);
 	}
+	
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName();
+	}
 }

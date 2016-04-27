@@ -41,7 +41,7 @@ public class InMemoryResponse extends BaseResponse implements Response {
 	protected String statusMessage;
 	protected String contentType;
 	protected String characterEncoding = "UTF-8";
-	protected int contentLength;
+	protected Long contentLength;
 	protected ByteArrayOutputStream output = new ByteArrayOutputStream();
 
 	public InMemoryResponse(TransformerManager transformerManager) {
@@ -105,7 +105,7 @@ public class InMemoryResponse extends BaseResponse implements Response {
 	}
 
 	@Override
-	public Response withContentLength(int length) {
+	public Response withContentLength(long length) {
 		this.contentLength = length;
 		return this;
 	}
@@ -136,18 +136,22 @@ public class InMemoryResponse extends BaseResponse implements Response {
 		return headers;
 	}
 
+	@Override
 	public StatusCode getStatusCode() {
 		return statusCode;
 	}
 
+	@Override
 	public ContentType getContentType() {
 		return ContentType.from(contentType);
 	}
 
+	@Override
 	public String getContentTypeString() {
 		return contentType;
 	}
 
+	@Override
 	public String getCharacterEncoding() {
 		return characterEncoding;
 	}
@@ -168,7 +172,8 @@ public class InMemoryResponse extends BaseResponse implements Response {
 		return output.toByteArray();
 	}
 
-	public int getContentLength() {
+	@Override
+	public Long getContentLength() {
 		return contentLength;
 	}
 
@@ -189,6 +194,17 @@ public class InMemoryResponse extends BaseResponse implements Response {
 	@Override
 	public List<Cookie> getAllCookies() {
 		return Collections.unmodifiableList(this.cookies);
+	}
+
+	@Override
+	public List<Cookie> getCookies(String name) {
+		List<Cookie> results = new ArrayList<>();
+		for (Cookie cookie : cookies) {
+			if (cookie.getName().equals(name)) {
+				results.add(cookie);
+			}
+		}
+		return results;
 	}
 
 	@Override
