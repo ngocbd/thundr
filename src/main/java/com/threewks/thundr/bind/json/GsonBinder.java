@@ -35,7 +35,6 @@ import com.threewks.thundr.bind.http.request.RequestClassBinder;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.introspection.ParameterDescription;
 import com.threewks.thundr.introspection.TypeIntrospector;
-import com.threewks.thundr.json.GsonSupport;
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.Response;
 
@@ -50,10 +49,6 @@ public class GsonBinder implements Binder {
 	 */
 
 	private GsonBuilder gsonBuilder;
-
-	public GsonBinder() {
-		this(GsonSupport.createBasicGsonBuilder());
-	}
 
 	public GsonBinder(GsonBuilder gsonBuilder) {
 		this.gsonBuilder = gsonBuilder;

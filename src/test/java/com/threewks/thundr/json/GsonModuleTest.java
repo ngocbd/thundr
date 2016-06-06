@@ -15,27 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.view.redirect;
+package com.threewks.thundr.json;
 
-import com.threewks.thundr.http.Header;
-import com.threewks.thundr.http.StatusCode;
-import com.threewks.thundr.request.Request;
-import com.threewks.thundr.request.Response;
-import com.threewks.thundr.view.ViewResolver;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
-public class RedirectViewResolver implements ViewResolver<RedirectView> {
+import org.junit.Test;
 
-	@Override
-	public void resolve(Request req, Response resp, RedirectView viewResult) {
-		// @formatter:off
-		resp.withStatusCode(StatusCode.Found)
-			.withHeader(Header.Location, viewResult.getRedirect())
-			.finaliseHeaders();
-		// @formatter:on
-	}
+import com.google.gson.GsonBuilder;
+import com.threewks.thundr.injection.InjectionContextImpl;
+import com.threewks.thundr.injection.UpdatableInjectionContext;
 
-	@Override
-	public String toString() {
-		return this.getClass().getSimpleName();
+public class GsonModuleTest {
+	private GsonModule module = new GsonModule();
+	private UpdatableInjectionContext injectionContext = new InjectionContextImpl();
+
+	@Test
+	public void shouldInjectGsonBuilderOnConfigure() {
+		module.configure(injectionContext);
+		assertThat(injectionContext.contains(GsonBuilder.class), is(true));
 	}
 }

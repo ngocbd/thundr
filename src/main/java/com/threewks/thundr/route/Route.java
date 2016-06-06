@@ -79,7 +79,11 @@ public class Route {
 		return routeMatchRegex.matcher(routePath).matches();
 	}
 
-	public String getReverseRoute(Map<String, Object> pathVars) {
+	public String getReverseRoutePath(Map<String, Object> pathVars) {
+		return getReverseRoute(pathVars).getUri();
+	}
+
+	public ReverseRoute getReverseRoute(Map<String, Object> pathVars) {
 		List<String> missing = list(pathParameters).removeItems(pathVars.keySet());
 		if (!missing.isEmpty()) {
 			throw new ReverseRouteException("Cannot generate a reverse route for %s - no value(s) supplied for the path variables %s", route, StringUtils.join(missing, ", "));
@@ -91,7 +95,7 @@ public class Route {
 		for (Map.Entry<String, Object> entry : pathVars.entrySet()) {
 			reverse = reverse.replace("{" + entry.getKey() + "}", URLEncoder.encodePathComponent(entry.getValue().toString()));
 		}
-		return reverse;
+		return new ReverseRoute(method, reverse, name);
 	}
 
 	public Map<String, String> getPathVars(String routePath) {

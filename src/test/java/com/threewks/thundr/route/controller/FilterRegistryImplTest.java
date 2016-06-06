@@ -214,4 +214,20 @@ public class FilterRegistryImplTest {
 		inOrder.verify(filter2).exception(e, req, resp);
 		inOrder.verify(filter1).exception(e, req, resp);
 	}
+
+	@Test
+	public void shouldRetainOrderingOfFilterBasedOnAdditionOrder() {
+		// This represents a consistent failure based on a previous implementation (which was a hashmap)
+		registry.add(filter1, "/**");
+		registry.add(filter2, "/*");
+
+		req.withUrl("/path");
+		Object result = registry.before(req, resp);
+		assertThat(result, is(nullValue()));
+
+		InOrder inOrder = inOrder(filter1, filter2);
+		inOrder.verify(filter1).before(req, resp);
+		inOrder.verify(filter2).before(req, resp);
+
+	}
 }

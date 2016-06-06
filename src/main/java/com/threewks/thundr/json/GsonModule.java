@@ -15,27 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.threewks.thundr.view.redirect;
+package com.threewks.thundr.json;
 
-import com.threewks.thundr.http.Header;
-import com.threewks.thundr.http.StatusCode;
-import com.threewks.thundr.request.Request;
-import com.threewks.thundr.request.Response;
-import com.threewks.thundr.view.ViewResolver;
+import com.google.gson.GsonBuilder;
+import com.threewks.thundr.injection.BaseModule;
+import com.threewks.thundr.injection.UpdatableInjectionContext;
 
-public class RedirectViewResolver implements ViewResolver<RedirectView> {
-
+public class GsonModule extends BaseModule {
 	@Override
-	public void resolve(Request req, Response resp, RedirectView viewResult) {
-		// @formatter:off
-		resp.withStatusCode(StatusCode.Found)
-			.withHeader(Header.Location, viewResult.getRedirect())
-			.finaliseHeaders();
-		// @formatter:on
-	}
-
-	@Override
-	public String toString() {
-		return this.getClass().getSimpleName();
+	public void configure(UpdatableInjectionContext injectionContext) {
+		super.configure(injectionContext);
+		injectionContext.inject(GsonSupport.createBasicGsonBuilder()).as(GsonBuilder.class);
 	}
 }

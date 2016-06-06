@@ -26,6 +26,7 @@ import com.threewks.thundr.configuration.ConfigurationModule;
 import com.threewks.thundr.injection.InjectionContextImpl;
 import com.threewks.thundr.injection.Module;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
+import com.threewks.thundr.json.GsonModule;
 import com.threewks.thundr.logger.Logger;
 import com.threewks.thundr.module.Modules;
 import com.threewks.thundr.module.ModulesModule;
@@ -122,6 +123,7 @@ public class Thundr {
 		baseModules.add(TransformerModule.class);
 		baseModules.add(RequestModule.class);
 		baseModules.add(RouterModule.class);
+		baseModules.add(GsonModule.class);
 		for (Class<? extends Module> module : coreModules) {
 			baseModules.add(module);
 		}
@@ -150,7 +152,6 @@ public class Thundr {
 			if (view != null) {
 				viewResolverRegistry.resolve(req, resp, view);
 			}
-			resp.finaliseResponse();
 		} catch (RuntimeException e) {
 			if (Cast.is(e, RouteResolverException.class)) {
 				// unwrap RouteResolverException if it is one
@@ -163,7 +164,7 @@ public class Thundr {
 			if (resp.isUncommitted()) {
 				try {
 					viewResolverRegistry.resolve(req, resp, e);
-					resp.finaliseResponse();
+					resp.finaliseHeaders();
 				} catch (ViewResolverNotFoundException exceptionViewNotFound) {
 					throw e;
 				}

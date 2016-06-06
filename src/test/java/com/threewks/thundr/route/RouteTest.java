@@ -34,7 +34,8 @@ import org.junit.rules.ExpectedException;
 import com.atomicleopard.expressive.Expressive;
 
 public class RouteTest {
-	@Rule public ExpectedException thrown = ExpectedException.none();
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	@Test
 	public void shouldCorrectlyReplaceSingleAndDoubleAsteriskInPathString() {
@@ -163,22 +164,22 @@ public class RouteTest {
 	}
 
 	@Test
-	public void shouldReturnReverseRoute() {
+	public void shouldReturnReverseRoutePath() {
 		Route route = new Route(null, "/path/{var}/split/{var2}", null);
-		assertThat(route.getReverseRoute(map("var", "value", "var2", 1)), is("/path/value/split/1"));
-		assertThat(route.getReverseRoute(map("var", "key", "var2", new DateTime(2000, 1, 1, 0, 0).withZoneRetainFields(DateTimeZone.UTC))), is("/path/key/split/2000-01-01T00%3A00%3A00.000Z"));
+		assertThat(route.getReverseRoutePath(map("var", "value", "var2", 1)), is("/path/value/split/1"));
+		assertThat(route.getReverseRoutePath(map("var", "key", "var2", new DateTime(2000, 1, 1, 0, 0).withZoneRetainFields(DateTimeZone.UTC))), is("/path/key/split/2000-01-01T00%3A00%3A00.000Z"));
 	}
 
 	@Test
 	public void shouldReturnReverseRouteEncodingStringAsPathComponent() {
 		Route route = new Route(null, "/path/{var}/split/{var2}", null);
-		assertThat(route.getReverseRoute(map("var", "path=string", "var2", "another value")), is("/path/path%3Dstring/split/another%20value"));
+		assertThat(route.getReverseRoutePath(map("var", "path=string", "var2", "another value")), is("/path/path%3Dstring/split/another%20value"));
 	}
 
 	@Test
 	public void shouldReturnReverseRouteWhenNoParametersRequired() {
 		Route route = new Route(null, "/path/to/resource.html", null);
-		assertThat(route.getReverseRoute(map()), is("/path/to/resource.html"));
+		assertThat(route.getReverseRoutePath(map()), is("/path/to/resource.html"));
 	}
 
 	@Test
@@ -186,13 +187,13 @@ public class RouteTest {
 		thrown.expect(ReverseRouteException.class);
 		thrown.expectMessage("Cannot generate a reverse route for /path/{var}/split/{var2} - no value(s) supplied for the path variables var2");
 		Route route = new Route(null, "/path/{var}/split/{var2}", null);
-		assertThat(route.getReverseRoute(map("var", "value")), is("/path/value/split/"));
+		assertThat(route.getReverseRoutePath(map("var", "value")), is("/path/value/split/"));
 	}
 
 	@Test
 	public void shouldGenerateReverseRouteIgnoringExtraParameters() {
 		Route route = new Route(null, "/path/{var}/split/{var2}", null);
-		assertThat(route.getReverseRoute(map("var", "value", "var2", 1, "var3", 2)), is("/path/value/split/1"));
+		assertThat(route.getReverseRoutePath(map("var", "value", "var2", 1, "var3", 2)), is("/path/value/split/1"));
 	}
 
 	@Test
@@ -200,7 +201,14 @@ public class RouteTest {
 		thrown.expect(ReverseRouteException.class);
 		thrown.expectMessage("Cannot generate a reverse route for /path/{var}/split/{var2} - one or more parameters were null");
 		Route route = new Route(null, "/path/{var}/split/{var2}", null);
-		assertThat(route.getReverseRoute(map("var", "value", "var2", null)), is("/path/value/split/"));
+		assertThat(route.getReverseRoutePath(map("var", "value", "var2", null)), is("/path/value/split/"));
+	}
+
+	@Test
+	public void shouldReturnReverseRoute() {
+		Route route = new Route(HttpMethod.POST, "/path/{var}/split/{var2}", "name");
+		assertThat(route.getReverseRoute(map("var", "value", "var2", 1)), is(new ReverseRoute(HttpMethod.POST, "/path/value/split/1", "name") ));
+		assertThat(route.getReverseRoute(map("var", "key", "var2", new DateTime(2000, 1, 1, 0, 0).withZoneRetainFields(DateTimeZone.UTC))), is(new ReverseRoute(HttpMethod.POST, "/path/key/split/2000-01-01T00%3A00%3A00.000Z", "name")));
 	}
 
 	@Test

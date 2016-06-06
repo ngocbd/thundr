@@ -34,6 +34,7 @@ import com.google.gson.JsonElement;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.Cookie;
 import com.threewks.thundr.http.StatusCode;
+import com.threewks.thundr.json.GsonSupport;
 import com.threewks.thundr.request.mock.MockRequest;
 import com.threewks.thundr.request.mock.MockResponse;
 import com.threewks.thundr.view.ViewResolutionException;
@@ -45,7 +46,7 @@ public class JsonViewResolverTest {
 
 	private MockRequest req = new MockRequest();
 	private MockResponse resp = new MockResponse();
-	private JsonViewResolver resolver = new JsonViewResolver();
+	private JsonViewResolver resolver = new JsonViewResolver(GsonSupport.createBasicGsonBuilder());
 
 	@Test
 	public void shouldResolveByWritingJsonToOutputStream() throws IOException {
@@ -81,7 +82,7 @@ public class JsonViewResolverTest {
 
 	@Test
 	public void shouldReturnClassNameForToString() {
-		assertThat(new JsonViewResolver().toString(), is("JsonViewResolver"));
+		assertThat(new JsonViewResolver(GsonSupport.createBasicGsonBuilder()).toString(), is("JsonViewResolver"));
 	}
 
 	@Test

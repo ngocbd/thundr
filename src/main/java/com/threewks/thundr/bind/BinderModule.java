@@ -17,6 +17,7 @@
  */
 package com.threewks.thundr.bind;
 
+import com.google.gson.GsonBuilder;
 import com.threewks.thundr.bind.http.HttpBinder;
 import com.threewks.thundr.bind.http.MultipartHttpBinder;
 import com.threewks.thundr.bind.http.request.CookieBinder;
@@ -58,7 +59,7 @@ public class BinderModule extends BaseModule {
 		super.start(injectionContext);
 		ParameterBinderRegistry parameterBinderRegistry = injectionContext.get(ParameterBinderRegistry.class);
 		BinderRegistry binderRegistry = injectionContext.get(BinderRegistry.class);
-		addBodyConsumingBinders(binderRegistry, parameterBinderRegistry);
+		addBodyConsumingBinders(injectionContext, binderRegistry, parameterBinderRegistry);
 	}
 
 	public static BinderRegistry addDefaultBinders(BinderRegistry binderRegistry, ParameterBinderRegistry parameterBinderRegistry, TransformerManager transformerManager) {
@@ -71,8 +72,9 @@ public class BinderModule extends BaseModule {
 		return binderRegistry;
 	}
 
-	public static void addBodyConsumingBinders(BinderRegistry binderRegistry, ParameterBinderRegistry parameterBinderRegistry) {
-		binderRegistry.add(new GsonBinder());
+	public static void addBodyConsumingBinders(UpdatableInjectionContext injectionContext, BinderRegistry binderRegistry, ParameterBinderRegistry parameterBinderRegistry) {
+		GsonBuilder gsonBuilder = injectionContext.get(GsonBuilder.class);
+		binderRegistry.add(new GsonBinder(gsonBuilder));
 		binderRegistry.add(new MultipartHttpBinder(parameterBinderRegistry));
 	}
 }

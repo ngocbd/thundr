@@ -25,6 +25,6 @@ public class RequestModule extends BaseModule {
 	@Override
 	public void initialise(UpdatableInjectionContext injectionContext) {
 		super.initialise(injectionContext);
-		injectionContext.inject(ThreadLocalRequestContainer.class).as(RequestContainer.class, MutableRequestContainer.class);
+		injectionContext.inject(new ThreadLocalRequestContainer()).as(RequestContainer.class, MutableRequestContainer.class);
 	}
 }

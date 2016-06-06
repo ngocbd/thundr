@@ -36,7 +36,7 @@ public class FileViewResolver implements ViewResolver<FileView> {
 		try {
 			resp.withHeader(Header.ContentDisposition, String.format("%s; filename=%s", viewResult.getDisposition().value(), viewResult.getFileName()));
 			BaseView.applyToResponse(viewResult, resp);
-
+			resp.finaliseHeaders();
 			OutputStream outputStream = resp.getOutputStream();
 			Streams.copy(inputStream, outputStream);
 			outputStream.flush();

@@ -48,7 +48,8 @@ public class ExceptionViewResolver implements ViewResolver<Throwable> {
 	protected void renderException(Response resp, Throwable exceptionOfInterest) {
 		// @formatter:off
 		resp.withStatusCode(StatusCode.InternalServerError)
-			.withStatusMessage(exceptionOfInterest.getMessage());
+			.withStatusMessage(exceptionOfInterest.getMessage())
+			.finaliseHeaders();
 		// @formatter:on
 	}
 

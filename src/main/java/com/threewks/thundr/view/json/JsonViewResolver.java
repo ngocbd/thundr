@@ -33,10 +33,6 @@ import com.threewks.thundr.view.ViewResolver;
 public class JsonViewResolver implements ViewResolver<JsonView> {
 	private GsonBuilder gsonBuilder;
 
-	public JsonViewResolver() {
-		this(GsonSupport.createBasicGsonBuilder());
-	}
-
 	public JsonViewResolver(GsonBuilder gsonBuilder) {
 		this.gsonBuilder = gsonBuilder;
 	}
@@ -61,6 +57,7 @@ public class JsonViewResolver implements ViewResolver<JsonView> {
 			byte[] data = json.getBytes(encoding);
 			BaseView.applyToResponse(viewResult, resp);
 			resp.withContentLength(data.length);
+			resp.finaliseHeaders();
 			OutputStream outputStream = resp.getOutputStream();
 			outputStream.write(data);
 			outputStream.flush();

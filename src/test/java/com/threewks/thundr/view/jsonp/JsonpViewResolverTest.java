@@ -34,17 +34,20 @@ import com.google.gson.JsonElement;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.http.Cookie;
 import com.threewks.thundr.http.StatusCode;
+import com.threewks.thundr.json.GsonSupport;
 import com.threewks.thundr.request.mock.MockRequest;
 import com.threewks.thundr.request.mock.MockResponse;
 import com.threewks.thundr.view.ViewResolutionException;
 
 public class JsonpViewResolverTest {
 
-	@Rule public ExpectedException thrown = ExpectedException.none();
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	private MockRequest req = new MockRequest();
 	private MockResponse resp = new MockResponse();
-	private JsonpViewResolver resolver = new JsonpViewResolver();
+	private GsonBuilder gson = GsonSupport.createBasicGsonBuilder();
+	private JsonpViewResolver resolver = new JsonpViewResolver(gson);
 
 	@Test
 	public void shouldResolveByWritingJsonWrappedInFunctionToOutputStream() throws IOException {
@@ -91,7 +94,7 @@ public class JsonpViewResolverTest {
 
 	@Test
 	public void shouldReturnClassNameForToString() {
-		assertThat(new JsonpViewResolver().toString(), is("JsonpViewResolver"));
+		assertThat(new JsonpViewResolver(gson).toString(), is("JsonpViewResolver"));
 	}
 
 	@Test
@@ -105,10 +108,7 @@ public class JsonpViewResolverTest {
 	public void shouldRespectExtendedViewValues() {
 		JsonpView view = new JsonpView(map("key", "value"));
 		Cookie cookie = Cookie.build("cookie").withValue("value2").build();
-		view.withContentType("content/type")
-			.withCharacterEncoding("UTF-16")
-			.withHeader("header", "value1")
-			.withCookie(cookie);
+		view.withContentType("content/type").withCharacterEncoding("UTF-16").withHeader("header", "value1").withCookie(cookie);
 
 		resolver.resolve(req, resp, view);
 		assertThat(resp.getContentType(), is(nullValue()));

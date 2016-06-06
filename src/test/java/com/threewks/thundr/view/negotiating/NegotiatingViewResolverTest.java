@@ -30,8 +30,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.atomicleopard.expressive.Cast;
+import com.google.gson.GsonBuilder;
 import com.threewks.thundr.http.Header;
 import com.threewks.thundr.http.StatusCode;
+import com.threewks.thundr.json.GsonSupport;
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.mock.MockRequest;
 import com.threewks.thundr.request.mock.MockResponse;
@@ -50,6 +52,7 @@ import com.threewks.thundr.view.negotiating.strategy.FileExtensionNegotiationStr
 import com.threewks.thundr.view.negotiating.strategy.NegotiationStrategy;
 
 public class NegotiatingViewResolverTest {
+	private static final GsonBuilder GsonBuilder = GsonSupport.createBasicGsonBuilder();
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
 	private ViewResolverRegistry viewResolverRegistry = new ViewResolverRegistry();
@@ -129,7 +132,7 @@ public class NegotiatingViewResolverTest {
 
 	@Test
 	public void shouldRespondDefaultNegotiatedViewWhenNoViewCanBeNegotiated() {
-		viewResolverRegistry.addResolver(JsonView.class, new JsonViewResolver());
+		viewResolverRegistry.addResolver(JsonView.class, new JsonViewResolver(GsonBuilder));
 		viewNegotiatorRegistry.setDefaultNegotiator(new JsonNegotiator());
 
 		req.withHeader(Header.Accept, "text/plain;q=1,application/javascript;q=0.9");
@@ -142,8 +145,8 @@ public class NegotiatingViewResolverTest {
 
 	@Test
 	public void shouldRespectAContentTypeSetOnTheView() {
-		viewResolverRegistry.addResolver(JsonView.class, new JsonViewResolver());
-		viewResolverRegistry.addResolver(JsonpView.class, new JsonpViewResolver());
+		viewResolverRegistry.addResolver(JsonView.class, new JsonViewResolver(GsonBuilder));
+		viewResolverRegistry.addResolver(JsonpView.class, new JsonpViewResolver(GsonBuilder));
 
 		viewNegotiatorRegistry.addNegotiator("application/json", new JsonNegotiator());
 		viewNegotiatorRegistry.addNegotiator("application/javascript", new JsonpNegotiator());
@@ -158,8 +161,8 @@ public class NegotiatingViewResolverTest {
 
 	@Test
 	public void shouldRespectAcceptHeaderIfContentTypeCannotBeUsed() {
-		viewResolverRegistry.addResolver(JsonView.class, new JsonViewResolver());
-		viewResolverRegistry.addResolver(JsonpView.class, new JsonpViewResolver());
+		viewResolverRegistry.addResolver(JsonView.class, new JsonViewResolver(GsonBuilder));
+		viewResolverRegistry.addResolver(JsonpView.class, new JsonpViewResolver(GsonBuilder));
 
 		viewNegotiatorRegistry.addNegotiator("application/json", new JsonNegotiator());
 		viewNegotiatorRegistry.addNegotiator("application/javascript", new JsonpNegotiator());
@@ -174,7 +177,7 @@ public class NegotiatingViewResolverTest {
 
 	@Test
 	public void shouldRespondWithNegotiatedView() {
-		viewResolverRegistry.addResolver(JsonView.class, new JsonViewResolver());
+		viewResolverRegistry.addResolver(JsonView.class, new JsonViewResolver(GsonBuilder));
 		viewNegotiatorRegistry.addNegotiator("application/javascript", new JsonNegotiator());
 
 		req.withHeader(Header.Accept, "text/plain;q=1,application/javascript;q=0.9");

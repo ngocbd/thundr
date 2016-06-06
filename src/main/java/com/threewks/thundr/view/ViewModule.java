@@ -17,9 +17,11 @@
  */
 package com.threewks.thundr.view;
 
+import com.google.gson.GsonBuilder;
 import com.threewks.thundr.http.exception.HttpStatusException;
 import com.threewks.thundr.injection.BaseModule;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
+import com.threewks.thundr.module.DependencyRegistry;
 import com.threewks.thundr.route.RouteNotFoundException;
 import com.threewks.thundr.route.Router;
 import com.threewks.thundr.view.exception.ExceptionViewResolver;
@@ -47,6 +49,11 @@ import com.threewks.thundr.view.string.StringViewResolver;
 import jodd.util.MimeTypes;
 
 public class ViewModule extends BaseModule {
+	@Override
+	public void requires(DependencyRegistry dependencyRegistry) {
+		super.requires(dependencyRegistry);
+	}
+
 	@Override
 	public void initialise(UpdatableInjectionContext injectionContext) {
 		injectionContext.inject(ViewResolverRegistry.class).as(ViewResolverRegistry.class);
@@ -76,6 +83,7 @@ public class ViewModule extends BaseModule {
 		NegotiatingViewResolver negotiatingViewResolver = new NegotiatingViewResolver(viewResolverRegistry, viewNegotiatorRegistry);
 		injectionContext.inject(negotiatingViewResolver).as(NegotiatingViewResolver.class);
 
+		GsonBuilder gsonBuilder = injectionContext.get(GsonBuilder.class);
 		// Register built in content negotiators
 
 		viewNegotiatorRegistry.setDefaultNegotiator(new JsonNegotiator());
@@ -87,8 +95,8 @@ public class ViewModule extends BaseModule {
 		viewResolverRegistry.addResolver(RouteNotFoundException.class, new RouteNotFoundViewResolver());
 		viewResolverRegistry.addResolver(RouteRedirectView.class, new RouteRedirectViewResolver(router));
 		viewResolverRegistry.addResolver(RedirectView.class, new RedirectViewResolver());
-		viewResolverRegistry.addResolver(JsonView.class, new JsonViewResolver());
-		viewResolverRegistry.addResolver(JsonpView.class, new JsonpViewResolver());
+		viewResolverRegistry.addResolver(JsonView.class, new JsonViewResolver(gsonBuilder));
+		viewResolverRegistry.addResolver(JsonpView.class, new JsonpViewResolver(gsonBuilder));
 		viewResolverRegistry.addResolver(FileView.class, new FileViewResolver());
 		viewResolverRegistry.addResolver(StringView.class, new StringViewResolver());
 		viewResolverRegistry.addResolver(NegotiatingView.class, negotiatingViewResolver);

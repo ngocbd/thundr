@@ -33,7 +33,8 @@ public class HttpStatusExceptionViewResolver implements ViewResolver<HttpStatusE
 	protected void sendError(Response resp, HttpStatusException viewResult) {
 		// @formatter:off
 		resp.withStatusCode(viewResult.getStatus())
-			.withStatusMessage(viewResult.getMessage());
+			.withStatusMessage(viewResult.getMessage())
+			.finaliseHeaders();
 		// @formatter:on
 	}
 	

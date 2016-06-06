@@ -77,7 +77,10 @@ public class NegotiatingViewResolver implements ViewResolver<NegotiatingView> {
 		ViewResolver<Object> viewResolver = viewResolverRegistry.findViewResolver(negotiatedView);
 		if (viewResolver == null) {
 			// send not acceptable
-			resp.withStatusCode(StatusCode.NotAcceptable).withStatusMessage("Unable to match any requested content types in the Accept header.");
+			resp
+				.withStatusCode(StatusCode.NotAcceptable)
+				.withStatusMessage("Unable to match any requested content types in the Accept header.")
+				.finaliseHeaders();
 		} else {
 			viewResolver.resolve(req, resp, negotiatedView);
 		}

@@ -208,7 +208,8 @@ public class InMemoryResponse extends BaseResponse implements Response {
 	}
 
 	@Override
-	public void finaliseResponse() {
+	public Response finaliseHeaders() {
+		return this;
 	}
 
 }

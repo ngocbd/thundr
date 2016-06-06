@@ -49,6 +49,7 @@ import com.threewks.thundr.bind.BindException;
 import com.threewks.thundr.http.ContentType;
 import com.threewks.thundr.introspection.MethodIntrospector;
 import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.json.GsonSupport;
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.mock.MockRequest;
 import com.threewks.thundr.request.mock.MockResponse;
@@ -58,7 +59,7 @@ public class GsonBinderTest {
 
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
-	private GsonBinder gsonBinder = new GsonBinder();
+	private GsonBinder gsonBinder = new GsonBinder(GsonSupport.createBasicGsonBuilder());
 	private MockRequest req = new MockRequest().withContentType(ContentType.ApplicationJson);
 	private MockResponse resp = new MockResponse();
 

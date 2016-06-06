@@ -18,12 +18,10 @@
 package com.threewks.thundr.route.controller;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 
+import com.atomicleopard.expressive.collection.Pair;
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.Response;
 import com.threewks.thundr.route.Route;
@@ -38,7 +36,7 @@ import com.threewks.thundr.route.Route;
  * Filters are registered with this class at startup.
  */
 public class FilterRegistryImpl implements FilterRegistry {
-	private Map<String, List<Filter>> filters = new HashMap<String, List<Filter>>();
+	private List<Pair<String, Filter>> filters = new ArrayList<>();
 
 	/**
 	 * Add the given filter for all controller methods on the given path.
@@ -52,12 +50,7 @@ public class FilterRegistryImpl implements FilterRegistry {
 	public void add(Filter filter, String... paths) {
 		for (String path : paths) {
 			String regex = convertPathStringToRegex(path);
-			List<Filter> existing = filters.get(regex);
-			if (existing == null) {
-				existing = new ArrayList<Filter>();
-				filters.put(regex, existing);
-			}
-			existing.add(filter);
+			filters.add(new Pair<>(regex, filter));
 		}
 	}
 
@@ -69,13 +62,13 @@ public class FilterRegistryImpl implements FilterRegistry {
 	 */
 	@Override
 	public void remove(Filter filter, String... paths) {
+		List<Pair<String, Filter>> toRemove = new ArrayList<>();
 		for (String path : paths) {
 			String regex = convertPathStringToRegex(path);
-			List<Filter> existing = filters.get(regex);
-			if (existing != null) {
-				existing.remove(filter);
-			}
+			Pair<String, Filter> pair = new Pair<String, Filter>(regex, filter);
+			toRemove.add(pair);
 		}
+		filters.removeAll(toRemove);
 	}
 
 	/**
@@ -85,39 +78,38 @@ public class FilterRegistryImpl implements FilterRegistry {
 	 */
 	@Override
 	public void remove(Filter filter) {
-		for (List<Filter> fs : filters.values()) {
-			fs.remove(filter);
+		List<Pair<String, Filter>> toRemove = new ArrayList<>();
+		for (Pair<String, Filter> pair : filters) {
+			if (pair.getB().equals(filter)) {
+				toRemove.add(pair);
+			}
 		}
+		filters.removeAll(toRemove);
 	}
 
 	@Override
 	public void remove(Class<? extends Filter> filter) {
-		for (List<Filter> fs : filters.values()) {
-			Iterator<Filter> iterator = fs.iterator();
-			while (iterator.hasNext()) {
-				Filter f = iterator.next();
-				if (f.getClass().equals(filter)) {
-					iterator.remove();
-				}
+		List<Pair<String, Filter>> toRemove = new ArrayList<>();
+		for (Pair<String, Filter> pair : filters) {
+			if (filter.equals(pair.getB().getClass())) {
+				toRemove.add(pair);
 			}
 		}
+		filters.removeAll(toRemove);
 	}
 
 	@Override
 	public void remove(Class<? extends Filter> filter, String... paths) {
+		List<Pair<String, Filter>> toRemove = new ArrayList<>();
 		for (String path : paths) {
 			String regex = convertPathStringToRegex(path);
-			List<Filter> existing = filters.get(regex);
-			if (existing != null) {
-				Iterator<Filter> iterator = existing.iterator();
-				while (iterator.hasNext()) {
-					Filter f = iterator.next();
-					if (f.getClass().equals(filter)) {
-						iterator.remove();
-					}
+			for (Pair<String, Filter> pair : filters) {
+				if (filter.equals(pair.getB().getClass()) && pair.getA().equals(regex)) {
+					toRemove.add(pair);
 				}
 			}
 		}
+		filters.removeAll(toRemove);
 	}
 
 	/**
@@ -127,18 +119,17 @@ public class FilterRegistryImpl implements FilterRegistry {
 	 */
 	@Override
 	public boolean has(Filter filter, String path) {
-		List<Filter> filtersForPath = filters.get(convertPathStringToRegex(path));
-		return filtersForPath == null ? false : filtersForPath.contains(filter);
+		String regex = convertPathStringToRegex(path);
+		Pair<String, Filter> pair = new Pair<String, Filter>(regex, filter);
+		return filters.contains(pair);
 	}
 
 	@Override
 	public boolean has(Class<? extends Filter> filter, String path) {
-		List<Filter> filtersForPath = filters.get(convertPathStringToRegex(path));
-		if (filtersForPath != null) {
-			for (Filter f : filtersForPath) {
-				if (f.getClass().equals(filter)) {
-					return true;
-				}
+		String regex = convertPathStringToRegex(path);
+		for (Pair<String, Filter> pair : filters) {
+			if (pair.getA().equals(regex) && pair.getB().getClass().equals(filter)) {
+				return true;
 			}
 		}
 		return false;
@@ -208,10 +199,9 @@ public class FilterRegistryImpl implements FilterRegistry {
 	private List<Filter> findMatchingFilters(String path) {
 		List<Filter> filters = new ArrayList<Filter>();
 		if (path != null) {
-			for (Map.Entry<String, List<Filter>> entry : this.filters.entrySet()) {
-				String key = entry.getKey();
-				if (path.matches(key)) {
-					filters.addAll(entry.getValue());
+			for (Pair<String, Filter> entry : this.filters) {
+				if (path.matches(entry.getA())) {
+					filters.add(entry.getB());
 				}
 			}
 		}

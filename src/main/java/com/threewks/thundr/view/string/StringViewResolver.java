@@ -33,9 +33,10 @@ public class StringViewResolver implements ViewResolver<StringView> {
 	@Override
 	public void resolve(Request req, Response resp, StringView viewResult) {
 		try {
-			BaseView.applyToResponse(viewResult, resp);
 			byte[] data = viewResult.contentBytes();
-			resp.withContentLength(data.length);
+			BaseView.applyToResponse(viewResult, resp);
+			resp.withContentLength(data.length)
+				.finaliseHeaders();
 			OutputStream outputStream = resp.getOutputStream();
 			outputStream.write(data);
 			outputStream.flush();

@@ -46,13 +46,14 @@ public class RouteRedirectViewResolver implements ViewResolver<RouteRedirectView
 		String queryString = URLEncoder.encodeQueryString(viewResult.getQueryParameters());
 		// @formatter:off
 		resp.withStatusCode(StatusCode.Found)
-			.withHeader(Header.Location, reverseRoute + queryString);
+			.withHeader(Header.Location, reverseRoute + queryString)
+			.finaliseHeaders();
 		// @formatter:on
 	}
 
 	private String getReverseRoute(RouteRedirectView viewResult, Route route) {
 		try {
-			return route.getReverseRoute(viewResult.getPathVariables());
+			return route.getReverseRoutePath(viewResult.getPathVariables());
 		} catch (ReverseRouteException e) {
 			throw new ViewResolutionException(e, "Failed to redirect to route '%s': %s", route.getRoute(), e.getMessage());
 		}

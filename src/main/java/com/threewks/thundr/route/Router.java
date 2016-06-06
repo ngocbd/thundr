@@ -19,6 +19,7 @@ package com.threewks.thundr.route;
 
 import static com.atomicleopard.expressive.Expressive.list;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -181,6 +182,26 @@ public class Router {
 
 	public Route getNamedRoute(String name) {
 		return namedRoutes.get(name);
+	}
+
+	public ReverseRoute getReverseRoute(Map<String, Object> pathVars, String name) {
+		Route namedRoute = getNamedRoute(name);
+		return namedRoute.getReverseRoute(pathVars);
+	}
+
+	public List<ReverseRoute> getReverseRoutes(Map<String, Object> pathVars, String... names) {
+		List<ReverseRoute> results = new ArrayList<>();
+		for (String name : names) {
+			Route route = namedRoutes.get(name);
+			if (route != null) {
+				try {
+					results.add(route.getReverseRoute(pathVars));
+				} catch (ReverseRouteException e) {
+					// swallow, nom nom nom
+				}
+			}
+		}
+		return results;
 	}
 
 	public Object resolve(Request req, Response resp) {

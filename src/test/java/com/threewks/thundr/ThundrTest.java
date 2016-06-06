@@ -38,6 +38,7 @@ import com.threewks.thundr.http.StatusCode;
 import com.threewks.thundr.injection.InjectionContextImpl;
 import com.threewks.thundr.injection.Module;
 import com.threewks.thundr.injection.UpdatableInjectionContext;
+import com.threewks.thundr.json.GsonModule;
 import com.threewks.thundr.module.Modules;
 import com.threewks.thundr.module.ModulesModule;
 import com.threewks.thundr.request.MutableRequestContainer;
@@ -124,6 +125,7 @@ public class ThundrTest {
 		verify(modules).addModule(ModulesModule.class);
 		verify(modules).addModule(TransformerModule.class);
 		verify(modules).addModule(RouterModule.class);
+		verify(modules).addModule(GsonModule.class);
 		verify(modules).runStartupLifecycle(injectionContext);
 	}
 

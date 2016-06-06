@@ -21,11 +21,14 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.Response;
 import com.threewks.thundr.request.mock.MockRequest;
@@ -116,6 +119,47 @@ public class RouterTest {
 		assertThat(router.getNamedRoute("otherName"), is(nullValue()));
 		assertThat(router.getNamedRoute(null), is(nullValue()));
 		assertThat(router.getNamedRoute(""), is(nullValue()));
+	}
+
+	@Test
+	public void shouldGetReverseRoute() {
+		router.add(HttpMethod.GET, "/route/{id}", new TestResolve("actionName"), "name");
+
+		ReverseRoute reverseRoute = router.getReverseRoute(Expressive.<String, Object> map("id", 12), "name");
+		assertThat(reverseRoute.getMethod(), is(HttpMethod.GET));
+		assertThat(reverseRoute.getUri(), is("/route/12"));
+		assertThat(reverseRoute.getRel(), is("name"));
+	}
+
+	@Test
+	public void shouldGetReverseRoutes() {
+		router.add(HttpMethod.GET, "/route/{id}", new TestResolve("actionName"), "name.get");
+		router.add(HttpMethod.PUT, "/route/{id}/path", new TestResolve("actionName"), "name.put");
+
+		List<ReverseRoute> reverseRoutes = router.getReverseRoutes(Expressive.<String, Object> map("id", 12), "name.get", "name.put");
+		assertThat(reverseRoutes.size(), is(2));
+		assertThat(reverseRoutes.get(0).getMethod(), is(HttpMethod.GET));
+		assertThat(reverseRoutes.get(0).getUri(), is("/route/12"));
+		assertThat(reverseRoutes.get(0).getRel(), is("name.get"));
+		assertThat(reverseRoutes.get(1).getMethod(), is(HttpMethod.PUT));
+		assertThat(reverseRoutes.get(1).getUri(), is("/route/12/path"));
+		assertThat(reverseRoutes.get(1).getRel(), is("name.put"));
+	}
+
+	@Test
+	public void shouldGetReverseRoutesIgnoringInvalidEntries() {
+		router.add(HttpMethod.GET, "/route/{id}", new TestResolve("actionName"), "name.get");
+		router.add(HttpMethod.POST, "/route/{notId}/path", new TestResolve("actionName"), "name.post");
+		router.add(HttpMethod.PUT, "/route/{id}/path", new TestResolve("actionName"), "name.put");
+
+		List<ReverseRoute> reverseRoutes = router.getReverseRoutes(Expressive.<String, Object> map("id", 12), "name.get", "name.post", "thisDoesntExist", "name.put");
+		assertThat(reverseRoutes.size(), is(2));
+		assertThat(reverseRoutes.get(0).getMethod(), is(HttpMethod.GET));
+		assertThat(reverseRoutes.get(0).getUri(), is("/route/12"));
+		assertThat(reverseRoutes.get(0).getRel(), is("name.get"));
+		assertThat(reverseRoutes.get(1).getMethod(), is(HttpMethod.PUT));
+		assertThat(reverseRoutes.get(1).getUri(), is("/route/12/path"));
+		assertThat(reverseRoutes.get(1).getRel(), is("name.put"));
 	}
 
 	@Test

@@ -120,6 +120,7 @@ public interface Response {
 
 	/**
 	 * Return the content length if previously specified, or null
+	 * 
 	 * @return
 	 */
 	Long getContentLength();
@@ -135,8 +136,10 @@ public interface Response {
 	List<Cookie> getAllCookies();
 
 	/**
-	 * Called by the framework to finalise the underlying response,
-	 * sending any required data in the order required.
+	 * Called to 'flush' the header portion of the response
+	 * to the client. At this point, the response is logically
+	 * committed, and no headers can be altered, only the
+	 * content body.
 	 */
-	void finaliseResponse();
+	Response finaliseHeaders();
 }
