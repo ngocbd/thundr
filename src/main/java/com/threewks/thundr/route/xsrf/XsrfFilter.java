@@ -51,6 +51,9 @@ import com.threewks.thundr.route.controller.BaseFilter;
  *   ...
  * </code>
  */
+// TODO - v3 - It is possible to have multiple XSRF cookies,
+// in which case we should check if any of them match. This occurs
+// when concurrent get/option/head occur.
 public class XsrfFilter extends BaseFilter {
 	protected Random random = new SecureRandom();
 	protected String cookieName = "XSRF-TOKEN";
