@@ -19,7 +19,7 @@ package com.threewks.thundr.http;
 
 import static com.threewks.thundr.http.StatusCode.*;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 
@@ -44,6 +44,16 @@ public class StatusCodeTest {
 			assertThat(StatusCode.fromCode(statusCode.getCode()), is(statusCode));
 		}
 	}
+	
+	@Test
+    public void shouldReturnTrueIfCodeMatches() {
+	    assertThat(StatusCode.OK.matches(200), is(true));
+	    assertThat(StatusCode.OK.matches(199), is(false));
+	    assertThat(StatusCode.OK.matches(201), is(false));
+	    assertThat(StatusCode.Forbidden.matches(403), is(true));
+	    assertThat(StatusCode.Forbidden.matches(402), is(false));
+	    assertThat(StatusCode.Forbidden.matches(20), is(false));
+    }
 
 	@Test
 	public void shouldReturnToStringOfCodeAndReason() {
