@@ -17,22 +17,6 @@
  */
 package com.threewks.thundr;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import java.io.IOException;
-import java.util.Collections;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-
 import com.threewks.thundr.configuration.ConfigurationModule;
 import com.threewks.thundr.http.StatusCode;
 import com.threewks.thundr.injection.InjectionContextImpl;
@@ -56,6 +40,22 @@ import com.threewks.thundr.view.ViewModule;
 import com.threewks.thundr.view.ViewResolver;
 import com.threewks.thundr.view.ViewResolverNotFoundException;
 import com.threewks.thundr.view.ViewResolverRegistry;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import java.io.IOException;
+import java.util.Collections;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.*;
 
 public class ThundrTest {
 	@Rule
@@ -219,13 +219,31 @@ public class ThundrTest {
 		viewResolverRegistry.addResolver(String.class, new ViewResolver<String>() {
 			@Override
 			public void resolve(Request req, Response resp, String viewResult) {
-				throw new RouteResolverException(new RuntimeException("Intentional Exception"), "");
+				throw new RouteResolverException(new Exception("Intentional Checked Exception"), "");
 			}
 		});
-		viewResolverRegistry.addResolver(RuntimeException.class, new ViewResolver<RuntimeException>() {
+		viewResolverRegistry.addResolver(Exception.class, new ViewResolver<Exception>() {
 			@Override
-			public void resolve(Request req, Response resp, RuntimeException viewResult) {
+			public void resolve(Request req, Response resp, Exception viewResult) {
 				resp.withStatusCode(StatusCode.ImATeapot);
+			}
+		});
+
+		thundr.resolve(req, resp);
+		verify(resp).withStatusCode(StatusCode.ImATeapot);
+	}
+
+	@Test
+	public void shouldThrowActionExceptionFromViewResolverWhenNoMatchingExceptionResolverFound() {
+		final RuntimeException expectedException = new RouteResolverException(new Exception("Intentional Checked Exception"), "");
+		thrown.expect(is(expectedException));
+
+		when(router.resolve(Mockito.any(Request.class), Mockito.any(Response.class))).thenReturn("View Name");
+
+		viewResolverRegistry.addResolver(String.class, new ViewResolver<String>() {
+			@Override
+			public void resolve(Request req, Response resp, String viewResult) {
+				throw expectedException;
 			}
 		});
 
