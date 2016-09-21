@@ -252,7 +252,7 @@ public class ThundrTest {
 	}
 
 	@Test
-	public void shouldThrowActionExceptionFromViewResolverWhenNoMatchingExceptionResolverFound() {
+	public void shouldThrowActionExceptionFromViewResolverWhenNoMatchingExceptionResolverFoundAndCauseNotRuntimeException() {
 		final RuntimeException expectedException = new RouteResolverException(new Exception("Intentional Checked Exception"), "");
 		thrown.expect(is(expectedException));
 
