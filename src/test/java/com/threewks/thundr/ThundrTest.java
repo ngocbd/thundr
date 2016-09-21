@@ -234,6 +234,24 @@ public class ThundrTest {
 	}
 
 	@Test
+	public void shouldThrowRouteResolverCauseWhenNoErrorViewFoundAndCauseIsRuntimeException() {
+		final RuntimeException cause = new RuntimeException("Intentional");
+
+		thrown.expect(is(cause));
+
+		when(router.resolve(Mockito.any(Request.class), Mockito.any(Response.class))).thenReturn("View Name");
+
+		viewResolverRegistry.addResolver(String.class, new ViewResolver<String>() {
+			@Override
+			public void resolve(Request req, Response resp, String viewResult) {
+				throw new RouteResolverException(cause, "");
+			}
+		});
+
+		thundr.resolve(req, resp);
+	}
+
+	@Test
 	public void shouldThrowActionExceptionFromViewResolverWhenNoMatchingExceptionResolverFound() {
 		final RuntimeException expectedException = new RouteResolverException(new Exception("Intentional Checked Exception"), "");
 		thrown.expect(is(expectedException));
@@ -293,6 +311,7 @@ public class ThundrTest {
 		}).when(router).resolve(Mockito.any(Request.class), Mockito.any(Response.class));
 
 		thundr.resolve(req, resp);
+
 		assertThat(requestContainer.getRequest(), is(nullValue()));
 		assertThat(requestContainer.getResponse(), is(nullValue()));
 	}
@@ -317,6 +336,33 @@ public class ThundrTest {
 			thundr.resolve(req, resp);
 			fail("Expected an exception");
 		} catch (RuntimeException e) {
+			assertThat(requestContainer.getRequest(), is(nullValue()));
+			assertThat(requestContainer.getResponse(), is(nullValue()));
+		}
+	}
+
+	@Test
+	public void shouldThrowViewResolverNotFoundExceptionWhenRouteResolverExceptionCauseIsViewResolverNotFoundException() {
+		final ViewResolverNotFoundException viewResolverNotFoundException = new ViewResolverNotFoundException("Intentional");
+		thrown.expect(is(viewResolverNotFoundException));
+
+		final MutableRequestContainer requestContainer = injectionContext.get(MutableRequestContainer.class);
+		assertThat(requestContainer, is(notNullValue()));
+
+		doAnswer(new Answer<String>() {
+			@Override
+			public String answer(InvocationOnMock invocation) throws Throwable {
+				Request request = requestContainer.getRequest();
+				Response response = requestContainer.getResponse();
+				assertThat(request, is(req));
+				assertThat(response, is(resp));
+				throw new RouteResolverException(viewResolverNotFoundException, "");
+			}
+		}).when(router).resolve(Mockito.any(Request.class), Mockito.any(Response.class));
+
+		try {
+			thundr.resolve(req, resp);
+		} finally {
 			assertThat(requestContainer.getRequest(), is(nullValue()));
 			assertThat(requestContainer.getResponse(), is(nullValue()));
 		}

@@ -152,22 +152,26 @@ public class Thundr {
 			if (view != null) {
 				viewResolverRegistry.resolve(req, resp, view);
 			}
-		} catch (ViewResolverNotFoundException e) {
-			throw e;
+		} catch (RuntimeException original) {
+			Throwable throwable = original;
 
-		} catch (RuntimeException e) {
-			Throwable resolveThrowable = e;
-
-			if (Cast.is(e, RouteResolverException.class)) {
+			if (Cast.is(original, RouteResolverException.class)) {
 				// unwrap RouteResolverException if it is one
-				resolveThrowable = Cast.as(e, RouteResolverException.class).getCause();
+				throwable = Cast.as(original, RouteResolverException.class).getCause();
+			}
+			if (Cast.is(throwable, ViewResolverNotFoundException.class)) {
+				// if there was an error finding a view resolver, propagate this
+				throw (ViewResolverNotFoundException) throwable;
 			}
 			if (resp.isUncommitted()) {
 				try {
-					viewResolverRegistry.resolve(req, resp, resolveThrowable);
+					viewResolverRegistry.resolve(req, resp, throwable);
 					resp.finaliseHeaders();
 				} catch (ViewResolverNotFoundException exceptionViewNotFound) {
-					throw e;
+					if (Cast.is(throwable, RuntimeException.class)) {
+						throw (RuntimeException) throwable;
+					}
+					throw original;
 				}
 			}
 		} finally {
