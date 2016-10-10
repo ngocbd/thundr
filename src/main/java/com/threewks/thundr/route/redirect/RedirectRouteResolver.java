@@ -36,7 +36,8 @@ public class RedirectRouteResolver implements RouteResolver<Redirect> {
 		try {
 			resp
 				.withStatusCode(StatusCode.Found)
-				.withHeader(Header.Location, redirectTo);
+				.withHeader(Header.Location, redirectTo)
+				.finaliseHeaders();
 			return null;
 		} catch (Exception e) {
 			throw new RouteResolverException(e, "Failed to redirect %s to %s: %s", req.getRequestPath(), redirectTo, e.getMessage());
