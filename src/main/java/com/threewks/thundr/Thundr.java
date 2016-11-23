@@ -17,10 +17,6 @@
  */
 package com.threewks.thundr;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.atomicleopard.expressive.Cast;
 import com.threewks.thundr.configuration.ConfigurationModule;
 import com.threewks.thundr.injection.InjectionContextImpl;
@@ -42,6 +38,10 @@ import com.threewks.thundr.route.RouterModule;
 import com.threewks.thundr.transformer.TransformerModule;
 import com.threewks.thundr.view.ViewResolverNotFoundException;
 import com.threewks.thundr.view.ViewResolverRegistry;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -152,21 +152,26 @@ public class Thundr {
 			if (view != null) {
 				viewResolverRegistry.resolve(req, resp, view);
 			}
-		} catch (RuntimeException e) {
-			if (Cast.is(e, RouteResolverException.class)) {
+		} catch (RuntimeException original) {
+			Throwable throwable = original;
+
+			if (Cast.is(original, RouteResolverException.class)) {
 				// unwrap RouteResolverException if it is one
-				e = (RuntimeException) Cast.as(e, RouteResolverException.class).getCause();
+				throwable = Cast.as(original, RouteResolverException.class).getCause();
 			}
-			if (Cast.is(e, ViewResolverNotFoundException.class)) {
+			if (Cast.is(throwable, ViewResolverNotFoundException.class)) {
 				// if there was an error finding a view resolver, propagate this
-				throw (ViewResolverNotFoundException) e;
+				throw (ViewResolverNotFoundException) throwable;
 			}
 			if (resp.isUncommitted()) {
 				try {
-					viewResolverRegistry.resolve(req, resp, e);
+					viewResolverRegistry.resolve(req, resp, throwable);
 					resp.finaliseHeaders();
 				} catch (ViewResolverNotFoundException exceptionViewNotFound) {
-					throw e;
+					if (Cast.is(throwable, RuntimeException.class)) {
+						throw (RuntimeException) throwable;
+					}
+					throw original;
 				}
 			}
 		} finally {
