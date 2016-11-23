@@ -29,40 +29,43 @@ import com.threewks.thundr.request.Request;
 import com.threewks.thundr.request.Response;
 
 public class RequestDataBinder implements Binder {
-	private ParameterBinderRegistry parameterBinderRegistry;
+    private ParameterBinderRegistry parameterBinderRegistry;
 
-	public RequestDataBinder(ParameterBinderRegistry parameterBinderRegistry) {
-		super();
-		this.parameterBinderRegistry = parameterBinderRegistry;
-	}
+    public RequestDataBinder(ParameterBinderRegistry parameterBinderRegistry) {
+        super();
+        this.parameterBinderRegistry = parameterBinderRegistry;
+    }
 
-	@Override
-	public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp) {
-		Map<String, Object> requestData = req.getAllData();
-		Map<String, Object> normalisedKeys = RequestHeaderBinder.normaliseKeysToJavaVarNames(requestData);
+    @Override
+    public void bindAll(Map<ParameterDescription, Object> bindings, Request req, Response resp) {
+        Map<String, Object> requestData = req.getAllData();
+        Map<String, Object> normalisedKeys = RequestHeaderBinder.normaliseKeysToJavaVarNames(requestData);
 
-		Map<String, List<String>> datamap = createListMap(normalisedKeys);
-		parameterBinderRegistry.bind(bindings, datamap, null);
+        Map<String, List<String>> datamap = createListMap(normalisedKeys);
+        parameterBinderRegistry.bind(bindings, datamap, null);
 
-		for (Map.Entry<ParameterDescription, Object> binding : bindings.entrySet()) {
-			ParameterDescription key = binding.getKey();
-			String name = key.name();
-			Object value = normalisedKeys.get(name);
-			if (binding.getValue() == null && value != null) {
-				if (key.isA(value.getClass())) {
-					bindings.put(key, value);
-				}
-			}
-		}
-	}
+        for (Map.Entry<ParameterDescription, Object> binding : bindings.entrySet()) {
+            ParameterDescription key = binding.getKey();
+            String name = key.name();
+            Object value = requestData.get(name);
+            if (value == null) {
+                value = normalisedKeys.get(name);
+            }
+            if (binding.getValue() == null && value != null) {
+                if (key.isA(value.getClass())) {
+                    bindings.put(key, value);
+                }
+            }
+        }
+    }
 
-	private Map<String, List<String>> createListMap(Map<String, Object> normalisedKeys) {
-		Map<String, List<String>> map = new LinkedHashMap<>();
-		for (Map.Entry<String, Object> entry : normalisedKeys.entrySet()) {
-			if (entry.getValue() instanceof String) {
-				map.put(entry.getKey(), Collections.singletonList((String) entry.getValue()));
-			}
-		}
-		return map;
-	}
+    private Map<String, List<String>> createListMap(Map<String, Object> normalisedKeys) {
+        Map<String, List<String>> map = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> entry : normalisedKeys.entrySet()) {
+            if (entry.getValue() instanceof String) {
+                map.put(entry.getKey(), Collections.singletonList((String) entry.getValue()));
+            }
+        }
+        return map;
+    }
 }

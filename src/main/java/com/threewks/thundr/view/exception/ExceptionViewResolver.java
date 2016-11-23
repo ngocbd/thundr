@@ -26,34 +26,34 @@ import com.threewks.thundr.view.ViewResolver;
 
 public class ExceptionViewResolver implements ViewResolver<Throwable> {
 
-	@Override
-	public void resolve(Request req, Response resp, Throwable viewResult) {
-		try {
-			Throwable exceptionOfInterest = getException(viewResult);
-			logException(req, exceptionOfInterest);
-			renderException(resp, exceptionOfInterest);
-		} catch (Exception e) {
-			throw new ViewResolutionException(e, "Failed to render an exception view because '%s' - original exception: %s", e.getMessage(), viewResult.getMessage());
-		}
-	}
+    @Override
+    public void resolve(Request req, Response resp, Throwable viewResult) {
+        try {
+            Throwable exceptionOfInterest = getException(viewResult);
+            logException(req, exceptionOfInterest);
+            renderException(resp, exceptionOfInterest);
+        } catch (Exception e) {
+            throw new ViewResolutionException(e, "Failed to render an exception view because '%s' - original exception: %s", e.getMessage(), viewResult.getMessage());
+        }
+    }
 
-	protected Throwable getException(Throwable viewResult) {
-		Throwable exceptionOfInterest = viewResult;
-		if (viewResult instanceof ViewResolutionException && viewResult.getCause() != null) {
-			exceptionOfInterest = viewResult.getCause();
-		}
-		return exceptionOfInterest;
-	}
+    protected Throwable getException(Throwable viewResult) {
+        Throwable exceptionOfInterest = viewResult;
+        if (viewResult instanceof ViewResolutionException && viewResult.getCause() != null) {
+            exceptionOfInterest = viewResult.getCause();
+        }
+        return exceptionOfInterest;
+    }
 
-	protected void renderException(Response resp, Throwable exceptionOfInterest) {
-		// @formatter:off
+    protected void renderException(Response resp, Throwable exceptionOfInterest) {
+        // @formatter:off
 		resp.withStatusCode(StatusCode.InternalServerError)
 			.withStatusMessage(exceptionOfInterest.getMessage())
 			.finaliseHeaders();
 		// @formatter:on
-	}
+    }
 
-	protected void logException(Request req, Throwable exceptionOfInterest) {
-		Logger.error(exceptionOfInterest, "Request %s resulted in an unhandled exception: %s", req.getId(), exceptionOfInterest.getMessage());
-	}
+    protected void logException(Request req, Throwable exceptionOfInterest) {
+        Logger.error(exceptionOfInterest, "Request %s resulted in an unhandled exception: %s", req.getId(), exceptionOfInterest.getMessage());
+    }
 }

@@ -31,35 +31,18 @@ import com.threewks.thundr.request.mock.MockResponse;
 import com.threewks.thundr.route.RouteNotFoundException;
 
 public class RouteNotFoundViewResolverTest {
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
-	private Request req = new MockRequest();
-	private MockResponse resp = new MockResponse();
-	private RouteNotFoundException viewResult = new RouteNotFoundException("");
-	private RouteNotFoundViewResolver resolver = new RouteNotFoundViewResolver();
+    private Request req = new MockRequest();
+    private MockResponse resp = new MockResponse();
+    private RouteNotFoundException viewResult = new RouteNotFoundException("");
+    private HttpStatusExceptionViewResolver delegate = new HttpStatusExceptionViewResolver();
+    private RouteNotFoundViewResolver resolver = new RouteNotFoundViewResolver(delegate);
 
-	@Test
-	public void shouldSendError404() {
-		resolver.resolve(req, resp, viewResult);
-		assertThat(resp.getStatusCode(), is(StatusCode.NotFound));
-	}
-
-	/*
-	 * TODO - v3 - this comes down to error handling
-	 * 
-	 * @Test
-	 * public void shouldThrowViewResolutionExceptionIfSendingErrorFails() {
-	 * thrown.expect(ViewResolutionException.class);
-	 * thrown.expectMessage("Failed to send error status 404");
-	 * MockHttpServletResponse resp = new MockHttpServletResponse() {
-	 * 
-	 * @Override
-	 * public void sendError(int sc) throws IOException {
-	 * throw new IOException("expected");
-	 * }
-	 * };
-	 * resolver.resolve(req, resp, viewResult);
-	 * }
-	 */
+    @Test
+    public void shouldSendError404() {
+        resolver.resolve(req, resp, viewResult);
+        assertThat(resp.getStatusCode(), is(StatusCode.NotFound));
+    }
 }

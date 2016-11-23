@@ -49,56 +49,62 @@ import com.threewks.thundr.view.string.StringViewResolver;
 import jodd.util.MimeTypes;
 
 public class ViewModule extends BaseModule {
-	@Override
-	public void requires(DependencyRegistry dependencyRegistry) {
-		super.requires(dependencyRegistry);
-	}
+    @Override
+    public void requires(DependencyRegistry dependencyRegistry) {
+        super.requires(dependencyRegistry);
+    }
 
-	@Override
-	public void initialise(UpdatableInjectionContext injectionContext) {
-		injectionContext.inject(ViewResolverRegistry.class).as(ViewResolverRegistry.class);
-		injectionContext.inject(ViewNegotiatorRegistryImpl.class).as(ViewNegotiatorRegistry.class);
-		injectionContext.inject(GlobalModel.class).as(GlobalModel.class);
-		injectionContext.inject(ExceptionViewResolver.class).as(ExceptionViewResolver.class);
-		injectionContext.inject(HttpStatusExceptionViewResolver.class).as(HttpStatusExceptionViewResolver.class);
-	}
+    @Override
+    public void initialise(UpdatableInjectionContext injectionContext) {
+        injectionContext.inject(ViewResolverRegistry.class)
+                        .as(ViewResolverRegistry.class);
+        injectionContext.inject(ViewNegotiatorRegistryImpl.class)
+                        .as(ViewNegotiatorRegistry.class);
+        injectionContext.inject(GlobalModel.class)
+                        .as(GlobalModel.class);
+        injectionContext.inject(ExceptionViewResolver.class)
+                        .as(ExceptionViewResolver.class);
+        injectionContext.inject(HttpStatusExceptionViewResolver.class)
+                        .as(HttpStatusExceptionViewResolver.class);
+    }
 
-	@Override
-	public void configure(UpdatableInjectionContext injectionContext) {
-		GlobalModel globalModel = injectionContext.get(GlobalModel.class);
-		globalModel.put("router", injectionContext.get(Router.class));
+    @Override
+    public void configure(UpdatableInjectionContext injectionContext) {
+        GlobalModel globalModel = injectionContext.get(GlobalModel.class);
+        globalModel.put("router", injectionContext.get(Router.class));
 
-		ViewResolverRegistry viewResolverRegistry = injectionContext.get(ViewResolverRegistry.class);
+        ViewResolverRegistry viewResolverRegistry = injectionContext.get(ViewResolverRegistry.class);
 
-		addViewResolvers(viewResolverRegistry, injectionContext, globalModel);
-	}
+        addViewResolvers(viewResolverRegistry, injectionContext, globalModel);
+    }
 
-	protected void addViewResolvers(ViewResolverRegistry viewResolverRegistry, UpdatableInjectionContext injectionContext, GlobalModel globalModel) {
-		Router router = injectionContext.get(Router.class);
-		ViewNegotiatorRegistry viewNegotiatorRegistry = injectionContext.get(ViewNegotiatorRegistry.class);
+    protected void addViewResolvers(ViewResolverRegistry viewResolverRegistry, UpdatableInjectionContext injectionContext, GlobalModel globalModel) {
+        Router router = injectionContext.get(Router.class);
+        ViewNegotiatorRegistry viewNegotiatorRegistry = injectionContext.get(ViewNegotiatorRegistry.class);
 
-		HttpStatusExceptionViewResolver statusViewResolver = injectionContext.get(HttpStatusExceptionViewResolver.class);
-		ExceptionViewResolver exceptionViewResolver = injectionContext.get(ExceptionViewResolver.class);
+        HttpStatusExceptionViewResolver statusViewResolver = injectionContext.get(HttpStatusExceptionViewResolver.class);
+        ExceptionViewResolver exceptionViewResolver = injectionContext.get(ExceptionViewResolver.class);
 
-		NegotiatingViewResolver negotiatingViewResolver = new NegotiatingViewResolver(viewResolverRegistry, viewNegotiatorRegistry);
-		injectionContext.inject(negotiatingViewResolver).as(NegotiatingViewResolver.class);
+        NegotiatingViewResolver negotiatingViewResolver = new NegotiatingViewResolver(viewResolverRegistry, viewNegotiatorRegistry);
+        injectionContext.inject(negotiatingViewResolver)
+                        .as(NegotiatingViewResolver.class);
 
-		GsonBuilder gsonBuilder = injectionContext.get(GsonBuilder.class);
-		// Register built in content negotiators
+        GsonBuilder gsonBuilder = injectionContext.get(GsonBuilder.class);
+        // Register built in content negotiators
 
-		viewNegotiatorRegistry.setDefaultNegotiator(new JsonNegotiator());
-		viewNegotiatorRegistry.addNegotiator(MimeTypes.MIME_APPLICATION_JSON, new JsonNegotiator());
-		viewNegotiatorRegistry.addNegotiator(MimeTypes.MIME_APPLICATION_JAVASCRIPT, new JsonpNegotiator());
+        viewNegotiatorRegistry.setDefaultNegotiator(new JsonNegotiator());
+        viewNegotiatorRegistry.addNegotiator(MimeTypes.MIME_APPLICATION_JSON, new JsonNegotiator());
+        viewNegotiatorRegistry.addNegotiator(MimeTypes.MIME_APPLICATION_JAVASCRIPT, new JsonpNegotiator());
 
-		viewResolverRegistry.addResolver(Throwable.class, exceptionViewResolver);
-		viewResolverRegistry.addResolver(HttpStatusException.class, statusViewResolver);
-		viewResolverRegistry.addResolver(RouteNotFoundException.class, new RouteNotFoundViewResolver());
-		viewResolverRegistry.addResolver(RouteRedirectView.class, new RouteRedirectViewResolver(router));
-		viewResolverRegistry.addResolver(RedirectView.class, new RedirectViewResolver());
-		viewResolverRegistry.addResolver(JsonView.class, new JsonViewResolver(gsonBuilder));
-		viewResolverRegistry.addResolver(JsonpView.class, new JsonpViewResolver(gsonBuilder));
-		viewResolverRegistry.addResolver(FileView.class, new FileViewResolver());
-		viewResolverRegistry.addResolver(StringView.class, new StringViewResolver());
-		viewResolverRegistry.addResolver(NegotiatingView.class, negotiatingViewResolver);
-	}
+        viewResolverRegistry.addResolver(Throwable.class, exceptionViewResolver);
+        viewResolverRegistry.addResolver(HttpStatusException.class, statusViewResolver);
+        viewResolverRegistry.addResolver(RouteNotFoundException.class, new RouteNotFoundViewResolver(statusViewResolver));
+        viewResolverRegistry.addResolver(RouteRedirectView.class, new RouteRedirectViewResolver(router));
+        viewResolverRegistry.addResolver(RedirectView.class, new RedirectViewResolver());
+        viewResolverRegistry.addResolver(JsonView.class, new JsonViewResolver(gsonBuilder));
+        viewResolverRegistry.addResolver(JsonpView.class, new JsonpViewResolver(gsonBuilder));
+        viewResolverRegistry.addResolver(FileView.class, new FileViewResolver());
+        viewResolverRegistry.addResolver(StringView.class, new StringViewResolver());
+        viewResolverRegistry.addResolver(NegotiatingView.class, negotiatingViewResolver);
+    }
 }

@@ -23,15 +23,21 @@ import com.threewks.thundr.route.RouteNotFoundException;
 import com.threewks.thundr.view.ViewResolver;
 
 public class RouteNotFoundViewResolver implements ViewResolver<RouteNotFoundException> {
-	private HttpStatusExceptionViewResolver delegate = new HttpStatusExceptionViewResolver();
+    private HttpStatusExceptionViewResolver delegate = new HttpStatusExceptionViewResolver();
 
-	@Override
-	public void resolve(Request req, Response resp, RouteNotFoundException viewResult) {
-		delegate.resolve(req, resp, viewResult);
-	}
-	
-	@Override
-	public String toString() {
-		return this.getClass().getSimpleName();
-	}
+    public RouteNotFoundViewResolver(HttpStatusExceptionViewResolver delegate) {
+        super();
+        this.delegate = delegate;
+    }
+
+    @Override
+    public void resolve(Request req, Response resp, RouteNotFoundException viewResult) {
+        delegate.resolve(req, resp, viewResult);
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass()
+                   .getSimpleName();
+    }
 }
