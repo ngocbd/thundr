@@ -75,7 +75,7 @@ public class FilterRules {
 		if (ignoreAgentsRegex == null) {
 			ignoreAgentsRegex = ignoreUserAgents.isEmpty() ? "" : ".*(" + StringUtils.join(ignoreUserAgents, "|") + ").*";
 		}
-		return ignoreAgentsRegex.length() == 0 ? false : userAgent.matches(ignoreAgentsRegex);
+		return ignoreAgentsRegex.length() == 0 || userAgent == null ? false : userAgent.matches(ignoreAgentsRegex);
 	}
 
 }

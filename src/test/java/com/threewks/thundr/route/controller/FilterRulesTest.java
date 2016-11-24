@@ -84,4 +84,10 @@ public class FilterRulesTest {
 		assertThat(rules.getIgnoreUserAgents(), hasItem("Stackdriver_terminus_bot"));
 	}
 
+	@Test
+	public void shouldHandleNullUserAgent() {
+		FilterRules rules = new FilterRules().ignoreCommonBots();
+		assertThat(rules.shouldIgnore(req), is(false));
+	}
+
 }
