@@ -17,6 +17,19 @@
  */
 package com.threewks.thundr.injection;
 
+import com.atomicleopard.expressive.Expressive;
+import com.atomicleopard.expressive.collection.Pair;
+import com.atomicleopard.expressive.collection.Triplets;
+import com.threewks.thundr.aop.AdviceRegistry;
+import com.threewks.thundr.aop.AdviceRegistryImpl;
+import com.threewks.thundr.configuration.Environment;
+import com.threewks.thundr.introspection.ClassIntrospector;
+import com.threewks.thundr.introspection.MethodIntrospector;
+import com.threewks.thundr.introspection.ParameterDescription;
+import com.threewks.thundr.introspection.TypeIntrospector;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -31,20 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-
-import com.atomicleopard.expressive.Expressive;
-import com.atomicleopard.expressive.collection.Pair;
-import com.atomicleopard.expressive.collection.Triplets;
-import com.threewks.thundr.aop.AdviceRegistry;
-import com.threewks.thundr.aop.AdviceRegistryImpl;
-import com.threewks.thundr.configuration.Environment;
-import com.threewks.thundr.introspection.ClassIntrospector;
-import com.threewks.thundr.introspection.MethodIntrospector;
-import com.threewks.thundr.introspection.ParameterDescription;
-import com.threewks.thundr.introspection.TypeIntrospector;
 
 public class InjectionContextImpl implements UpdatableInjectionContext {
 	private static final String ENVIRONMENT_SEPARATOR = "%";
@@ -68,18 +67,28 @@ public class InjectionContextImpl implements UpdatableInjectionContext {
 	}
 
 	@Override
+	public <T> void injectAsSelf(Class<T> type) {
+		inject(type).asSelf();
+	}
+
+	@Override
 	public <T> InjectorBuilder<T> inject(Class<T> type) {
 
 		if (!TypeIntrospector.isABasicType(type) && (type.isInterface() || Modifier.isAbstract(type.getModifiers()))) {
 			throw new InjectionException("Unable to inject the type '%s' - you cannot inject interfaces or abstract classes", type.getName());
 		}
 
-		return new InjectorBuilder<T>(this, type);
+		return new InjectorBuilder<>(this, type);
+	}
+
+	@Override
+	public <T> void injectAsSelf(T instance) {
+		inject(instance).asSelf();
 	}
 
 	@Override
 	public <T> InjectorBuilder<T> inject(T instance) {
-		return new InjectorBuilder<T>(this, instance);
+		return new InjectorBuilder<>(this, instance);
 	}
 
 	@Override

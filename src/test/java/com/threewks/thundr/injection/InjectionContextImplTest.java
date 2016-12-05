@@ -17,9 +17,16 @@
  */
 package com.threewks.thundr.injection;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
+import com.atomicleopard.expressive.Cast;
+import com.atomicleopard.expressive.Expressive;
+import com.threewks.thundr.aop.AdviceRegistry;
+import com.threewks.thundr.aop.BaseAdvice;
+import com.threewks.thundr.configuration.Environment;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -35,17 +42,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import com.atomicleopard.expressive.Cast;
-import com.atomicleopard.expressive.Expressive;
-import com.threewks.thundr.aop.AdviceRegistry;
-import com.threewks.thundr.aop.BaseAdvice;
-import com.threewks.thundr.configuration.Environment;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class InjectionContextImplTest {
 	@Rule
@@ -92,6 +91,13 @@ public class InjectionContextImplTest {
 	}
 
 	@Test
+	public void shouldInjectAsSelfUsingInstance() {
+		context.injectAsSelf("String");
+		assertThat(context.get(String.class, "value1"), is("String"));
+	}
+
+
+	@Test
 	public void shouldInjectUsingNamedInstance() {
 		context.inject("String").named("value1").as(String.class);
 		context.inject("Another String").named("value2").as(String.class);
@@ -99,6 +105,24 @@ public class InjectionContextImplTest {
 		assertThat(context.get(String.class, "value1"), is("String"));
 		assertThat(context.get(String.class, "value2"), is("Another String"));
 		assertThat(context.get(String.class, "value3"), is("One More String"));
+	}
+
+	@Test
+	public void shouldInjectAsSelfUsingNamedInstance() {
+		context.inject("String").named("value1").asSelf();
+		context.inject("Another String").named("value2").asSelf();
+		context.inject("One More String").asSelf();
+		assertThat(context.get(String.class, "value1"), is("String"));
+		assertThat(context.get(String.class, "value2"), is("Another String"));
+		assertThat(context.get(String.class, "value3"), is("One More String"));
+	}
+
+	@Test
+	public void shouldInjectAsSelfByType() {
+		context.injectAsSelf(Date.class);
+		Date firstDate = context.get(Date.class);
+		Date secondDate = context.get(Date.class);
+		assertThat(firstDate, is(sameInstance(secondDate)));
 	}
 
 	@Test

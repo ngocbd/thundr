@@ -51,6 +51,12 @@ public class InjectorBuilder<T> {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public final void asSelf() {
+		Class<T> instanceType = type == null ? (Class<T>) instance.getClass() : type;
+		as(instanceType);
+	}
+
 	@SafeVarargs
 	public final void as(Class<? super T>... interfaceTypes) {
 		for (Class<? super T> interfaceType : interfaceTypes) {
