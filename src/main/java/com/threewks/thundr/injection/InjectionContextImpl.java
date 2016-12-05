@@ -68,8 +68,10 @@ public class InjectionContextImpl implements UpdatableInjectionContext {
 	}
 
 	@Override
-	public <T> void injectAsSelf(Class<T> type) {
-		inject(type).asSelf();
+	public void injectAsSelf(Class<?>... types) {
+		for (Class<?> type : types) {
+			inject(type).asSelf();
+		}
 	}
 
 	@Override
@@ -83,8 +85,10 @@ public class InjectionContextImpl implements UpdatableInjectionContext {
 	}
 
 	@Override
-	public <T> void injectAsSelf(T instance) {
-		inject(instance).asSelf();
+	public void injectAsSelf(Object... instances) {
+		for (Object instance : instances) {
+			inject(instance).asSelf();
+		}
 	}
 
 	@Override

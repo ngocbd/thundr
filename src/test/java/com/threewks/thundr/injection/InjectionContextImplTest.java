@@ -93,8 +93,9 @@ public class InjectionContextImplTest {
 
 	@Test
 	public void shouldInjectAsSelfUsingInstance() {
-		context.injectAsSelf("String");
-		assertThat(context.get(String.class, "value1"), is("String"));
+		context.injectAsSelf("String", 199);
+		assertThat(context.get(String.class), is("String"));
+		assertThat(context.get(Integer.class), is(199));
 	}
 
 
@@ -120,10 +121,9 @@ public class InjectionContextImplTest {
 
 	@Test
 	public void shouldInjectAsSelfByType() {
-		context.injectAsSelf(Date.class);
-		Date firstDate = context.get(Date.class);
-		Date secondDate = context.get(Date.class);
-		assertThat(firstDate, is(sameInstance(secondDate)));
+		context.injectAsSelf(Date.class, TestClass.class);
+		assertThat(context.get(Date.class), notNullValue());
+		assertThat(context.get(TestClass.class).getConstructorCalled(), is(0));
 	}
 
 	@Test
