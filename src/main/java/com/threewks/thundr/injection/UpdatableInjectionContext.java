@@ -26,4 +26,5 @@ public interface UpdatableInjectionContext extends InjectionContext {
 	<T> void injectAsSelf(T instance);
 
 	<T> InjectorBuilder<T> inject(T instance);
+
 }
