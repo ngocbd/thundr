@@ -325,10 +325,10 @@ public class InjectionContextImplTest {
 		assertThat(firstDate, sameInstance(date));
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void shouldNotReturnADifferentNamedInstanceForBasicTypes() {
-		List<Class> types = Expressive.<Class>list(String.class, int.class, Integer.class, short.class, Short.class, long.class, Long.class, float.class, Float.class, double.class, Double.class,
+		List<Class> types = Expressive.<Class> list(String.class, int.class, Integer.class, short.class, Short.class, long.class, Long.class, float.class, Float.class, double.class, Double.class,
 				byte.class, Byte.class, char.class, Character.class);
 		for (Class type : types) {
 			String name = type.getSimpleName();

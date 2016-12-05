@@ -79,7 +79,7 @@ public class InjectionContextImpl implements UpdatableInjectionContext {
 			throw new InjectionException("Unable to inject the type '%s' - you cannot inject interfaces or abstract classes", type.getName());
 		}
 
-		return new InjectorBuilder<>(this, type);
+		return new InjectorBuilder<T>(this, type);
 	}
 
 	@Override
@@ -89,7 +89,7 @@ public class InjectionContextImpl implements UpdatableInjectionContext {
 
 	@Override
 	public <T> InjectorBuilder<T> inject(T instance) {
-		return new InjectorBuilder<>(this, instance);
+		return new InjectorBuilder<T>(this, instance);
 	}
 
 	@Override
