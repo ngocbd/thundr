@@ -92,6 +92,14 @@ public class InjectionContextImplTest {
 	}
 
 	@Test
+	public void shouldInjectAsSelfUsingInstance() {
+		context.injectAsSelf("String", 199);
+		assertThat(context.get(String.class), is("String"));
+		assertThat(context.get(Integer.class), is(199));
+	}
+
+
+	@Test
 	public void shouldInjectUsingNamedInstance() {
 		context.inject("String").named("value1").as(String.class);
 		context.inject("Another String").named("value2").as(String.class);
@@ -99,6 +107,23 @@ public class InjectionContextImplTest {
 		assertThat(context.get(String.class, "value1"), is("String"));
 		assertThat(context.get(String.class, "value2"), is("Another String"));
 		assertThat(context.get(String.class, "value3"), is("One More String"));
+	}
+
+	@Test
+	public void shouldInjectAsSelfUsingNamedInstance() {
+		context.inject("String").named("value1").asSelf();
+		context.inject("Another String").named("value2").asSelf();
+		context.inject("One More String").asSelf();
+		assertThat(context.get(String.class, "value1"), is("String"));
+		assertThat(context.get(String.class, "value2"), is("Another String"));
+		assertThat(context.get(String.class, "value3"), is("One More String"));
+	}
+
+	@Test
+	public void shouldInjectAsSelfByType() {
+		context.injectAsSelf(Date.class, TestClass.class);
+		assertThat(context.get(Date.class), notNullValue());
+		assertThat(context.get(TestClass.class).getConstructorCalled(), is(0));
 	}
 
 	@Test

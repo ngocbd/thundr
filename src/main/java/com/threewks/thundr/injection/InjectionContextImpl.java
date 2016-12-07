@@ -68,6 +68,13 @@ public class InjectionContextImpl implements UpdatableInjectionContext {
 	}
 
 	@Override
+	public void injectAsSelf(Class<?>... types) {
+		for (Class<?> type : types) {
+			inject(type).asSelf();
+		}
+	}
+
+	@Override
 	public <T> InjectorBuilder<T> inject(Class<T> type) {
 
 		if (!TypeIntrospector.isABasicType(type) && (type.isInterface() || Modifier.isAbstract(type.getModifiers()))) {
@@ -75,6 +82,13 @@ public class InjectionContextImpl implements UpdatableInjectionContext {
 		}
 
 		return new InjectorBuilder<T>(this, type);
+	}
+
+	@Override
+	public void injectAsSelf(Object... instances) {
+		for (Object instance : instances) {
+			inject(instance).asSelf();
+		}
 	}
 
 	@Override

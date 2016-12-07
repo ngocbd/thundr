@@ -18,7 +18,13 @@
 package com.threewks.thundr.injection;
 
 public interface UpdatableInjectionContext extends InjectionContext {
-	public <T> InjectorBuilder<T> inject(Class<T> type);
 
-	public <T> InjectorBuilder<T> inject(T instance);
+	void injectAsSelf(Class<?>... types);
+
+	<T> InjectorBuilder<T> inject(Class<T> type);
+
+	void injectAsSelf(Object... instances);
+
+	<T> InjectorBuilder<T> inject(T instance);
+
 }
